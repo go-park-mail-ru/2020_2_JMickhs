@@ -1,0 +1,129 @@
+basePath: /
+consumes:
+- application/json
+info:
+  description: Swagger spec.
+  title: Golang service API for HotelScanner
+  version: 1.0.0
+paths:
+  /api/v1/get_current_user:
+    get:
+      description: Get current safe user
+      operationId: safeUser
+      responses:
+        "200":
+          $ref: '#/responses/safeUser'
+      tags:
+      - GetCurrUser
+  /api/v1/getAccInfo:
+    get:
+      description: Get info abous user by his nickname
+      operationId: get
+      responses:
+        "200":
+          $ref: '#/responses/safeUser'
+      tags:
+      - getAccInfo
+  /api/v1/hotel:
+    get:
+      description: |-
+        Get single hotel by id
+        pattern: '{id:[0-9]+}''
+      operationId: onehotel
+      responses:
+        "200":
+          $ref: '#/responses/Hotel'
+      tags:
+      - GetHotel
+  /api/v1/hotels:
+    get:
+      description: GetList of hotels
+      operationId: list
+      responses:
+        "200":
+          $ref: '#/responses/Hotel'
+      tags:
+      - GetHotels
+  /api/v1/signin:
+    post:
+      description: user auth with coockie
+      operationId: auth
+      responses:
+        "200":
+          $ref: '#/responses/user'
+      tags:
+      - signin
+  /api/v1/signout:
+    get:
+      description: sign out current user and delete cookie session
+      operationId: out
+      tags:
+      - SignOut
+  /api/v1/signup:
+    post:
+      description: Creates a new User
+      operationId: signup
+      responses:
+        "200":
+          $ref: '#/responses/user'
+      tags:
+      - signup
+  /api/v1/updateAvatar:
+    put:
+      description: Update Avatar
+      operationId: update
+      tags:
+      - updateAvatar
+  /api/v1/updatePassword:
+    put:
+      description: update password
+      operationId: update
+      tags:
+      - updatePassword
+  /api/v1/updateUser:
+    put:
+      description: Get data from form  which need to change and change user data
+      operationId: update
+      tags:
+      - updateUser
+produces:
+- application/json
+responses:
+  Hotel:
+    headers:
+      Description:
+        type: string
+      ID:
+        format: int64
+        type: integer
+      Image:
+        type: string
+      Name:
+        type: string
+  safeUser:
+    headers:
+      avatar:
+        type: string
+      email:
+        type: string
+      id:
+        format: int64
+        type: integer
+      username:
+        type: string
+  user:
+    headers:
+      avatar:
+        type: string
+      email:
+        type: string
+      id:
+        format: int64
+        type: integer
+      password:
+        type: string
+      username:
+        type: string
+schemes:
+- http
+swagger: "2.0"
