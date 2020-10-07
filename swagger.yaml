@@ -1,0 +1,255 @@
+basePath: /
+consumes:
+- application/json
+- multipart/form-data
+definitions:
+  File:
+    allOf:
+    - properties:
+        Close:
+          type: string
+      type: object
+    - type: object
+    - type: object
+    - type: object
+    description: |-
+      Its contents may be either stored in memory or on disk.
+      If stored on disk, the File's underlying concrete type will be an *os.File.
+    title: File is an interface to access the file part of a multipart message.
+    type: object
+    x-go-package: mime/multipart
+  Hotel:
+    properties:
+      description:
+        type: string
+        x-go-name: Description
+      id:
+        format: int64
+        type: integer
+        x-go-name: ID
+      image:
+        type: string
+        x-go-name: Image
+      name:
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models
+  UpdateAvatar:
+    properties:
+      avatar:
+        $ref: '#/definitions/File'
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/models
+  UpdatePassword:
+    properties:
+      newpassword:
+        type: string
+        x-go-name: NewPassword
+      oldpassword:
+        type: string
+        x-go-name: OldPassword
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/models
+  UpdateUser:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/models
+  UserAuth:
+    properties:
+      password:
+        type: string
+        x-go-name: Password
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/models
+  UserRegistation:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+      password:
+        type: string
+        x-go-name: Password
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/models
+info:
+  description: Swagger spec.
+  title: Golang service API for HotelScanner
+  version: 1.0.0
+paths:
+  /api/v1/get_current_user:
+    get:
+      description: Get current safe user
+      operationId: GetCurrentUser
+      responses:
+        "200":
+          $ref: '#/responses/safeUser'
+      tags:
+      - User
+  /api/v1/getAccInfo:
+    get:
+      description: Get info abous user by his nickname
+      operationId: GetAccInfo
+      responses:
+        "200":
+          $ref: '#/responses/safeUser'
+      tags:
+      - User
+  /api/v1/hotel/{id}:
+    get:
+      description: Get single hotel by id
+      operationId: onehotel
+      parameters:
+      - description: the id of hotel to get from database
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+        x-go-name: ID
+      responses:
+        "200":
+          $ref: '#/responses/Hotel'
+      tags:
+      - hotels
+  /api/v1/hotels:
+    get:
+      description: GetList of hotels
+      operationId: listHotel
+      responses:
+        "200":
+          $ref: '#/responses/listHotel'
+      tags:
+      - hotels
+  /api/v1/signin:
+    post:
+      description: user auth with coockie
+      operationId: signIn
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UserAuth'
+      responses:
+        "200":
+          $ref: '#/responses/safeUser'
+      tags:
+      - User
+  /api/v1/signout:
+    post:
+      description: sign out current user and delete cookie session
+      operationId: SignOut
+      tags:
+      - User
+  /api/v1/signup:
+    post:
+      description: Creates a new User
+      operationId: signUp
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UserRegistation'
+      responses:
+        "200":
+          $ref: '#/responses/safeUser'
+      tags:
+      - User
+  /api/v1/updateAvatar:
+    put:
+      description: Update Avatar
+      operationId: updateAvatar
+      parameters:
+      - description: avatar in *.jpg *.jpeg *.png format
+        in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UpdateAvatar'
+      tags:
+      - User
+  /api/v1/updatePassword:
+    put:
+      description: update password
+      operationId: updatePassword
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UpdatePassword'
+      responses:
+        "409":
+          $ref: '#/responses/conflict'
+      tags:
+      - User
+  /api/v1/updateUser:
+    put:
+      description: Get data from form  which need to change and change user data
+      operationId: updateUser
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UpdateUser'
+      tags:
+      - User
+produces:
+- application/json
+responses:
+  Hotel:
+    headers:
+      description:
+        type: string
+      id:
+        format: int64
+        type: integer
+      image:
+        type: string
+      name:
+        type: string
+  conflict:
+    description: wrong old password
+  listHotel:
+    headers:
+      Body:
+        items:
+          $ref: '#/definitions/Hotel'
+        type: array
+  safeUser:
+    headers:
+      avatar:
+        type: string
+      email:
+        type: string
+      id:
+        format: int64
+        type: integer
+      username:
+        type: string
+  user:
+    headers:
+      avatar:
+        type: string
+      email:
+        type: string
+      id:
+        format: int64
+        type: integer
+      password:
+        type: string
+      username:
+        type: string
+schemes:
+- http
+swagger: "2.0"
