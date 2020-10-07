@@ -4,12 +4,15 @@ go 1.15
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/bxcodec/faker/v3 v3.5.0 // indirect
+	github.com/alicebob/miniredis/v2 v2.13.3 // indirect
+	github.com/bxcodec/faker/v3 v3.5.0
+	github.com/elliotchance/redismock v1.5.3 // indirect
 	github.com/go-openapi/runtime v0.19.22
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible // indirect
 	github.com/go-playground/validator/v10 v10.3.0 // indirect
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-redis/redis/v8 v8.1.3
+	github.com/golang/mock v1.4.4 // indirect
 	github.com/gomodule/redigo v1.8.2
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/mux v1.8.0

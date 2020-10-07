@@ -8,6 +8,7 @@
 //
 //  Consumes:
 //  - application/json
+//  - multipart/form-data
 //
 //  Produces:
 //	- application/json
@@ -111,7 +112,7 @@ func main() {
 	repSes := sessionsRepository.NewSessionsUserRepository(store)
 
 	u := userUsecase.NewUserUsecase(&rep)
-	uHot := hotelUsecase.NewHotelUsecase(&repHot, configs.StaticPath)
+	uHot := hotelUsecase.NewHotelUsecase(&repHot)
 	uSes := sessionsUseCase.NewSessionsUsecase(&repSes)
 
 	var log = logrus.New()

@@ -7,13 +7,11 @@ import (
 
 type HotelUseCase struct {
 	hotelRepo     hotels.Repository
-	staticImgPath string
 }
 
-func NewHotelUsecase(r hotels.Repository, path string) *HotelUseCase {
+func NewHotelUsecase(r hotels.Repository) *HotelUseCase {
 	return &HotelUseCase{
 		hotelRepo:     r,
-		staticImgPath: path,
 	}
 }
 

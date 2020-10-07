@@ -1,7 +1,6 @@
 package permissions
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -11,7 +10,7 @@ import (
 func generateCsrfLogic(w http.ResponseWriter) {
 	csrf := uuid.NewV4()
 
-	timeDelta := time.Now().Add(time.Hour * 24 * 30)
+	timeDelta := time.Now().Add(time.Hour * 2)
 	cookie1 := &http.Cookie{Name: "csrf", Value: csrf.String(), Path: "/", HttpOnly: true, Expires: timeDelta}
 
 	http.SetCookie(w, cookie1)
@@ -31,7 +30,6 @@ func CheckCSRF(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			csrf := r.Header.Get("X-Csrf-Token")
-			fmt.Println(csrf, "csrf tok")
 			csrfCookie, err := r.Cookie("csrf")
 
 			if err != nil || csrf == "" || csrfCookie.Value == "" || csrfCookie.Value != csrf {

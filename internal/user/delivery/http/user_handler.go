@@ -3,7 +3,6 @@ package userDelivery
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 	"net/http"
 	"strings"
@@ -35,14 +34,14 @@ func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, lg *log
 	r.HandleFunc("/api/v1/signup", permissions.SetCSRF(handler.Registration)).Methods("POST")
 	r.HandleFunc("/api/v1/signin", permissions.SetCSRF(handler.Auth)).Methods("POST")
 	r.HandleFunc("/api/v1/get_current_user", permissions.SetCSRF(handler.GetCurrentUser)).Methods("GET")
-	r.HandleFunc("/api/v1/signout", handler.SignOut).Methods("POST")
+	r.HandleFunc("/api/v1/signout", permissions.SetCSRF(handler.SignOut)).Methods("POST")
 	r.HandleFunc("/api/v1/updateUser", permissions.CheckCSRF(handler.UpdateUser)).Methods("PUT")
 	r.HandleFunc("/api/v1/updateAvatar", permissions.CheckCSRF(handler.UpdateAvatar)).Methods("PUT")
 	r.HandleFunc("/api/v1/updatePassword", permissions.CheckCSRF(handler.updatePassword)).Methods("PUT")
 	r.HandleFunc("/api/v1/getAccInfo", permissions.SetCSRF(handler.getAccInfo)).Methods("GET")
 }
 
-// swagger:route GET /api/v1/getAccInfo getAccInfo get
+// swagger:route GET /api/v1/getAccInfo User GetAccInfo
 // Get info abous user by his nickname
 // responses:
 //  200: safeUser
@@ -73,21 +72,28 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// swagger:route PUT /api/v1/updateAvatar updateAvatar update
+// swagger:route PUT /api/v1/updateAvatar User updateAvatar
 // Update Avatar
 func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(32 << 20)
 	file, info, err := r.FormFile("avatar")
+
 	if err != nil {
 		u.log.Error(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	fileType := strings.Split(info.Header.Get("Content-Type"),"/")
 
 	defer file.Close()
-	usr := r.Context().Value("User").(models.User)
+	usr, ok := r.Context().Value("User").(models.User)
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 	extension := fileType[1]
+
 	if (extension != "jpg" && extension != "png" && extension != "jpeg"){
 		u.log.Error(errors.New("bad type of file to add in static"))
 		w.WriteHeader(http.StatusBadRequest)
@@ -103,20 +109,34 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route PUT /api/v1/updatePassword updatePassword update
+// swagger:route PUT /api/v1/updatePassword User updatePassword
 // update password
+// responses:
+// 409: conflict
 func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 
-	var user models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
+	var twoPass models.UpdatePassword
+	err := json.NewDecoder(r.Body).Decode(&twoPass)
 	if err != nil {
 		u.log.Error(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	fmt.Println(user.ID)
-	fmt.Println(user.Password)
-	err = u.UserUseCase.UpdatePassword(user)
+
+	usr, ok := r.Context().Value("User").(models.User)
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	err = u.UserUseCase.ComparePassword(twoPass.OldPassword,usr.Password)
+	if err != nil {
+		u.log.Info(errors.New("users old password incorrect"))
+		w.WriteHeader(http.StatusConflict)
+		return
+	}
+	usr.Password = twoPass.NewPassword
+	err = u.UserUseCase.UpdatePassword(usr)
 	if err != nil {
 		u.log.Error(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -124,7 +144,7 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route PUT /api/v1/updateUser updateUser update
+// swagger:route PUT /api/v1/updateUser User updateUser
 // Get data from form  which need to change and change user data
 func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
@@ -135,6 +155,14 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	usr,ok := r.Context().Value("User").(models.User)
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	user.ID = usr.ID
+
 	err = u.UserUseCase.UpdateUser(user)
 	if err != nil {
 		u.log.Error(err.Error())
@@ -143,10 +171,10 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route POST /api/v1/signup signup signup
+// swagger:route POST /api/v1/signup User signUp
 // Creates a new User
 // responses:
-//  200: user
+//  200: safeUser
 func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
@@ -180,15 +208,16 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 		Expires:  time.Now().Add( configs.CookieLifeTime),
+
 	})
 
 	err = json.NewEncoder(w).Encode(safeUser)
 }
 
-// swagger:route POST /api/v1/signin signin auth
+// swagger:route POST /api/v1/signin User signIn
 // user auth with coockie
 // responses:
-//  200: user
+//  200: safeUser
 func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 
@@ -228,18 +257,22 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 		Expires:  time.Now().Add( configs.CookieLifeTime),
-	})
 
+	})
 	err = json.NewEncoder(w).Encode(safeUser)
 }
 
-// swagger:route GET /api/v1/get_current_user GetCurrUser safeUser
+// swagger:route GET /api/v1/get_current_user User GetCurrentUser
 // Get current safe user
 // responses:
 //  200: safeUser
 func (u *UserHandler) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
-	usr := r.Context().Value("User").(models.User)
-	if checkEmpty(usr) {
+	usr, ok := r.Context().Value("User").(models.User)
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	if u.UserUseCase.CheckEmpty(usr) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -253,21 +286,22 @@ func (u *UserHandler) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route GET /api/v1/signout SignOut out
+// swagger:route POST /api/v1/signout User SignOut
 // sign out current user and delete cookie session
 func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 
 	c, _ := r.Cookie("session_token")
-	fmt.Println(c.Value)
 	if c != nil {
-		u.SessionsUseCase.DeleteSession(c.Value)
+
+		err := u.SessionsUseCase.DeleteSession(c.Value)
+		if err != nil {
+			u.log.Error(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		c.Expires = time.Now().AddDate(0, 0, -1)
 		c.Path = "/"
 		http.SetCookie(w, c)
 	}
 }
 
-func checkEmpty(usr models.User) bool {
-	empty := models.User{}
-	return usr == empty
-}
