@@ -1,6 +1,7 @@
 package userUsecase
 
 import (
+	"errors"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 	"io"
 	"mime/multipart"
@@ -35,7 +36,11 @@ func (u *userUseCase) Add(user models.User) (models.User, error) {
 }
 
 func (u *userUseCase) GetUserByID(ID int) (models.User, error) {
-	return u.userRepo.GetUserByID(ID)
+	user, err := u.userRepo.GetUserByID(ID)
+	if u.CheckEmpty(user){
+		return user, errors.New("User doesn't exist")
+	}
+	return user,err
 }
 
 func (u *userUseCase) SetDefaultAvatar(user *models.User) error {
