@@ -23,7 +23,7 @@ const ApiVersion = "api/v1"
 const StaticPath = "static/img"
 const Port  = ":8080"
 const CookieLifeTime = time.Hour*24*30
-const BaseAvatarPath = "static/img/defaultAvatar.jpg"
+const BaseAvatarPath = "static/img/defaultAvatar.png"
 
 func Init() {
 

@@ -26,10 +26,10 @@ func NewHotelHandler(r *mux.Router, hs hotels.Usecase, lg *logrus.Logger) {
 	r.HandleFunc("/api/v1/hotel/{id:[0-9]+}",  permissions.SetCSRF(handler.Hotel)).Methods("GET")
 }
 
-// swagger:route GET /api/v1/hotels GetHotels list
+// swagger:route GET /api/v1/hotels hotels listHotel
 // GetList of hotels
 // responses:
-//  200: Hotel
+//  200: listHotel
 func (hh *HotelHandler) ListHotels(w http.ResponseWriter, r *http.Request) {
 
 	hotels, err := hh.HotelUseCase.GetHotels()
@@ -47,9 +47,8 @@ func (hh *HotelHandler) ListHotels(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route GET /api/v1/hotel GetHotel onehotel
+// swagger:route GET /api/v1/hotel/{id} hotels onehotel
 // Get single hotel by id
-// pattern: '{id:[0-9]+}''
 // responses:
 //  200: Hotel
 func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {

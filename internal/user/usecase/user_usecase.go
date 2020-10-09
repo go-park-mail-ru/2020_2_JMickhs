@@ -38,8 +38,9 @@ func (u *userUseCase) GetUserByID(ID int) (models.User, error) {
 	return u.userRepo.GetUserByID(ID)
 }
 
-func (u *userUseCase) SetDefaultAvatar(user *models.User) {
+func (u *userUseCase) SetDefaultAvatar(user *models.User) error {
 	user.Avatar = configs.BaseAvatarPath
+	return nil
 }
 
 func (u *userUseCase) UpdateUser(user models.User) error {
@@ -72,4 +73,9 @@ func (u *userUseCase) UploadAvatar(file multipart.File, fileType string ,user *m
 
 func (u *userUseCase) ComparePassword(passIn string, passDest string) error {
 	return bcrypt.CompareHashAndPassword([]byte(passDest), []byte(passIn))
+}
+
+func (u *userUseCase) CheckEmpty(usr models.User) bool {
+	empty := models.User{}
+	return usr == empty
 }
