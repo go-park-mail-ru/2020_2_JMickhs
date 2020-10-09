@@ -22,17 +22,20 @@ func NewHotelHandler(r *mux.Router, hs hotels.Usecase, lg *logrus.Logger) {
 		log:          lg,
 	}
 
-	r.HandleFunc("/api/v1/hotels",  permissions.SetCSRF(handler.ListHotels)).Methods("GET")
 	r.HandleFunc("/api/v1/hotel/{id:[0-9]+}",  permissions.SetCSRF(handler.Hotel)).Methods("GET")
+	r.Path("/api/v1/hotel").Queries("from", "{?*[0-9]}").HandlerFunc( permissions.SetCSRF(handler.ListHotels)).Methods("GET")
 }
 
-// swagger:route GET /api/v1/hotels hotel hotels
+// swagger:route GET /api/v1/hotel hotel hotels
 // GetList of hotels
 // responses:
 //  200: hotels
 func (hh *HotelHandler) ListHotels(w http.ResponseWriter, r *http.Request) {
 
-	hotels, err := hh.HotelUseCase.GetHotels()
+	from := r.FormValue("from")
+	startId, err := strconv.Atoi(from)
+
+	hotels, err := hh.HotelUseCase.GetHotels(startId)
 
 	if err != nil {
 		responses.SendErrorResponse(w,http.StatusInternalServerError,err)

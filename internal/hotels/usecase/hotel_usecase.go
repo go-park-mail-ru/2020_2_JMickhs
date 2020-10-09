@@ -15,8 +15,8 @@ func NewHotelUsecase(r hotels.Repository) *HotelUseCase {
 	}
 }
 
-func (p *HotelUseCase) GetHotels() ([]models.Hotel, error) {
-	return p.hotelRepo.GetHotels()
+func (p *HotelUseCase) GetHotels(StartID int) ([]models.Hotel, error) {
+	return p.hotelRepo.GetHotels(StartID)
 }
 func (p *HotelUseCase) GetHotelByID(ID int) (models.Hotel, error) {
 	return p.hotelRepo.GetHotelByID(ID)
