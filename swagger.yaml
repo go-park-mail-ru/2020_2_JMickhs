@@ -89,6 +89,23 @@ info:
   title: Golang service API for HotelScanner
   version: 1.0.0
 paths:
+  /api/v1/hotel:
+    get:
+      description: GetList of hotels by {?*[0-9]+} pattern
+      operationId: hotels
+      parameters:
+      - description: the start ID to get hotels
+        format: int64
+        in: query
+        name: from
+        required: true
+        type: integer
+        x-go-name: ID
+      responses:
+        "200":
+          $ref: '#/responses/hotels'
+      tags:
+      - hotel
   /api/v1/hotel/{id}:
     get:
       description: Get single hotel by id
@@ -104,15 +121,6 @@ paths:
       responses:
         "200":
           $ref: '#/responses/Hotel'
-      tags:
-      - hotel
-  /api/v1/hotels:
-    get:
-      description: GetList of hotels
-      operationId: hotels
-      responses:
-        "200":
-          $ref: '#/responses/hotels'
       tags:
       - hotel
   /api/v1/user:
