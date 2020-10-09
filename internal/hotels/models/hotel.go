@@ -8,7 +8,7 @@ type Hotel struct {
 	Image       string `json:"image""`
 }
 
-// swagger:parameters onehotel
+// swagger:parameters hotel
 type hotelIDParameterWrapper struct {
 	// the id of hotel to get from database
 	// in: path
@@ -16,7 +16,7 @@ type hotelIDParameterWrapper struct {
 	ID int `json:"id"`
 }
 
-// swagger:response listHotel
+// swagger:response hotels
 type hotelListWrapper struct{
 	Body []Hotel
 }

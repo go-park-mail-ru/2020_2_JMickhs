@@ -33,17 +33,17 @@ func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, lg *log
 		log:             lg,
 	}
 
-	r.HandleFunc("/api/v1/signup", permissions.SetCSRF(handler.Registration)).Methods("POST")
-	r.HandleFunc("/api/v1/signin", permissions.SetCSRF(handler.Auth)).Methods("POST")
+	r.HandleFunc("/api/v1/user/signup", permissions.SetCSRF(handler.Registration)).Methods("POST")
+	r.HandleFunc("/api/v1/user/signin", permissions.SetCSRF(handler.Auth)).Methods("POST")
 	r.HandleFunc("/api/v1/user", permissions.SetCSRF(handler.UserHandler)).Methods("GET")
-	r.HandleFunc("/api/v1/signout", permissions.SetCSRF(handler.SignOut)).Methods("POST")
-	r.HandleFunc("/api/v1/updateUser", permissions.CheckCSRF(handler.UpdateUser)).Methods("PUT")
-	r.HandleFunc("/api/v1/updateAvatar", permissions.CheckCSRF(handler.UpdateAvatar)).Methods("PUT")
-	r.HandleFunc("/api/v1/updatePassword", permissions.CheckCSRF(handler.updatePassword)).Methods("PUT")
+	r.HandleFunc("/api/v1/user/signout", permissions.SetCSRF(handler.SignOut)).Methods("POST")
+	r.HandleFunc("/api/v1/user/credentials", permissions.CheckCSRF(handler.UpdateUser)).Methods("PUT")
+	r.HandleFunc("/api/v1/user/avatar", permissions.CheckCSRF(handler.UpdateAvatar)).Methods("PUT")
+	r.HandleFunc("/api/v1/user/password", permissions.CheckCSRF(handler.updatePassword)).Methods("PUT")
 	r.HandleFunc("/api/v1/user/{id:[0-9]+}", permissions.SetCSRF(handler.getAccInfo)).Methods("GET")
 }
 
-// swagger:route GET /api/v1/user/{id}  User GetAccInfo
+// swagger:route GET /api/v1/user/{id}  User userById
 // Get info abous user by his id
 // responses:
 //  200: safeUser
@@ -70,7 +70,7 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 	responses.SendOkResponse(w,safeUser)
 }
 
-// swagger:route PUT /api/v1/updateAvatar User updateAvatar
+// swagger:route PUT /api/v1/user/avatar User avatar
 // Update Avatar
 func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(32 << 20)
@@ -108,7 +108,7 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route PUT /api/v1/updatePassword User updatePassword
+// swagger:route PUT /api/v1/user/password User password
 // update password
 // responses:
 // 409: conflict
@@ -143,7 +143,7 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route PUT /api/v1/updateUser User updateUser
+// swagger:route PUT /api/v1/user/information User credentials
 // Get data from form  which need to change and change user data
 func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
@@ -170,7 +170,7 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route POST /api/v1/signup User signUp
+// swagger:route POST /api/v1/user/signup User signup
 // Creates a new User
 // responses:
 //  200: safeUser
@@ -212,7 +212,7 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	responses.SendOkResponse(w, safeUser)
 }
 
-// swagger:route POST /api/v1/signin User signIn
+// swagger:route POST /api/v1/user/signin User signin
 // user auth with coockie
 // responses:
 //  200: safeUser
@@ -260,7 +260,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 	responses.SendOkResponse(w, safeUser)
 }
 
-// swagger:route GET /api/v1/get_current_user User GetCurrentUser
+// swagger:route GET /api/v1/user User user
 // Get current safe user
 // responses:
 //  200: safeUser
@@ -279,7 +279,7 @@ func (u *UserHandler) UserHandler(w http.ResponseWriter, r *http.Request) {
 	responses.SendOkResponse(w, safeUser)
 }
 
-// swagger:route POST /api/v1/signout User SignOut
+// swagger:route POST /api/v1/user/signout User signout
 // sign out current user and delete cookie session
 func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 
