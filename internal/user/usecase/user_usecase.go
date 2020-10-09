@@ -7,6 +7,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/user"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/models"
@@ -64,9 +65,10 @@ func (u *userUseCase) UpdateAvatar(user models.User) error {
 	return u.userRepo.UpdateAvatar(user)
 }
 
-func (u *userUseCase) UploadAvatar(file multipart.File, fileType string ,user *models.User) error {
+func (u *userUseCase) UploadAvatar(file multipart.File, header string ,user *models.User) error {
 	filename := uuid.NewV4().String()
-	user.Avatar = configs.StaticPath + "/" +  filename + "." + fileType
+	fileType := strings.Split(header,"/")
+	user.Avatar = configs.StaticPath + "/" +  filename + "." + fileType[1]
 	f, err := os.OpenFile("../" + user.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return err
