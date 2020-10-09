@@ -25,10 +25,6 @@ type UserHandler struct {
 	log             *logrus.Logger
 }
 
-const (
-	MB = 1 << 20
-)
-
 func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, lg *logrus.Logger) {
 	handler := UserHandler{
 		UserUseCase:     us,
@@ -76,10 +72,9 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 // swagger:route PUT /api/v1/user/avatar User avatar
 // Update Avatar
 func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(32 << 20)
+	r.ParseMultipartForm(5 * responses.MB)
 
-	r.Body = http.MaxBytesReader(w, r.Body, 5 * MB)
-
+	r.Body = http.MaxBytesReader(w, r.Body, 5 * responses.MB)
 	file, _, err := r.FormFile("avatar")
 
 	if err != nil {

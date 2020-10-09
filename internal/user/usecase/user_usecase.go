@@ -3,6 +3,7 @@ package userUsecase
 import (
 	"errors"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/responses"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -84,13 +85,26 @@ func (u *userUseCase) CheckAvatar(file multipart.File) (string, error){
 	if _, err := file.Read(fileHeader); err != nil {
 		return ContentType,err
 	}
+
 	if _, err := file.Seek(0, 0); err != nil {
 		return ContentType,err
 	}
+
+	length, _ := file.Seek(0,2)
+	if length > 5 * responses.MB {
+		return ContentType, errors.New("file bigger then 5 MB")
+	}
+
+	if _, err := file.Seek(0, 0); err != nil {
+		return ContentType,err
+	}
+
 	ContentType = http.DetectContentType(fileHeader)
+
 	if (ContentType != "image/jpg" && ContentType != "image/png" && ContentType != "image/jpeg"){
 		return ContentType,errors.New("wrong file type")
 	}
+
 	return ContentType,nil
 }
 

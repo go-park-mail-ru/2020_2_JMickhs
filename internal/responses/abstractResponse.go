@@ -10,3 +10,6 @@ type HttpResponse struct {
 	Error *HttpError `json:"error,omitempty"`
 }
 
+const (
+	MB = 1 << 20
+)
