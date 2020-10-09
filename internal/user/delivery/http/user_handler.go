@@ -7,7 +7,6 @@ import (
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/responses"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	permissions "github.com/go-park-mail-ru/2020_2_JMickhs/internal/permission"
@@ -25,6 +24,10 @@ type UserHandler struct {
 	SessionsUseCase sessions.Usecase
 	log             *logrus.Logger
 }
+
+const (
+	MB = 1 << 20
+)
 
 func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, lg *logrus.Logger) {
 	handler := UserHandler{
@@ -74,7 +77,10 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 // Update Avatar
 func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(32 << 20)
-	file, info, err := r.FormFile("avatar")
+
+	r.Body = http.MaxBytesReader(w, r.Body, 5 * MB)
+
+	file, _, err := r.FormFile("avatar")
 
 	if err != nil {
 		u.log.Error(err.Error())
@@ -82,23 +88,25 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileType := strings.Split(info.Header.Get("Content-Type"),"/")
+	fileType, err := u.UserUseCase.CheckAvatar(file)
+	if err != nil {
+		u.log.Error(err.Error())
+		responses.SendErrorResponse(w,http.StatusBadRequest,err)
+		return
+	}
 
-	defer file.Close()
 	usr, ok := r.Context().Value("User").(models.User)
 	if !ok {
 		responses.SendErrorResponse(w,http.StatusUnauthorized,errors.New("User Unauthorized"))
 		return
 	}
-	extension := fileType[1]
 
-	if (extension != "jpg" && extension != "png" && extension != "jpeg"){
-		err = errors.New("bad type of file to add in static")
-		u.log.Error(err)
-		responses.SendErrorResponse(w,http.StatusBadRequest, err)
+	err = u.UserUseCase.UploadAvatar(file , fileType, &usr)
+	if err != nil{
+		u.log.Error(err.Error())
+		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
 		return
 	}
-	u.UserUseCase.UploadAvatar(file, fileType[1] , &usr)
 
 	err = u.UserUseCase.UpdateAvatar(usr)
 	if err != nil {
