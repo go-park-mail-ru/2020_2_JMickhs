@@ -9,7 +9,3 @@ type HttpResponse struct {
 	Data   interface{} `json:"data,omitempty"`
 	Error *HttpError `json:"error,omitempty"`
 }
-
-const (
-	MB = 1 << 20
-)

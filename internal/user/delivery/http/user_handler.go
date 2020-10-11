@@ -32,17 +32,17 @@ func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, lg *log
 		log:             lg,
 	}
 
-	r.HandleFunc("/api/v1/user/signup", permissions.SetCSRF(handler.Registration)).Methods("POST")
-	r.HandleFunc("/api/v1/user/signin", permissions.SetCSRF(handler.Auth)).Methods("POST")
-	r.HandleFunc("/api/v1/user", permissions.SetCSRF(handler.UserHandler)).Methods("GET")
-	r.HandleFunc("/api/v1/user/signout", permissions.SetCSRF(handler.SignOut)).Methods("POST")
-	r.HandleFunc("/api/v1/user/credentials", permissions.CheckCSRF(handler.UpdateUser)).Methods("PUT")
-	r.HandleFunc("/api/v1/user/avatar", permissions.CheckCSRF(handler.UpdateAvatar)).Methods("PUT")
-	r.HandleFunc("/api/v1/user/password", permissions.CheckCSRF(handler.updatePassword)).Methods("PUT")
-	r.HandleFunc("/api/v1/user/{id:[0-9]+}", permissions.SetCSRF(handler.getAccInfo)).Methods("GET")
+	r.HandleFunc("/api/v1/users", permissions.SetCSRF(handler.Registration)).Methods("POST")
+	r.HandleFunc("/api/v1/users/sessions", permissions.SetCSRF(handler.Auth)).Methods("POST")
+	r.HandleFunc("/api/v1/users", permissions.SetCSRF(handler.UserHandler)).Methods("GET")
+	r.HandleFunc("/api/v1/users/sessions", permissions.SetCSRF(handler.SignOut)).Methods("DELETE")
+	r.HandleFunc("/api/v1/users/credentials", permissions.CheckCSRF(handler.UpdateUser)).Methods("PUT")
+	r.HandleFunc("/api/v1/users/avatar", permissions.CheckCSRF(handler.UpdateAvatar)).Methods("PUT")
+	r.HandleFunc("/api/v1/users/password", permissions.CheckCSRF(handler.updatePassword)).Methods("PUT")
+	r.HandleFunc("/api/v1/users/{id:[0-9]+}", permissions.SetCSRF(handler.getAccInfo)).Methods("GET")
 }
 
-// swagger:route GET /api/v1/user/{id}  User userById
+// swagger:route GET /api/v1/user/{id}  Users userById
 // Get info abous user by his id
 // responses:
 //  200: safeUser
@@ -69,12 +69,12 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 	responses.SendOkResponse(w,safeUser)
 }
 
-// swagger:route PUT /api/v1/user/avatar User avatar
+// swagger:route PUT /api/v1/user/avatar Users avatar
 // Update Avatar
 func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(5 * responses.MB)
+	r.ParseMultipartForm(5 * configs.MB)
 
-	r.Body = http.MaxBytesReader(w, r.Body, 5 * responses.MB)
+	r.Body = http.MaxBytesReader(w, r.Body, 5 * configs.MB)
 	file, _, err := r.FormFile("avatar")
 
 	if err != nil {
@@ -111,7 +111,7 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route PUT /api/v1/user/password User password
+// swagger:route PUT /api/v1/user/password Users password
 // update password
 // responses:
 // 409: conflict
@@ -146,7 +146,7 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route PUT /api/v1/user/information User credentials
+// swagger:route PUT /api/v1/user/information Users credentials
 // Get data from form  which need to change and change user data
 func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
@@ -173,7 +173,7 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:route POST /api/v1/user/signup User signup
+// swagger:route POST /api/v1/user/signup Users signup
 // Creates a new User
 // responses:
 //  200: safeUser
@@ -215,7 +215,7 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	responses.SendOkResponse(w, safeUser)
 }
 
-// swagger:route POST /api/v1/user/signin User signin
+// swagger:route POST /api/v1/user/sessions Users  Addsessions
 // user auth with coockie
 // responses:
 //  200: safeUser
@@ -263,7 +263,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 	responses.SendOkResponse(w, safeUser)
 }
 
-// swagger:route GET /api/v1/user User user
+// swagger:route GET /api/v1/user Users user
 // Get current safe user
 // responses:
 //  200: safeUser
@@ -282,7 +282,7 @@ func (u *UserHandler) UserHandler(w http.ResponseWriter, r *http.Request) {
 	responses.SendOkResponse(w, safeUser)
 }
 
-// swagger:route POST /api/v1/user/signout User signout
+// swagger:route POST /api/v1/user/signout Users Delsessions
 // sign out current user and delete cookie session
 func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 

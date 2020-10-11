@@ -3,7 +3,6 @@ package userUsecase
 import (
 	"errors"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/responses"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -40,9 +39,6 @@ func (u *userUseCase) Add(user models.User) (models.User, error) {
 
 func (u *userUseCase) GetUserByID(ID int) (models.User, error) {
 	user, err := u.userRepo.GetUserByID(ID)
-	if u.CheckEmpty(user){
-		return user, errors.New("User doesn't exist")
-	}
 	return user,err
 }
 
@@ -91,7 +87,7 @@ func (u *userUseCase) CheckAvatar(file multipart.File) (string, error){
 	}
 
 	length, _ := file.Seek(0,2)
-	if length > 5 * responses.MB {
+	if length > 5 * configs.MB {
 		return ContentType, errors.New("file bigger then 5 MB")
 	}
 

@@ -47,7 +47,7 @@ type UpdateAvatar struct{
 	Avatar multipart.File `json:"avatar"`
 }
 
-// swagger:parameters signin
+// swagger:parameters Addsessions
 type userAuthRequestWrapper struct {
 	// in: body
 	Body UserAuth
