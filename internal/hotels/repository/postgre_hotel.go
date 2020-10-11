@@ -14,8 +14,8 @@ func NewPostgresHotelRepository(conn *sqlx.DB) PostgreHotelRepository {
 	return PostgreHotelRepository{conn}
 }
 
-func (p *PostgreHotelRepository) GetHotels() ([]models.Hotel, error) {
-	rows, err := p.conn.Query("SELECT id,name,description,img FROM hotels")
+func (p *PostgreHotelRepository) GetHotels(StartID int) ([]models.Hotel, error) {
+	rows, err := p.conn.Query("SELECT id,name,description,img FROM hotels LIMIT 4 OFFSET $1", strconv.Itoa(StartID))
 	defer rows.Close()
 	hotels := []models.Hotel{}
 	if err != nil {

@@ -2,7 +2,6 @@ package middlewareApi
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/sessions"
@@ -36,12 +35,17 @@ func (u *SessionMidleware) SessionMiddleware() mux.MiddlewareFunc {
 			}
 			if c != nil {
 				sessionToken := c.Value
-				fmt.Println(sessionToken)
 				id, err := u.SessUseCase.GetIDByToken(sessionToken)
-				fmt.Println(id)
+				if err != nil{
+					u.log.Info(err.Error())
+					next.ServeHTTP(w, r)
+					return
+				}
 				user, err := u.UserUseCase.GetUserByID(id)
 				if err != nil {
 					u.log.Info(err.Error())
+					next.ServeHTTP(w, r)
+					return
 				}
 				ctx := context.WithValue(r.Context(), "User", user)
 				r = r.WithContext(ctx)

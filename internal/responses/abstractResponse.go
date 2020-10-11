@@ -7,5 +7,5 @@ type HttpError struct {
 
 type HttpResponse struct {
 	Data   interface{} `json:"data,omitempty"`
-	Errors []HttpError `json:"errors"`
+	Error *HttpError `json:"error,omitempty"`
 }

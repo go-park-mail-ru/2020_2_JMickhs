@@ -47,31 +47,31 @@ type UpdateAvatar struct{
 	Avatar multipart.File `json:"avatar"`
 }
 
-// swagger:parameters signIn
+// swagger:parameters Addsessions
 type userAuthRequestWrapper struct {
 	// in: body
 	Body UserAuth
 }
 
-// swagger:parameters signUp
+// swagger:parameters signup
 type userRegistrationRequestWrapper struct {
 	// in: body
 	Body UserRegistation
 }
 
-// swagger:parameters updatePassword
+// swagger:parameters password
 type userUpPasswordRequestWrapper struct {
 	// in: body
 	Body UpdatePassword
 }
 
-// swagger:parameters updateUser
+// swagger:parameters credentials
 type userUpUserRequestWrapper struct {
 	// in: body
 	Body UpdateUser
 }
 
-// swagger:parameters updateAvatar
+// swagger:parameters avatar
 type userUpAvatarRequestWrapper struct {
 	// avatar in *.jpg *.jpeg *.png format
 	//	in: body
@@ -81,4 +81,12 @@ type userUpAvatarRequestWrapper struct {
 //wrong old password
 //swagger:response conflict
 type conflict struct{
+}
+
+// swagger:parameters userById
+type hotelIDParameterWrapper struct {
+	// the id of user to get from database
+	// in: path
+	// required:true
+	ID int `json:"id"`
 }
