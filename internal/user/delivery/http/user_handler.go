@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/responses"
 	"net/http"
-	"strings"
+	"strconv"
 	"time"
 
 	permissions "github.com/go-park-mail-ru/2020_2_JMickhs/internal/permission"
@@ -31,85 +32,86 @@ func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, lg *log
 		log:             lg,
 	}
 
-	r.HandleFunc("/api/v1/signup", permissions.SetCSRF(handler.Registration)).Methods("POST")
-	r.HandleFunc("/api/v1/signin", permissions.SetCSRF(handler.Auth)).Methods("POST")
-	r.HandleFunc("/api/v1/get_current_user", permissions.SetCSRF(handler.GetCurrentUser)).Methods("GET")
-	r.HandleFunc("/api/v1/signout", permissions.SetCSRF(handler.SignOut)).Methods("POST")
-	r.HandleFunc("/api/v1/updateUser", permissions.CheckCSRF(handler.UpdateUser)).Methods("PUT")
-	r.HandleFunc("/api/v1/updateAvatar", permissions.CheckCSRF(handler.UpdateAvatar)).Methods("PUT")
-	r.HandleFunc("/api/v1/updatePassword", permissions.CheckCSRF(handler.updatePassword)).Methods("PUT")
-	r.HandleFunc("/api/v1/getAccInfo", permissions.SetCSRF(handler.getAccInfo)).Methods("GET")
+	r.HandleFunc("/api/v1/users", permissions.SetCSRF(handler.Registration)).Methods("POST")
+	r.HandleFunc("/api/v1/users/sessions", permissions.SetCSRF(handler.Auth)).Methods("POST")
+	r.HandleFunc("/api/v1/users", permissions.SetCSRF(handler.UserHandler)).Methods("GET")
+	r.HandleFunc("/api/v1/users/sessions", permissions.SetCSRF(handler.SignOut)).Methods("DELETE")
+	r.HandleFunc("/api/v1/users/credentials", permissions.CheckCSRF(handler.UpdateUser)).Methods("PUT")
+	r.HandleFunc("/api/v1/users/avatar", permissions.CheckCSRF(handler.UpdateAvatar)).Methods("PUT")
+	r.HandleFunc("/api/v1/users/password", permissions.CheckCSRF(handler.updatePassword)).Methods("PUT")
+	r.HandleFunc("/api/v1/users/{id:[0-9]+}", permissions.SetCSRF(handler.getAccInfo)).Methods("GET")
 }
 
-// swagger:route GET /api/v1/getAccInfo User GetAccInfo
-// Get info abous user by his nickname
+// swagger:route GET /api/v1/user/{id}  Users userById
+// Get info abous user by his id
 // responses:
 //  200: safeUser
 func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
-	var name models.UserName
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
 
-	err := json.NewDecoder(r.Body).Decode(&name)
 	if err != nil {
 		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusBadRequest)
+		responses.SendErrorResponse(w,http.StatusBadRequest,err)
 		return
 	}
 
-	user, err := u.UserUseCase.GetByUserName(name.Username)
+	user, err := u.UserUseCase.GetUserByID(id)
+
 	if err != nil {
 		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
+		responses.SendErrorResponse(w,http.StatusInternalServerError,err)
 		return
 	}
 
 	safeUser := models.SafeUser{ID: user.ID, Username: user.Username, Avatar: user.Avatar, Email: user.Email}
-	err = json.NewEncoder(w).Encode(safeUser)
-	if err != nil {
-		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
 
+	responses.SendOkResponse(w,safeUser)
 }
 
-// swagger:route PUT /api/v1/updateAvatar User updateAvatar
+// swagger:route PUT /api/v1/user/avatar Users avatar
 // Update Avatar
 func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(32 << 20)
-	file, info, err := r.FormFile("avatar")
+	r.ParseMultipartForm(5 * configs.MB)
+
+	r.Body = http.MaxBytesReader(w, r.Body, 5 * configs.MB)
+	file, _, err := r.FormFile("avatar")
 
 	if err != nil {
 		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusBadRequest)
+		responses.SendErrorResponse(w,http.StatusBadRequest,err)
 		return
 	}
 
-	fileType := strings.Split(info.Header.Get("Content-Type"),"/")
+	fileType, err := u.UserUseCase.CheckAvatar(file)
+	if err != nil {
+		u.log.Error(err.Error())
+		responses.SendErrorResponse(w,http.StatusBadRequest,err)
+		return
+	}
 
-	defer file.Close()
 	usr, ok := r.Context().Value("User").(models.User)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		responses.SendErrorResponse(w,http.StatusUnauthorized,errors.New("User Unauthorized"))
 		return
 	}
-	extension := fileType[1]
 
-	if (extension != "jpg" && extension != "png" && extension != "jpeg"){
-		u.log.Error(errors.New("bad type of file to add in static"))
-		w.WriteHeader(http.StatusBadRequest)
+	err = u.UserUseCase.UploadAvatar(file , fileType, &usr)
+	if err != nil{
+		u.log.Error(err.Error())
+		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
 		return
 	}
-	u.UserUseCase.UploadAvatar(file, fileType[1] , &usr)
 
 	err = u.UserUseCase.UpdateAvatar(usr)
 	if err != nil {
 		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
+		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
 		return
 	}
 }
 
-// swagger:route PUT /api/v1/updatePassword User updatePassword
+// swagger:route PUT /api/v1/user/password Users password
 // update password
 // responses:
 // 409: conflict
@@ -119,32 +121,32 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&twoPass)
 	if err != nil {
 		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusBadRequest)
+		responses.SendErrorResponse(w,http.StatusBadRequest,err)
 		return
 	}
 
 	usr, ok := r.Context().Value("User").(models.User)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		responses.SendErrorResponse(w,http.StatusUnauthorized,errors.New("User Unauthorized"))
 		return
 	}
 
 	err = u.UserUseCase.ComparePassword(twoPass.OldPassword,usr.Password)
 	if err != nil {
-		u.log.Info(errors.New("users old password incorrect"))
-		w.WriteHeader(http.StatusConflict)
+		u.log.Info(err.Error())
+		responses.SendErrorResponse(w,http.StatusConflict, errors.New("Wrong Old Password"))
 		return
 	}
 	usr.Password = twoPass.NewPassword
 	err = u.UserUseCase.UpdatePassword(usr)
 	if err != nil {
 		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
+		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
 		return
 	}
 }
 
-// swagger:route PUT /api/v1/updateUser User updateUser
+// swagger:route PUT /api/v1/user/information Users credentials
 // Get data from form  which need to change and change user data
 func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
@@ -152,13 +154,13 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusBadRequest)
+		responses.SendErrorResponse(w,http.StatusBadRequest,err)
 		return
 	}
 
 	usr,ok := r.Context().Value("User").(models.User)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		responses.SendErrorResponse(w,http.StatusUnauthorized,errors.New("User Unauthorized"))
 		return
 	}
 	user.ID = usr.ID
@@ -166,12 +168,12 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	err = u.UserUseCase.UpdateUser(user)
 	if err != nil {
 		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
+		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
 		return
 	}
 }
 
-// swagger:route POST /api/v1/signup User signUp
+// swagger:route POST /api/v1/user/signup Users signup
 // Creates a new User
 // responses:
 //  200: safeUser
@@ -182,21 +184,21 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	u.UserUseCase.SetDefaultAvatar(&user)
 	if err != nil {
 		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusBadRequest)
+		responses.SendErrorResponse(w,http.StatusBadRequest,err)
 		return
 	}
 
 	usr, err := u.UserUseCase.Add(user)
 	if err != nil {
 		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
+		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
 		return
 	}
 
 	sessionID, err := u.SessionsUseCase.AddToken(usr.ID)
 	if err != nil {
 		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
+		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
 		return
 	}
 
@@ -210,11 +212,10 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add( configs.CookieLifeTime),
 
 	})
-
-	err = json.NewEncoder(w).Encode(safeUser)
+	responses.SendOkResponse(w, safeUser)
 }
 
-// swagger:route POST /api/v1/signin User signIn
+// swagger:route POST /api/v1/user/sessions Users  Addsessions
 // user auth with coockie
 // responses:
 //  200: safeUser
@@ -225,28 +226,28 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusBadRequest)
+		responses.SendErrorResponse(w,http.StatusBadRequest,err)
 		return
 	}
 
 	usr, err := u.UserUseCase.GetByUserName(user.Username)
 	if err != nil {
 		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
+		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
 		return
 	}
 	err = u.UserUseCase.ComparePassword(user.Password,usr.Password)
 
 	if err != nil {
 		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusUnauthorized)
+		responses.SendErrorResponse(w,http.StatusUnauthorized, err)
 		return
 	}
 
 	sessionID, err := u.SessionsUseCase.AddToken(usr.ID)
 	if err != nil {
 		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
+		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
 		return
 	}
 	safeUser := models.SafeUser{ID: usr.ID, Username: usr.Username, Avatar: usr.Avatar, Email: usr.Email}
@@ -259,34 +260,29 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add( configs.CookieLifeTime),
 
 	})
-	err = json.NewEncoder(w).Encode(safeUser)
+	responses.SendOkResponse(w, safeUser)
 }
 
-// swagger:route GET /api/v1/get_current_user User GetCurrentUser
+// swagger:route GET /api/v1/user Users user
 // Get current safe user
 // responses:
 //  200: safeUser
-func (u *UserHandler) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
+func (u *UserHandler) UserHandler(w http.ResponseWriter, r *http.Request) {
 	usr, ok := r.Context().Value("User").(models.User)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		responses.SendErrorResponse(w,http.StatusUnauthorized,errors.New("User Unauthorized"))
 		return
 	}
 	if u.UserUseCase.CheckEmpty(usr) {
-		w.WriteHeader(http.StatusUnauthorized)
+		responses.SendErrorResponse(w,http.StatusUnauthorized,errors.New("User Unauthorized"))
 		return
 	}
 
 	safeUser := models.SafeUser{ID: usr.ID, Username: usr.Username, Avatar: usr.Avatar, Email: usr.Email}
-	err := json.NewEncoder(w).Encode(safeUser)
-	if err != nil {
-		u.log.Error(err.Error())
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	responses.SendOkResponse(w, safeUser)
 }
 
-// swagger:route POST /api/v1/signout User SignOut
+// swagger:route POST /api/v1/user/signout Users Delsessions
 // sign out current user and delete cookie session
 func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 
@@ -296,7 +292,7 @@ func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		err := u.SessionsUseCase.DeleteSession(c.Value)
 		if err != nil {
 			u.log.Error(err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
+			responses.SendErrorResponse(w,http.StatusInternalServerError, err)
 			return
 		}
 		c.Expires = time.Now().AddDate(0, 0, -1)

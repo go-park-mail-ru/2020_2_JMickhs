@@ -1,6 +1,8 @@
 package permissions
 
 import (
+	"errors"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/responses"
 	"net/http"
 	"time"
 
@@ -33,7 +35,7 @@ func CheckCSRF(next http.HandlerFunc) http.HandlerFunc {
 			csrfCookie, err := r.Cookie("csrf")
 
 			if err != nil || csrf == "" || csrfCookie.Value == "" || csrfCookie.Value != csrf {
-				w.WriteHeader(419)
+				responses.SendErrorResponse(w,419, errors.New("csrf unvalid"))
 				return
 			}
 			generateCsrfLogic(w)

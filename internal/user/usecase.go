@@ -17,4 +17,5 @@ type Usecase interface {
 	UploadAvatar(file multipart.File, fileType string, user *models.User) error
 	ComparePassword(passIn string, passDest string) error
 	CheckEmpty(usr models.User) bool
+	CheckAvatar(file multipart.File) (string, error)
 }

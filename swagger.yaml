@@ -89,28 +89,27 @@ info:
   title: Golang service API for HotelScanner
   version: 1.0.0
 paths:
-  /api/v1/get_current_user:
+  /api/v1/hotel:
     get:
-      description: Get current safe user
-      operationId: GetCurrentUser
+      description: GetList of hotels by {?*[0-9]+} pattern
+      operationId: hotels
+      parameters:
+      - description: the start ID to get hotels
+        format: int64
+        in: query
+        name: from
+        required: true
+        type: integer
+        x-go-name: ID
       responses:
         "200":
-          $ref: '#/responses/safeUser'
+          $ref: '#/responses/hotels'
       tags:
-      - User
-  /api/v1/getAccInfo:
-    get:
-      description: Get info abous user by his nickname
-      operationId: GetAccInfo
-      responses:
-        "200":
-          $ref: '#/responses/safeUser'
-      tags:
-      - User
+      - hotel
   /api/v1/hotel/{id}:
     get:
       description: Get single hotel by id
-      operationId: onehotel
+      operationId: hotel
       parameters:
       - description: the id of hotel to get from database
         format: int64
@@ -123,54 +122,37 @@ paths:
         "200":
           $ref: '#/responses/Hotel'
       tags:
-      - hotels
-  /api/v1/hotels:
+      - hotel
+  /api/v1/user:
     get:
-      description: GetList of hotels
-      operationId: listHotel
-      responses:
-        "200":
-          $ref: '#/responses/listHotel'
-      tags:
-      - hotels
-  /api/v1/signin:
-    post:
-      description: user auth with coockie
-      operationId: signIn
-      parameters:
-      - in: body
-        name: Body
-        schema:
-          $ref: '#/definitions/UserAuth'
+      description: Get current safe user
+      operationId: user
       responses:
         "200":
           $ref: '#/responses/safeUser'
       tags:
       - User
-  /api/v1/signout:
-    post:
-      description: sign out current user and delete cookie session
-      operationId: SignOut
-      tags:
-      - User
-  /api/v1/signup:
-    post:
-      description: Creates a new User
-      operationId: signUp
+  /api/v1/user/{id}:
+    get:
+      description: Get info abous user by his id
+      operationId: userById
       parameters:
-      - in: body
-        name: Body
-        schema:
-          $ref: '#/definitions/UserRegistation'
+      - description: the id of user to get from database
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+        x-go-name: ID
       responses:
         "200":
           $ref: '#/responses/safeUser'
       tags:
       - User
-  /api/v1/updateAvatar:
+  /api/v1/user/avatar:
     put:
       description: Update Avatar
-      operationId: updateAvatar
+      operationId: avatar
       parameters:
       - description: avatar in *.jpg *.jpeg *.png format
         in: body
@@ -179,10 +161,21 @@ paths:
           $ref: '#/definitions/UpdateAvatar'
       tags:
       - User
-  /api/v1/updatePassword:
+  /api/v1/user/information:
+    put:
+      description: Get data from form  which need to change and change user data
+      operationId: credentials
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UpdateUser'
+      tags:
+      - User
+  /api/v1/user/password:
     put:
       description: update password
-      operationId: updatePassword
+      operationId: password
       parameters:
       - in: body
         name: Body
@@ -193,15 +186,38 @@ paths:
           $ref: '#/responses/conflict'
       tags:
       - User
-  /api/v1/updateUser:
-    put:
-      description: Get data from form  which need to change and change user data
-      operationId: updateUser
+  /api/v1/user/signin:
+    post:
+      description: user auth with coockie
+      operationId: signin
       parameters:
       - in: body
         name: Body
         schema:
-          $ref: '#/definitions/UpdateUser'
+          $ref: '#/definitions/UserAuth'
+      responses:
+        "200":
+          $ref: '#/responses/safeUser'
+      tags:
+      - User
+  /api/v1/user/signout:
+    post:
+      description: sign out current user and delete cookie session
+      operationId: signout
+      tags:
+      - User
+  /api/v1/user/signup:
+    post:
+      description: Creates a new User
+      operationId: signup
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UserRegistation'
+      responses:
+        "200":
+          $ref: '#/responses/safeUser'
       tags:
       - User
 produces:
@@ -220,7 +236,7 @@ responses:
         type: string
   conflict:
     description: wrong old password
-  listHotel:
+  hotels:
     headers:
       Body:
         items:
