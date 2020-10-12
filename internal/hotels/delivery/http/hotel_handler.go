@@ -23,11 +23,13 @@ func NewHotelHandler(r *mux.Router, hs hotels.Usecase, lg *logrus.Logger) {
 	}
 
 	r.HandleFunc("/api/v1/hotels/{id:[0-9]+}",  permissions.SetCSRF(handler.Hotel)).Methods("GET")
-	r.Path("/api/v1/hotels").Queries("from", "{?*[0-9]+}").HandlerFunc( permissions.SetCSRF(handler.ListHotels)).Methods("GET")
+	r.Path("/api/v1/hotels/search").Queries("pattern" , "{pattern}", "from", "{from:[0-9]+}", "limit","{limit:[0-9]+}").
+		HandlerFunc(permissions.SetCSRF(handler.SearchHotels)).Methods("GET")
+	r.Path("/api/v1/hotels").Queries("from", "{from:[0-9]+}").HandlerFunc( permissions.SetCSRF(handler.ListHotels)).Methods("GET")
 }
 
 // swagger:route GET /api/v1/hotels hotel hotels
-// GetList of hotels by {?*[0-9]+} pattern
+// GetList of hotels
 // responses:
 //  200: hotels
 func (hh *HotelHandler) ListHotels(w http.ResponseWriter, r *http.Request) {
@@ -68,4 +70,33 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.SendOkResponse(w,hotel)
+}
+
+
+// swagger:route GET /api/v1/hotels/search hotel searchHotel
+// Search hotels
+// responses:
+//  200: searchHotel
+func (hh *HotelHandler) SearchHotels (w http.ResponseWriter, r *http.Request) {
+	from := r.FormValue("from")
+	startId, err := strconv.Atoi(from)
+
+	pattern := r.FormValue("pattern")
+	limits := r.FormValue("limit")
+	limit, err := strconv.Atoi(limits)
+
+	if err != nil {
+		hh.log.Error(err.Error())
+		responses.SendErrorResponse(w,http.StatusBadRequest,err)
+		return
+	}
+
+	hotels, err := hh.HotelUseCase.SearchHotel(pattern,startId,limit)
+
+	if err != nil {
+		hh.log.Error(err.Error())
+		responses.SendErrorResponse(w,http.StatusBadRequest,err)
+	}
+
+	responses.SendOkResponse(w,hotels)
 }

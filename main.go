@@ -19,6 +19,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
+	commentDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment/delivery/http"
+	commentRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment/repository"
+	commentUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment/usecase"
 	"log"
 	"net/http"
 	"strconv"
@@ -110,10 +113,12 @@ func main() {
 	rep := userRepository.NewPostgresUserRepository(db)
 	repHot := hotelRepository.NewPostgresHotelRepository(db)
 	repSes := sessionsRepository.NewSessionsUserRepository(store)
+	repCom := commentRepository.NewCommentRepository(db)
 
 	u := userUsecase.NewUserUsecase(&rep)
 	uHot := hotelUsecase.NewHotelUsecase(&repHot)
 	uSes := sessionsUseCase.NewSessionsUsecase(&repSes)
+	uCom := commentUsecase.NewCommentUsecase(&repCom)
 
 	var log = logrus.New()
 
@@ -122,6 +127,7 @@ func main() {
 
 	hotelDelivery.NewHotelHandler(r, uHot, log)
 	delivery.NewUserHandler(r, uSes, u, log)
+	commentDelivery.NewCommentHandler(r,uCom,log)
 	log.Info("Server started at port", configs.Port)
 	http.ListenAndServe(configs.Port, r)
 }

@@ -21,3 +21,7 @@ func (p *HotelUseCase) GetHotels(StartID int) ([]models.Hotel, error) {
 func (p *HotelUseCase) GetHotelByID(ID int) (models.Hotel, error) {
 	return p.hotelRepo.GetHotelByID(ID)
 }
+
+func (p *HotelUseCase) SearchHotel(pattern string, startID int, limit int) ([]models.Hotel,error){
+	return p.hotelRepo.SearchHotel(pattern,startID,limit)
+}

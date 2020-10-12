@@ -1,30 +1,21 @@
 package models
 
-// swagger:response Hotel
 type Hotel struct {
-	ID          int    `json:"id"`
+	HotelID     int    `json:"hotel_id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Image       string `json:"image"`
+	Location    string `json:"location"`
 }
 
-// swagger:parameters hotel
-type hotelIDParameterWrapper struct {
-	// the id of hotel to get from database
-	// in: path
-	// required:true
-	ID int `json:"id"`
+type HotelPreview struct {
+	HotelID     int    `json:"hotel_id"`
+	Name        string `json:"name"`
+	Image       string `json:"image"`
+	Location    string `json:"location"`
 }
 
-// swagger:parameters hotels
-type hotelsIDParameterWrapper struct {
-	// the start ID to get hotels
-	// in: query
-	// required:true
-	ID int `json:"from"`
+type SearchString struct{
+	Pattern string `json:"pattern"`
 }
 
-// swagger:response hotels
-type hotelListWrapper struct{
-	Body []Hotel
-}

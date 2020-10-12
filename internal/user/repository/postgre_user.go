@@ -19,8 +19,7 @@ func NewPostgresUserRepository(conn *sqlx.DB) PostgresUserRepository {
 
 func (p *PostgresUserRepository) Add(user models.User) (models.User, error) {
 	var id int
-	err := p.conn.QueryRow("INSERT INTO users VALUES (default, $1, $2,$3,$4) ON CONFLICT (email) DO NOTHING " +
-		"RETURNING user_id", user.Username, user.Email, user.Password, user.Avatar).Scan(&id)
+	err := p.conn.QueryRow("INSERT INTO users VALUES (default, $1, $2,$3,$4) RETURNING user_id", user.Username, user.Email, user.Password, user.Avatar).Scan(&id)
 	user.ID = id
 	return user, err
 }

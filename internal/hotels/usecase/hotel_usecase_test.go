@@ -19,7 +19,7 @@ func TestHotelUseCase_GetUserByID(t *testing.T) {
 		mockHotelRepo.On("GetHotelByID", mock.AnythingOfType("int")).Return(mockHotel, nil).Once()
 		u := NewHotelUsecase(mockHotelRepo)
 
-		hotel, err := u.GetHotelByID(mockHotel.ID)
+		hotel, err := u.GetHotelByID(mockHotel.HotelID)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, hotel)
@@ -31,7 +31,7 @@ func TestHotelUseCase_GetUserByID(t *testing.T) {
 
 		uEr := NewHotelUsecase(mockHotelRepoErr)
 
-		_, err := uEr.GetHotelByID(mockHotel.ID)
+		_, err := uEr.GetHotelByID(mockHotel.HotelID)
 		assert.Error(t,err)
 		mockHotelRepo.AssertExpectations(t)
 	})
