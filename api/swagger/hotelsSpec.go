@@ -2,9 +2,8 @@ package swagger
 
 import "github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models"
 
-
 // swagger:parameters searchHotel
-type SearchStringRequest struct{
+type SearchStringRequest struct {
 	// in: query
 	// required:true
 	Pattern string `json:"pattern"`
@@ -31,13 +30,13 @@ type hotelsIDParameterWrapper struct {
 }
 
 // swagger:response hotels
-type hotelListWrapper struct{
+type hotelListWrapper struct {
 	//in: body
 	Body []models.Hotel
 }
 
 // swagger:response searchHotel
-type searchHotelListWrapper struct{
+type searchHotelListWrapper struct {
 	//in: body
 	Body []models.Hotel
 }

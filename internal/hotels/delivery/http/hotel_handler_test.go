@@ -17,61 +17,61 @@ import (
 func TestHotelHandler_ListHotels(t *testing.T) {
 	var mockHotels models.Hotel
 	err := faker.FakeData(&mockHotels)
-	assert.NoError(t,err)
-	mocksListHotels := make([]models.Hotel,0)
-	mocksListHotels = append(mocksListHotels,mockHotels)
+	assert.NoError(t, err)
+	mocksListHotels := make([]models.Hotel, 0)
+	mocksListHotels = append(mocksListHotels, mockHotels)
 
 	mockUCase := new(mocks.HotelsUsecase)
 
-	mockUCase.On("GetHotels").Return(mocksListHotels,nil)
+	mockUCase.On("GetHotels").Return(mocksListHotels, nil)
 
-	req,err := http.NewRequest("GET"," /api/v1/hotels",strings.NewReader(""))
-	assert.NoError(t,err)
+	req, err := http.NewRequest("GET", " /api/v1/hotels", strings.NewReader(""))
+	assert.NoError(t, err)
 
 	rec := httptest.NewRecorder()
 	handler := HotelHandler{
 		HotelUseCase: mockUCase,
 	}
 
-	handler.ListHotels(rec,req)
+	handler.ListHotels(rec, req)
 	resp := rec.Result()
 	hotels := []models.Hotel{}
 	body, err := ioutil.ReadAll(resp.Body)
-	err = json.Unmarshal(body,&hotels)
-	assert.Equal(t,mocksListHotels,hotels)
+	err = json.Unmarshal(body, &hotels)
+	assert.Equal(t, mocksListHotels, hotels)
 
-	assert.Equal(t,http.StatusOK,rec.Code)
+	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUCase.AssertExpectations(t)
 }
 
 func TestHotelHandler_Hotel(t *testing.T) {
 	var mockHotel models.Hotel
 	err := faker.FakeData(&mockHotel)
-	assert.NoError(t,err)
+	assert.NoError(t, err)
 	mockHotel.ID = 1
 	mockUCase := new(mocks.HotelsUsecase)
 
-	mockUCase.On("GetHotelByID",int(mockHotel.ID)).Return(mockHotel,nil)
+	mockUCase.On("GetHotelByID", int(mockHotel.ID)).Return(mockHotel, nil)
 
-	req,err := http.NewRequest("GET"," /api/v1/hotel/1",strings.NewReader(""))
-	req = mux.SetURLVars(req,map[string]string{
-		"id" : "1",
+	req, err := http.NewRequest("GET", " /api/v1/hotel/1", strings.NewReader(""))
+	req = mux.SetURLVars(req, map[string]string{
+		"id": "1",
 	})
 
-	assert.NoError(t,err)
+	assert.NoError(t, err)
 
 	rec := httptest.NewRecorder()
 	handler := HotelHandler{
 		HotelUseCase: mockUCase,
 	}
 
-	handler.Hotel(rec,req)
+	handler.Hotel(rec, req)
 	resp := rec.Result()
 	hotel := models.Hotel{}
 	body, err := ioutil.ReadAll(resp.Body)
-	err = json.Unmarshal(body,&hotel)
-	assert.Equal(t,mockHotel,hotel)
+	err = json.Unmarshal(body, &hotel)
+	assert.Equal(t, mockHotel, hotel)
 
-	assert.Equal(t,http.StatusOK,rec.Code)
+	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUCase.AssertExpectations(t)
 }

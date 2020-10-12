@@ -18,13 +18,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"net/http"
+	"strconv"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 	commentDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment/delivery/http"
 	commentRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment/repository"
 	commentUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment/usecase"
-	"log"
-	"net/http"
-	"strconv"
 
 	sessionsRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/sessions/repository"
 	sessionsUseCase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/sessions/usecase"
@@ -127,7 +128,7 @@ func main() {
 
 	hotelDelivery.NewHotelHandler(r, uHot, log)
 	delivery.NewUserHandler(r, uSes, u, log)
-	commentDelivery.NewCommentHandler(r,uCom,log)
+	commentDelivery.NewCommentHandler(r, uCom, log)
 	log.Info("Server started at port", configs.Port)
 	http.ListenAndServe(configs.Port, r)
 }

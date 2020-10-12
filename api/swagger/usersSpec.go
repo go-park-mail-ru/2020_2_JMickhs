@@ -1,11 +1,12 @@
 package swagger
 
 import (
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/models"
 	"mime/multipart"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/models"
 )
 
-type UpdateAvatar struct{
+type UpdateAvatar struct {
 	Avatar multipart.File `json:"avatar"`
 }
 
@@ -64,12 +65,11 @@ type userUpAvatarRequestWrapper struct {
 
 //wrong old password
 //swagger:response conflict
-type conflict struct{
+type conflict struct {
 }
 
-
 // swagger:response safeUser
-type SafeUserResponse struct{
+type SafeUserResponse struct {
 	//in:body
 	Body models.SafeUser
 }

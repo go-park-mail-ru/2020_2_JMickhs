@@ -2,12 +2,13 @@ package userUsecase
 
 import (
 	"errors"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/user"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/models"
@@ -39,7 +40,7 @@ func (u *userUseCase) Add(user models.User) (models.User, error) {
 
 func (u *userUseCase) GetUserByID(ID int) (models.User, error) {
 	user, err := u.userRepo.GetUserByID(ID)
-	return user,err
+	return user, err
 }
 
 func (u *userUseCase) SetDefaultAvatar(user *models.User) error {
@@ -62,11 +63,11 @@ func (u *userUseCase) UpdateAvatar(user models.User) error {
 	return u.userRepo.UpdateAvatar(user)
 }
 
-func (u *userUseCase) UploadAvatar(file multipart.File, header string ,user *models.User) error {
+func (u *userUseCase) UploadAvatar(file multipart.File, header string, user *models.User) error {
 	filename := uuid.NewV4().String()
-	fileType := strings.Split(header,"/")
-	user.Avatar = configs.StaticPath + "/" +  filename + "." + fileType[1]
-	f, err := os.OpenFile("../" + user.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
+	fileType := strings.Split(header, "/")
+	user.Avatar = configs.StaticPath + "/" + filename + "." + fileType[1]
+	f, err := os.OpenFile("../"+user.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}
@@ -75,33 +76,33 @@ func (u *userUseCase) UploadAvatar(file multipart.File, header string ,user *mod
 	return nil
 }
 
-func (u *userUseCase) CheckAvatar(file multipart.File) (string, error){
+func (u *userUseCase) CheckAvatar(file multipart.File) (string, error) {
 	fileHeader := make([]byte, 512)
 	ContentType := ""
 	if _, err := file.Read(fileHeader); err != nil {
-		return ContentType,err
+		return ContentType, err
 	}
 
 	if _, err := file.Seek(0, 0); err != nil {
-		return ContentType,err
+		return ContentType, err
 	}
 
-	length, _ := file.Seek(0,2)
-	if length > 5 * configs.MB {
+	length, _ := file.Seek(0, 2)
+	if length > 5*configs.MB {
 		return ContentType, errors.New("file bigger then 5 MB")
 	}
 
 	if _, err := file.Seek(0, 0); err != nil {
-		return ContentType,err
+		return ContentType, err
 	}
 
 	ContentType = http.DetectContentType(fileHeader)
 
-	if (ContentType != "image/jpg" && ContentType != "image/png" && ContentType != "image/jpeg"){
-		return ContentType,errors.New("wrong file type")
+	if ContentType != "image/jpg" && ContentType != "image/png" && ContentType != "image/jpeg" {
+		return ContentType, errors.New("wrong file type")
 	}
 
-	return ContentType,nil
+	return ContentType, nil
 }
 
 func (u *userUseCase) ComparePassword(passIn string, passDest string) error {

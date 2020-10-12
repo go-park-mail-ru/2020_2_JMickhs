@@ -12,8 +12,8 @@ import (
 
 func TestHotelUseCase_GetUserByID(t *testing.T) {
 	mockHotelRepo := new(mocks.HotelsRepository)
-	mockHotel := models.Hotel{Name: "bestHotel",Description: "in the world"}
-	t.Run("HotelGetByID",func(t *testing.T) {
+	mockHotel := models.Hotel{Name: "bestHotel", Description: "in the world"}
+	t.Run("HotelGetByID", func(t *testing.T) {
 		mockHotelRepo := new(mocks.HotelsRepository)
 
 		mockHotelRepo.On("GetHotelByID", mock.AnythingOfType("int")).Return(mockHotel, nil).Once()
@@ -25,44 +25,44 @@ func TestHotelUseCase_GetUserByID(t *testing.T) {
 		assert.NotNil(t, hotel)
 		mockHotelRepo.AssertExpectations(t)
 	})
-	t.Run("HotelGetByID-error",func(t *testing.T) {
+	t.Run("HotelGetByID-error", func(t *testing.T) {
 		mockHotelRepoErr := new(mocks.HotelsRepository)
-		mockHotelRepoErr.On("GetHotelByID",mock.AnythingOfType("int")).Return(mockHotel, errors.New("fdsw")).Once()
+		mockHotelRepoErr.On("GetHotelByID", mock.AnythingOfType("int")).Return(mockHotel, errors.New("fdsw")).Once()
 
 		uEr := NewHotelUsecase(mockHotelRepoErr)
 
 		_, err := uEr.GetHotelByID(mockHotel.HotelID)
-		assert.Error(t,err)
+		assert.Error(t, err)
 		mockHotelRepo.AssertExpectations(t)
 	})
 }
 
 func TestHotelUseCase_Add(t *testing.T) {
 
-	mockHotel := [](models.Hotel){{Name: "bestHotel",Description: "in the world"},
-		{Name: "bestHotel",Description: "in the world"}}
+	mockHotel := [](models.Hotel){{Name: "bestHotel", Description: "in the world"},
+		{Name: "bestHotel", Description: "in the world"}}
 
-	t.Run("HotelsGet",func(t *testing.T) {
+	t.Run("HotelsGet", func(t *testing.T) {
 		mockHotelRepo := new(mocks.HotelsRepository)
 		mockHotelRepo.On("GetHotels").Return(mockHotel, nil).Once()
 		u := NewHotelUsecase(mockHotelRepo)
 
 		hotels, err := u.GetHotels()
 
-		assert.NoError(t,err)
-		assert.NotNil(t,hotels)
+		assert.NoError(t, err)
+		assert.NotNil(t, hotels)
 
 		mockHotelRepo.AssertExpectations(t)
 	})
 
-	t.Run("HotelsGet-error",func(t *testing.T) {
+	t.Run("HotelsGet-error", func(t *testing.T) {
 		mockHotelRepoErr := new(mocks.HotelsRepository)
 		mockHotelRepoErr.On("GetHotels").Return(mockHotel, errors.New("fdsw")).Once()
 
 		uEr := NewHotelUsecase(mockHotelRepoErr)
 
 		_, err := uEr.GetHotels()
-		assert.Error(t,err)
+		assert.Error(t, err)
 		mockHotelRepoErr.AssertExpectations(t)
 	})
 }

@@ -6,12 +6,12 @@ import (
 )
 
 type HotelUseCase struct {
-	hotelRepo     hotels.Repository
+	hotelRepo hotels.Repository
 }
 
 func NewHotelUsecase(r hotels.Repository) *HotelUseCase {
 	return &HotelUseCase{
-		hotelRepo:     r,
+		hotelRepo: r,
 	}
 }
 
@@ -22,6 +22,6 @@ func (p *HotelUseCase) GetHotelByID(ID int) (models.Hotel, error) {
 	return p.hotelRepo.GetHotelByID(ID)
 }
 
-func (p *HotelUseCase) SearchHotel(pattern string, startID int, limit int) ([]models.Hotel,error){
-	return p.hotelRepo.SearchHotel(pattern,startID,limit)
+func (p *HotelUseCase) SearchHotel(pattern string, startID int, limit int) ([]models.Hotel, error) {
+	return p.hotelRepo.SearchHotel(pattern, startID, limit)
 }

@@ -35,7 +35,7 @@ func CheckCSRF(next http.HandlerFunc) http.HandlerFunc {
 			csrfCookie, err := r.Cookie("csrf")
 
 			if err != nil || csrf == "" || csrfCookie.Value == "" || csrfCookie.Value != csrf {
-				responses.SendErrorResponse(w,419, errors.New("csrf unvalid"))
+				responses.SendErrorResponse(w, 419, errors.New("csrf unvalid"))
 				return
 			}
 			generateCsrfLogic(w)

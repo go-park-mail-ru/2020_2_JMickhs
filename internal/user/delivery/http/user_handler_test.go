@@ -30,16 +30,14 @@ func TestUserHandler_Auth(t *testing.T) {
 	var mockUser models.User
 	err := faker.FakeData(&mockUser)
 
-	assert.NoError(t,err)
+	assert.NoError(t, err)
 	mockSCase := new(SessionMocks.SessionsUsecase)
 	mockSCase.On("AddToken", mock.AnythingOfType("int")).Return("1", nil)
-	t.Run("Auth",func(t *testing.T) {
+	t.Run("Auth", func(t *testing.T) {
 		mockUCase := new(mocks.UserUsecase)
-
 
 		mockUCase.On("GetByUserName", mock.AnythingOfType("string")).Return(mockUser, nil)
 		mockUCase.On("ComparePassword", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
-
 
 		body, _ := json.Marshal(mockUser)
 		req, err := http.NewRequest("POST", "/api/v1/signin", bytes.NewBuffer(body))
@@ -63,24 +61,24 @@ func TestUserHandler_Auth(t *testing.T) {
 		mockUCase.AssertExpectations(t)
 	})
 
-	t.Run("Auth-error",func(t *testing.T) {
+	t.Run("Auth-error", func(t *testing.T) {
 		mockUCaseErr := new(mocks.UserUsecase)
 
-		mockUCaseErr.On("GetByUserName",mock.AnythingOfType("string")).Return(mockUser,nil)
-		mockUCaseErr.On("ComparePassword",mock.AnythingOfType("string"),mock.AnythingOfType("string")).Return(errors.New("dsf"))
-		body , _ := json.Marshal(mockUser)
-		req,err := http.NewRequest("POST","/api/v1/signin",bytes.NewBuffer(body))
-		assert.NoError(t,err)
+		mockUCaseErr.On("GetByUserName", mock.AnythingOfType("string")).Return(mockUser, nil)
+		mockUCaseErr.On("ComparePassword", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(errors.New("dsf"))
+		body, _ := json.Marshal(mockUser)
+		req, err := http.NewRequest("POST", "/api/v1/signin", bytes.NewBuffer(body))
+		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase: mockUCaseErr,
+			UserUseCase:     mockUCaseErr,
 			SessionsUseCase: mockSCase,
-			log: logrus.New(),
+			log:             logrus.New(),
 		}
 
-		handler.Auth(rec,req)
-		assert.Equal(t,http.StatusUnauthorized,rec.Code)
+		handler.Auth(rec, req)
+		assert.Equal(t, http.StatusUnauthorized, rec.Code)
 		mockUCaseErr.AssertExpectations(t)
 	})
 
@@ -90,34 +88,34 @@ func TestUserHandler_Registration(t *testing.T) {
 	var mockUser models.User
 	err := faker.FakeData(&mockUser)
 
-	assert.NoError(t,err)
+	assert.NoError(t, err)
 
 	mockUCase := new(mocks.UserUsecase)
 	mockSCase := new(SessionMocks.SessionsUsecase)
 
-	mockUCase.On("Add",mock.AnythingOfType("models.User")).Return(mockUser,nil)
+	mockUCase.On("Add", mock.AnythingOfType("models.User")).Return(mockUser, nil)
 	mockUCase.On("SetDefaultAvatar", mock.AnythingOfType("*models.User")).Return(nil)
-	mockSCase.On("AddToken",mock.AnythingOfType("int")).Return("1",nil)
+	mockSCase.On("AddToken", mock.AnythingOfType("int")).Return("1", nil)
 
-	body , _ := json.Marshal(mockUser)
-	req,err := http.NewRequest("POST","/api/v1/signup",bytes.NewBuffer(body))
-	assert.NoError(t,err)
+	body, _ := json.Marshal(mockUser)
+	req, err := http.NewRequest("POST", "/api/v1/signup", bytes.NewBuffer(body))
+	assert.NoError(t, err)
 
 	rec := httptest.NewRecorder()
 	handler := UserHandler{
-		UserUseCase: mockUCase,
+		UserUseCase:     mockUCase,
 		SessionsUseCase: mockSCase,
 	}
 
-	handler.Registration(rec,req)
+	handler.Registration(rec, req)
 	resp := rec.Result()
 	user := models.User{}
 	body, err = ioutil.ReadAll(resp.Body)
-	err = json.Unmarshal(body,&user)
+	err = json.Unmarshal(body, &user)
 
-	assert.Equal(t,user.ID,mockUser.ID)
+	assert.Equal(t, user.ID, mockUser.ID)
 
-	assert.Equal(t,http.StatusOK,rec.Code)
+	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUCase.AssertExpectations(t)
 }
 
@@ -125,32 +123,32 @@ func TestUserHandler_GetAccInfo(t *testing.T) {
 	var mockUser models.User
 	err := faker.FakeData(&mockUser)
 
-	assert.NoError(t,err)
+	assert.NoError(t, err)
 
 	mockUCase := new(mocks.UserUsecase)
 	mockSCase := new(SessionMocks.SessionsUsecase)
 
-	mockUCase.On("GetByUserName",mock.AnythingOfType("string")).Return(mockUser,nil)
+	mockUCase.On("GetByUserName", mock.AnythingOfType("string")).Return(mockUser, nil)
 
-	body , _ := json.Marshal(mockUser)
-	req,err := http.NewRequest("GET","/api/v1/getAccInfo",bytes.NewBuffer(body))
-	assert.NoError(t,err)
+	body, _ := json.Marshal(mockUser)
+	req, err := http.NewRequest("GET", "/api/v1/getAccInfo", bytes.NewBuffer(body))
+	assert.NoError(t, err)
 
 	rec := httptest.NewRecorder()
 	handler := UserHandler{
-		UserUseCase: mockUCase,
+		UserUseCase:     mockUCase,
 		SessionsUseCase: mockSCase,
 	}
 
-	handler.getAccInfo(rec,req)
+	handler.getAccInfo(rec, req)
 	resp := rec.Result()
 	user := models.User{}
 	body, err = ioutil.ReadAll(resp.Body)
-	err = json.Unmarshal(body,&user)
+	err = json.Unmarshal(body, &user)
 
-	assert.Equal(t,user.ID,mockUser.ID)
+	assert.Equal(t, user.ID, mockUser.ID)
 
-	assert.Equal(t,http.StatusOK,rec.Code)
+	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUCase.AssertExpectations(t)
 }
 
@@ -158,29 +156,29 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 	var mockUser models.User
 	err := faker.FakeData(&mockUser)
 
-	assert.NoError(t,err)
+	assert.NoError(t, err)
 
 	mockUCase := new(mocks.UserUsecase)
 	mockSCase := new(SessionMocks.SessionsUsecase)
 
-	mockUCase.On("UpdateUser",mock.AnythingOfType("models.User")).Return(nil)
-	mockSCase.On("GetIDByToken",mock.AnythingOfType("string")).Return(mockUser.ID,err)
+	mockUCase.On("UpdateUser", mock.AnythingOfType("models.User")).Return(nil)
+	mockSCase.On("GetIDByToken", mock.AnythingOfType("string")).Return(mockUser.ID, err)
 
-	body , _ := json.Marshal(mockUser)
-	req,err := http.NewRequest("PUT","/api/v1/updateUser",bytes.NewBuffer(body))
+	body, _ := json.Marshal(mockUser)
+	req, err := http.NewRequest("PUT", "/api/v1/updateUser", bytes.NewBuffer(body))
 
-	assert.NoError(t,err)
+	assert.NoError(t, err)
 
 	rec := httptest.NewRecorder()
-	req = req.WithContext(context.WithValue(req.Context(),"User",mockUser))
+	req = req.WithContext(context.WithValue(req.Context(), "User", mockUser))
 	handler := UserHandler{
-		UserUseCase: mockUCase,
+		UserUseCase:     mockUCase,
 		SessionsUseCase: mockSCase,
 	}
 
-	handler.UpdateUser(rec,req)
+	handler.UpdateUser(rec, req)
 
-	assert.Equal(t,http.StatusOK,rec.Code)
+	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUCase.AssertExpectations(t)
 }
 
@@ -188,11 +186,11 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 	var mockUser models.User
 	err := faker.FakeData(&mockUser)
 
-	assert.NoError(t,err)
+	assert.NoError(t, err)
 	mockSCase := new(SessionMocks.SessionsUsecase)
 	mockSCase.On("GetIDByToken", mock.AnythingOfType("string")).Return(mockUser.ID, err)
 	body, _ := json.Marshal(mockUser)
-	t.Run("UpdatePassword",func(t *testing.T) {
+	t.Run("UpdatePassword", func(t *testing.T) {
 
 		mockUCase := new(mocks.UserUsecase)
 
@@ -216,24 +214,24 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		mockUCase.AssertExpectations(t)
 	})
 
-	t.Run("UpdatePassword-error",func(t *testing.T) {
+	t.Run("UpdatePassword-error", func(t *testing.T) {
 		mockUCaseErr := new(mocks.UserUsecase)
-		req,err := http.NewRequest("PUT","/api/v1/updatePassword",bytes.NewBuffer(body))
-		assert.NoError(t,err)
+		req, err := http.NewRequest("PUT", "/api/v1/updatePassword", bytes.NewBuffer(body))
+		assert.NoError(t, err)
 		rec := httptest.NewRecorder()
-		mockUCaseErr.On("UpdatePassword",mock.AnythingOfType("models.User")).Return(nil)
-		mockUCaseErr.On("ComparePassword",mock.AnythingOfType("string"),mock.AnythingOfType("string")).Return(errors.New("resd"))
+		mockUCaseErr.On("UpdatePassword", mock.AnythingOfType("models.User")).Return(nil)
+		mockUCaseErr.On("ComparePassword", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(errors.New("resd"))
 
-		req = req.WithContext(context.WithValue(req.Context(),"User",mockUser))
+		req = req.WithContext(context.WithValue(req.Context(), "User", mockUser))
 		handler := UserHandler{
-			UserUseCase: mockUCaseErr,
+			UserUseCase:     mockUCaseErr,
 			SessionsUseCase: mockSCase,
-			log: logrus.New(),
+			log:             logrus.New(),
 		}
 
-		handler.updatePassword(rec,req)
+		handler.updatePassword(rec, req)
 
-		assert.Equal(t,409,rec.Code)
+		assert.Equal(t, 409, rec.Code)
 
 	})
 }
@@ -242,7 +240,7 @@ func TestUserHandler_UpdateAvatar(t *testing.T) {
 	var mockUser models.User
 	err := faker.FakeData(&mockUser)
 
-	assert.NoError(t,err)
+	assert.NoError(t, err)
 	buf, wr := createMultipartFormFile(t)
 	mockUCase := new(mocks.UserUsecase)
 	mockSCase := new(SessionMocks.SessionsUsecase)
@@ -252,7 +250,7 @@ func TestUserHandler_UpdateAvatar(t *testing.T) {
 		mock.AnythingOfType("string"), mock.AnythingOfType("*models.User")).Return(nil)
 	mockSCase.On("GetIDByToken", mock.AnythingOfType("string")).Return(mockUser.ID, err)
 
-	t.Run("UpdateAvatar",func(t *testing.T) {
+	t.Run("UpdateAvatar", func(t *testing.T) {
 
 		req, err := http.NewRequest("PUT", "/api/v1/updateAvatar", &buf)
 
@@ -271,21 +269,21 @@ func TestUserHandler_UpdateAvatar(t *testing.T) {
 		mockUCase.AssertExpectations(t)
 	})
 
-	t.Run("UpdateAvatar-error",func(t *testing.T){
-		req,err := http.NewRequest("PUT","/api/v1/updateAvatar",&buf)
+	t.Run("UpdateAvatar-error", func(t *testing.T) {
+		req, err := http.NewRequest("PUT", "/api/v1/updateAvatar", &buf)
 
-		assert.NoError(t,err)
+		assert.NoError(t, err)
 		rec := httptest.NewRecorder()
-		req = req.WithContext(context.WithValue(req.Context(),"User",mockUser))
+		req = req.WithContext(context.WithValue(req.Context(), "User", mockUser))
 		handler := UserHandler{
-			UserUseCase: mockUCase,
+			UserUseCase:     mockUCase,
 			SessionsUseCase: mockSCase,
-			log: logrus.New(),
+			log:             logrus.New(),
 		}
 
-		handler.UpdateAvatar(rec,req)
+		handler.UpdateAvatar(rec, req)
 
-		assert.Equal(t,400,rec.Code)
+		assert.Equal(t, 400, rec.Code)
 	})
 }
 
@@ -294,17 +292,16 @@ func createMultipartFormFile(t *testing.T) (bytes.Buffer, *multipart.Writer) {
 	var err error
 	w := multipart.NewWriter(&b)
 	header := textproto.MIMEHeader{}
-	header.Set("Content-Disposition",fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
-		"avatar","kek.png"))
-	header.Set("Content-Type","application/png")
-	fw ,err := w.CreatePart(header)
+	header.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
+		"avatar", "kek.png"))
+	header.Set("Content-Type", "application/png")
+	fw, err := w.CreatePart(header)
 	if err != nil {
 		t.Errorf("Error creating writer: %v", err)
 	}
 
-	img := image.NewRGBA(image.Rectangle{image.Point{0, 0},image.Point{0, 0}})
-	err = png.Encode(fw,img)
-
+	img := image.NewRGBA(image.Rectangle{image.Point{0, 0}, image.Point{0, 0}})
+	err = png.Encode(fw, img)
 
 	err = w.Close()
 	if err != nil {
@@ -318,35 +315,35 @@ func TestUserHandler_SignOut(t *testing.T) {
 	var mockUser models.User
 	err := faker.FakeData(&mockUser)
 
-	assert.NoError(t,err)
+	assert.NoError(t, err)
 
 	mockUCase := new(mocks.UserUsecase)
 	mockSCase := new(SessionMocks.SessionsUsecase)
 
-	mockSCase.On("DeleteSession",mock.AnythingOfType("string")).Return(err)
+	mockSCase.On("DeleteSession", mock.AnythingOfType("string")).Return(err)
 
-	body , _ := json.Marshal(mockUser)
-	req,err := http.NewRequest("POST","/api/v1/signOut",bytes.NewBuffer(body))
+	body, _ := json.Marshal(mockUser)
+	req, err := http.NewRequest("POST", "/api/v1/signOut", bytes.NewBuffer(body))
 
-	assert.NoError(t,err)
+	assert.NoError(t, err)
 
 	rec := httptest.NewRecorder()
-	req = req.WithContext(context.WithValue(req.Context(),"User",mockUser))
+	req = req.WithContext(context.WithValue(req.Context(), "User", mockUser))
 	req.AddCookie(&http.Cookie{
 		Name:     "session_token",
 		Value:    "dsf",
 		Path:     "/",
 		HttpOnly: true,
-		Expires:  time.Now().Add( configs.CookieLifeTime),
+		Expires:  time.Now().Add(configs.CookieLifeTime),
 	})
 	handler := UserHandler{
-		UserUseCase: mockUCase,
+		UserUseCase:     mockUCase,
 		SessionsUseCase: mockSCase,
 	}
 
-	handler.SignOut(rec,req)
+	handler.SignOut(rec, req)
 
-	assert.Equal(t,http.StatusOK,rec.Code)
+	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUCase.AssertExpectations(t)
 }
 
@@ -354,33 +351,31 @@ func TestUserHandler_GetCurrentUser(t *testing.T) {
 	var mockUser models.User
 	err := faker.FakeData(&mockUser)
 
-	assert.NoError(t,err)
+	assert.NoError(t, err)
 
 	mockUCase := new(mocks.UserUsecase)
 	mockSCase := new(SessionMocks.SessionsUsecase)
 
-	mockUCase.On("CheckEmpty",mock.AnythingOfType("models.User")).Return(false)
+	mockUCase.On("CheckEmpty", mock.AnythingOfType("models.User")).Return(false)
 
-	req,err := http.NewRequest("GET","/api/v1/get_current_user",strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/api/v1/get_current_user", strings.NewReader(""))
 
-	assert.NoError(t,err)
+	assert.NoError(t, err)
 
 	rec := httptest.NewRecorder()
-	req = req.WithContext(context.WithValue(req.Context(),"User",mockUser))
+	req = req.WithContext(context.WithValue(req.Context(), "User", mockUser))
 	handler := UserHandler{
-		UserUseCase: mockUCase,
+		UserUseCase:     mockUCase,
 		SessionsUseCase: mockSCase,
 	}
 
-
-	handler.GetCurrentUser(rec,req)
+	handler.GetCurrentUser(rec, req)
 	resp := rec.Result()
 	body, err := ioutil.ReadAll(resp.Body)
 	var user models.User
-	err = json.Unmarshal(body,&user)
+	err = json.Unmarshal(body, &user)
 
-	assert.Equal(t,user.ID,mockUser.ID)
-	assert.Equal(t,http.StatusOK,rec.Code)
+	assert.Equal(t, user.ID, mockUser.ID)
+	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUCase.AssertExpectations(t)
 }
-

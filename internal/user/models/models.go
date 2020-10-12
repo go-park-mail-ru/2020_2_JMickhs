@@ -20,9 +20,7 @@ type UserName struct {
 	Username string `json:"username"`
 }
 
-type UpdatePassword struct{
+type UpdatePassword struct {
 	OldPassword string `json:"oldpassword" db:"password" validate:"required"`
 	NewPassword string `json:"newpassword" db:"password" validate:"required"`
 }
-
-

@@ -6,5 +6,5 @@ type Usecase interface {
 	GetComments(hotelID int, StartID int) ([]models.FullCommentInfo, error)
 	AddComment(comment models.Comment) (models.Comment, error)
 	DeleteComment(ID int) error
-	UpdateComment(comment models.Comment) (error)
+	UpdateComment(comment models.Comment) error
 }

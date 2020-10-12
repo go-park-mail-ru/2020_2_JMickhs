@@ -47,7 +47,7 @@ func (p *PostgresUserRepository) GetUserByID(ID int) (models.User, error) {
 
 	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Avatar)
 	if err != nil {
-		return user,  errors.New("such user doesn't exist")
+		return user, errors.New("such user doesn't exist")
 	}
 	return user, nil
 }

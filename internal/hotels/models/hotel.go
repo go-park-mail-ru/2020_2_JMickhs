@@ -9,13 +9,12 @@ type Hotel struct {
 }
 
 type HotelPreview struct {
-	HotelID     int    `json:"hotel_id"`
-	Name        string `json:"name"`
-	Image       string `json:"image"`
-	Location    string `json:"location"`
+	HotelID  int    `json:"hotel_id"`
+	Name     string `json:"name"`
+	Image    string `json:"image"`
+	Location string `json:"location"`
 }
 
-type SearchString struct{
+type SearchString struct {
 	Pattern string `json:"pattern"`
 }
-

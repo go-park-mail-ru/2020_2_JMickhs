@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
 )
 
 func TestSetCSRF(t *testing.T) {

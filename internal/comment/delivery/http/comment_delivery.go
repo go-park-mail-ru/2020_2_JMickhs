@@ -2,31 +2,33 @@ package commentDelivery
 
 import (
 	"encoding/json"
+	"net/http"
+	"strconv"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment/models"
 	permissions "github.com/go-park-mail-ru/2020_2_JMickhs/internal/permission"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/responses"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
-	"net/http"
-	"strconv"
 )
 
 type CommentHandler struct {
-	CommentUseCase  comment.Usecase
-	log          *logrus.Logger
+	CommentUseCase comment.Usecase
+	log            *logrus.Logger
 }
 
 func NewCommentHandler(r *mux.Router, hs comment.Usecase, lg *logrus.Logger) {
-	handler :=  CommentHandler{
+	handler := CommentHandler{
 		CommentUseCase: hs,
-		log:          lg,
+		log:            lg,
 	}
 
-	r.HandleFunc("/api/v1/comments",  permissions.CheckCSRF(handler.AddComment)).Methods("POST")
-	r.HandleFunc("/api/v1/comments",  permissions.CheckCSRF(handler.UpdateComment)).Methods("PUT")
-	r.HandleFunc("/api/v1/comments/{id:[0-9]+}",  permissions.CheckCSRF(handler.DeleteComment)).Methods("DELETE")
-	r.Path("/api/v1/comments").Queries("id","{id:[0-9]+}", "from", "{from:[0-9]+}").HandlerFunc(permissions.SetCSRF(handler.ListComments)).Methods("GET")
+	r.HandleFunc("/api/v1/comments", permissions.CheckCSRF(handler.AddComment)).Methods("POST")
+	r.HandleFunc("/api/v1/comments", permissions.CheckCSRF(handler.UpdateComment)).Methods("PUT")
+	r.HandleFunc("/api/v1/comments/{id:[0-9]+}", permissions.CheckCSRF(handler.DeleteComment)).Methods("DELETE")
+	r.Path("/api/v1/comments").Queries("id", "{id:[0-9]+}", "from", "{from:[0-9]+}").
+		HandlerFunc(permissions.SetCSRF(handler.ListComments)).Methods("GET")
 }
 
 // swagger:route GET /api/v1/comments comment comments
@@ -41,14 +43,14 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 	id := r.FormValue("id")
 	hotelId, err := strconv.Atoi(id)
 
-	comments, err := ch.CommentUseCase.GetComments(hotelId,startId)
+	comments, err := ch.CommentUseCase.GetComments(hotelId, startId)
 
 	if err != nil {
-		responses.SendErrorResponse(w,http.StatusInternalServerError,err)
+		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	responses.SendOkResponse(w,comments)
+	responses.SendOkResponse(w, comments)
 }
 
 // swagger:route POST /api/v1/comments comment AddComment
@@ -57,34 +59,34 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 	comment := models.Comment{}
 	err := json.NewDecoder(r.Body).Decode(&comment)
-	if err != nil{
-		responses.SendErrorResponse(w,http.StatusBadRequest,err)
+	if err != nil {
+		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
 	comm, err := ch.CommentUseCase.AddComment(comment)
 
 	if err != nil {
-		responses.SendErrorResponse(w,http.StatusInternalServerError,err)
+		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	responses.SendOkResponse(w,comm)
+	responses.SendOkResponse(w, comm)
 }
 
 // swagger:route PUT /api/v1/comments comment UpdateComment
 func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 	comment := models.Comment{}
 	err := json.NewDecoder(r.Body).Decode(&comment)
-	if err != nil{
-		responses.SendErrorResponse(w,http.StatusBadRequest,err)
+	if err != nil {
+		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
 	err = ch.CommentUseCase.UpdateComment(comment)
 
 	if err != nil {
-		responses.SendErrorResponse(w,http.StatusInternalServerError,err)
+		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 }
@@ -94,15 +96,15 @@ func (ch *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) 
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 
-	if err != nil{
-		responses.SendErrorResponse(w,http.StatusBadRequest,err)
+	if err != nil {
+		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
 	err = ch.CommentUseCase.DeleteComment(id)
 
 	if err != nil {
-		responses.SendErrorResponse(w,http.StatusInternalServerError,err)
+		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 

@@ -6,25 +6,24 @@ import (
 )
 
 type CommentUseCase struct {
-	commentRepo     comment.Repository
+	commentRepo comment.Repository
 }
 
 func NewCommentUsecase(r comment.Repository) *CommentUseCase {
 	return &CommentUseCase{
-		commentRepo :     r,
+		commentRepo: r,
 	}
 }
 
-
-func(u *CommentUseCase) GetComments(hotelID int,StartID int) ([]models.FullCommentInfo, error){
-	return u.commentRepo.GetComments(hotelID,StartID)
+func (u *CommentUseCase) GetComments(hotelID int, StartID int) ([]models.FullCommentInfo, error) {
+	return u.commentRepo.GetComments(hotelID, StartID)
 }
-func(u *CommentUseCase) AddComment(comment models.Comment) (models.Comment, error){
+func (u *CommentUseCase) AddComment(comment models.Comment) (models.Comment, error) {
 	return u.commentRepo.AddComment(comment)
 }
-func(u *CommentUseCase) DeleteComment(ID int) error{
+func (u *CommentUseCase) DeleteComment(ID int) error {
 	return u.commentRepo.DeleteComment(ID)
 }
-func(u *CommentUseCase) UpdateComment(comment models.Comment) (error){
+func (u *CommentUseCase) UpdateComment(comment models.Comment) error {
 	return u.commentRepo.UpdateComment(comment)
 }

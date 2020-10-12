@@ -36,7 +36,7 @@ func (u *SessionMidleware) SessionMiddleware() mux.MiddlewareFunc {
 			if c != nil {
 				sessionToken := c.Value
 				id, err := u.SessUseCase.GetIDByToken(sessionToken)
-				if err != nil{
+				if err != nil {
 					u.log.Info(err.Error())
 					next.ServeHTTP(w, r)
 					return

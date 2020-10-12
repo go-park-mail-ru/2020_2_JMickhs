@@ -2,16 +2,15 @@ package swagger
 
 import "github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment/models"
 
-
-type AddCommentRequest struct{
-	UserID int `json:"user_id"`
-	HotelID int `json:"hotel_id"`
+type AddCommentRequest struct {
+	UserID  int    `json:"user_id"`
+	HotelID int    `json:"hotel_id"`
 	Message string `json:"message"`
-	Rating int  `json:"rating"`
+	Rating  int    `json:"rating"`
 }
 
-type UpdateCommentRequest struct{
-	CommID int `json:"comm_id"`
+type UpdateCommentRequest struct {
+	CommID  int    `json:"comm_id"`
 	Message string `json:"message"`
 }
 

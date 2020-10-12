@@ -52,7 +52,7 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusBadRequest,err)
+		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -60,13 +60,13 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusInternalServerError,err)
+		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	safeUser := models.SafeUser{ID: user.ID, Username: user.Username, Avatar: user.Avatar, Email: user.Email}
 
-	responses.SendOkResponse(w,safeUser)
+	responses.SendOkResponse(w, safeUser)
 }
 
 // swagger:route PUT /api/v1/users/avatar Users avatar
@@ -74,39 +74,39 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(5 * configs.MB)
 
-	r.Body = http.MaxBytesReader(w, r.Body, 5 * configs.MB)
+	r.Body = http.MaxBytesReader(w, r.Body, 5*configs.MB)
 	file, _, err := r.FormFile("avatar")
 
 	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusBadRequest,err)
+		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
 	fileType, err := u.UserUseCase.CheckAvatar(file)
 	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusBadRequest,err)
+		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
 	usr, ok := r.Context().Value("User").(models.User)
 	if !ok {
-		responses.SendErrorResponse(w,http.StatusUnauthorized,errors.New("User Unauthorized"))
+		responses.SendErrorResponse(w, http.StatusUnauthorized, errors.New("User Unauthorized"))
 		return
 	}
 
-	err = u.UserUseCase.UploadAvatar(file , fileType, &usr)
-	if err != nil{
+	err = u.UserUseCase.UploadAvatar(file, fileType, &usr)
+	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	err = u.UserUseCase.UpdateAvatar(usr)
 	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 }
@@ -121,27 +121,27 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&twoPass)
 	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusBadRequest,err)
+		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
 	usr, ok := r.Context().Value("User").(models.User)
 	if !ok {
-		responses.SendErrorResponse(w,http.StatusUnauthorized,errors.New("User Unauthorized"))
+		responses.SendErrorResponse(w, http.StatusUnauthorized, errors.New("User Unauthorized"))
 		return
 	}
 
-	err = u.UserUseCase.ComparePassword(twoPass.OldPassword,usr.Password)
+	err = u.UserUseCase.ComparePassword(twoPass.OldPassword, usr.Password)
 	if err != nil {
 		u.log.Info(err.Error())
-		responses.SendErrorResponse(w,http.StatusConflict, errors.New("Wrong Old Password"))
+		responses.SendErrorResponse(w, http.StatusConflict, errors.New("Wrong Old Password"))
 		return
 	}
 	usr.Password = twoPass.NewPassword
 	err = u.UserUseCase.UpdatePassword(usr)
 	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 }
@@ -154,13 +154,13 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusBadRequest,err)
+		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
-	usr,ok := r.Context().Value("User").(models.User)
+	usr, ok := r.Context().Value("User").(models.User)
 	if !ok {
-		responses.SendErrorResponse(w,http.StatusUnauthorized,errors.New("User Unauthorized"))
+		responses.SendErrorResponse(w, http.StatusUnauthorized, errors.New("User Unauthorized"))
 		return
 	}
 	user.ID = usr.ID
@@ -168,7 +168,7 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	err = u.UserUseCase.UpdateUser(user)
 	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 }
@@ -184,21 +184,21 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	u.UserUseCase.SetDefaultAvatar(&user)
 	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusBadRequest,err)
+		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
 	usr, err := u.UserUseCase.Add(user)
 	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	sessionID, err := u.SessionsUseCase.AddToken(usr.ID)
 	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -209,8 +209,7 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 		Value:    sessionID,
 		Path:     "/",
 		HttpOnly: true,
-		Expires:  time.Now().Add( configs.CookieLifeTime),
-
+		Expires:  time.Now().Add(configs.CookieLifeTime),
 	})
 	responses.SendOkResponse(w, safeUser)
 }
@@ -226,28 +225,28 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusBadRequest,err)
+		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
 	usr, err := u.UserUseCase.GetByUserName(user.Username)
 	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
-	err = u.UserUseCase.ComparePassword(user.Password,usr.Password)
+	err = u.UserUseCase.ComparePassword(user.Password, usr.Password)
 
 	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusUnauthorized, err)
+		responses.SendErrorResponse(w, http.StatusUnauthorized, err)
 		return
 	}
 
 	sessionID, err := u.SessionsUseCase.AddToken(usr.ID)
 	if err != nil {
 		u.log.Error(err.Error())
-		responses.SendErrorResponse(w,http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 	safeUser := models.SafeUser{ID: usr.ID, Username: usr.Username, Avatar: usr.Avatar, Email: usr.Email}
@@ -257,8 +256,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 		Value:    sessionID,
 		Path:     "/",
 		HttpOnly: true,
-		Expires:  time.Now().Add( configs.CookieLifeTime),
-
+		Expires:  time.Now().Add(configs.CookieLifeTime),
 	})
 	responses.SendOkResponse(w, safeUser)
 }
@@ -270,11 +268,11 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 func (u *UserHandler) UserHandler(w http.ResponseWriter, r *http.Request) {
 	usr, ok := r.Context().Value("User").(models.User)
 	if !ok {
-		responses.SendErrorResponse(w,http.StatusUnauthorized,errors.New("User Unauthorized"))
+		responses.SendErrorResponse(w, http.StatusUnauthorized, errors.New("User Unauthorized"))
 		return
 	}
 	if u.UserUseCase.CheckEmpty(usr) {
-		responses.SendErrorResponse(w,http.StatusUnauthorized,errors.New("User Unauthorized"))
+		responses.SendErrorResponse(w, http.StatusUnauthorized, errors.New("User Unauthorized"))
 		return
 	}
 
@@ -292,7 +290,7 @@ func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		err := u.SessionsUseCase.DeleteSession(c.Value)
 		if err != nil {
 			u.log.Error(err.Error())
-			responses.SendErrorResponse(w,http.StatusInternalServerError, err)
+			responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 			return
 		}
 		c.Expires = time.Now().AddDate(0, 0, -1)
@@ -300,4 +298,3 @@ func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, c)
 	}
 }
-
