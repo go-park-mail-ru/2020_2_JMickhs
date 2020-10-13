@@ -1,9 +1,11 @@
 package hotelRepository
 
 import (
+	"strconv"
+
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/error"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models"
 	"github.com/jmoiron/sqlx"
-	"strconv"
 )
 
 type PostgreHotelRepository struct {
@@ -19,13 +21,13 @@ func (p *PostgreHotelRepository) GetHotels(StartID int) ([]models.Hotel, error) 
 	defer rows.Close()
 	hotels := []models.Hotel{}
 	if err != nil {
-		return hotels, err
+		return hotels, customerror.NewCustomError(err.Error())
 	}
 	hotel := models.Hotel{}
 	for rows.Next() {
 		err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image)
 		if err != nil {
-			return hotels, err
+			return hotels, customerror.NewCustomError(err.Error())
 		}
 		hotels = append(hotels, hotel)
 	}
@@ -37,12 +39,12 @@ func (p *PostgreHotelRepository) GetHotelByID(ID int) (models.Hotel, error) {
 	defer rows.Close()
 	hotel := models.Hotel{}
 	if err != nil {
-		return hotel, err
+		return hotel, customerror.NewCustomError(err.Error())
 	}
 	for rows.Next() {
 		err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Location, &hotel.Description, &hotel.Image)
 		if err != nil {
-			return hotel, err
+			return hotel, customerror.NewCustomError(err.Error())
 		}
 	}
 	return hotel, nil
@@ -53,15 +55,15 @@ func (p *PostgreHotelRepository) SearchHotel(pattern string, startID int, limit 
 		"or location % $1 or name LIKE '%' || $1 || '%' or location LIKE '%' || $1 || '%' LIMIT $2 OFFSET $3", pattern, strconv.Itoa(limit), strconv.Itoa(startID))
 	hotels := []models.Hotel{}
 	if err != nil {
-		return hotels, err
+		return hotels, customerror.NewCustomError(err.Error())
 	}
 	hotel := models.Hotel{}
 	for rows.Next() {
 		err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Location, &hotel.Image)
 		if err != nil {
-			return hotels, err
+			return hotels, customerror.NewCustomError(err.Error())
 		}
 		hotels = append(hotels, hotel)
 	}
-	return hotels, err
+	return hotels, nil
 }

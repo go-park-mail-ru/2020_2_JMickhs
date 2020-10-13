@@ -2,9 +2,11 @@ package sessionsRepository
 
 import (
 	"context"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
-	"github.com/go-redis/redis/v8"
 	"strconv"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/error"
+	"github.com/go-redis/redis/v8"
 )
 
 type sessionsRepository struct {
@@ -18,23 +20,28 @@ func NewSessionsUserRepository(sessStore *redis.Client) sessionsRepository {
 
 func (p *sessionsRepository) AddToken(token string, ID int) (string, error) {
 	err := p.sessStore.Set(context.Background(), token, ID, configs.CookieLifeTime).Err()
-
-	return token, err
+	if err != nil {
+		return token, customerror.NewCustomError(err.Error())
+	}
+	return token, nil
 }
 
 func (p *sessionsRepository) GetIDByToken(token string) (int, error) {
 	response, err := p.sessStore.Get(context.Background(), token).Result()
 	if err != nil {
-		return 0, err
+		return 0, customerror.NewCustomError(err.Error())
 	}
 	res, err := strconv.Atoi(response)
 	if err != nil {
-		return 0, err
+		return 0, customerror.NewCustomError(err.Error())
 	}
 	return res, nil
 }
 
 func (p *sessionsRepository) DeleteSession(token string) error {
 	_, err := p.sessStore.Del(context.Background(), token).Result()
-	return err
+	if err != nil {
+		return customerror.NewCustomError(err.Error())
+	}
+	return nil
 }

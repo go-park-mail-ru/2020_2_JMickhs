@@ -3,11 +3,16 @@ package userDelivery
 import (
 	"encoding/json"
 	"errors"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/responses"
 	"net/http"
 	"strconv"
 	"time"
+
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/error"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/logger"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/responses"
 
 	permissions "github.com/go-park-mail-ru/2020_2_JMickhs/internal/permission"
 
@@ -16,16 +21,15 @@ import (
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/user"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/models"
 	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
 )
 
 type UserHandler struct {
 	UserUseCase     user.Usecase
 	SessionsUseCase sessions.Usecase
-	log             *logrus.Logger
+	log             *logger.CustomLogger
 }
 
-func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, lg *logrus.Logger) {
+func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, lg *logger.CustomLogger) {
 	handler := UserHandler{
 		UserUseCase:     us,
 		SessionsUseCase: su,
@@ -51,7 +55,8 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(vars["id"])
 
 	if err != nil {
-		u.log.Error(err.Error())
+		err = customerror.NewCustomError(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
@@ -59,7 +64,7 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 	user, err := u.UserUseCase.GetUserByID(id)
 
 	if err != nil {
-		u.log.Error(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -78,19 +83,20 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	file, _, err := r.FormFile("avatar")
 
 	if err != nil {
-		u.log.Error(err.Error())
+		err = customerror.NewCustomError(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
 	fileType, err := u.UserUseCase.CheckAvatar(file)
 	if err != nil {
-		u.log.Error(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
-	usr, ok := r.Context().Value("User").(models.User)
+	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
 		responses.SendErrorResponse(w, http.StatusUnauthorized, errors.New("User Unauthorized"))
 		return
@@ -98,14 +104,14 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 
 	err = u.UserUseCase.UploadAvatar(file, fileType, &usr)
 	if err != nil {
-		u.log.Error(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	err = u.UserUseCase.UpdateAvatar(usr)
 	if err != nil {
-		u.log.Error(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -120,27 +126,28 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	var twoPass models.UpdatePassword
 	err := json.NewDecoder(r.Body).Decode(&twoPass)
 	if err != nil {
-		u.log.Error(err.Error())
+		err = customerror.NewCustomError(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
-	usr, ok := r.Context().Value("User").(models.User)
+	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
-		responses.SendErrorResponse(w, http.StatusUnauthorized, errors.New("User Unauthorized"))
+		responses.SendErrorResponse(w, http.StatusUnauthorized, customerror.NewCustomError("User Unauthorized"))
 		return
 	}
 
 	err = u.UserUseCase.ComparePassword(twoPass.OldPassword, usr.Password)
 	if err != nil {
-		u.log.Info(err.Error())
-		responses.SendErrorResponse(w, http.StatusConflict, errors.New("Wrong Old Password"))
+		u.log.LogError(r.Context(), err)
+		responses.SendErrorResponse(w, http.StatusConflict, customerror.NewCustomError("Wrong Old Password"))
 		return
 	}
 	usr.Password = twoPass.NewPassword
 	err = u.UserUseCase.UpdatePassword(usr)
 	if err != nil {
-		u.log.Error(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -153,21 +160,22 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		u.log.Error(err.Error())
+		err = customerror.NewCustomError(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
-	usr, ok := r.Context().Value("User").(models.User)
+	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
-		responses.SendErrorResponse(w, http.StatusUnauthorized, errors.New("User Unauthorized"))
+		responses.SendErrorResponse(w, http.StatusUnauthorized, customerror.NewCustomError("users unauthorizied"))
 		return
 	}
 	user.ID = usr.ID
 
 	err = u.UserUseCase.UpdateUser(user)
 	if err != nil {
-		u.log.Error(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -183,21 +191,22 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	u.UserUseCase.SetDefaultAvatar(&user)
 	if err != nil {
-		u.log.Error(err.Error())
+		err = customerror.NewCustomError(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
 	usr, err := u.UserUseCase.Add(user)
 	if err != nil {
-		u.log.Error(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	sessionID, err := u.SessionsUseCase.AddToken(usr.ID)
 	if err != nil {
-		u.log.Error(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -224,28 +233,29 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 
 	if err != nil {
-		u.log.Error(err.Error())
+		err = customerror.NewCustomError(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
 
 	usr, err := u.UserUseCase.GetByUserName(user.Username)
 	if err != nil {
-		u.log.Error(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 	err = u.UserUseCase.ComparePassword(user.Password, usr.Password)
 
 	if err != nil {
-		u.log.Error(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusUnauthorized, err)
 		return
 	}
 
 	sessionID, err := u.SessionsUseCase.AddToken(usr.ID)
 	if err != nil {
-		u.log.Error(err.Error())
+		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -266,7 +276,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 // responses:
 //  200: safeUser
 func (u *UserHandler) UserHandler(w http.ResponseWriter, r *http.Request) {
-	usr, ok := r.Context().Value("User").(models.User)
+	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
 		responses.SendErrorResponse(w, http.StatusUnauthorized, errors.New("User Unauthorized"))
 		return
@@ -286,10 +296,9 @@ func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 
 	c, _ := r.Cookie("session_token")
 	if c != nil {
-
 		err := u.SessionsUseCase.DeleteSession(c.Value)
 		if err != nil {
-			u.log.Error(err.Error())
+			u.log.LogError(r.Context(), err)
 			responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 			return
 		}

@@ -1,12 +1,10 @@
 create table users (
     user_id  serial not null PRIMARY KEY,
-    username VARCHAR (50),
+    username VARCHAR (50) UNIQUE,
     email VARCHAR (50) UNIQUE,
     password text,
     avatar text
 );
-
-select password from userss where username='kostikan';
 
 create table comments (
     comm_id serial not null PRIMARY KEY,

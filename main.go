@@ -20,7 +20,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"runtime"
 	"strconv"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/logger"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 	commentDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment/delivery/http"
@@ -41,7 +46,6 @@ import (
 
 	delivery "github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/delivery/http"
 	"github.com/go-redis/redis/v8"
-	"github.com/sirupsen/logrus"
 
 	userRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/repository"
 
@@ -100,11 +104,25 @@ func NewRouter() *mux.Router {
 	return router
 }
 
+func initRelativePath() string {
+	_, fileName, _, _ := runtime.Caller(0)
+	return filepath.ToSlash(filepath.Dir(filepath.Dir(fileName))) + "/"
+}
+
 func main() {
 	configs.Init()
 	store := NewSessStore()
 	db := initDB()
 	defer store.Close()
+
+	configs.PrefixPath = initRelativePath()
+	logOutput, err := os.Create("log.txt")
+	if err != nil {
+		panic(err)
+	}
+	defer logOutput.Close()
+
+	log := logger.NewLogger(logOutput)
 
 	r := NewRouter()
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
@@ -121,10 +139,9 @@ func main() {
 	uSes := sessionsUseCase.NewSessionsUsecase(&repSes)
 	uCom := commentUsecase.NewCommentUsecase(&repCom)
 
-	var log = logrus.New()
-
 	sessMidleware := middlewareApi.NewSessionMiddleware(uSes, u, log)
 	r.Use(sessMidleware.SessionMiddleware())
+	r.Use(middlewareApi.LoggerMiddleware(log))
 
 	hotelDelivery.NewHotelHandler(r, uHot, log)
 	delivery.NewUserHandler(r, uSes, u, log)

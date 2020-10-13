@@ -4,19 +4,22 @@ import (
 	"context"
 	"net/http"
 
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/error"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/logger"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/sessions"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/user"
 	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
 )
 
 type SessionMidleware struct {
 	SessUseCase sessions.Usecase
 	UserUseCase user.Usecase
-	log         *logrus.Logger
+	log         *logger.CustomLogger
 }
 
-func NewSessionMiddleware(su sessions.Usecase, uuc user.Usecase, log *logrus.Logger) SessionMidleware {
+func NewSessionMiddleware(su sessions.Usecase, uuc user.Usecase, log *logger.CustomLogger) SessionMidleware {
 	return SessionMidleware{
 		SessUseCase: su,
 		UserUseCase: uuc,
@@ -30,6 +33,8 @@ func (u *SessionMidleware) SessionMiddleware() mux.MiddlewareFunc {
 			c, err := r.Cookie("session_token")
 
 			if err != nil {
+				err = customerror.NewCustomError(err.Error())
+				u.log.Info(err.Error())
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -37,13 +42,13 @@ func (u *SessionMidleware) SessionMiddleware() mux.MiddlewareFunc {
 				sessionToken := c.Value
 				id, err := u.SessUseCase.GetIDByToken(sessionToken)
 				if err != nil {
-					u.log.Info(err.Error())
+					u.log.LogError(r.Context(), err)
 					next.ServeHTTP(w, r)
 					return
 				}
 				user, err := u.UserUseCase.GetUserByID(id)
 				if err != nil {
-					u.log.Info(err.Error())
+					u.log.LogError(r.Context(), err)
 					next.ServeHTTP(w, r)
 					return
 				}

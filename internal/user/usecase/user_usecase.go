@@ -1,12 +1,13 @@
 package userUsecase
 
 import (
-	"errors"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"strings"
+
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/error"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 
@@ -54,9 +55,15 @@ func (u *userUseCase) UpdateUser(user models.User) error {
 
 func (u *userUseCase) UpdatePassword(user models.User) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
+	if err != nil {
+		return customerror.NewCustomError(err.Error())
+	}
 	user.Password = string(hashedPassword)
 	err = u.userRepo.UpdatePassword(user)
-	return err
+	if err != nil {
+		return customerror.NewCustomError(err.Error())
+	}
+	return nil
 }
 
 func (u *userUseCase) UpdateAvatar(user models.User) error {
@@ -69,7 +76,7 @@ func (u *userUseCase) UploadAvatar(file multipart.File, header string, user *mod
 	user.Avatar = configs.StaticPath + "/" + filename + "." + fileType[1]
 	f, err := os.OpenFile("../"+user.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
-		return err
+		return customerror.NewCustomError(err.Error())
 	}
 	defer f.Close()
 	io.Copy(f, file)
@@ -80,26 +87,26 @@ func (u *userUseCase) CheckAvatar(file multipart.File) (string, error) {
 	fileHeader := make([]byte, 512)
 	ContentType := ""
 	if _, err := file.Read(fileHeader); err != nil {
-		return ContentType, err
+		return ContentType, customerror.NewCustomError(err.Error())
 	}
 
 	if _, err := file.Seek(0, 0); err != nil {
-		return ContentType, err
+		return ContentType, customerror.NewCustomError(err.Error())
 	}
 
 	length, _ := file.Seek(0, 2)
 	if length > 5*configs.MB {
-		return ContentType, errors.New("file bigger then 5 MB")
+		return ContentType, customerror.NewCustomError("file bigger then 5 MB")
 	}
 
 	if _, err := file.Seek(0, 0); err != nil {
-		return ContentType, err
+		return ContentType, customerror.NewCustomError(err.Error())
 	}
 
 	ContentType = http.DetectContentType(fileHeader)
 
 	if ContentType != "image/jpg" && ContentType != "image/png" && ContentType != "image/jpeg" {
-		return ContentType, errors.New("wrong file type")
+		return ContentType, customerror.NewCustomError("Wrong file type")
 	}
 
 	return ContentType, nil

@@ -5,20 +5,23 @@ import (
 	"net/http"
 	"strconv"
 
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/error"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/logger"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment/models"
 	permissions "github.com/go-park-mail-ru/2020_2_JMickhs/internal/permission"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/responses"
 	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
 )
 
 type CommentHandler struct {
 	CommentUseCase comment.Usecase
-	log            *logrus.Logger
+	log            *logger.CustomLogger
 }
 
-func NewCommentHandler(r *mux.Router, hs comment.Usecase, lg *logrus.Logger) {
+func NewCommentHandler(r *mux.Router, hs comment.Usecase, lg *logger.CustomLogger) {
 	handler := CommentHandler{
 		CommentUseCase: hs,
 		log:            lg,
@@ -40,12 +43,26 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 	from := r.FormValue("from")
 	startId, err := strconv.Atoi(from)
 
+	if err != nil {
+		err = customerror.NewCustomError(err.Error())
+		ch.log.LogError(r.Context(), err)
+		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		return
+	}
+
 	id := r.FormValue("id")
 	hotelId, err := strconv.Atoi(id)
+	if err != nil {
+		err = customerror.NewCustomError(err.Error())
+		ch.log.LogError(r.Context(), err)
+		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		return
+	}
 
 	comments, err := ch.CommentUseCase.GetComments(hotelId, startId)
 
 	if err != nil {
+		ch.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -60,6 +77,8 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 	comment := models.Comment{}
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
+		err = customerror.NewCustomError(err.Error())
+		ch.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
@@ -67,6 +86,7 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 	comm, err := ch.CommentUseCase.AddComment(comment)
 
 	if err != nil {
+		ch.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -79,6 +99,8 @@ func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) 
 	comment := models.Comment{}
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
+		err = customerror.NewCustomError(err.Error())
+		ch.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
@@ -86,6 +108,7 @@ func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) 
 	err = ch.CommentUseCase.UpdateComment(comment)
 
 	if err != nil {
+		ch.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -97,6 +120,8 @@ func (ch *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) 
 	id, err := strconv.Atoi(vars["id"])
 
 	if err != nil {
+		err = customerror.NewCustomError(err.Error())
+		ch.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusBadRequest, err)
 		return
 	}
@@ -104,6 +129,7 @@ func (ch *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) 
 	err = ch.CommentUseCase.DeleteComment(id)
 
 	if err != nil {
+		ch.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}

@@ -19,12 +19,14 @@ type redisConfig struct {
 
 var BdConfig postgresConfig
 var RedisConfig redisConfig
+var PrefixPath string
 
 const ApiVersion = "api/v1"
 const StaticPath = "static/img"
 const Port = ":8080"
 const CookieLifeTime = time.Hour * 24 * 30
 const BaseAvatarPath = "static/img/defaultAvatar.png"
+const RequestUser = "User"
 
 const (
 	MB = 1 << 20
