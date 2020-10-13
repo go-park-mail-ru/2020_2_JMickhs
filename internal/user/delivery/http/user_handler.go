@@ -2,7 +2,6 @@ package userDelivery
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -50,14 +49,16 @@ func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, lg *log
 // Get info abous user by his id
 // responses:
 //  200: safeUser
+//  400: badrequest
+//  410:  gone
 func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 
 	if err != nil {
-		err = customerror.NewCustomError(err.Error())
+		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
@@ -65,7 +66,7 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
@@ -76,6 +77,11 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 
 // swagger:route PUT /api/v1/users/avatar Users avatar
 // Update Avatar
+// responses:
+// 403: Forbidden
+// 400: badrequest
+// 401: unauthorizied
+// 415: unsupport
 func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(5 * configs.MB)
 
@@ -83,36 +89,36 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	file, _, err := r.FormFile("avatar")
 
 	if err != nil {
-		err = customerror.NewCustomError(err.Error())
+		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
 	fileType, err := u.UserUseCase.CheckAvatar(file)
 	if err != nil {
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
 	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
-		responses.SendErrorResponse(w, http.StatusUnauthorized, errors.New("User Unauthorized"))
+		responses.SendErrorResponse(w, http.StatusUnauthorized)
 		return
 	}
 
 	err = u.UserUseCase.UploadAvatar(file, fileType, &usr)
 	if err != nil {
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
 	err = u.UserUseCase.UpdateAvatar(usr)
 	if err != nil {
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 }
@@ -120,55 +126,63 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 // swagger:route PUT /api/v1/users/password Users password
 // update password
 // responses:
-// 409: conflict
+// 403: Forbidden
+// 400: badrequest
+// 401: unauthorizied
+// 402: badCredentials
 func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 
 	var twoPass models.UpdatePassword
 	err := json.NewDecoder(r.Body).Decode(&twoPass)
 	if err != nil {
-		err = customerror.NewCustomError(err.Error())
+		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
 	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
-		responses.SendErrorResponse(w, http.StatusUnauthorized, customerror.NewCustomError("User Unauthorized"))
+		responses.SendErrorResponse(w, http.StatusUnauthorized)
 		return
 	}
 
 	err = u.UserUseCase.ComparePassword(twoPass.OldPassword, usr.Password)
 	if err != nil {
+		err := customerror.NewCustomError(err.Error(), http.StatusPaymentRequired)
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusConflict, customerror.NewCustomError("Wrong Old Password"))
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 	usr.Password = twoPass.NewPassword
 	err = u.UserUseCase.UpdatePassword(usr)
 	if err != nil {
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 }
 
 // swagger:route PUT /api/v1/users/credentials Users credentials
 // Get data from form  which need to change and change user data
+// responses:
+// 403: Forbidden
+// 400: badrequest
+// 401: unauthorizied
 func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		err = customerror.NewCustomError(err.Error())
+		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
 	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
-		responses.SendErrorResponse(w, http.StatusUnauthorized, customerror.NewCustomError("users unauthorizied"))
+		responses.SendErrorResponse(w, http.StatusUnauthorized)
 		return
 	}
 	user.ID = usr.ID
@@ -176,7 +190,7 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	err = u.UserUseCase.UpdateUser(user)
 	if err != nil {
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 }
@@ -185,29 +199,31 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 // Creates a new User
 // responses:
 //  200: safeUser
+//  400: badrequest
+//  409: conflict
 func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	u.UserUseCase.SetDefaultAvatar(&user)
 	if err != nil {
-		err = customerror.NewCustomError(err.Error())
+		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
 	usr, err := u.UserUseCase.Add(user)
 	if err != nil {
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
 	sessionID, err := u.SessionsUseCase.AddToken(usr.ID)
 	if err != nil {
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
@@ -227,36 +243,41 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 // user auth with coockie
 // responses:
 //  200: safeUser
+//  400: badrequest
+//  410: gone
 func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 
 	err := json.NewDecoder(r.Body).Decode(&user)
 
 	if err != nil {
-		err = customerror.NewCustomError(err.Error())
+		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
 	usr, err := u.UserUseCase.GetByUserName(user.Username)
 	if err != nil {
+		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 	err = u.UserUseCase.ComparePassword(user.Password, usr.Password)
 
 	if err != nil {
+		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusUnauthorized, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
 	sessionID, err := u.SessionsUseCase.AddToken(usr.ID)
 	if err != nil {
+		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 	safeUser := models.SafeUser{ID: usr.ID, Username: usr.Username, Avatar: usr.Avatar, Email: usr.Email}
@@ -275,14 +296,15 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 // Get current safe user
 // responses:
 //  200: safeUser
+//  401: unauthorizied
 func (u *UserHandler) UserHandler(w http.ResponseWriter, r *http.Request) {
 	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
-		responses.SendErrorResponse(w, http.StatusUnauthorized, errors.New("User Unauthorized"))
+		responses.SendErrorResponse(w, http.StatusUnauthorized)
 		return
 	}
 	if u.UserUseCase.CheckEmpty(usr) {
-		responses.SendErrorResponse(w, http.StatusUnauthorized, errors.New("User Unauthorized"))
+		responses.SendErrorResponse(w, http.StatusUnauthorized)
 		return
 	}
 
@@ -298,8 +320,9 @@ func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 	if c != nil {
 		err := u.SessionsUseCase.DeleteSession(c.Value)
 		if err != nil {
+			err := customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
 			u.log.LogError(r.Context(), err)
-			responses.SendErrorResponse(w, http.StatusInternalServerError, err)
+			responses.SendErrorResponse(w, customerror.ParseCode(err))
 			return
 		}
 		c.Expires = time.Now().AddDate(0, 0, -1)

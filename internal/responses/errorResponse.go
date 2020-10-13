@@ -5,13 +5,12 @@ import (
 	"net/http"
 )
 
-func SendErrorResponse(w http.ResponseWriter, code int, err error) {
+func SendErrorResponse(w http.ResponseWriter, code int) {
 	httpErr := HttpError{
-		Code:    code,
-		Message: err.Error(),
+		Code: code,
 	}
 
-	err = json.NewEncoder(w).Encode(HttpResponse{Error: &httpErr})
+	err := json.NewEncoder(w).Encode(HttpResponse{Error: &httpErr})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}

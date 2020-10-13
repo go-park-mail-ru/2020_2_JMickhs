@@ -33,7 +33,7 @@ func (u *SessionMidleware) SessionMiddleware() mux.MiddlewareFunc {
 			c, err := r.Cookie("session_token")
 
 			if err != nil {
-				err = customerror.NewCustomError(err.Error())
+				err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 				u.log.Info(err.Error())
 				next.ServeHTTP(w, r)
 				return

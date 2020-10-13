@@ -213,6 +213,8 @@ paths:
       responses:
         "200":
           $ref: '#/responses/comments'
+        "400":
+          $ref: '#/responses/badrequest'
       tags:
       - comment
     post:
@@ -225,6 +227,10 @@ paths:
       responses:
         "200":
           $ref: '#/responses/AddComment'
+        "400":
+          $ref: '#/responses/badrequest'
+        "403":
+          $ref: '#/responses/Forbidden'
       tags:
       - comment
     put:
@@ -234,6 +240,11 @@ paths:
         name: Body
         schema:
           $ref: '#/definitions/UpdateCommentRequest'
+      responses:
+        "400":
+          $ref: '#/responses/badrequest'
+        "403":
+          $ref: '#/responses/Forbidden'
       tags:
       - comment
   /api/v1/comments/{id}:
@@ -247,6 +258,11 @@ paths:
         required: true
         type: integer
         x-go-name: ID
+      responses:
+        "400":
+          $ref: '#/responses/badrequest'
+        "403":
+          $ref: '#/responses/Forbidden'
       tags:
       - comment
   /api/v1/hotels:
@@ -264,6 +280,8 @@ paths:
       responses:
         "200":
           $ref: '#/responses/hotels'
+        "400":
+          $ref: '#/responses/badrequest'
       tags:
       - hotel
   /api/v1/hotels/{id}:
@@ -283,6 +301,10 @@ paths:
           description: Hotel
           schema:
             $ref: '#/definitions/Hotel'
+        "400":
+          $ref: '#/responses/badrequest'
+        "410":
+          $ref: '#/responses/gone'
       tags:
       - hotel
   /api/v1/hotels/search:
@@ -310,6 +332,8 @@ paths:
       responses:
         "200":
           $ref: '#/responses/searchHotel'
+        "400":
+          $ref: '#/responses/badrequest'
       tags:
       - hotel
   /api/v1/users:
@@ -319,6 +343,8 @@ paths:
       responses:
         "200":
           $ref: '#/responses/safeUser'
+        "401":
+          $ref: '#/responses/unauthorizied'
       tags:
       - Users
     post:
@@ -332,6 +358,10 @@ paths:
       responses:
         "200":
           $ref: '#/responses/safeUser'
+        "400":
+          $ref: '#/responses/badrequest'
+        "409":
+          $ref: '#/responses/conflict'
       tags:
       - Users
   /api/v1/users/{id}:
@@ -348,6 +378,10 @@ paths:
       responses:
         "200":
           $ref: '#/responses/safeUser'
+        "400":
+          $ref: '#/responses/badrequest'
+        "410":
+          $ref: '#/responses/gone'
       tags:
       - Users
   /api/v1/users/avatar:
@@ -360,6 +394,15 @@ paths:
         name: Body
         schema:
           $ref: '#/definitions/UpdateAvatar'
+      responses:
+        "400":
+          $ref: '#/responses/badrequest'
+        "401":
+          $ref: '#/responses/unauthorizied'
+        "403":
+          $ref: '#/responses/Forbidden'
+        "415":
+          $ref: '#/responses/unsupport'
       tags:
       - Users
   /api/v1/users/credentials:
@@ -371,6 +414,13 @@ paths:
         name: Body
         schema:
           $ref: '#/definitions/UpdateUser'
+      responses:
+        "400":
+          $ref: '#/responses/badrequest'
+        "401":
+          $ref: '#/responses/unauthorizied'
+        "403":
+          $ref: '#/responses/Forbidden'
       tags:
       - Users
   /api/v1/users/password:
@@ -383,8 +433,14 @@ paths:
         schema:
           $ref: '#/definitions/UpdatePassword'
       responses:
-        "409":
-          $ref: '#/responses/conflict'
+        "400":
+          $ref: '#/responses/badrequest'
+        "401":
+          $ref: '#/responses/unauthorizied'
+        "402":
+          $ref: '#/responses/badCredentials'
+        "403":
+          $ref: '#/responses/Forbidden'
       tags:
       - Users
   /api/v1/users/sessions:
@@ -404,6 +460,10 @@ paths:
       responses:
         "200":
           $ref: '#/responses/safeUser'
+        "400":
+          $ref: '#/responses/badrequest'
+        "410":
+          $ref: '#/responses/gone'
       tags:
       - Sessions
 produces:
@@ -412,6 +472,12 @@ responses:
   AddComment:
     schema:
       $ref: '#/definitions/Comment'
+  Forbidden:
+    description: wrong csrf token
+  badCredentials:
+    description: wrong credentials
+  badrequest:
+    description: cannot parse data or undefined query or path parameters
   commentInfo:
     headers:
       avatar:
@@ -438,7 +504,9 @@ responses:
         $ref: '#/definitions/FullCommentInfo'
       type: array
   conflict:
-    description: wrong old password
+    description: unique data already exists
+  gone:
+    description: This data does not exist
   hotels:
     schema:
       items:
@@ -455,6 +523,10 @@ responses:
   signup:
     schema:
       $ref: '#/definitions/SafeUser'
+  unauthorizied:
+    description: user unauthorizied
+  unsupport:
+    description: Unsupported Media Type
   user:
     headers:
       avatar:

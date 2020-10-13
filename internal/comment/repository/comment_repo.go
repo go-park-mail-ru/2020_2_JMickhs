@@ -1,6 +1,7 @@
 package commentRepository
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment/models"
@@ -22,13 +23,13 @@ func (r *CommentRepository) GetComments(hotelID int, StartID int) ([]models.Full
 	defer rows.Close()
 	comments := []models.FullCommentInfo{}
 	if err != nil {
-		return comments, customerror.NewCustomError(err.Error())
+		return comments, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
 	}
 	comment := models.FullCommentInfo{}
 	for rows.Next() {
 		err := rows.Scan(&comment.UserID, &comment.CommID, &comment.Message, &comment.Rating, &comment.Avatar, &comment.Username, &comment.HotelID)
 		if err != nil {
-			return comments, customerror.NewCustomError(err.Error())
+			return comments, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
 		}
 		comments = append(comments, comment)
 	}
@@ -41,7 +42,7 @@ func (r *CommentRepository) AddComment(comment models.Comment) (models.Comment, 
 		comment.UserID, comment.HotelID, comment.Message, comment.Rating).Scan(&id)
 
 	if err != nil {
-		return comment, customerror.NewCustomError(err.Error())
+		return comment, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
 	}
 	comment.CommID = id
 	return comment, nil
@@ -50,7 +51,7 @@ func (r *CommentRepository) AddComment(comment models.Comment) (models.Comment, 
 func (r *CommentRepository) DeleteComment(ID int) error {
 	_, err := r.conn.Query("DELETE FROM comments WHERE comm_id=$1", ID)
 	if err != nil {
-		return customerror.NewCustomError(err.Error())
+		return customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
 	}
 	return nil
 }
@@ -59,7 +60,7 @@ func (r *CommentRepository) UpdateComment(comment models.Comment) error {
 	_, err := r.conn.Query("UPDATE comments SET message=$2 WHERE comm_id=$1",
 		comment.CommID, comment.Message)
 	if err != nil {
-		return customerror.NewCustomError(err.Error())
+		return customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
 	}
 	return nil
 }

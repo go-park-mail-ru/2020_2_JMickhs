@@ -38,24 +38,25 @@ func NewCommentHandler(r *mux.Router, hs comment.Usecase, lg *logger.CustomLogge
 // GetList of comments
 // responses:
 //  200: comments
+//  400: badrequest
 func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 
 	from := r.FormValue("from")
 	startId, err := strconv.Atoi(from)
 
 	if err != nil {
-		err = customerror.NewCustomError(err.Error())
+		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
 	id := r.FormValue("id")
 	hotelId, err := strconv.Atoi(id)
 	if err != nil {
-		err = customerror.NewCustomError(err.Error())
+		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
@@ -63,7 +64,7 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
@@ -73,13 +74,15 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 // swagger:route POST /api/v1/comments comment AddComment
 // responses:
 //  200: AddComment
+//  403: Forbidden
+//  400: badrequest
 func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 	comment := models.Comment{}
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
-		err = customerror.NewCustomError(err.Error())
+		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
@@ -87,7 +90,7 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
@@ -95,13 +98,16 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 }
 
 // swagger:route PUT /api/v1/comments comment UpdateComment
+// responses:
+// 403: Forbidden
+//  400: badrequest
 func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 	comment := models.Comment{}
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
-		err = customerror.NewCustomError(err.Error())
+		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
@@ -109,20 +115,23 @@ func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) 
 
 	if err != nil {
 		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 }
 
 // swagger:route DELETE /api/v1/comments/{id} comment DeleteComment
+// responses:
+//  403: Forbidden
+//  400: badrequest
 func (ch *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 
 	if err != nil {
-		err = customerror.NewCustomError(err.Error())
+		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
@@ -130,7 +139,7 @@ func (ch *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) 
 
 	if err != nil {
 		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 

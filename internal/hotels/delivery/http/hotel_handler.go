@@ -35,16 +35,24 @@ func NewHotelHandler(r *mux.Router, hs hotels.Usecase, lg *logger.CustomLogger) 
 // GetList of hotels
 // responses:
 //  200: hotels
+//  400: badrequest
 func (hh *HotelHandler) ListHotels(w http.ResponseWriter, r *http.Request) {
 
 	from := r.FormValue("from")
 	startId, err := strconv.Atoi(from)
 
+	if err != nil {
+		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
+		hh.log.LogError(r.Context(), err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		return
+	}
+
 	hotels, err := hh.HotelUseCase.GetHotels(startId)
 
 	if err != nil {
 		hh.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusInternalServerError, err)
+		responses.SendErrorResponse(w, http.StatusInternalServerError)
 		return
 	}
 
@@ -55,23 +63,27 @@ func (hh *HotelHandler) ListHotels(w http.ResponseWriter, r *http.Request) {
 // Get single hotel by id
 // responses:
 //  200: Hotel
+//  400: badrequest
+//  410:  gone
 func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 
 	if err != nil {
-		err = customerror.NewCustomError(err.Error())
+		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 		hh.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
 	hotel, err := hh.HotelUseCase.GetHotelByID(id)
 
 	if err != nil {
+		err := err.(*customerror.CustomError)
+
 		hh.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 	}
 
 	responses.SendOkResponse(w, hotel)
@@ -81,6 +93,7 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 // Search hotels
 // responses:
 //  200: searchHotel
+//  400: badrequest
 func (hh *HotelHandler) SearchHotels(w http.ResponseWriter, r *http.Request) {
 	from := r.FormValue("from")
 	startId, err := strconv.Atoi(from)
@@ -90,9 +103,9 @@ func (hh *HotelHandler) SearchHotels(w http.ResponseWriter, r *http.Request) {
 	limit, err := strconv.Atoi(limits)
 
 	if err != nil {
-		err = customerror.NewCustomError(err.Error())
+		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
 		hh.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
 
@@ -100,7 +113,7 @@ func (hh *HotelHandler) SearchHotels(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		hh.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusBadRequest, err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
 	}
 
 	responses.SendOkResponse(w, hotels)

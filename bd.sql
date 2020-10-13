@@ -23,6 +23,14 @@ create table hotels (
     rating int
 );
 
+CREATE EXTENSION pg_trgm;
+
+CREATE INDEX hotels_trgm_idx ON hotels
+  USING gin (name gin_trgm_ops);
+
+CREATE INDEX hotels_trgm_idx ON hotels
+  USING gin (location gin_trgm_ops);
+
 INSERT INTO hotels(hotel_id,name,location,description,img) VALUES
 (5,'Villa Domina','Россия г.Москва','Вилла Domina находится в городе Сплит, всего в 5 минутах ходьбы от дворца Диоклетиана, находящегося под охраной ЮНЕСКО.','static/img/hotelImg1.jpg'),
 (6,'Apartments Tudor','Италия г.Рим','В апартаментах Tudor, расположенных на побережье, всего в 200 метрах от пляжа Фируле, к услугам гостей номера с кондиционером, бесплатным WI-Fi, бесплатной парковкой и спутниковым телевидением.','static/img/hotelImg2.jpg'),

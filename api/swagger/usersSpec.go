@@ -63,11 +63,6 @@ type userUpAvatarRequestWrapper struct {
 	Body UpdateAvatar
 }
 
-//wrong old password
-//swagger:response conflict
-type conflict struct {
-}
-
 // swagger:response safeUser
 type SafeUserResponse struct {
 	//in:body
