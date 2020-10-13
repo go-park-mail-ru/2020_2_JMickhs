@@ -244,7 +244,7 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 // responses:
 //  200: safeUser
 //  400: badrequest
-//  410: gone
+//  401: unauthorizied
 func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 
@@ -259,7 +259,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 
 	usr, err := u.UserUseCase.GetByUserName(user.Username)
 	if err != nil {
-		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
+		err := customerror.NewCustomError(err.Error(), http.StatusUnauthorized)
 		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
@@ -267,7 +267,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 	err = u.UserUseCase.ComparePassword(user.Password, usr.Password)
 
 	if err != nil {
-		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
+		err := customerror.NewCustomError(err.Error(), http.StatusUnauthorized)
 		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return

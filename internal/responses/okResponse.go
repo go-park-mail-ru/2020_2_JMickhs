@@ -6,7 +6,7 @@ import (
 )
 
 func SendOkResponse(w http.ResponseWriter, data interface{}) {
-	err := json.NewEncoder(w).Encode(HttpResponse{Data: data})
+	err := json.NewEncoder(w).Encode(HttpResponse{Data: data, Code: 200})
 	if err != nil {
 		SendErrorResponse(w, http.StatusInternalServerError)
 	}
