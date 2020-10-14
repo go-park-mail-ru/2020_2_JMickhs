@@ -36,17 +36,11 @@ func (p *PostgreHotelRepository) GetHotels(StartID int) ([]models.Hotel, error) 
 }
 
 func (p *PostgreHotelRepository) GetHotelByID(ID int) (models.Hotel, error) {
-	rows, err := p.conn.Query("SELECT hotel_id,name,description,img,location FROM hotels WHERE hotel_id=$1", strconv.Itoa(ID))
-	defer rows.Close()
+	rows := p.conn.QueryRow("SELECT hotel_id,name,description,img,location FROM hotels WHERE hotel_id=$1", strconv.Itoa(ID))
 	hotel := models.Hotel{}
+	err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location)
 	if err != nil {
-		return hotel, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
-	}
-	for rows.Next() {
-		err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location)
-		if err != nil {
-			return hotel, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
-		}
+		return hotel, customerror.NewCustomError("such hotel doesn't exist", http.StatusGone)
 	}
 	return hotel, nil
 }

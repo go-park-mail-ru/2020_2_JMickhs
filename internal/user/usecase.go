@@ -14,7 +14,7 @@ type Usecase interface {
 	UpdateUser(user models.User) error
 	UpdateAvatar(user models.User) error
 	UpdatePassword(user models.User) error
-	UploadAvatar(file multipart.File, fileType string, user *models.User) error
+	UploadAvatar(file multipart.File, fileType string, user *models.User) (string, error)
 	ComparePassword(passIn string, passDest string) error
 	CheckEmpty(usr models.User) bool
 	CheckAvatar(file multipart.File) (string, error)

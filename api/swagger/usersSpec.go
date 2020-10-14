@@ -10,6 +10,10 @@ type UpdateAvatar struct {
 	Avatar multipart.File `json:"avatar"`
 }
 
+type Avatar struct {
+	Avatar string `json:"avatar"`
+}
+
 type UpdateUser struct {
 	Username string `json:"username" db:"username"`
 	Email    string `json:"email" db:"email"`
@@ -73,4 +77,10 @@ type SafeUserResponse struct {
 type UserIdParameter struct {
 	//in:path
 	ID int `json:"id"`
+}
+
+// swagger:response avatar
+type AvatarUserResponse struct {
+	//in:body
+	Body Avatar
 }

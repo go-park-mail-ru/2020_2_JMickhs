@@ -22,6 +22,13 @@ definitions:
         x-go-name: UserID
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/api/swagger
+  Avatar:
+    properties:
+      avatar:
+        type: string
+        x-go-name: Avatar
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/api/swagger
   Comment:
     properties:
       comm_id:
@@ -395,6 +402,8 @@ paths:
         schema:
           $ref: '#/definitions/UpdateAvatar'
       responses:
+        "200":
+          $ref: '#/responses/avatar'
         "400":
           $ref: '#/responses/badrequest'
         "401":
@@ -462,8 +471,8 @@ paths:
           $ref: '#/responses/safeUser'
         "400":
           $ref: '#/responses/badrequest'
-        "410":
-          $ref: '#/responses/gone'
+        "401":
+          $ref: '#/responses/unauthorizied'
       tags:
       - Sessions
 produces:
@@ -474,6 +483,9 @@ responses:
       $ref: '#/definitions/Comment'
   Forbidden:
     description: wrong csrf token
+  avatar:
+    schema:
+      $ref: '#/definitions/Avatar'
   badCredentials:
     description: wrong credentials
   badrequest:

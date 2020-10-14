@@ -70,17 +70,17 @@ func (u *userUseCase) UpdateAvatar(user models.User) error {
 	return u.userRepo.UpdateAvatar(user)
 }
 
-func (u *userUseCase) UploadAvatar(file multipart.File, header string, user *models.User) error {
+func (u *userUseCase) UploadAvatar(file multipart.File, header string, user *models.User) (string, error) {
 	filename := uuid.NewV4().String()
 	fileType := strings.Split(header, "/")
 	user.Avatar = configs.StaticPath + "/" + filename + "." + fileType[1]
 	f, err := os.OpenFile("../"+user.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
-		return customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+		return "", customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
 	}
 	defer f.Close()
 	io.Copy(f, file)
-	return nil
+	return user.Avatar, nil
 }
 
 func (u *userUseCase) CheckAvatar(file multipart.File) (string, error) {

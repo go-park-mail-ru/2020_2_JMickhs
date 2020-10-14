@@ -72,12 +72,13 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 
 	safeUser := models.SafeUser{ID: user.ID, Username: user.Username, Avatar: user.Avatar, Email: user.Email}
 
-	responses.SendOkResponse(w, safeUser)
+	responses.SendDataResponse(w, safeUser)
 }
 
 // swagger:route PUT /api/v1/users/avatar Users avatar
 // Update Avatar
 // responses:
+// 200: avatar
 // 403: Forbidden
 // 400: badrequest
 // 401: unauthorizied
@@ -108,7 +109,7 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = u.UserUseCase.UploadAvatar(file, fileType, &usr)
+	path, err := u.UserUseCase.UploadAvatar(file, fileType, &usr)
 	if err != nil {
 		u.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, customerror.ParseCode(err))
@@ -121,6 +122,7 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
+	responses.SendDataResponse(w, path)
 }
 
 // swagger:route PUT /api/v1/users/password Users password
@@ -161,6 +163,7 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
+	responses.SendOkResponse(w)
 }
 
 // swagger:route PUT /api/v1/users/credentials Users credentials
@@ -193,6 +196,7 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
+	responses.SendOkResponse(w)
 }
 
 // swagger:route POST /api/v1/users Users signup
@@ -236,7 +240,7 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Expires:  time.Now().Add(configs.CookieLifeTime),
 	})
-	responses.SendOkResponse(w, safeUser)
+	responses.SendDataResponse(w, safeUser)
 }
 
 // swagger:route POST /api/v1/users/sessions Sessions AddSessions
@@ -289,7 +293,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Expires:  time.Now().Add(configs.CookieLifeTime),
 	})
-	responses.SendOkResponse(w, safeUser)
+	responses.SendDataResponse(w, safeUser)
 }
 
 // swagger:route GET /api/v1/users Users user
@@ -309,7 +313,7 @@ func (u *UserHandler) UserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	safeUser := models.SafeUser{ID: usr.ID, Username: usr.Username, Avatar: usr.Avatar, Email: usr.Email}
-	responses.SendOkResponse(w, safeUser)
+	responses.SendDataResponse(w, safeUser)
 }
 
 // swagger:route DELETE /api/v1/users/sessions Sessions DelSessions
@@ -328,5 +332,6 @@ func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		c.Expires = time.Now().AddDate(0, 0, -1)
 		c.Path = "/"
 		http.SetCookie(w, c)
+		responses.SendOkResponse(w)
 	}
 }

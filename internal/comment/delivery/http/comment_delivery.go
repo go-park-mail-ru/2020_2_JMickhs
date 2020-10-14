@@ -68,7 +68,7 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses.SendOkResponse(w, comments)
+	responses.SendDataResponse(w, comments)
 }
 
 // swagger:route POST /api/v1/comments comment AddComment
@@ -94,7 +94,7 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses.SendOkResponse(w, comm)
+	responses.SendDataResponse(w, comm)
 }
 
 // swagger:route PUT /api/v1/comments comment UpdateComment
@@ -118,6 +118,7 @@ func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) 
 		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
+	responses.SendOkResponse(w)
 }
 
 // swagger:route DELETE /api/v1/comments/{id} comment DeleteComment
@@ -143,4 +144,5 @@ func (ch *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	responses.SendOkResponse(w)
 }

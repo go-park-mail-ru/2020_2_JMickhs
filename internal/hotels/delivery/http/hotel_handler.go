@@ -56,7 +56,7 @@ func (hh *HotelHandler) ListHotels(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses.SendOkResponse(w, hotels)
+	responses.SendDataResponse(w, hotels)
 }
 
 // swagger:route GET /api/v1/hotels/{id} hotel hotel
@@ -80,13 +80,12 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 	hotel, err := hh.HotelUseCase.GetHotelByID(id)
 
 	if err != nil {
-		err := err.(*customerror.CustomError)
-
 		hh.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		return
 	}
 
-	responses.SendOkResponse(w, hotel)
+	responses.SendDataResponse(w, hotel)
 }
 
 // swagger:route GET /api/v1/hotels/search hotel searchHotel
@@ -116,5 +115,5 @@ func (hh *HotelHandler) SearchHotels(w http.ResponseWriter, r *http.Request) {
 		responses.SendErrorResponse(w, customerror.ParseCode(err))
 	}
 
-	responses.SendOkResponse(w, hotels)
+	responses.SendDataResponse(w, hotels)
 }
