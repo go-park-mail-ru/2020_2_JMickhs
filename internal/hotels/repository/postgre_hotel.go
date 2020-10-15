@@ -1,6 +1,7 @@
 package hotelRepository
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -45,16 +46,23 @@ func (p *PostgreHotelRepository) GetHotelByID(ID int) (models.Hotel, error) {
 	return hotel, nil
 }
 
-func (p *PostgreHotelRepository) SearchHotel(pattern string, startID int, limit int) ([]models.Hotel, error) {
-	rows, err := p.conn.Query("SELECT hotel_id, name, description, location, img FROM hotels WHERE name % $1"+
-		"or location % $1 or name LIKE '%' || $1 || '%' or location LIKE '%' || $1 || '%' LIMIT $2 OFFSET $3", pattern, strconv.Itoa(limit), strconv.Itoa(startID))
+func (p *PostgreHotelRepository) SearchHotel(pattern string, filter models.FilterData, limit int, nextOrPrev bool) ([]models.Hotel, error) {
+	comprasion := ""
+	if nextOrPrev == true {
+		comprasion = "<"
+	} else {
+		comprasion = ">="
+	}
+	rows, err := p.conn.Query(fmt.Sprint("SELECT hotel_id, name, description, location, img, rating FROM hotels WHERE (name % $1"+
+		"or location % $1 or name LIKE '%' || $1 || '%' or location LIKE '%' || $1 || '%')  AND (rating ", comprasion, " $4 OR rating = $4 AND hotel_id ", comprasion,
+		" $3) ORDER BY rating DESC, hotel_id DESC LIMIT $2"), pattern, strconv.Itoa(limit), filter.ID, filter.Rating)
 	hotels := []models.Hotel{}
 	if err != nil {
 		return hotels, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
 	}
 	hotel := models.Hotel{}
 	for rows.Next() {
-		err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Location, &hotel.Image)
+		err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Location, &hotel.Image, &hotel.Rating)
 		if err != nil {
 			return hotels, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
 		}

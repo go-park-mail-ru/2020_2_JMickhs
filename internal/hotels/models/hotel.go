@@ -6,6 +6,7 @@ type Hotel struct {
 	Description string `json:"description"`
 	Image       string `json:"image"`
 	Location    string `json:"location"`
+	Rating      string `json:"rating"`
 }
 
 type HotelPreview struct {
@@ -17,4 +18,19 @@ type HotelPreview struct {
 
 type SearchString struct {
 	Pattern string `json:"pattern"`
+}
+
+type SearchData struct {
+	Hotels []Hotel `json:"hotels"`
+	Cursor Cursor  `json:"cursor"`
+}
+
+type Cursor struct {
+	NextCursor string `json:"nextcursor"`
+	PrevCursor string `json:"prevcursor"`
+}
+
+type FilterData struct {
+	Rating string
+	ID     string
 }

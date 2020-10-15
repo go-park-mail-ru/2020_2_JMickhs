@@ -8,7 +8,7 @@ type SearchStringRequest struct {
 	// required:true
 	Pattern string `json:"pattern"`
 	// required:true
-	From int `json:"from"`
+	Cursor int `json:"cursor"`
 	// required:true
 	Limit int `json:"limit"`
 }

@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models"
+
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/error"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/logger"
@@ -26,7 +28,7 @@ func NewHotelHandler(r *mux.Router, hs hotels.Usecase, lg *logger.CustomLogger) 
 	}
 
 	r.HandleFunc("/api/v1/hotels/{id:[0-9]+}", permissions.SetCSRF(handler.Hotel)).Methods("GET")
-	r.Path("/api/v1/hotels/search").Queries("pattern", "{pattern}", "from", "{from:[0-9]+}", "limit", "{limit:[0-9]+}").
+	r.Path("/api/v1/hotels/search").Queries("pattern", "{pattern}", "prev", "{prev}", "next", "{next}", "limit", "{limit:[0-9]+}").
 		HandlerFunc(permissions.SetCSRF(handler.SearchHotels)).Methods("GET")
 	r.Path("/api/v1/hotels").Queries("from", "{from:[0-9]+}").HandlerFunc(permissions.SetCSRF(handler.ListHotels)).Methods("GET")
 }
@@ -94,8 +96,10 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 //  200: searchHotel
 //  400: badrequest
 func (hh *HotelHandler) SearchHotels(w http.ResponseWriter, r *http.Request) {
-	from := r.FormValue("from")
-	startId, err := strconv.Atoi(from)
+	next := r.FormValue("next")
+	before := r.FormValue("prev")
+
+	cursor := models.Cursor{next, before}
 
 	pattern := r.FormValue("pattern")
 	limits := r.FormValue("limit")
@@ -108,7 +112,7 @@ func (hh *HotelHandler) SearchHotels(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hotels, err := hh.HotelUseCase.SearchHotel(pattern, startId, limit)
+	hotels, err := hh.HotelUseCase.SearchHotel(pattern, cursor, limit)
 
 	if err != nil {
 		hh.log.LogError(r.Context(), err)

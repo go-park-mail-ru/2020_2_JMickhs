@@ -100,7 +100,7 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 // swagger:route PUT /api/v1/comments comment UpdateComment
 // responses:
 // 403: Forbidden
-//  400: badrequest
+// 400: badrequest
 func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 	comment := models.Comment{}
 	err := json.NewDecoder(r.Body).Decode(&comment)
