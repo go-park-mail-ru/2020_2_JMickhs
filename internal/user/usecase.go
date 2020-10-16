@@ -1,3 +1,4 @@
+//go:generate mockgen -source usecase.go -destination mocks/user_usecase_mock.go -package mocks
 package user
 
 import (

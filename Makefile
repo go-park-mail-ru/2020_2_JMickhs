@@ -5,5 +5,8 @@ server-redis:
 gen: 
 	swagger generate spec -o ./swagger.yaml --scan-models
 
+mocks:
+	go generate -v ./...
+
 server:
 	go run main.go 

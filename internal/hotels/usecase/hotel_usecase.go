@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -30,7 +31,15 @@ func (p *HotelUseCase) GetHotelByID(ID int) (models.Hotel, error) {
 	return p.hotelRepo.GetHotelByID(ID)
 }
 
-func (p *HotelUseCase) SearchHotel(pattern string, cursor models.Cursor, limit int) (models.SearchData, error) {
+func reverse(v reflect.Value) reflect.Value {
+	result := reflect.MakeSlice(v.Type(), 0, v.Cap())
+	for i := v.Len() - 1; i >= 0; i-- {
+		result = reflect.Append(result, v.Index(i))
+	}
+	return result
+}
+
+func (p *HotelUseCase) FetchHotels(pattern string, cursor models.Cursor, limit int) (models.SearchData, error) {
 	DataWithCursor := models.SearchData{}
 	currCursor := ""
 	next := false
@@ -38,7 +47,6 @@ func (p *HotelUseCase) SearchHotel(pattern string, cursor models.Cursor, limit i
 	if cursor.PrevCursor != "" {
 		currCursor = cursor.PrevCursor
 		next = false
-		fmt.Println("fdsfsd")
 	} else {
 		currCursor = cursor.NextCursor
 		next = true
@@ -49,19 +57,26 @@ func (p *HotelUseCase) SearchHotel(pattern string, cursor models.Cursor, limit i
 		return DataWithCursor, err
 	}
 
-	hotels, err := p.hotelRepo.SearchHotel(pattern, prevCursor, limit, next)
+	hotels, err := p.hotelRepo.FetchHotels(pattern, prevCursor, limit, next)
 	if err != nil {
 		return DataWithCursor, err
 	}
 	if len(hotels) == 0 {
 		return DataWithCursor, nil
 	}
+	if cursor.PrevCursor != "" {
+		hotels = reverse(reflect.ValueOf(hotels)).Interface().([]models.Hotel)
+	}
 	lastHotel := hotels[len(hotels)-1]
 	FilterData := models.FilterData{lastHotel.Rating, strconv.Itoa(lastHotel.HotelID)}
-
 	nextCursor := p.EncodeCursor(FilterData)
+
+	firstHotel := hotels[0]
+	FilterData = models.FilterData{firstHotel.Rating, strconv.Itoa(firstHotel.HotelID)}
+	fmt.Println(firstHotel.Rating)
+	prevNewCursor := p.EncodeCursor(FilterData)
 	cursor.NextCursor = nextCursor
-	cursor.PrevCursor = currCursor
+	cursor.PrevCursor = prevNewCursor
 
 	DataWithCursor.Hotels = hotels
 	DataWithCursor.Cursor = cursor

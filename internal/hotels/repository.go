@@ -1,3 +1,4 @@
+//go:generate mockgen -source repository.go -destination mocks/hotels_repository_mock.go -package mocks
 package hotels
 
 import "github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models"
@@ -5,5 +6,5 @@ import "github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models"
 type Repository interface {
 	GetHotels(StartID int) ([]models.Hotel, error)
 	GetHotelByID(ID int) (models.Hotel, error)
-	SearchHotel(pattern string, data models.FilterData, limit int, nextOrPrev bool) ([]models.Hotel, error)
+	FetchHotels(pattern string, data models.FilterData, limit int, nextOrPrev bool) ([]models.Hotel, error)
 }

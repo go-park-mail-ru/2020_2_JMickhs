@@ -1,3 +1,4 @@
+//go:generate mockgen -source usecase.go -destination mocks/comment_usecase_mock.go -package mocks
 package comment
 
 import "github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment/models"

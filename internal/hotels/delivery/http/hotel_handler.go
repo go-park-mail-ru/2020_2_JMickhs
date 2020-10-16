@@ -29,7 +29,7 @@ func NewHotelHandler(r *mux.Router, hs hotels.Usecase, lg *logger.CustomLogger) 
 
 	r.HandleFunc("/api/v1/hotels/{id:[0-9]+}", permissions.SetCSRF(handler.Hotel)).Methods("GET")
 	r.Path("/api/v1/hotels/search").Queries("pattern", "{pattern}", "prev", "{prev}", "next", "{next}", "limit", "{limit:[0-9]+}").
-		HandlerFunc(permissions.SetCSRF(handler.SearchHotels)).Methods("GET")
+		HandlerFunc(permissions.SetCSRF(handler.FetchHotels)).Methods("GET")
 	r.Path("/api/v1/hotels").Queries("from", "{from:[0-9]+}").HandlerFunc(permissions.SetCSRF(handler.ListHotels)).Methods("GET")
 }
 
@@ -95,7 +95,7 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 // responses:
 //  200: searchHotel
 //  400: badrequest
-func (hh *HotelHandler) SearchHotels(w http.ResponseWriter, r *http.Request) {
+func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 	next := r.FormValue("next")
 	before := r.FormValue("prev")
 
@@ -112,7 +112,7 @@ func (hh *HotelHandler) SearchHotels(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hotels, err := hh.HotelUseCase.SearchHotel(pattern, cursor, limit)
+	hotels, err := hh.HotelUseCase.FetchHotels(pattern, cursor, limit)
 
 	if err != nil {
 		hh.log.LogError(r.Context(), err)

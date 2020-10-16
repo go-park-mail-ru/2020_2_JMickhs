@@ -5,12 +5,16 @@ import "github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models"
 // swagger:parameters searchHotel
 type SearchStringRequest struct {
 	// in: query
-	// required:true
 	Pattern string `json:"pattern"`
-	// required:true
-	Cursor int `json:"cursor"`
+	Prev    string `json:"prev"`
+	Next    string `json:"next"`
 	// required:true
 	Limit int `json:"limit"`
+}
+
+type SearchDataResponse struct {
+	Hotels []models.Hotel `json:"hotels"`
+	Cursor models.Cursor  `json:"cursor"`
 }
 
 // swagger:parameters hotel
@@ -38,5 +42,5 @@ type hotelListWrapper struct {
 // swagger:response searchHotel
 type searchHotelListWrapper struct {
 	//in: body
-	Body []models.Hotel
+	Body SearchDataResponse
 }

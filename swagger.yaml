@@ -52,6 +52,16 @@ definitions:
         x-go-name: UserID
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment/models
+  Cursor:
+    properties:
+      nextcursor:
+        type: string
+        x-go-name: NextCursor
+      prevcursor:
+        type: string
+        x-go-name: PrevCursor
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models
   File:
     allOf:
     - properties:
@@ -114,6 +124,9 @@ definitions:
       name:
         type: string
         x-go-name: Name
+      rating:
+        type: string
+        x-go-name: Rating
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models
   SafeUser:
@@ -133,6 +146,17 @@ definitions:
         x-go-name: Username
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/models
+  SearchDataResponse:
+    properties:
+      cursor:
+        $ref: '#/definitions/Cursor'
+      hotels:
+        items:
+          $ref: '#/definitions/Hotel'
+        type: array
+        x-go-name: Hotels
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/api/swagger
   UpdateAvatar:
     properties:
       avatar:
@@ -321,15 +345,16 @@ paths:
       parameters:
       - in: query
         name: pattern
-        required: true
         type: string
         x-go-name: Pattern
-      - format: int64
-        in: query
-        name: from
-        required: true
-        type: integer
-        x-go-name: From
+      - in: query
+        name: prev
+        type: string
+        x-go-name: Prev
+      - in: query
+        name: next
+        type: string
+        x-go-name: Next
       - format: int64
         in: query
         name: limit
@@ -529,9 +554,7 @@ responses:
       $ref: '#/definitions/SafeUser'
   searchHotel:
     schema:
-      items:
-        $ref: '#/definitions/Hotel'
-      type: array
+      $ref: '#/definitions/SearchDataResponse'
   signup:
     schema:
       $ref: '#/definitions/SafeUser'
