@@ -2,48 +2,59 @@ package userUsecase
 
 import (
 	"errors"
+	"net/http"
+	"testing"
+
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/error"
+
+	"github.com/golang/mock/gomock"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/mocks"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/models"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"mime/multipart"
-	"testing"
 )
 
 func TestUserUseCase_GetUserByID(t *testing.T) {
 	mockUser := models.User{Username: "kotik", Email: "kek@mail.ru"}
 	t.Run("GetUserByID", func(t *testing.T) {
-		mockUserRepo := new(mocks.UserRepository)
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUserRepo := mocks.NewMockRepository(ctrl)
 		mockUser := models.User{Username: "kotik", Email: "kek@mail.ru"}
-		mockUserRepo.On("GetUserByID", mock.AnythingOfType("int")).Return(mockUser, nil).Once()
+		mockUserRepo.EXPECT().GetUserByID(mockUser.ID).Return(mockUser, nil).Times(1)
 		u := NewUserUsecase(mockUserRepo)
 
 		user, err := u.GetUserByID(mockUser.ID)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, user)
-		mockUserRepo.AssertExpectations(t)
 	})
 
 	t.Run("GetUserByID-error", func(t *testing.T) {
-		mockUserRepoErr := new(mocks.UserRepository)
-		mockUserRepoErr.On("GetUserByID", mock.AnythingOfType("int")).Return(mockUser, errors.New("fsdsd")).Once()
-		u := NewUserUsecase(mockUserRepoErr)
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUserRepo := mocks.NewMockRepository(ctrl)
+		mockUserRepo.EXPECT().GetUserByID(mockUser.ID).Return(mockUser, errors.New("fdsfsd")).Times(1)
+		u := NewUserUsecase(mockUserRepo)
 		_, err := u.GetUserByID(mockUser.ID)
 
 		assert.Error(t, err)
-		mockUserRepoErr.AssertExpectations(t)
 	})
 }
 
 func TestUserUseCase_Add(t *testing.T) {
 
-	mockUser := models.User{Username: "kotik", Email: "kek@mail.ru"}
+	mockUser := models.User{Username: "kotik", Email: "kek@mail.ru", Password: "12345"}
 
 	t.Run("Add", func(t *testing.T) {
-		mockUserRepo := new(mocks.UserRepository)
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-		mockUserRepo.On("Add", mock.AnythingOfType("models.User")).Return(models.User{}, nil).Once()
+		mockUserRepo := mocks.NewMockRepository(ctrl)
+
+		mockUserRepo.EXPECT().Add(gomock.Any()).Return(mockUser, nil).Times(1)
 		u := NewUserUsecase(mockUserRepo)
 
 		user, err := u.Add(mockUser)
@@ -51,16 +62,17 @@ func TestUserUseCase_Add(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, user)
 
-		mockUserRepo.AssertExpectations(t)
 	})
 	t.Run("AddUser-error", func(t *testing.T) {
-		mockUserRepoErr := new(mocks.UserRepository)
-		mockUserRepoErr.On("Add", mock.AnythingOfType("models.User")).Return(models.User{}, errors.New("fsdsd")).Once()
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUserRepoErr := mocks.NewMockRepository(ctrl)
+		mockUserRepoErr.EXPECT().Add(gomock.Any()).Return(models.User{}, errors.New("fdsfs")).Times(1)
 		uEr := NewUserUsecase(mockUserRepoErr)
 		_, err := uEr.Add(mockUser)
 
 		assert.Error(t, err)
-		mockUserRepoErr.AssertExpectations(t)
 	})
 
 }
@@ -68,9 +80,11 @@ func TestUserUseCase_Add(t *testing.T) {
 func TestUserUseCase_GetByUserName(t *testing.T) {
 	mockUser := models.User{Username: "kotik", Email: "kek@mail.ru"}
 	t.Run("Add", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-		mockUserRepo := new(mocks.UserRepository)
-		mockUserRepo.On("GetByUserName", mock.AnythingOfType("string")).Return(mockUser, nil).Once()
+		mockUserRepo := mocks.NewMockRepository(ctrl)
+		mockUserRepo.EXPECT().GetByUserName("kotik").Return(mockUser, nil).Times(1)
 		u := NewUserUsecase(mockUserRepo)
 
 		user, err := u.GetByUserName("kotik")
@@ -78,17 +92,17 @@ func TestUserUseCase_GetByUserName(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, user)
 		assert.Equal(t, user.Username, mockUser.Username)
-		mockUserRepo.AssertExpectations(t)
 	})
 
 	t.Run("GetByUserName-error", func(t *testing.T) {
-		mockUserRepoErr := new(mocks.UserRepository)
-		mockUserRepoErr.On("GetByUserName", mock.AnythingOfType("string")).Return(mockUser, errors.New("cxew")).Once()
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		mockUserRepoErr := mocks.NewMockRepository(ctrl)
+		mockUserRepoErr.EXPECT().GetByUserName("kotik").Return(mockUser, errors.New("fsdfs")).Times(1)
 		uEr := NewUserUsecase(mockUserRepoErr)
 
 		_, err := uEr.GetByUserName("kotik")
 		assert.Error(t, err)
-		mockUserRepoErr.AssertExpectations(t)
 	})
 
 }
@@ -96,23 +110,25 @@ func TestUserUseCase_GetByUserName(t *testing.T) {
 func TestUserUseCase_UpdateUser(t *testing.T) {
 	mockUser := models.User{Username: "kotik", Email: "kek@mail.ru"}
 	t.Run("UpdateUser", func(t *testing.T) {
-		mockUserRepo := new(mocks.UserRepository)
-		mockUserRepo.On("UpdateUser", mock.AnythingOfType("models.User")).Return(nil).Once()
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		mockUserRepo := mocks.NewMockRepository(ctrl)
+		mockUserRepo.EXPECT().UpdateUser(mockUser).Return(nil).Times(1)
 		u := NewUserUsecase(mockUserRepo)
 
 		err := u.UpdateUser(mockUser)
 		assert.NoError(t, err)
-		mockUserRepo.AssertExpectations(t)
 	})
 
 	t.Run("UpdateUser-error", func(t *testing.T) {
-		mockUserRepoErr := new(mocks.UserRepository)
-		mockUserRepoErr.On("UpdateUser", mock.AnythingOfType("models.User")).Return(errors.New("fsdsd")).Once()
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		mockUserRepoErr := mocks.NewMockRepository(ctrl)
+		mockUserRepoErr.EXPECT().UpdateUser(mockUser).Return(errors.New("fdsfs")).Times(1)
 		u := NewUserUsecase(mockUserRepoErr)
 		err := u.UpdateUser(mockUser)
 
 		assert.Error(t, err)
-		mockUserRepoErr.AssertExpectations(t)
 	})
 }
 
@@ -120,26 +136,28 @@ func TestUserUseCase_UpdatePassword(t *testing.T) {
 
 	mockUser := models.User{Username: "kotik", Email: "kek@mail.ru"}
 	t.Run("UpdatePassword", func(t *testing.T) {
-		mockUserRepo := new(mocks.UserRepository)
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		mockUserRepo := mocks.NewMockRepository(ctrl)
 
-		mockUserRepo.On("UpdatePassword", mock.AnythingOfType("models.User")).Return(nil).Once()
+		mockUserRepo.EXPECT().UpdatePassword(gomock.Any()).Return(nil).Times(1)
 		u := NewUserUsecase(mockUserRepo)
 
 		err := u.UpdatePassword(mockUser)
 
 		assert.NoError(t, err)
 
-		mockUserRepo.AssertExpectations(t)
 	})
 
 	t.Run("UpdatePassword-error", func(t *testing.T) {
-		mockUserRepoErr := new(mocks.UserRepository)
-		mockUserRepoErr.On("UpdatePassword", mock.AnythingOfType("models.User")).Return(errors.New("fsdsd")).Once()
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		mockUserRepoErr := mocks.NewMockRepository(ctrl)
+		mockUserRepoErr.EXPECT().UpdatePassword(gomock.Any()).Return(customerror.NewCustomError("fdsfsd", http.StatusInternalServerError)).Times(1)
 		u := NewUserUsecase(mockUserRepoErr)
 		err := u.UpdatePassword(mockUser)
 
 		assert.Error(t, err)
-		mockUserRepoErr.AssertExpectations(t)
 	})
 
 }
@@ -148,51 +166,37 @@ func TestUserUseCase_UpdateAvatar(t *testing.T) {
 
 	mockUser := models.User{Username: "kotik", Email: "kek@mail.ru"}
 	t.Run("UpdateAvatar-error", func(t *testing.T) {
-		mockUserRepo := new(mocks.UserRepository)
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		mockUserRepo := mocks.NewMockRepository(ctrl)
 
-		mockUserRepo.On("UpdateAvatar", mock.AnythingOfType("models.User")).Return(nil).Once()
+		mockUserRepo.EXPECT().UpdateAvatar(gomock.Eq(mockUser)).Return(nil).Times(1)
+
 		u := NewUserUsecase(mockUserRepo)
 		err := u.UpdateAvatar(mockUser)
 
 		assert.NoError(t, err)
-		mockUserRepo.AssertExpectations(t)
 	})
 
 	t.Run("UpdateAvatar-error", func(t *testing.T) {
-		mockUserRepoErr := new(mocks.UserRepository)
-		mockUserRepoErr.On("UpdateAvatar", mock.AnythingOfType("models.User")).Return(errors.New("fsdsd")).Once()
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		mockUserRepoErr := mocks.NewMockRepository(ctrl)
+		mockUserRepoErr.EXPECT().UpdateAvatar(gomock.Eq(mockUser)).Return(errors.New("fdsfsd")).Times(1)
 		u := NewUserUsecase(mockUserRepoErr)
 		err := u.UpdateAvatar(mockUser)
 
 		assert.Error(t, err)
-		mockUserRepoErr.AssertExpectations(t)
 	})
 }
 
 func TestUserUseCase_SetDefaultAvatar(t *testing.T) {
-	mockUserRepo := new(mocks.UserRepository)
+	mockUserRepo := new(mocks.MockRepository)
 	mockUser := models.User{Username: "kotik", Email: "kek@mail.ru"}
 	u := NewUserUsecase(mockUserRepo)
 
 	err := u.SetDefaultAvatar(&mockUser)
 
 	assert.NoError(t, err)
-
-	mockUserRepo.AssertExpectations(t)
-
-}
-
-func TestUserUseCase_UploadAvatar(t *testing.T) {
-	mockUserRepo := new(mocks.UserRepository)
-	mockUser := models.User{Username: "kotik", Email: "kek@mail.ru"}
-	u := NewUserUsecase(mockUserRepo)
-	file := new(multipart.File)
-	fileType := "png"
-
-	err := u.UploadAvatar(*file, fileType, &mockUser)
-
-	assert.Error(t, err)
-
-	mockUserRepo.AssertExpectations(t)
 
 }

@@ -1,6 +1,7 @@
 package hotelDelivery
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -31,6 +32,7 @@ func NewHotelHandler(r *mux.Router, hs hotels.Usecase, lg *logger.CustomLogger) 
 	r.Path("/api/v1/hotels/search").Queries("pattern", "{pattern}", "prev", "{prev}", "next", "{next}", "limit", "{limit:[0-9]+}").
 		HandlerFunc(permissions.SetCSRF(handler.FetchHotels)).Methods("GET")
 	r.Path("/api/v1/hotels").Queries("from", "{from:[0-9]+}").HandlerFunc(permissions.SetCSRF(handler.ListHotels)).Methods("GET")
+	r.HandleFunc("/api/v1/rates", permissions.CheckCSRF(handler.RateHotel)).Methods("POST")
 }
 
 // swagger:route GET /api/v1/hotels hotel hotels
@@ -120,4 +122,29 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.SendDataResponse(w, hotels)
+}
+
+// swagger:route POST /api/v1/rates hotel rates
+// Rate hotel
+// responses:
+//  400: badrequest
+func (hh *HotelHandler) RateHotel(w http.ResponseWriter, r *http.Request) {
+	rating := models.Rating{}
+
+	err := json.NewDecoder(r.Body).Decode(&rating)
+	if err != nil {
+		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
+		hh.log.LogError(r.Context(), err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		return
+	}
+
+	newRating, err := hh.HotelUseCase.UpdateRating(rating)
+
+	if err != nil {
+		hh.log.LogError(r.Context(), err)
+		responses.SendErrorResponse(w, customerror.ParseCode(err))
+	}
+
+	responses.SendDataResponse(w, newRating)
 }

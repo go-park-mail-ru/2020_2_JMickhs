@@ -9,4 +9,5 @@ type Usecase interface {
 	FetchHotels(pattern string, cursor models.Cursor, limit int) (models.SearchData, error)
 	DecodeCursor(cursor string) (models.FilterData, error)
 	EncodeCursor(data models.FilterData) string
+	UpdateRating(rating models.Rating) (int, error)
 }

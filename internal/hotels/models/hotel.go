@@ -16,6 +16,18 @@ type HotelPreview struct {
 	Location string `json:"location"`
 }
 
+type Rating struct {
+	RateID  int `json:"rate_id"`
+	HotelID int `json:"hotel_id"`
+	UserID  int `json:"user_id"`
+	Rate    int `json:"rate"`
+}
+
+type RateInfo struct {
+	RatesCount int
+	CurrRating int
+}
+
 type SearchString struct {
 	Pattern string `json:"pattern"`
 }

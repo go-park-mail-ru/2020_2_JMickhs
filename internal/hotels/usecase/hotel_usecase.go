@@ -110,3 +110,25 @@ func (p *HotelUseCase) EncodeCursor(data models.FilterData) string {
 	key := fmt.Sprintf("%s,%s", data.Rating, data.ID)
 	return base64.StdEncoding.EncodeToString([]byte(key))
 }
+
+func (p *HotelUseCase) UpdateRating(rating models.Rating) (int, error) {
+	err := p.hotelRepo.InsertRating(rating)
+	nextRate := -1
+	if err != nil {
+		return nextRate, err
+	}
+
+	currRate, err := p.hotelRepo.GetCurrentRating(rating.HotelID)
+	if err != nil {
+		return nextRate, err
+	}
+
+	summRate := (currRate.RatesCount - 1) * currRate.CurrRating
+	nextRate = (summRate + rating.Rate) / currRate.RatesCount
+
+	err = p.hotelRepo.UpdateHotelRating(rating.HotelID, nextRate)
+	if err != nil {
+		return nextRate, err
+	}
+	return nextRate, nil
+}
