@@ -129,6 +129,30 @@ definitions:
         x-go-name: Rating
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models
+  NewRate:
+    properties:
+      newrate:
+        format: int64
+        type: integer
+        x-go-name: Rate
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models
+  RateRequest:
+    properties:
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
+      rate:
+        format: int64
+        type: integer
+        x-go-name: Rate
+      user_id:
+        format: int64
+        type: integer
+        x-go-name: UserID
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/api/swagger
   SafeUser:
     properties:
       avatar:
@@ -368,6 +392,24 @@ paths:
           $ref: '#/responses/badrequest'
       tags:
       - hotel
+  /api/v1/rates:
+    post:
+      description: Rate hotel
+      operationId: rates
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/RateRequest'
+      responses:
+        "200":
+          $ref: '#/responses/rates'
+        "400":
+          $ref: '#/responses/badrequest'
+        "423":
+          $ref: '#/responses/locked'
+      tags:
+      - hotel
   /api/v1/users:
     get:
       description: Get current safe user
@@ -549,6 +591,11 @@ responses:
       items:
         $ref: '#/definitions/Hotel'
       type: array
+  locked:
+    description: two times rate one hotel
+  rates:
+    schema:
+      $ref: '#/definitions/NewRate'
   safeUser:
     schema:
       $ref: '#/definitions/SafeUser'

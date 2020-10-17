@@ -11,7 +11,7 @@ import (
 
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/error"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models"
+	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models"
 )
 
 type HotelUseCase struct {
@@ -24,10 +24,10 @@ func NewHotelUsecase(r hotels.Repository) *HotelUseCase {
 	}
 }
 
-func (p *HotelUseCase) GetHotels(StartID int) ([]models.Hotel, error) {
+func (p *HotelUseCase) GetHotels(StartID int) ([]hotelmodel.Hotel, error) {
 	return p.hotelRepo.GetHotels(StartID)
 }
-func (p *HotelUseCase) GetHotelByID(ID int) (models.Hotel, error) {
+func (p *HotelUseCase) GetHotelByID(ID int) (hotelmodel.Hotel, error) {
 	return p.hotelRepo.GetHotelByID(ID)
 }
 
@@ -39,8 +39,8 @@ func reverse(v reflect.Value) reflect.Value {
 	return result
 }
 
-func (p *HotelUseCase) FetchHotels(pattern string, cursor models.Cursor, limit int) (models.SearchData, error) {
-	DataWithCursor := models.SearchData{}
+func (p *HotelUseCase) FetchHotels(pattern string, cursor hotelmodel.Cursor, limit int) (hotelmodel.SearchData, error) {
+	DataWithCursor := hotelmodel.SearchData{}
 	currCursor := ""
 	next := false
 
@@ -65,14 +65,14 @@ func (p *HotelUseCase) FetchHotels(pattern string, cursor models.Cursor, limit i
 		return DataWithCursor, nil
 	}
 	if cursor.PrevCursor != "" {
-		hotels = reverse(reflect.ValueOf(hotels)).Interface().([]models.Hotel)
+		hotels = reverse(reflect.ValueOf(hotels)).Interface().([]hotelmodel.Hotel)
 	}
 	lastHotel := hotels[len(hotels)-1]
-	FilterData := models.FilterData{lastHotel.Rating, strconv.Itoa(lastHotel.HotelID)}
+	FilterData := hotelmodel.FilterData{lastHotel.Rating, strconv.Itoa(lastHotel.HotelID)}
 	nextCursor := p.EncodeCursor(FilterData)
 
 	firstHotel := hotels[0]
-	FilterData = models.FilterData{firstHotel.Rating, strconv.Itoa(firstHotel.HotelID)}
+	FilterData = hotelmodel.FilterData{firstHotel.Rating, strconv.Itoa(firstHotel.HotelID)}
 	fmt.Println(firstHotel.Rating)
 	prevNewCursor := p.EncodeCursor(FilterData)
 	cursor.NextCursor = nextCursor
@@ -84,8 +84,8 @@ func (p *HotelUseCase) FetchHotels(pattern string, cursor models.Cursor, limit i
 	return DataWithCursor, nil
 }
 
-func (p *HotelUseCase) DecodeCursor(cursor string) (models.FilterData, error) {
-	filter := models.FilterData{}
+func (p *HotelUseCase) DecodeCursor(cursor string) (hotelmodel.FilterData, error) {
+	filter := hotelmodel.FilterData{}
 	if cursor == "" {
 		filter.ID = "0"
 		filter.Rating = strconv.Itoa(math.MaxInt32)
@@ -106,12 +106,12 @@ func (p *HotelUseCase) DecodeCursor(cursor string) (models.FilterData, error) {
 	return filter, nil
 }
 
-func (p *HotelUseCase) EncodeCursor(data models.FilterData) string {
+func (p *HotelUseCase) EncodeCursor(data hotelmodel.FilterData) string {
 	key := fmt.Sprintf("%s,%s", data.Rating, data.ID)
 	return base64.StdEncoding.EncodeToString([]byte(key))
 }
 
-func (p *HotelUseCase) UpdateRating(rating models.Rating) (int, error) {
+func (p *HotelUseCase) UpdateRating(rating hotelmodel.Rating) (int, error) {
 	err := p.hotelRepo.InsertRating(rating)
 	nextRate := -1
 	if err != nil {

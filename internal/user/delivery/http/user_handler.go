@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/models"
+
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/error"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/logger"
@@ -18,7 +20,6 @@ import (
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/sessions"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/user"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/models"
 	"github.com/gorilla/mux"
 )
 

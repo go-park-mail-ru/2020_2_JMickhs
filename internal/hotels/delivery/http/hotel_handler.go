@@ -5,7 +5,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models"
+	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/models"
 
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/error"
 
@@ -27,7 +30,6 @@ func NewHotelHandler(r *mux.Router, hs hotels.Usecase, lg *logger.CustomLogger) 
 		HotelUseCase: hs,
 		log:          lg,
 	}
-
 	r.HandleFunc("/api/v1/hotels/{id:[0-9]+}", permissions.SetCSRF(handler.Hotel)).Methods("GET")
 	r.Path("/api/v1/hotels/search").Queries("pattern", "{pattern}", "prev", "{prev}", "next", "{next}", "limit", "{limit:[0-9]+}").
 		HandlerFunc(permissions.SetCSRF(handler.FetchHotels)).Methods("GET")
@@ -101,7 +103,7 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 	next := r.FormValue("next")
 	before := r.FormValue("prev")
 
-	cursor := models.Cursor{next, before}
+	cursor := hotelmodel.Cursor{next, before}
 
 	pattern := r.FormValue("pattern")
 	limits := r.FormValue("limit")
@@ -127,9 +129,11 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 // swagger:route POST /api/v1/rates hotel rates
 // Rate hotel
 // responses:
+//  200: rates
 //  400: badrequest
+//  423: locked
 func (hh *HotelHandler) RateHotel(w http.ResponseWriter, r *http.Request) {
-	rating := models.Rating{}
+	rating := hotelmodel.Rating{}
 
 	err := json.NewDecoder(r.Body).Decode(&rating)
 	if err != nil {
@@ -139,12 +143,21 @@ func (hh *HotelHandler) RateHotel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
+	if !ok {
+		responses.SendErrorResponse(w, http.StatusUnauthorized)
+		return
+	}
+
+	rating.UserID = usr.ID
 	newRating, err := hh.HotelUseCase.UpdateRating(rating)
 
+	NewRate := hotelmodel.NewRate{newRating}
 	if err != nil {
 		hh.log.LogError(r.Context(), err)
 		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		return
 	}
 
-	responses.SendDataResponse(w, newRating)
+	responses.SendDataResponse(w, NewRate)
 }

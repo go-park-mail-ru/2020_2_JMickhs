@@ -34,3 +34,8 @@ type unsupport struct {
 //swagger:response badCredentials
 type credentials struct {
 }
+
+// two times rate one hotel
+// swagger:response locked
+type locked struct {
+}

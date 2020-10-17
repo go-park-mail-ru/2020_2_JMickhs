@@ -27,7 +27,8 @@ create table rating (
     rate_id serial PRIMARY KEY NOT NULL,
     hotel_id int not null,
     user_id int not null,
-    rate int CHECK (rate >= 0  AND rate <=10)
+    rate int CHECK (rate >= 0  AND rate <=10),
+    UNIQUE (hotel_id,user_id)
 );
 
 

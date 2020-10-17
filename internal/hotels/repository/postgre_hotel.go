@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/error"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models"
+	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -18,14 +18,14 @@ func NewPostgresHotelRepository(conn *sqlx.DB) PostgreHotelRepository {
 	return PostgreHotelRepository{conn}
 }
 
-func (p *PostgreHotelRepository) GetHotels(StartID int) ([]models.Hotel, error) {
+func (p *PostgreHotelRepository) GetHotels(StartID int) ([]hotelmodel.Hotel, error) {
 	rows, err := p.conn.Query("SELECT hotel_id,name,description,img,location,curr_rating FROM hotels LIMIT 4 OFFSET $1", strconv.Itoa(StartID))
 	defer rows.Close()
-	hotels := []models.Hotel{}
+	hotels := []hotelmodel.Hotel{}
 	if err != nil {
 		return hotels, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
 	}
-	hotel := models.Hotel{}
+	hotel := hotelmodel.Hotel{}
 	for rows.Next() {
 		err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location, &hotel.Rating)
 		if err != nil {
@@ -36,9 +36,9 @@ func (p *PostgreHotelRepository) GetHotels(StartID int) ([]models.Hotel, error) 
 	return hotels, nil
 }
 
-func (p *PostgreHotelRepository) GetHotelByID(ID int) (models.Hotel, error) {
+func (p *PostgreHotelRepository) GetHotelByID(ID int) (hotelmodel.Hotel, error) {
 	rows := p.conn.QueryRow("SELECT hotel_id,name,description,img,location,curr_rating FROM hotels WHERE hotel_id=$1", strconv.Itoa(ID))
-	hotel := models.Hotel{}
+	hotel := hotelmodel.Hotel{}
 	err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location, &hotel.Rating)
 	if err != nil {
 		return hotel, customerror.NewCustomError("such hotel doesn't exist", http.StatusGone)
@@ -46,7 +46,7 @@ func (p *PostgreHotelRepository) GetHotelByID(ID int) (models.Hotel, error) {
 	return hotel, nil
 }
 
-func (p *PostgreHotelRepository) FetchHotels(pattern string, filter models.FilterData, limit int, nextOrPrev bool) ([]models.Hotel, error) {
+func (p *PostgreHotelRepository) FetchHotels(pattern string, filter hotelmodel.FilterData, limit int, nextOrPrev bool) ([]hotelmodel.Hotel, error) {
 	comprasion := ""
 	id := ""
 	order := "DESC"
@@ -63,11 +63,11 @@ func (p *PostgreHotelRepository) FetchHotels(pattern string, filter models.Filte
 	rows, err := p.conn.Query(fmt.Sprint("SELECT hotel_id, name, description, location, img,  curr_rating FROM hotels WHERE (name % $1"+
 		"or location % $1 or name LIKE '%' || $1 || '%' or location LIKE '%' || $1 || '%')  AND (curr_rating ", comprasion, " $4 OR (curr_rating = $4 AND hotel_id ", id,
 		" $3)) ORDER BY curr_rating ", order, ", hotel_id ", orderId, " LIMIT $2"), pattern, strconv.Itoa(limit), filter.ID, filter.Rating)
-	hotels := []models.Hotel{}
+	hotels := []hotelmodel.Hotel{}
 	if err != nil {
 		return hotels, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
 	}
-	hotel := models.Hotel{}
+	hotel := hotelmodel.Hotel{}
 	for rows.Next() {
 		err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Location, &hotel.Image, &hotel.Rating)
 		if err != nil {
@@ -78,10 +78,10 @@ func (p *PostgreHotelRepository) FetchHotels(pattern string, filter models.Filte
 	return hotels, nil
 }
 
-func (p *PostgreHotelRepository) InsertRating(rating models.Rating) error {
+func (p *PostgreHotelRepository) InsertRating(rating hotelmodel.Rating) error {
 	err := p.conn.QueryRow("INSERT INTO rating VALUES (default, $1, $2, $3)", rating.HotelID, rating.UserID, rating.Rate).Err()
 	if err != nil {
-		return customerror.NewCustomError(err.Error(), http.StatusBadRequest)
+		return customerror.NewCustomError(err.Error(), http.StatusLocked)
 	}
 	return nil
 }
@@ -94,9 +94,9 @@ func (p *PostgreHotelRepository) UpdateHotelRating(hotelID int, NewRate int) err
 	return nil
 }
 
-func (p *PostgreHotelRepository) GetCurrentRating(hotelID int) (models.RateInfo, error) {
-	rateInfo := models.RateInfo{}
-	err := p.conn.QueryRow("SELECT COUNT(*) FROM hotels where hotels.hotel_id = $1", hotelID).Scan(&rateInfo.RatesCount)
+func (p *PostgreHotelRepository) GetCurrentRating(hotelID int) (hotelmodel.RateInfo, error) {
+	rateInfo := hotelmodel.RateInfo{}
+	err := p.conn.QueryRow("SELECT COUNT(*) FROM rating where hotel_id = $1", hotelID).Scan(&rateInfo.RatesCount)
 	if err != nil {
 		return rateInfo, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
 	}

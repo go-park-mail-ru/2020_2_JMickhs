@@ -1,4 +1,4 @@
-package models
+package hotelmodel
 
 type Hotel struct {
 	HotelID     int    `json:"hotel_id"`
@@ -28,6 +28,9 @@ type RateInfo struct {
 	CurrRating int
 }
 
+type NewRate struct {
+	Rate int `json:"newrate"`
+}
 type SearchString struct {
 	Pattern string `json:"pattern"`
 }

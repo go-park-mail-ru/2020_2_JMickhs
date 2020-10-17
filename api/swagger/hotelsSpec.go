@@ -1,6 +1,8 @@
 package swagger
 
-import "github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models"
+import (
+	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/models"
+)
 
 // swagger:parameters searchHotel
 type SearchStringRequest struct {
@@ -12,9 +14,15 @@ type SearchStringRequest struct {
 	Limit int `json:"limit"`
 }
 
+type RateRequest struct {
+	HotelID int `json:"hotel_id"`
+	UserID  int `json:"user_id"`
+	Rate    int `json:"rate"`
+}
+
 type SearchDataResponse struct {
-	Hotels []models.Hotel `json:"hotels"`
-	Cursor models.Cursor  `json:"cursor"`
+	Hotels []hotelmodel.Hotel `json:"hotels"`
+	Cursor hotelmodel.Cursor  `json:"cursor"`
 }
 
 // swagger:parameters hotel
@@ -23,6 +31,18 @@ type hotelIDParameterWrapper struct {
 	// in: path
 	// required:true
 	ID int `json:"id"`
+}
+
+// swagger:response rates
+type newRateResponse struct {
+	//in:body
+	Body hotelmodel.NewRate
+}
+
+// swagger:parameters rates
+type newRateRequest struct {
+	//in:body
+	Body RateRequest
 }
 
 // swagger:parameters hotels
@@ -36,7 +56,7 @@ type hotelsIDParameterWrapper struct {
 // swagger:response hotels
 type hotelListWrapper struct {
 	//in: body
-	Body []models.Hotel
+	Body []hotelmodel.Hotel
 }
 
 // swagger:response searchHotel
