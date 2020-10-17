@@ -25,31 +25,31 @@ import (
 	"runtime"
 	"strconv"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/logger"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/logger"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
-	commentDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment/delivery/http"
-	commentRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment/repository"
-	commentUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/comment/usecase"
+	commentDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/delivery/http"
+	commentRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/repository"
+	commentUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/usecase"
 
-	sessionsRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/sessions/repository"
-	sessionsUseCase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/sessions/usecase"
+	sessionsRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/sessions/repository"
+	sessionsUseCase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/sessions/usecase"
 
-	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/internal/middleware"
+	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/middleware"
 
 	"github.com/go-openapi/runtime/middleware"
-	hotelDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/delivery/http"
+	hotelDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/delivery/http"
 
-	hotelUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/usecase"
+	hotelUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/usecase"
 
-	hotelRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/repository"
+	hotelRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/repository"
 
-	delivery "github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/delivery/http"
+	delivery "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/delivery/http"
 	"github.com/go-redis/redis/v8"
 
-	userRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/repository"
+	userRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/repository"
 
-	userUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/usecase"
+	userUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/usecase"
 
 	"github.com/jmoiron/sqlx"
 
@@ -99,7 +99,7 @@ func NewRouter() *mux.Router {
 	sh := middleware.Redoc(opts, nil)
 
 	router.Handle("/docs", sh)
-	router.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+	router.Handle("/swagger.yaml", http.FileServer(http.Dir("./api/swagger")))
 
 	return router
 }
