@@ -14,6 +14,14 @@ type SearchStringRequest struct {
 	Limit int `json:"limit"`
 }
 
+type PreviewHotel struct {
+	HotelID     int    `json:"hotel_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Image       string `json:"image"`
+	Location    string `json:"location"`
+	Rating      string `json:"rating"`
+}
 type RateRequest struct {
 	HotelID int `json:"hotel_id"`
 	UserID  int `json:"user_id"`
@@ -25,6 +33,11 @@ type SearchDataResponse struct {
 	Cursor hotelmodel.Cursor  `json:"cursor"`
 }
 
+type HotelData struct {
+	Hotel    hotelmodel.Hotel `json:"hotel"`
+	CurrRate int              `json:"rate"`
+}
+
 // swagger:parameters hotel
 type hotelIDParameterWrapper struct {
 	// the id of hotel to get from database
@@ -33,16 +46,10 @@ type hotelIDParameterWrapper struct {
 	ID int `json:"id"`
 }
 
-// swagger:response rates
-type newRateResponse struct {
-	//in:body
-	Body hotelmodel.NewRate
-}
-
-// swagger:parameters rates
-type newRateRequest struct {
-	//in:body
-	Body RateRequest
+// swagger:response HotelData
+type hotelResponseWrapper struct {
+	//in: body
+	Body HotelData
 }
 
 // swagger:parameters hotels
@@ -56,7 +63,7 @@ type hotelsIDParameterWrapper struct {
 // swagger:response hotels
 type hotelListWrapper struct {
 	//in: body
-	Body []hotelmodel.Hotel
+	Body []PreviewHotel
 }
 
 // swagger:response searchHotel

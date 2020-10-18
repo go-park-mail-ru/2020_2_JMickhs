@@ -1,7 +1,6 @@
 package hotelDelivery
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -34,7 +33,6 @@ func NewHotelHandler(r *mux.Router, hs hotels.Usecase, lg *logger.CustomLogger) 
 	r.Path("/api/v1/hotels/search").Queries("pattern", "{pattern}", "prev", "{prev}", "next", "{next}", "limit", "{limit:[0-9]+}").
 		HandlerFunc(permissions.SetCSRF(handler.FetchHotels)).Methods("GET")
 	r.Path("/api/v1/hotels").Queries("from", "{from:[0-9]+}").HandlerFunc(permissions.SetCSRF(handler.ListHotels)).Methods("GET")
-	r.HandleFunc("/api/v1/rates", permissions.CheckCSRF(handler.RateHotel)).Methods("POST")
 }
 
 // swagger:route GET /api/v1/hotels hotel hotels
@@ -66,9 +64,10 @@ func (hh *HotelHandler) ListHotels(w http.ResponseWriter, r *http.Request) {
 }
 
 // swagger:route GET /api/v1/hotels/{id} hotel hotel
-// Get single hotel by id
+// Get Single hotel by id,
+// if don't rate by curr user, field "rate" should be empty
 // responses:
-//  200: Hotel
+//  200: HotelData
 //  400: badrequest
 //  410:  gone
 func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
@@ -90,8 +89,22 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 		responses.SendErrorResponse(w, customerror.ParseCode(err))
 		return
 	}
+	data := hotelmodel.HotelData{Hotel: hotel}
 
-	responses.SendDataResponse(w, hotel)
+	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
+	if !ok {
+		responses.SendDataResponse(w, data)
+		return
+	}
+
+	rate, err := hh.HotelUseCase.CheckRateExist(usr.ID, hotel.HotelID)
+	if err != nil {
+		responses.SendDataResponse(w, data)
+		return
+	}
+	data.CurrRate = rate
+
+	responses.SendDataResponse(w, data)
 }
 
 // swagger:route GET /api/v1/hotels/search hotel searchHotel
@@ -124,40 +137,4 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.SendDataResponse(w, hotels)
-}
-
-// swagger:route POST /api/v1/rates hotel rates
-// Rate hotel
-// responses:
-//  200: rates
-//  400: badrequest
-//  423: locked
-func (hh *HotelHandler) RateHotel(w http.ResponseWriter, r *http.Request) {
-	rating := hotelmodel.Rating{}
-
-	err := json.NewDecoder(r.Body).Decode(&rating)
-	if err != nil {
-		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		hh.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
-		return
-	}
-
-	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
-	if !ok {
-		responses.SendErrorResponse(w, http.StatusUnauthorized)
-		return
-	}
-
-	rating.UserID = usr.ID
-	newRating, err := hh.HotelUseCase.UpdateRating(rating)
-
-	NewRate := hotelmodel.NewRate{newRating}
-	if err != nil {
-		hh.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
-		return
-	}
-
-	responses.SendDataResponse(w, NewRate)
 }

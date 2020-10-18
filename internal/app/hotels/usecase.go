@@ -9,5 +9,5 @@ type Usecase interface {
 	FetchHotels(pattern string, cursor hotelmodel.Cursor, limit int) (hotelmodel.SearchData, error)
 	DecodeCursor(cursor string) (hotelmodel.FilterData, error)
 	EncodeCursor(data hotelmodel.FilterData) string
-	UpdateRating(rating hotelmodel.Rating) (int, error)
+	CheckRateExist(UserID int, HotelID int) (int, error)
 }

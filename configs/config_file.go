@@ -22,6 +22,8 @@ var RedisConfig redisConfig
 var PrefixPath string
 
 const ApiVersion = "api/v1"
+const Domen = "http://www.hostelscan.ru"
+const LocalOrigin = "http://127.0.0.1"
 const StaticPath = "static/img"
 const Port = ":8080"
 const CookieLifeTime = time.Hour * 24 * 30

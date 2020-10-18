@@ -7,7 +7,5 @@ type Repository interface {
 	GetHotels(StartID int) ([]hotelmodel.Hotel, error)
 	GetHotelByID(ID int) (hotelmodel.Hotel, error)
 	FetchHotels(pattern string, data hotelmodel.FilterData, limit int, nextOrPrev bool) ([]hotelmodel.Hotel, error)
-	InsertRating(rating hotelmodel.Rating) error
-	UpdateHotelRating(hotelID int, NewRate int) error
-	GetCurrentRating(hotelID int) (hotelmodel.RateInfo, error)
+	CheckRateExist(UserID int, HotelID int) (int, error)
 }

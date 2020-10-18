@@ -1,6 +1,6 @@
-// Golang service API for HotelScanner
+//  Golang service API for HotelScanner
 //
-// Swagger spec.
+//  Swagger spec.
 //
 //  Schemes: http
 //  BasePath: /
@@ -12,7 +12,7 @@
 //
 //  Produces:
 //	- application/json
-// swagger:meta
+//  swagger:meta
 package main
 
 import (

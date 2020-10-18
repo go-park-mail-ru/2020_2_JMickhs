@@ -5,12 +5,17 @@ import (
 	"net/http"
 	"strconv"
 
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/models"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
+
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/error"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/logger"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 	permissions "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/permission"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/responses"
 	"github.com/gorilla/mux"
@@ -72,12 +77,14 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 }
 
 // swagger:route POST /api/v1/comments comment AddComment
+// add comment and rate hotel
 // responses:
 //  200: AddComment
 //  403: Forbidden
 //  400: badrequest
+//  423: locked
 func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
-	comment := models.Comment{}
+	comment := commModel.Comment{}
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
 		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
@@ -86,6 +93,12 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
+	if !ok {
+		responses.SendErrorResponse(w, http.StatusUnauthorized)
+		return
+	}
+	comment.UserID = usr.ID
 	comm, err := ch.CommentUseCase.AddComment(comment)
 
 	if err != nil {
@@ -102,7 +115,7 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 // 403: Forbidden
 // 400: badrequest
 func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
-	comment := models.Comment{}
+	comment := commModel.Comment{}
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
 		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)

@@ -1,12 +1,13 @@
 package hotelmodel
 
 type Hotel struct {
-	HotelID     int    `json:"hotel_id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Image       string `json:"image"`
-	Location    string `json:"location"`
-	Rating      string `json:"rating"`
+	HotelID     int      `json:"hotel_id"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Image       string   `json:"image"`
+	Location    string   `json:"location"`
+	Rating      int      `json:"rating"`
+	Photos      []string `json:"photos,omitempty"`
 }
 
 type HotelPreview struct {
@@ -16,21 +17,11 @@ type HotelPreview struct {
 	Location string `json:"location"`
 }
 
-type Rating struct {
-	RateID  int `json:"rate_id"`
-	HotelID int `json:"hotel_id"`
-	UserID  int `json:"user_id"`
-	Rate    int `json:"rate"`
+type HotelData struct {
+	Hotel    Hotel `json:"hotel"`
+	CurrRate int   `json:"rate,omitempty"`
 }
 
-type RateInfo struct {
-	RatesCount int
-	CurrRating int
-}
-
-type NewRate struct {
-	Rate int `json:"newrate"`
-}
 type SearchString struct {
 	Pattern string `json:"pattern"`
 }
@@ -46,6 +37,6 @@ type Cursor struct {
 }
 
 type FilterData struct {
-	Rating string
+	Rating int
 	ID     string
 }

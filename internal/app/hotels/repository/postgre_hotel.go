@@ -39,11 +39,19 @@ func (p *PostgreHotelRepository) GetHotels(StartID int) ([]hotelmodel.Hotel, err
 }
 
 func (p *PostgreHotelRepository) GetHotelByID(ID int) (hotelmodel.Hotel, error) {
+
 	rows := p.conn.QueryRow(sqlrequests.GetHotelByIDPostgreRequest, strconv.Itoa(ID))
 	hotel := hotelmodel.Hotel{}
-	err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location, &hotel.Rating)
+	var kek []uint8
+	err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Location, &hotel.Description, &hotel.Image, &hotel.Rating, &kek)
 	if err != nil {
-		return hotel, customerror.NewCustomError("such hotel doesn't exist", http.StatusGone)
+		return hotel, customerror.NewCustomError(err.Error(), http.StatusGone)
+	}
+	i := 0
+	fmt.Println(len(kek))
+	for _, str := range kek {
+		hotel.Photos[i] = string(rune(str))
+		i++
 	}
 	return hotel, nil
 }
@@ -80,31 +88,11 @@ func (p *PostgreHotelRepository) FetchHotels(pattern string, filter hotelmodel.F
 	return hotels, nil
 }
 
-func (p *PostgreHotelRepository) InsertRating(rating hotelmodel.Rating) error {
-	err := p.conn.QueryRow(sqlrequests.InsertRatingPostgreRequest, rating.HotelID, rating.UserID, rating.Rate).Err()
+func (p *PostgreHotelRepository) CheckRateExist(UserID int, HotelID int) (int, error) {
+	rate := -1
+	err := p.conn.QueryRow(sqlrequests.CheckRateIfExistPostgreRequest, UserID, HotelID).Scan(&rate)
 	if err != nil {
-		return customerror.NewCustomError(err.Error(), http.StatusLocked)
+		return rate, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
 	}
-	return nil
-}
-
-func (p *PostgreHotelRepository) UpdateHotelRating(hotelID int, NewRate int) error {
-	err := p.conn.QueryRow(sqlrequests.UpdateHotelRatingPostgreRequest, NewRate, hotelID).Err()
-	if err != nil {
-		return customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-	}
-	return nil
-}
-
-func (p *PostgreHotelRepository) GetCurrentRating(hotelID int) (hotelmodel.RateInfo, error) {
-	rateInfo := hotelmodel.RateInfo{}
-	err := p.conn.QueryRow(sqlrequests.GetRatingCountOnHotelPostgreRequest, hotelID).Scan(&rateInfo.RatesCount)
-	if err != nil {
-		return rateInfo, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
-	}
-	err = p.conn.QueryRow(sqlrequests.GetCurrRatingPostgreRequest, hotelID).Scan(&rateInfo.CurrRating)
-	if err != nil {
-		return rateInfo, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
-	}
-	return rateInfo, nil
+	return rate, nil
 }

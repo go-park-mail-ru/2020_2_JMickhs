@@ -1,12 +1,11 @@
 package swagger
 
-import "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
+import commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 
 type AddCommentRequest struct {
-	UserID  int    `json:"user_id"`
 	HotelID int    `json:"hotel_id"`
 	Message string `json:"message"`
-	Rating  int    `json:"rating"`
+	Rating  int    `json:"rate"`
 }
 
 type UpdateCommentRequest struct {
@@ -36,19 +35,19 @@ type CommentsDeleteParameterWrapper struct {
 //swagger:response comments
 type Comments struct {
 	//in: body
-	Body []models.FullCommentInfo
+	Body []commModel.FullCommentInfo
+}
+
+// swagger:response AddComment
+type newRateResponse struct {
+	//in:body
+	Body commModel.NewRate
 }
 
 // swagger:parameters UpdateComment
 type updateCommentRequest struct {
 	//in: body
 	Body UpdateCommentRequest
-}
-
-// swagger:response AddComment
-type commentResponse struct {
-	//in: body
-	Body models.Comment
 }
 
 // swagger:parameters AddComment

@@ -12,23 +12,19 @@ definitions:
       message:
         type: string
         x-go-name: Message
-      rating:
+      rate:
         format: int64
         type: integer
         x-go-name: Rating
-      user_id:
-        format: int64
-        type: integer
-        x-go-name: UserID
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/api/swagger
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   Avatar:
     properties:
       avatar:
         type: string
         x-go-name: Avatar
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/api/swagger
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   Comment:
     properties:
       comm_id:
@@ -42,10 +38,13 @@ definitions:
       message:
         type: string
         x-go-name: Message
-      rating:
+      rate:
         format: int64
         type: integer
-        x-go-name: Rating
+        x-go-name: Rate
+      time:
+        type: string
+        x-go-name: Time
       user_id:
         format: int64
         type: integer
@@ -97,6 +96,9 @@ definitions:
         format: int64
         type: integer
         x-go-name: Rating
+      time:
+        type: string
+        x-go-name: Time
       user_id:
         format: int64
         type: integer
@@ -124,35 +126,59 @@ definitions:
       name:
         type: string
         x-go-name: Name
+      photos:
+        items:
+          type: string
+        type: array
+        x-go-name: Photos
       rating:
         type: string
         x-go-name: Rating
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models
+  HotelData:
+    properties:
+      hotel:
+        $ref: '#/definitions/Hotel'
+      rate:
+        format: int64
+        type: integer
+        x-go-name: CurrRate
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   NewRate:
     properties:
-      newrate:
+      comment:
+        $ref: '#/definitions/Comment'
+      new_rate:
         format: int64
         type: integer
         x-go-name: Rate
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models
-  RateRequest:
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models
+  PreviewHotel:
     properties:
+      description:
+        type: string
+        x-go-name: Description
       hotel_id:
         format: int64
         type: integer
         x-go-name: HotelID
-      rate:
-        format: int64
-        type: integer
-        x-go-name: Rate
-      user_id:
-        format: int64
-        type: integer
-        x-go-name: UserID
+      image:
+        type: string
+        x-go-name: Image
+      location:
+        type: string
+        x-go-name: Location
+      name:
+        type: string
+        x-go-name: Name
+      rating:
+        type: string
+        x-go-name: Rating
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/api/swagger
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   SafeUser:
     properties:
       avatar:
@@ -180,13 +206,13 @@ definitions:
         type: array
         x-go-name: Hotels
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/api/swagger
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   UpdateAvatar:
     properties:
       avatar:
         $ref: '#/definitions/File'
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/api/swagger
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   UpdateCommentRequest:
     properties:
       comm_id:
@@ -197,7 +223,7 @@ definitions:
         type: string
         x-go-name: Message
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/api/swagger
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   UpdatePassword:
     properties:
       newpassword:
@@ -217,7 +243,7 @@ definitions:
         type: string
         x-go-name: Username
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/api/swagger
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   UserAuth:
     properties:
       password:
@@ -227,7 +253,7 @@ definitions:
         type: string
         x-go-name: Username
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/api/swagger
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   UserRegistation:
     properties:
       email:
@@ -240,7 +266,7 @@ definitions:
         type: string
         x-go-name: Username
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/api/swagger
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
 info:
   description: Swagger spec.
   title: Golang service API for HotelScanner
@@ -273,6 +299,7 @@ paths:
       tags:
       - comment
     post:
+      description: add comment and rate hotel
       operationId: AddComment
       parameters:
       - in: body
@@ -286,6 +313,8 @@ paths:
           $ref: '#/responses/badrequest'
         "403":
           $ref: '#/responses/Forbidden'
+        "423":
+          $ref: '#/responses/locked'
       tags:
       - comment
     put:
@@ -341,7 +370,7 @@ paths:
       - hotel
   /api/v1/hotels/{id}:
     get:
-      description: Get single hotel by id
+      description: if don't rate by curr user, field "rate" should be empty
       operationId: hotel
       parameters:
       - description: the id of hotel to get from database
@@ -353,13 +382,12 @@ paths:
         x-go-name: ID
       responses:
         "200":
-          description: Hotel
-          schema:
-            $ref: '#/definitions/Hotel'
+          $ref: '#/responses/HotelData'
         "400":
           $ref: '#/responses/badrequest'
         "410":
           $ref: '#/responses/gone'
+      summary: Get Single hotel by id,
       tags:
       - hotel
   /api/v1/hotels/search:
@@ -390,24 +418,6 @@ paths:
           $ref: '#/responses/searchHotel'
         "400":
           $ref: '#/responses/badrequest'
-      tags:
-      - hotel
-  /api/v1/rates:
-    post:
-      description: Rate hotel
-      operationId: rates
-      parameters:
-      - in: body
-        name: Body
-        schema:
-          $ref: '#/definitions/RateRequest'
-      responses:
-        "200":
-          $ref: '#/responses/rates'
-        "400":
-          $ref: '#/responses/badrequest'
-        "423":
-          $ref: '#/responses/locked'
       tags:
       - hotel
   /api/v1/users:
@@ -547,9 +557,12 @@ produces:
 responses:
   AddComment:
     schema:
-      $ref: '#/definitions/Comment'
+      $ref: '#/definitions/NewRate'
   Forbidden:
     description: wrong csrf token
+  HotelData:
+    schema:
+      $ref: '#/definitions/HotelData'
   avatar:
     schema:
       $ref: '#/definitions/Avatar'
@@ -572,6 +585,8 @@ responses:
       rating:
         format: int64
         type: integer
+      time:
+        type: string
       user_id:
         format: int64
         type: integer
@@ -589,13 +604,10 @@ responses:
   hotels:
     schema:
       items:
-        $ref: '#/definitions/Hotel'
+        $ref: '#/definitions/PreviewHotel'
       type: array
   locked:
     description: two times rate one hotel
-  rates:
-    schema:
-      $ref: '#/definitions/NewRate'
   safeUser:
     schema:
       $ref: '#/definitions/SafeUser'

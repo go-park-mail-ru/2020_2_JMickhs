@@ -88,7 +88,7 @@ func (p *HotelUseCase) DecodeCursor(cursor string) (hotelmodel.FilterData, error
 	filter := hotelmodel.FilterData{}
 	if cursor == "" {
 		filter.ID = "0"
-		filter.Rating = strconv.Itoa(math.MaxInt32)
+		filter.Rating = math.MaxInt32
 		return filter, nil
 	}
 	byt, err := base64.StdEncoding.DecodeString(cursor)
@@ -101,7 +101,8 @@ func (p *HotelUseCase) DecodeCursor(cursor string) (hotelmodel.FilterData, error
 		return filter, customerror.NewCustomError("unvalid cursor", http.StatusBadRequest)
 	}
 
-	filter.Rating = arrStr[0]
+	rate, _ := strconv.Atoi(arrStr[0])
+	filter.Rating = rate
 	filter.ID = arrStr[1]
 	return filter, nil
 }
@@ -111,24 +112,6 @@ func (p *HotelUseCase) EncodeCursor(data hotelmodel.FilterData) string {
 	return base64.StdEncoding.EncodeToString([]byte(key))
 }
 
-func (p *HotelUseCase) UpdateRating(rating hotelmodel.Rating) (int, error) {
-	err := p.hotelRepo.InsertRating(rating)
-	nextRate := -1
-	if err != nil {
-		return nextRate, err
-	}
-
-	currRate, err := p.hotelRepo.GetCurrentRating(rating.HotelID)
-	if err != nil {
-		return nextRate, err
-	}
-
-	summRate := (currRate.RatesCount - 1) * currRate.CurrRating
-	nextRate = (summRate + rating.Rate) / currRate.RatesCount
-
-	err = p.hotelRepo.UpdateHotelRating(rating.HotelID, nextRate)
-	if err != nil {
-		return nextRate, err
-	}
-	return nextRate, nil
+func (p *HotelUseCase) CheckRateExist(UserID int, HotelID int) (int, error) {
+	return p.hotelRepo.CheckRateExist(UserID, HotelID)
 }
