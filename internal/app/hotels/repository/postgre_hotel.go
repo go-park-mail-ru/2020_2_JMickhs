@@ -77,9 +77,10 @@ func (p *PostgreHotelRepository) FetchHotels(pattern string, filter hotelmodel.F
 		order = "ASC"
 		orderId = "ASC"
 	}
-	rows, err := p.conn.Query(fmt.Sprint("SELECT hotel_id, name, description, location, img, round( CAST (curr_rating as numeric),1) FROM hotels WHERE (name % $1"+
+	query := fmt.Sprint("SELECT hotel_id, name, description, location, img, round( CAST (curr_rating as numeric),1) FROM hotels WHERE (name % $1"+
 		"or location % $1 or name LIKE '%' || $1 || '%' or location LIKE '%' || $1 || '%')  AND (curr_rating ", comprasion, " $4 OR (curr_rating = $4 AND hotel_id ", id,
-		" $3)) ORDER BY curr_rating ", order, ", hotel_id ", orderId, " LIMIT $2"), pattern, strconv.Itoa(limit), filter.ID, filter.Rating)
+		" $3)) ORDER BY curr_rating ", order, ", hotel_id ", orderId, " LIMIT $2")
+	rows, err := p.conn.Query(query, pattern, strconv.Itoa(limit), filter.ID, filter.Rating)
 	hotels := []hotelmodel.Hotel{}
 	if err != nil {
 		return hotels, customerror.NewCustomError(err, http.StatusInternalServerError, nil)
