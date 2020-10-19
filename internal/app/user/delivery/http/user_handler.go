@@ -59,8 +59,7 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(vars["id"])
 
 	if err != nil {
-		err := customerror.NewCustomError(err, http.StatusBadRequest, nil)
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, u.log, err, http.StatusBadRequest)
 		return
 	}
 
@@ -91,32 +90,31 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	file, _, err := r.FormFile("avatar")
 
 	if err != nil {
-		err := customerror.NewCustomError(err, http.StatusBadRequest, nil)
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, u.log, err, http.StatusBadRequest)
 		return
 	}
 
 	fileType, err := u.UserUseCase.CheckAvatar(file)
 	if err != nil {
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, u.log, err, http.StatusBadRequest)
 		return
 	}
 
 	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
-		responses.SendErrorResponse(w, http.StatusUnauthorized)
+		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 
 	path, err := u.UserUseCase.UploadAvatar(file, fileType, &usr)
 	if err != nil {
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, u.log, err, http.StatusBadRequest)
 		return
 	}
 
 	err = u.UserUseCase.UpdateAvatar(usr)
 	if err != nil {
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, u.log, err, http.StatusBadRequest)
 		return
 	}
 	responses.SendDataResponse(w, path)
@@ -134,26 +132,25 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	var twoPass models.UpdatePassword
 	err := json.NewDecoder(r.Body).Decode(&twoPass)
 	if err != nil {
-		err := customerror.NewCustomError(err, http.StatusBadRequest, nil)
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, error(err)))
+		customerror.PostError(w, r, u.log, err, http.StatusBadRequest)
 		return
 	}
 
 	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
-		responses.SendErrorResponse(w, http.StatusUnauthorized)
+		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 
 	err = u.UserUseCase.ComparePassword(twoPass.OldPassword, usr.Password)
 	if err != nil {
-		customerror.PostError(w, r, u.log, err, http.StatusPaymentRequired)
+		customerror.PostError(w, r, u.log, errors.New("wrong old password"), http.StatusPaymentRequired)
 		return
 	}
 	usr.Password = twoPass.NewPassword
 	err = u.UserUseCase.UpdatePassword(usr)
 	if err != nil {
-		r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	responses.SendOkResponse(w)
@@ -171,21 +168,20 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		err := customerror.NewCustomError(err, http.StatusBadRequest, nil)
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, u.log, err, http.StatusBadRequest)
 		return
 	}
 
 	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
-		responses.SendErrorResponse(w, http.StatusUnauthorized)
+		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	user.ID = usr.ID
 
 	err = u.UserUseCase.UpdateUser(user)
 	if err != nil {
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, u.log, err, nil)
 		return
 	}
 	responses.SendOkResponse(w)
@@ -203,20 +199,19 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	u.UserUseCase.SetDefaultAvatar(&user)
 	if err != nil {
-		err := customerror.NewCustomError(err, http.StatusBadRequest, nil)
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, u.log, err, http.StatusBadRequest)
 		return
 	}
 
 	usr, err := u.UserUseCase.Add(user)
 	if err != nil {
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, u.log, err, nil)
 		return
 	}
 
 	sessionID, err := u.SessionsUseCase.AddToken(usr.ID)
 	if err != nil {
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, u.log, err, nil)
 		return
 	}
 
@@ -263,7 +258,6 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 	sessionID, err := u.SessionsUseCase.AddToken(usr.ID)
 	if err != nil {
 		customerror.PostError(w, r, u.log, err, nil)
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 	safeUser := models.SafeUser{ID: usr.ID, Username: usr.Username, Avatar: usr.Avatar, Email: usr.Email}
