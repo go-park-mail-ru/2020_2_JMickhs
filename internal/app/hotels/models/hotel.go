@@ -6,7 +6,7 @@ type Hotel struct {
 	Description string   `json:"description"`
 	Image       string   `json:"image"`
 	Location    string   `json:"location"`
-	Rating      int      `json:"rating"`
+	Rating      float64  `json:"rating"`
 	Photos      []string `json:"photos,omitempty"`
 }
 
@@ -37,6 +37,6 @@ type Cursor struct {
 }
 
 type FilterData struct {
-	Rating int
+	Rating float64
 	ID     string
 }

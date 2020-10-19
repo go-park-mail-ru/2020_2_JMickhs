@@ -1,6 +1,7 @@
 package hotelDelivery
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 
@@ -77,16 +78,14 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		hh.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
 	hotel, err := hh.HotelUseCase.GetHotelByID(id)
 
 	if err != nil {
-		hh.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 	data := hotelmodel.HotelData{Hotel: hotel}
@@ -124,16 +123,14 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		hh.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
 	hotels, err := hh.HotelUseCase.FetchHotels(pattern, cursor, limit)
 
 	if err != nil {
-		hh.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 	}
 
 	responses.SendDataResponse(w, hotels)

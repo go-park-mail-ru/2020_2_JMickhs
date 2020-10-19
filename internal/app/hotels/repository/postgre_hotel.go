@@ -42,17 +42,24 @@ func (p *PostgreHotelRepository) GetHotelByID(ID int) (hotelmodel.Hotel, error) 
 
 	rows := p.conn.QueryRow(sqlrequests.GetHotelByIDPostgreRequest, strconv.Itoa(ID))
 	hotel := hotelmodel.Hotel{}
-	var kek []uint8
-	err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Location, &hotel.Description, &hotel.Image, &hotel.Rating, &kek)
+	err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Location, &hotel.Description, &hotel.Image, &hotel.Rating)
 	if err != nil {
 		return hotel, customerror.NewCustomError(err.Error(), http.StatusGone)
 	}
-	i := 0
-	fmt.Println(len(kek))
-	for _, str := range kek {
-		hotel.Photos[i] = string(rune(str))
-		i++
+
+	photosRows, err := p.conn.Query(sqlrequests.GetHotelsPhotosPostgreRequest, strconv.Itoa(ID))
+	if err != nil {
+		return hotel, customerror.NewCustomError(err.Error(), http.StatusGone)
 	}
+	photo := ""
+	for photosRows.Next() {
+		err := photosRows.Scan(&photo)
+		if err != nil {
+			return hotel, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+		}
+		hotel.Photos = append(hotel.Photos, photo)
+	}
+
 	return hotel, nil
 }
 
@@ -70,7 +77,7 @@ func (p *PostgreHotelRepository) FetchHotels(pattern string, filter hotelmodel.F
 		order = "ASC"
 		orderId = "ASC"
 	}
-	rows, err := p.conn.Query(fmt.Sprint("SELECT hotel_id, name, description, location, img,  curr_rating FROM hotels WHERE (name % $1"+
+	rows, err := p.conn.Query(fmt.Sprint("SELECT hotel_id, name, description, location, img, round( CAST (curr_rating as numeric),1) FROM hotels WHERE (name % $1"+
 		"or location % $1 or name LIKE '%' || $1 || '%' or location LIKE '%' || $1 || '%')  AND (curr_rating ", comprasion, " $4 OR (curr_rating = $4 AND hotel_id ", id,
 		" $3)) ORDER BY curr_rating ", order, ", hotel_id ", orderId, " LIMIT $2"), pattern, strconv.Itoa(limit), filter.ID, filter.Rating)
 	hotels := []hotelmodel.Hotel{}

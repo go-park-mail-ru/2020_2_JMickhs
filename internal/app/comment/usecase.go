@@ -7,6 +7,7 @@ type Usecase interface {
 	GetComments(hotelID int, StartID int) ([]commModel.FullCommentInfo, error)
 	AddComment(comment commModel.Comment) (commModel.NewRate, error)
 	DeleteComment(ID int) error
-	UpdateComment(comment commModel.Comment) error
-	UpdateRating(rating commModel.Rating) (int, error)
+	UpdateComment(comment commModel.Comment) (commModel.NewRate, error)
+	UpdateRating(prevRate commModel.PrevRate) (float64, error)
+	AddRating(comment commModel.Comment) (float64, error)
 }

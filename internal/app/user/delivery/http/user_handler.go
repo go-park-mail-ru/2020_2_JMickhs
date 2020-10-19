@@ -1,7 +1,9 @@
 package userDelivery
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -58,16 +60,14 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
 	user, err := u.UserUseCase.GetUserByID(id)
 
 	if err != nil {
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
@@ -92,15 +92,13 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
 	fileType, err := u.UserUseCase.CheckAvatar(file)
 	if err != nil {
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
@@ -112,15 +110,13 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 
 	path, err := u.UserUseCase.UploadAvatar(file, fileType, &usr)
 	if err != nil {
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
 	err = u.UserUseCase.UpdateAvatar(usr)
 	if err != nil {
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 	responses.SendDataResponse(w, path)
@@ -139,8 +135,7 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&twoPass)
 	if err != nil {
 		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, error(err)))
 		return
 	}
 
@@ -152,16 +147,16 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 
 	err = u.UserUseCase.ComparePassword(twoPass.OldPassword, usr.Password)
 	if err != nil {
+		fmt.Println("we are here")
 		err := customerror.NewCustomError(err.Error(), http.StatusPaymentRequired)
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		errr := error(err)
+		r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, errr))
 		return
 	}
 	usr.Password = twoPass.NewPassword
 	err = u.UserUseCase.UpdatePassword(usr)
 	if err != nil {
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 	responses.SendOkResponse(w)
@@ -173,14 +168,14 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 // 403: Forbidden
 // 400: badrequest
 // 401: unauthorizied
+// 409: conflict
 func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
@@ -193,8 +188,7 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = u.UserUseCase.UpdateUser(user)
 	if err != nil {
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 	responses.SendOkResponse(w)
@@ -213,22 +207,19 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	u.UserUseCase.SetDefaultAvatar(&user)
 	if err != nil {
 		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
 	usr, err := u.UserUseCase.Add(user)
 	if err != nil {
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
 	sessionID, err := u.SessionsUseCase.AddToken(usr.ID)
 	if err != nil {
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
@@ -257,32 +248,28 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
 	usr, err := u.UserUseCase.GetByUserName(user.Username)
 	if err != nil {
 		err := customerror.NewCustomError(err.Error(), http.StatusUnauthorized)
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 	err = u.UserUseCase.ComparePassword(user.Password, usr.Password)
 
 	if err != nil {
 		err := customerror.NewCustomError(err.Error(), http.StatusUnauthorized)
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
 	sessionID, err := u.SessionsUseCase.AddToken(usr.ID)
 	if err != nil {
 		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		u.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 	safeUser := models.SafeUser{ID: usr.ID, Username: usr.Username, Avatar: usr.Avatar, Email: usr.Email}
@@ -326,8 +313,7 @@ func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		err := u.SessionsUseCase.DeleteSession(c.Value)
 		if err != nil {
 			err := customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
-			u.log.LogError(r.Context(), err)
-			responses.SendErrorResponse(w, customerror.ParseCode(err))
+			r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 			return
 		}
 		c.Expires = time.Now().AddDate(0, 0, -1)

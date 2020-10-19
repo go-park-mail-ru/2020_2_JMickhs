@@ -63,7 +63,7 @@ func (p *PostgresUserRepository) UpdateUser(user models.User) error {
 	_, err := p.conn.Query(sqlrequests.UpdateUserCredPostgreRequest,
 		user.ID, user.Username, user.Email)
 	if err != nil {
-		return customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+		return customerror.NewCustomError(err.Error(), http.StatusConflict)
 	}
 	return nil
 

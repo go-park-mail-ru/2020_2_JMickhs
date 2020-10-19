@@ -11,6 +11,7 @@ type AddCommentRequest struct {
 type UpdateCommentRequest struct {
 	CommID  int    `json:"comm_id"`
 	Message string `json:"message"`
+	Rate    int    `json:"rate"`
 }
 
 // swagger:parameters comments
@@ -48,6 +49,12 @@ type newRateResponse struct {
 type updateCommentRequest struct {
 	//in: body
 	Body UpdateCommentRequest
+}
+
+// swagger:response UpdateComment
+type updateCommentResponse struct {
+	//in: body
+	Body commModel.NewRate
 }
 
 // swagger:parameters AddComment

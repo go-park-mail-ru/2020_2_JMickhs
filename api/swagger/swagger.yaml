@@ -39,8 +39,8 @@ definitions:
         type: string
         x-go-name: Message
       rate:
-        format: int64
-        type: integer
+        format: double
+        type: number
         x-go-name: Rate
       time:
         type: string
@@ -93,8 +93,8 @@ definitions:
         type: string
         x-go-name: Message
       rating:
-        format: int64
-        type: integer
+        format: double
+        type: number
         x-go-name: Rating
       time:
         type: string
@@ -132,7 +132,8 @@ definitions:
         type: array
         x-go-name: Photos
       rating:
-        type: string
+        format: double
+        type: number
         x-go-name: Rating
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models
@@ -151,8 +152,8 @@ definitions:
       comment:
         $ref: '#/definitions/Comment'
       new_rate:
-        format: int64
-        type: integer
+        format: double
+        type: number
         x-go-name: Rate
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models
@@ -222,6 +223,10 @@ definitions:
       message:
         type: string
         x-go-name: Message
+      rate:
+        format: int64
+        type: integer
+        x-go-name: Rate
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   UpdatePassword:
@@ -325,10 +330,14 @@ paths:
         schema:
           $ref: '#/definitions/UpdateCommentRequest'
       responses:
+        "200":
+          $ref: '#/responses/AddComment'
         "400":
           $ref: '#/responses/badrequest'
         "403":
           $ref: '#/responses/Forbidden'
+        "423":
+          $ref: '#/responses/locked'
       tags:
       - comment
   /api/v1/comments/{id}:
@@ -507,6 +516,8 @@ paths:
           $ref: '#/responses/unauthorizied'
         "403":
           $ref: '#/responses/Forbidden'
+        "409":
+          $ref: '#/responses/conflict'
       tags:
       - Users
   /api/v1/users/password:
@@ -563,6 +574,9 @@ responses:
   HotelData:
     schema:
       $ref: '#/definitions/HotelData'
+  UpdateComment:
+    schema:
+      $ref: '#/definitions/NewRate'
   avatar:
     schema:
       $ref: '#/definitions/Avatar'
@@ -583,8 +597,8 @@ responses:
       message:
         type: string
       rating:
-        format: int64
-        type: integer
+        format: double
+        type: number
       time:
         type: string
       user_id:

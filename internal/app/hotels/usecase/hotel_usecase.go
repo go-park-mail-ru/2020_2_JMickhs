@@ -88,7 +88,7 @@ func (p *HotelUseCase) DecodeCursor(cursor string) (hotelmodel.FilterData, error
 	filter := hotelmodel.FilterData{}
 	if cursor == "" {
 		filter.ID = "0"
-		filter.Rating = math.MaxInt32
+		filter.Rating = math.MaxFloat64
 		return filter, nil
 	}
 	byt, err := base64.StdEncoding.DecodeString(cursor)
@@ -101,7 +101,7 @@ func (p *HotelUseCase) DecodeCursor(cursor string) (hotelmodel.FilterData, error
 		return filter, customerror.NewCustomError("unvalid cursor", http.StatusBadRequest)
 	}
 
-	rate, _ := strconv.Atoi(arrStr[0])
+	rate, _ := strconv.ParseFloat(arrStr[0], 64)
 	filter.Rating = rate
 	filter.ID = arrStr[1]
 	return filter, nil

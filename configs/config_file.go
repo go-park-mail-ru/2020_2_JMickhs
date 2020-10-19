@@ -29,6 +29,7 @@ const Port = ":8080"
 const CookieLifeTime = time.Hour * 24 * 30
 const BaseAvatarPath = "static/img/defaultAvatar.png"
 const RequestUser = "User"
+const DeliveryError = "Error"
 
 const (
 	MB = 1 << 20

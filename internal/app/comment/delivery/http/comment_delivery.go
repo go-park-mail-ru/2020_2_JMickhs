@@ -1,6 +1,7 @@
 package commentDelivery
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -51,8 +52,7 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
@@ -60,16 +60,14 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 	hotelId, err := strconv.Atoi(id)
 	if err != nil {
 		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
 	comments, err := ch.CommentUseCase.GetComments(hotelId, startId)
 
 	if err != nil {
-		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
@@ -88,8 +86,7 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
 		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
@@ -102,8 +99,7 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 	comm, err := ch.CommentUseCase.AddComment(comment)
 
 	if err != nil {
-		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
@@ -112,26 +108,34 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 
 // swagger:route PUT /api/v1/comments comment UpdateComment
 // responses:
+// 200: AddComment
 // 403: Forbidden
 // 400: badrequest
+// 423: locked
 func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 	comment := commModel.Comment{}
 	err := json.NewDecoder(r.Body).Decode(&comment)
+
 	if err != nil {
 		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
-	err = ch.CommentUseCase.UpdateComment(comment)
+	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
+	if !ok {
+		responses.SendErrorResponse(w, http.StatusUnauthorized)
+		return
+	}
+	comment.UserID = usr.ID
+
+	upComm, err := ch.CommentUseCase.UpdateComment(comment)
 
 	if err != nil {
-		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
-	responses.SendOkResponse(w)
+	responses.SendDataResponse(w, upComm)
 }
 
 // swagger:route DELETE /api/v1/comments/{id} comment DeleteComment
@@ -144,16 +148,14 @@ func (ch *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) 
 
 	if err != nil {
 		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 
 	err = ch.CommentUseCase.DeleteComment(id)
 
 	if err != nil {
-		ch.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
 

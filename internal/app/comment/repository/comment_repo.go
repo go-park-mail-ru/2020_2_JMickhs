@@ -38,9 +38,9 @@ func (r *CommentRepository) GetComments(hotelID int, StartID int) ([]commModel.F
 
 func (r *CommentRepository) AddComment(comment commModel.Comment) (commModel.Comment, error) {
 	err := r.conn.QueryRow(sqlrequests.AddCommentsPostgreRequest,
-		comment.UserID, comment.HotelID, comment.Message).Scan(&comment.CommID, &comment.Time)
+		comment.UserID, comment.HotelID, comment.Message, comment.Rate).Scan(&comment.CommID, &comment.Time)
 	if err != nil {
-		return comment, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+		return comment, customerror.NewCustomError(err.Error(), http.StatusLocked)
 	}
 	return comment, nil
 }
@@ -53,24 +53,16 @@ func (r *CommentRepository) DeleteComment(ID int) error {
 	return nil
 }
 
-func (r *CommentRepository) UpdateComment(comment commModel.Comment) error {
-	_, err := r.conn.Query(sqlrequests.UpdateCommentsPostgreRequest,
-		comment.CommID, comment.Message)
+func (r *CommentRepository) UpdateComment(comment *commModel.Comment) error {
+	err := r.conn.QueryRow(sqlrequests.UpdateCommentsPostgreRequest,
+		comment.CommID, comment.Message, comment.Rate).Scan(&comment.Time)
 	if err != nil {
 		return customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
 	}
 	return nil
 }
 
-func (p *CommentRepository) InsertRating(rating commModel.Rating) error {
-	err := p.conn.QueryRow(sqlrequests.InsertRatingPostgreRequest, rating.HotelID, rating.UserID, rating.Rate).Err()
-	if err != nil {
-		return customerror.NewCustomError(err.Error(), http.StatusLocked)
-	}
-	return nil
-}
-
-func (p *CommentRepository) UpdateHotelRating(hotelID int, NewRate int) error {
+func (p *CommentRepository) UpdateHotelRating(hotelID int, NewRate float64) error {
 	err := p.conn.QueryRow(sqlrequests.UpdateHotelRatingPostgreRequest, NewRate, hotelID).Err()
 	if err != nil {
 		return customerror.NewCustomError(err.Error(), http.StatusBadRequest)
@@ -91,4 +83,17 @@ func (p *CommentRepository) GetCurrentRating(hotelID int) (commModel.RateInfo, e
 		return rateInfo, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
 	}
 	return rateInfo, nil
+}
+
+func (p *CommentRepository) CheckUser(comment *commModel.Comment) (int, error) {
+	var destRate int
+	var usr_id int
+	err := p.conn.QueryRow(sqlrequests.GetPrevRatingOnCommentPostgreRequest, comment.CommID).Scan(&destRate, &usr_id, &comment.HotelID)
+	if err != nil {
+		return destRate, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+	}
+	if comment.UserID != usr_id {
+		return destRate, customerror.NewCustomError("user want update other comment", http.StatusLocked)
+	}
+	return destRate, nil
 }
