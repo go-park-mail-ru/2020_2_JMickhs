@@ -25,7 +25,7 @@ func (p *PostgresUserRepository) Add(user models.User) (models.User, error) {
 	var id int
 	err := p.conn.QueryRow(sqlrequests.AddUserPostgreRequest, user.Username, user.Email, user.Password, user.Avatar).Scan(&id)
 	if err != nil {
-		return user, customerror.NewCustomError(err.Error(), http.StatusConflict)
+		return user, customerror.NewCustomError(err, http.StatusConflict, nil)
 	}
 	user.ID = id
 	return user, nil
@@ -36,13 +36,13 @@ func (p *PostgresUserRepository) GetByUserName(name string) (models.User, error)
 	defer rows.Close()
 	user := models.User{}
 	if err != nil {
-		return user, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+		return user, customerror.NewCustomError(err, http.StatusUnauthorized, nil)
 	}
 
 	for rows.Next() {
 		err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Avatar)
 		if err != nil {
-			return user, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+			return user, customerror.NewCustomError(err, http.StatusInternalServerError, nil)
 		}
 	}
 	return user, nil
@@ -54,7 +54,7 @@ func (p *PostgresUserRepository) GetUserByID(ID int) (models.User, error) {
 
 	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Avatar)
 	if err != nil {
-		return user, customerror.NewCustomError("such user doesn't exist", http.StatusGone)
+		return user, customerror.NewCustomError(err, http.StatusGone, nil)
 	}
 	return user, nil
 }
@@ -63,7 +63,7 @@ func (p *PostgresUserRepository) UpdateUser(user models.User) error {
 	_, err := p.conn.Query(sqlrequests.UpdateUserCredPostgreRequest,
 		user.ID, user.Username, user.Email)
 	if err != nil {
-		return customerror.NewCustomError(err.Error(), http.StatusConflict)
+		return customerror.NewCustomError(err, http.StatusConflict, nil)
 	}
 	return nil
 
@@ -73,7 +73,7 @@ func (p *PostgresUserRepository) UpdateAvatar(user models.User) error {
 	_, err := p.conn.Query(sqlrequests.UpdateUserAvatarPostgreRequest,
 		user.ID, user.Avatar)
 	if err != nil {
-		return customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+		return customerror.NewCustomError(err, http.StatusInternalServerError, nil)
 	}
 	return nil
 
@@ -83,7 +83,7 @@ func (p *PostgresUserRepository) UpdatePassword(user models.User) error {
 	_, err := p.conn.Query(sqlrequests.UpdateUserPasswordPostgreRequest,
 		user.ID, user.Password)
 	if err != nil {
-		return customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+		return customerror.NewCustomError(err, http.StatusInternalServerError, nil)
 	}
 	return nil
 

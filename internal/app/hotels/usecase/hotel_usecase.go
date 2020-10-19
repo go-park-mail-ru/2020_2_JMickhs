@@ -2,6 +2,7 @@ package hotelUsecase
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"math"
 	"net/http"
@@ -93,12 +94,12 @@ func (p *HotelUseCase) DecodeCursor(cursor string) (hotelmodel.FilterData, error
 	}
 	byt, err := base64.StdEncoding.DecodeString(cursor)
 	if err != nil {
-		return filter, customerror.NewCustomError(err.Error(), http.StatusBadRequest)
+		return filter, customerror.NewCustomError(err, http.StatusBadRequest, nil)
 	}
 
 	arrStr := strings.Split(string(byt), ",")
 	if len(arrStr) != 2 {
-		return filter, customerror.NewCustomError("unvalid cursor", http.StatusBadRequest)
+		return filter, customerror.NewCustomError(errors.New("unvalid cursor"), http.StatusBadRequest, nil)
 	}
 
 	rate, _ := strconv.ParseFloat(arrStr[0], 64)

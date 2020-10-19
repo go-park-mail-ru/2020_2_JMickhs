@@ -25,13 +25,13 @@ func (p *PostgreHotelRepository) GetHotels(StartID int) ([]hotelmodel.Hotel, err
 	defer rows.Close()
 	hotels := []hotelmodel.Hotel{}
 	if err != nil {
-		return hotels, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+		return hotels, customerror.NewCustomError(err, http.StatusInternalServerError, nil)
 	}
 	hotel := hotelmodel.Hotel{}
 	for rows.Next() {
 		err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location, &hotel.Rating)
 		if err != nil {
-			return hotels, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+			return hotels, customerror.NewCustomError(err, http.StatusInternalServerError, nil)
 		}
 		hotels = append(hotels, hotel)
 	}
@@ -44,18 +44,18 @@ func (p *PostgreHotelRepository) GetHotelByID(ID int) (hotelmodel.Hotel, error) 
 	hotel := hotelmodel.Hotel{}
 	err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Location, &hotel.Description, &hotel.Image, &hotel.Rating)
 	if err != nil {
-		return hotel, customerror.NewCustomError(err.Error(), http.StatusGone)
+		return hotel, customerror.NewCustomError(err, http.StatusGone, nil)
 	}
 
 	photosRows, err := p.conn.Query(sqlrequests.GetHotelsPhotosPostgreRequest, strconv.Itoa(ID))
 	if err != nil {
-		return hotel, customerror.NewCustomError(err.Error(), http.StatusGone)
+		return hotel, customerror.NewCustomError(err, http.StatusGone, nil)
 	}
 	photo := ""
 	for photosRows.Next() {
 		err := photosRows.Scan(&photo)
 		if err != nil {
-			return hotel, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+			return hotel, customerror.NewCustomError(err, http.StatusInternalServerError, nil)
 		}
 		hotel.Photos = append(hotel.Photos, photo)
 	}
@@ -82,13 +82,13 @@ func (p *PostgreHotelRepository) FetchHotels(pattern string, filter hotelmodel.F
 		" $3)) ORDER BY curr_rating ", order, ", hotel_id ", orderId, " LIMIT $2"), pattern, strconv.Itoa(limit), filter.ID, filter.Rating)
 	hotels := []hotelmodel.Hotel{}
 	if err != nil {
-		return hotels, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+		return hotels, customerror.NewCustomError(err, http.StatusInternalServerError, nil)
 	}
 	hotel := hotelmodel.Hotel{}
 	for rows.Next() {
 		err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Location, &hotel.Image, &hotel.Rating)
 		if err != nil {
-			return hotels, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+			return hotels, customerror.NewCustomError(err, http.StatusInternalServerError, nil)
 		}
 		hotels = append(hotels, hotel)
 	}
@@ -99,7 +99,7 @@ func (p *PostgreHotelRepository) CheckRateExist(UserID int, HotelID int) (int, e
 	rate := -1
 	err := p.conn.QueryRow(sqlrequests.CheckRateIfExistPostgreRequest, UserID, HotelID).Scan(&rate)
 	if err != nil {
-		return rate, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+		return rate, customerror.NewCustomError(err, http.StatusInternalServerError, nil)
 	}
 	return rate, nil
 }

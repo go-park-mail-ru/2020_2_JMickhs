@@ -142,7 +142,6 @@ func main() {
 	sessMidleware := middlewareApi.NewSessionMiddleware(uSes, u, log)
 	r.Use(sessMidleware.SessionMiddleware())
 	r.Use(middlewareApi.LoggerMiddleware(log))
-	r.Use(middlewareApi.ErrorMiddleware(log))
 
 	hotelDelivery.NewHotelHandler(r, uHot, log)
 	delivery.NewUserHandler(r, uSes, u, log)

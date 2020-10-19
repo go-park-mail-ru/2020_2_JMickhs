@@ -1,6 +1,7 @@
 package userUsecase
 
 import (
+	"errors"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -56,12 +57,12 @@ func (u *userUseCase) UpdateUser(user models.User) error {
 func (u *userUseCase) UpdatePassword(user models.User) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
 	if err != nil {
-		return customerror.NewCustomError(err.Error(), http.StatusBadRequest)
+		return customerror.NewCustomError(err, http.StatusBadRequest, nil)
 	}
 	user.Password = string(hashedPassword)
 	err = u.userRepo.UpdatePassword(user)
 	if err != nil {
-		return customerror.NewCustomError(err.Error(), customerror.ParseCode(err))
+		return err
 	}
 	return nil
 }
@@ -76,7 +77,7 @@ func (u *userUseCase) UploadAvatar(file multipart.File, header string, user *mod
 	user.Avatar = configs.StaticPath + "/" + filename + "." + fileType[1]
 	f, err := os.OpenFile("../"+user.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
-		return "", customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+		return "", customerror.NewCustomError(err, http.StatusInternalServerError, nil)
 	}
 	defer f.Close()
 	io.Copy(f, file)
@@ -87,26 +88,26 @@ func (u *userUseCase) CheckAvatar(file multipart.File) (string, error) {
 	fileHeader := make([]byte, 512)
 	ContentType := ""
 	if _, err := file.Read(fileHeader); err != nil {
-		return ContentType, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+		return ContentType, customerror.NewCustomError(err, http.StatusInternalServerError, nil)
 	}
 
 	if _, err := file.Seek(0, 0); err != nil {
-		return ContentType, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+		return ContentType, customerror.NewCustomError(err, http.StatusInternalServerError, nil)
 	}
 
 	length, _ := file.Seek(0, 2)
 	if length > 5*configs.MB {
-		return ContentType, customerror.NewCustomError("file bigger then 5 MB", http.StatusBadRequest)
+		return ContentType, customerror.NewCustomError(errors.New("file bigger then 5 MB"), http.StatusBadRequest, nil)
 	}
 
 	if _, err := file.Seek(0, 0); err != nil {
-		return ContentType, customerror.NewCustomError(err.Error(), http.StatusInternalServerError)
+		return ContentType, customerror.NewCustomError(err, http.StatusInternalServerError, nil)
 	}
 
 	ContentType = http.DetectContentType(fileHeader)
 
 	if ContentType != "image/jpg" && ContentType != "image/png" && ContentType != "image/jpeg" {
-		return ContentType, customerror.NewCustomError("Wrong file type", http.StatusUnsupportedMediaType)
+		return ContentType, customerror.NewCustomError(errors.New("Wrong file type"), http.StatusUnsupportedMediaType, nil)
 	}
 
 	return ContentType, nil

@@ -3,6 +3,7 @@ package commentDelivery
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -51,7 +52,7 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 	startId, err := strconv.Atoi(from)
 
 	if err != nil {
-		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
+		err = customerror.NewCustomError(err, http.StatusBadRequest, nil)
 		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
@@ -59,7 +60,7 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 	id := r.FormValue("id")
 	hotelId, err := strconv.Atoi(id)
 	if err != nil {
-		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
+		err = customerror.NewCustomError(err, http.StatusBadRequest, nil)
 		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
@@ -85,21 +86,20 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 	comment := commModel.Comment{}
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
-		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, ch.log, err, http.StatusBadRequest)
 		return
 	}
 
 	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
-		responses.SendErrorResponse(w, http.StatusUnauthorized)
+		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	comment.UserID = usr.ID
 	comm, err := ch.CommentUseCase.AddComment(comment)
 
 	if err != nil {
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, ch.log, err, nil)
 		return
 	}
 
@@ -117,14 +117,13 @@ func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) 
 	err := json.NewDecoder(r.Body).Decode(&comment)
 
 	if err != nil {
-		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, ch.log, err, http.StatusBadRequest)
 		return
 	}
 
 	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
-		responses.SendErrorResponse(w, http.StatusUnauthorized)
+		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), http.StatusUnauthorized)
 		return
 	}
 	comment.UserID = usr.ID
@@ -132,7 +131,7 @@ func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) 
 	upComm, err := ch.CommentUseCase.UpdateComment(comment)
 
 	if err != nil {
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, ch.log, err, nil)
 		return
 	}
 	responses.SendDataResponse(w, upComm)
@@ -147,15 +146,14 @@ func (ch *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) 
 	id, err := strconv.Atoi(vars["id"])
 
 	if err != nil {
-		err = customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, ch.log, err, http.StatusBadRequest)
 		return
 	}
 
 	err = ch.CommentUseCase.DeleteComment(id)
 
 	if err != nil {
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, ch.log, err, nil)
 		return
 	}
 

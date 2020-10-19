@@ -47,18 +47,14 @@ func (hh *HotelHandler) ListHotels(w http.ResponseWriter, r *http.Request) {
 	startId, err := strconv.Atoi(from)
 
 	if err != nil {
-		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		hh.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, customerror.ParseCode(err))
+		customerror.PostError(w, r, hh.log, err, http.StatusBadRequest)
 		return
 	}
 
 	hotels, err := hh.HotelUseCase.GetHotels(startId)
 
 	if err != nil {
-		hh.log.LogError(r.Context(), err)
-		responses.SendErrorResponse(w, http.StatusInternalServerError)
-		return
+		customerror.PostError(w, r, hh.log, err, nil)
 	}
 
 	responses.SendDataResponse(w, hotels)
@@ -77,9 +73,7 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(vars["id"])
 
 	if err != nil {
-		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
-		return
+		customerror.PostError(w, r, hh.log, err, http.StatusBadRequest)
 	}
 
 	hotel, err := hh.HotelUseCase.GetHotelByID(id)
@@ -122,7 +116,7 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 	limit, err := strconv.Atoi(limits)
 
 	if err != nil {
-		err := customerror.NewCustomError(err.Error(), http.StatusBadRequest)
+		err := customerror.NewCustomError(err, http.StatusBadRequest, nil)
 		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
 		return
 	}
@@ -130,7 +124,7 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 	hotels, err := hh.HotelUseCase.FetchHotels(pattern, cursor, limit)
 
 	if err != nil {
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, hh.log, err, nil)
 	}
 
 	responses.SendDataResponse(w, hotels)

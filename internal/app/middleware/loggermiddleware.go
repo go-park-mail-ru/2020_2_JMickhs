@@ -1,10 +1,10 @@
 package middlewareApi
 
 import (
+	"fmt"
+	"math/rand"
 	"net/http"
 	"time"
-
-	uuid "github.com/satori/go.uuid"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/logger"
 	"github.com/gorilla/mux"
@@ -13,7 +13,8 @@ import (
 func LoggerMiddleware(log *logger.CustomLogger) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			id := uuid.NewV4().String()
+			rand.Seed(time.Now().UnixNano())
+			id := fmt.Sprintf("%016x", rand.Int())[:5]
 
 			log.StartReq(*req, id)
 			start := time.Now()
