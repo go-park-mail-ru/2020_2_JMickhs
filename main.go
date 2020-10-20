@@ -25,6 +25,8 @@ import (
 	"runtime"
 	"strconv"
 
+	"github.com/go-playground/validator/v10"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/logger"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
@@ -123,6 +125,7 @@ func main() {
 	defer logOutput.Close()
 
 	log := logger.NewLogger(logOutput)
+	validate := validator.New()
 
 	r := NewRouter()
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
@@ -134,7 +137,7 @@ func main() {
 	repSes := sessionsRepository.NewSessionsUserRepository(store)
 	repCom := commentRepository.NewCommentRepository(db)
 
-	u := userUsecase.NewUserUsecase(&rep)
+	u := userUsecase.NewUserUsecase(&rep, validate)
 	uHot := hotelUsecase.NewHotelUsecase(&repHot)
 	uSes := sessionsUseCase.NewSessionsUsecase(&repSes)
 	uCom := commentUsecase.NewCommentUsecase(&repCom)

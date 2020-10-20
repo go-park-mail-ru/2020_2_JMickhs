@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/error"
-
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/error"
+	"github.com/go-playground/validator/v10"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/models"
@@ -19,12 +19,14 @@ import (
 )
 
 type userUseCase struct {
-	userRepo user.Repository
+	userRepo   user.Repository
+	validation *validator.Validate
 }
 
-func NewUserUsecase(r user.Repository) *userUseCase {
+func NewUserUsecase(r user.Repository, validator *validator.Validate) *userUseCase {
 	return &userUseCase{
-		userRepo: r,
+		userRepo:   r,
+		validation: validator,
 	}
 }
 
@@ -34,10 +36,14 @@ func (u *userUseCase) GetByUserName(name string) (models.User, error) {
 }
 
 func (u *userUseCase) Add(user models.User) (models.User, error) {
+	err := u.validation.Struct(user)
+	if err != nil {
+		return user, customerror.NewCustomError(err, http.StatusBadRequest, nil)
+	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
 	user.Password = string(hashedPassword)
-	id, err := u.userRepo.Add(user)
-	return id, err
+	user, err = u.userRepo.Add(user)
+	return user, err
 }
 
 func (u *userUseCase) GetUserByID(ID int) (models.User, error) {
