@@ -5,10 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"net/http"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
@@ -94,12 +95,12 @@ func (p *HotelUseCase) DecodeCursor(cursor string) (hotelmodel.FilterData, error
 	}
 	byt, err := base64.StdEncoding.DecodeString(cursor)
 	if err != nil {
-		return filter, customerror.NewCustomError(err, http.StatusBadRequest, nil)
+		return filter, customerror.NewCustomError(err, clientError.BadRequest, nil)
 	}
 
 	arrStr := strings.Split(string(byt), ",")
 	if len(arrStr) != 2 {
-		return filter, customerror.NewCustomError(errors.New("unvalid cursor"), http.StatusBadRequest, nil)
+		return filter, customerror.NewCustomError(errors.New("unvalid cursor"), clientError.BadRequest, nil)
 	}
 
 	rate, _ := strconv.ParseFloat(arrStr[0], 64)

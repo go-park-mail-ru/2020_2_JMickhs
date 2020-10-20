@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
+
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
@@ -47,7 +49,7 @@ func (hh *HotelHandler) ListHotels(w http.ResponseWriter, r *http.Request) {
 	startId, err := strconv.Atoi(from)
 
 	if err != nil {
-		customerror.PostError(w, r, hh.log, err, http.StatusBadRequest)
+		customerror.PostError(w, r, hh.log, err, clientError.BadRequest)
 		return
 	}
 
@@ -73,7 +75,7 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(vars["id"])
 
 	if err != nil {
-		customerror.PostError(w, r, hh.log, err, http.StatusBadRequest)
+		customerror.PostError(w, r, hh.log, err, clientError.BadRequest)
 	}
 
 	hotel, err := hh.HotelUseCase.GetHotelByID(id)
@@ -116,8 +118,7 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 	limit, err := strconv.Atoi(limits)
 
 	if err != nil {
-		err := customerror.NewCustomError(err, http.StatusBadRequest, nil)
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, hh.log, err, clientError.BadRequest)
 		return
 	}
 

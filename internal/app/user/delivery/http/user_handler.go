@@ -8,6 +8,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/serverError"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/models"
 
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/error"
@@ -59,7 +63,7 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(vars["id"])
 
 	if err != nil {
-		customerror.PostError(w, r, u.log, err, http.StatusBadRequest)
+		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return
 	}
 
@@ -90,31 +94,31 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	file, _, err := r.FormFile("avatar")
 
 	if err != nil {
-		customerror.PostError(w, r, u.log, err, http.StatusBadRequest)
+		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return
 	}
 
 	fileType, err := u.UserUseCase.CheckAvatar(file)
 	if err != nil {
-		customerror.PostError(w, r, u.log, err, http.StatusBadRequest)
+		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return
 	}
 
 	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
-		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), http.StatusUnauthorized)
+		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
 		return
 	}
 
 	path, err := u.UserUseCase.UploadAvatar(file, fileType, &usr)
 	if err != nil {
-		customerror.PostError(w, r, u.log, err, http.StatusBadRequest)
+		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return
 	}
 
 	err = u.UserUseCase.UpdateAvatar(usr)
 	if err != nil {
-		customerror.PostError(w, r, u.log, err, http.StatusBadRequest)
+		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return
 	}
 	responses.SendDataResponse(w, path)
@@ -132,25 +136,25 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	var twoPass models.UpdatePassword
 	err := json.NewDecoder(r.Body).Decode(&twoPass)
 	if err != nil {
-		customerror.PostError(w, r, u.log, err, http.StatusBadRequest)
+		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return
 	}
 
 	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
-		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), http.StatusUnauthorized)
+		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
 		return
 	}
 
 	err = u.UserUseCase.ComparePassword(twoPass.OldPassword, usr.Password)
 	if err != nil {
-		customerror.PostError(w, r, u.log, errors.New("wrong old password"), http.StatusPaymentRequired)
+		customerror.PostError(w, r, u.log, errors.New("wrong old password"), clientError.PaymentReq)
 		return
 	}
 	usr.Password = twoPass.NewPassword
 	err = u.UserUseCase.UpdatePassword(usr)
 	if err != nil {
-		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), http.StatusUnauthorized)
+		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
 		return
 	}
 	responses.SendOkResponse(w)
@@ -168,13 +172,13 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		customerror.PostError(w, r, u.log, err, http.StatusBadRequest)
+		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return
 	}
 
 	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
-		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), http.StatusUnauthorized)
+		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
 		return
 	}
 	user.ID = usr.ID
@@ -199,7 +203,7 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	u.UserUseCase.SetDefaultAvatar(&user)
 	if err != nil {
-		customerror.PostError(w, r, u.log, err, http.StatusBadRequest)
+		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return
 	}
 
@@ -251,7 +255,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 	err = u.UserUseCase.ComparePassword(user.Password, usr.Password)
 
 	if err != nil {
-		customerror.PostError(w, r, u.log, err, http.StatusUnauthorized)
+		customerror.PostError(w, r, u.log, err, clientError.Unauthorizied)
 		return
 	}
 
@@ -280,11 +284,11 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 func (u *UserHandler) UserHandler(w http.ResponseWriter, r *http.Request) {
 	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
-		customerror.PostError(w, r, u.log, errors.New("user unothorizied"), http.StatusUnauthorized)
+		customerror.PostError(w, r, u.log, errors.New("user unothorizied"), clientError.Unauthorizied)
 		return
 	}
 	if u.UserUseCase.CheckEmpty(usr) {
-		customerror.PostError(w, r, u.log, errors.New("user unothorizied"), http.StatusUnauthorized)
+		customerror.PostError(w, r, u.log, errors.New("user unothorizied"), clientError.Unauthorizied)
 		return
 	}
 
@@ -300,7 +304,7 @@ func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 	if c != nil {
 		err := u.SessionsUseCase.DeleteSession(c.Value)
 		if err != nil {
-			customerror.PostError(w, r, u.log, err, http.StatusInternalServerError)
+			customerror.PostError(w, r, u.log, err, serverError.ServerInternalError)
 			return
 		}
 		c.Expires = time.Now().AddDate(0, 0, -1)

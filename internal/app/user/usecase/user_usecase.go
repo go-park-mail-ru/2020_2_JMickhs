@@ -8,6 +8,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/serverError"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/error"
 	"github.com/go-playground/validator/v10"
@@ -38,7 +41,7 @@ func (u *userUseCase) GetByUserName(name string) (models.User, error) {
 func (u *userUseCase) Add(user models.User) (models.User, error) {
 	err := u.validation.Struct(user)
 	if err != nil {
-		return user, customerror.NewCustomError(err, http.StatusBadRequest, nil)
+		return user, customerror.NewCustomError(err, clientError.BadRequest, nil)
 	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
 	user.Password = string(hashedPassword)
@@ -63,7 +66,7 @@ func (u *userUseCase) UpdateUser(user models.User) error {
 func (u *userUseCase) UpdatePassword(user models.User) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
 	if err != nil {
-		return customerror.NewCustomError(err, http.StatusBadRequest, nil)
+		return customerror.NewCustomError(err, clientError.BadRequest, nil)
 	}
 	user.Password = string(hashedPassword)
 	err = u.userRepo.UpdatePassword(user)
@@ -94,26 +97,26 @@ func (u *userUseCase) CheckAvatar(file multipart.File) (string, error) {
 	fileHeader := make([]byte, 512)
 	ContentType := ""
 	if _, err := file.Read(fileHeader); err != nil {
-		return ContentType, customerror.NewCustomError(err, http.StatusInternalServerError, nil)
+		return ContentType, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
 	}
 
 	if _, err := file.Seek(0, 0); err != nil {
-		return ContentType, customerror.NewCustomError(err, http.StatusInternalServerError, nil)
+		return ContentType, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
 	}
 
 	length, _ := file.Seek(0, 2)
 	if length > 5*configs.MB {
-		return ContentType, customerror.NewCustomError(errors.New("file bigger then 5 MB"), http.StatusBadRequest, nil)
+		return ContentType, customerror.NewCustomError(errors.New("file bigger then 5 MB"), clientError.BadRequest, nil)
 	}
 
 	if _, err := file.Seek(0, 0); err != nil {
-		return ContentType, customerror.NewCustomError(err, http.StatusInternalServerError, nil)
+		return ContentType, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
 	}
 
 	ContentType = http.DetectContentType(fileHeader)
 
 	if ContentType != "image/jpg" && ContentType != "image/png" && ContentType != "image/jpeg" {
-		return ContentType, customerror.NewCustomError(errors.New("Wrong file type"), http.StatusUnsupportedMediaType, nil)
+		return ContentType, customerror.NewCustomError(errors.New("Wrong file type"), clientError.UnsupportedMediaType, nil)
 	}
 
 	return ContentType, nil

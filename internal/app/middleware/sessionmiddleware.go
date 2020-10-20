@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/error"
@@ -35,7 +37,7 @@ func (u *SessionMidleware) SessionMiddleware() mux.MiddlewareFunc {
 			c, err := r.Cookie("session_token")
 
 			if err != nil {
-				err = customerror.NewCustomError(err, http.StatusBadRequest, nil)
+				err = customerror.NewCustomError(err, clientError.BadRequest, nil)
 				u.log.Info(err.Error())
 				next.ServeHTTP(w, r)
 				return

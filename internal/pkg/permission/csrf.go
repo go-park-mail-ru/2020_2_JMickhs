@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/responses"
 
 	uuid "github.com/satori/go.uuid"
@@ -35,7 +37,7 @@ func CheckCSRF(next http.HandlerFunc) http.HandlerFunc {
 			csrfCookie, err := r.Cookie("csrf")
 
 			if err != nil || csrf == "" || csrfCookie.Value == "" || csrfCookie.Value != csrf {
-				responses.SendErrorResponse(w, http.StatusForbidden)
+				responses.SendErrorResponse(w, clientError.Forbidden)
 				return
 			}
 			generateCsrfLogic(w)
