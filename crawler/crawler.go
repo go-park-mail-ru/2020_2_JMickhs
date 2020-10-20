@@ -37,7 +37,6 @@ func Scrape() {
 		log.Fatal(err)
 	}
 	doc.Find(".sr-hotel__name\n").Each(func(index int, item *goquery.Selection) {
-
 		title := item.Text()
 		hotels[index].Name = title
 	})
