@@ -1,7 +1,6 @@
 package commentUsecase
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment"
@@ -71,9 +70,7 @@ func (p *CommentUseCase) AddRating(comment commModel.Comment) (float64, error) {
 	}
 
 	summRate := float64(currRate.RatesCount-1) * currRate.CurrRating
-	fmt.Println(summRate)
 	nextRate = (summRate + comment.Rate) / float64(currRate.RatesCount)
-	fmt.Println(nextRate)
 
 	err = p.commentRepo.UpdateHotelRating(comment.HotelID, nextRate)
 

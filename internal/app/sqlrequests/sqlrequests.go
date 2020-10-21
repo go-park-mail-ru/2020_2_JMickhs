@@ -11,17 +11,15 @@ const UpdateCommentsPostgreRequest = "UPDATE comments SET message=$2,rating=$3 W
 
 const GetHotelsPostgreRequest = "SELECT hotel_id,name,description,img,location,curr_rating FROM hotels LIMIT 4 OFFSET $1"
 
-const GetHotelByIDPostgreRequest = "SELECT hotel_id,name,description,img,location,curr_rating FROM hotels WHERE hotel_id=$1"
+const GetHotelByIDPostgreRequest = "SELECT hotel_id,name,description,img,location,curr_rating,comm_count FROM hotels WHERE hotel_id=$1"
 
 const GetHotelsPhotosPostgreRequest = "SELECT unnest(photos) FROM hotels WHERE hotel_id=$1"
 
 const UpdateHotelRatingPostgreRequest = "UPDATE hotels SET curr_rating=$1 where hotel_id = $2"
 
-const GetRatingCountOnHotelPostgreRequest = "SELECT COUNT(*) FROM comments where hotel_id = $1"
-
 const GetPrevRatingOnCommentPostgreRequest = "SELECT rating,user_id,hotel_id FROM comments where comm_id = $1"
 
-const GetCurrRatingPostgreRequest = "SELECT round( CAST (curr_rating as numeric),1) FROM hotels where hotel_id = $1"
+const GetCurrRatingPostgreRequest = "SELECT round( CAST (curr_rating as numeric),1),comm_count FROM hotels where hotel_id = $1"
 
 const AddUserPostgreRequest = "INSERT INTO users VALUES (default, $1, $2,$3,$4) RETURNING user_id"
 

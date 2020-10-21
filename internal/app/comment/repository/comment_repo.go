@@ -76,15 +76,11 @@ func (p *CommentRepository) UpdateHotelRating(hotelID int, NewRate float64) erro
 func (p *CommentRepository) GetCurrentRating(hotelID int) (commModel.RateInfo, error) {
 	rateInfo := commModel.RateInfo{}
 
-	err := p.conn.QueryRow(sqlrequests.GetRatingCountOnHotelPostgreRequest, hotelID).Scan(&rateInfo.RatesCount)
+	err := p.conn.QueryRow(sqlrequests.GetCurrRatingPostgreRequest, hotelID).Scan(&rateInfo.CurrRating, &rateInfo.RatesCount)
 	if err != nil {
 		return rateInfo, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
 	}
 
-	err = p.conn.QueryRow(sqlrequests.GetCurrRatingPostgreRequest, hotelID).Scan(&rateInfo.CurrRating)
-	if err != nil {
-		return rateInfo, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
-	}
 	return rateInfo, nil
 }
 

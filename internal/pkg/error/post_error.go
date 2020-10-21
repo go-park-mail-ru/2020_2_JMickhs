@@ -1,7 +1,6 @@
 package customerror
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/responses"
@@ -15,6 +14,5 @@ func PostError(w http.ResponseWriter, req *http.Request, log *logger.CustomLogge
 	}
 
 	log.LogError(req.Context(), err)
-	fmt.Println(StatusCode(ParseCode(err)))
 	responses.SendErrorResponse(w, StatusCode(ParseCode(err)))
 }

@@ -43,7 +43,7 @@ func (p *PostgreHotelRepository) GetHotels(StartID int) ([]hotelmodel.Hotel, err
 func (p *PostgreHotelRepository) GetHotelByID(ID int) (hotelmodel.Hotel, error) {
 	rows := p.conn.QueryRow(sqlrequests.GetHotelByIDPostgreRequest, strconv.Itoa(ID))
 	hotel := hotelmodel.Hotel{}
-	err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location, &hotel.Rating)
+	err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location, &hotel.Rating, &hotel.CommCount)
 	if err != nil {
 		return hotel, customerror.NewCustomError(err, clientError.Gone, nil)
 	}
@@ -78,7 +78,7 @@ func (p *PostgreHotelRepository) FetchHotels(pattern string, filter hotelmodel.F
 		order = "ASC"
 		orderId = "ASC"
 	}
-	query := fmt.Sprint("SELECT hotel_id, name, description, location, img, round( CAST (curr_rating as numeric),1) FROM hotels WHERE (name % $1"+
+	query := fmt.Sprint("SELECT hotel_id, name, description, location, img, round( CAST (curr_rating as numeric),1),comm_count FROM hotels WHERE (name % $1"+
 		"or location % $1 or name LIKE '%' || $1 || '%' or location LIKE '%' || $1 || '%')  AND (curr_rating ", comprasion, " $4 OR (curr_rating = $4 AND hotel_id ", id,
 		" $3)) ORDER BY curr_rating ", order, ", hotel_id ", orderId, " LIMIT $2")
 	rows, err := p.conn.Query(query, pattern, strconv.Itoa(limit), filter.ID, filter.Rating)
@@ -88,7 +88,7 @@ func (p *PostgreHotelRepository) FetchHotels(pattern string, filter hotelmodel.F
 	}
 	hotel := hotelmodel.Hotel{}
 	for rows.Next() {
-		err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Location, &hotel.Image, &hotel.Rating)
+		err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Location, &hotel.Image, &hotel.Rating, &hotel.CommCount)
 		if err != nil {
 			return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
 		}

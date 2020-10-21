@@ -8,6 +8,7 @@ type Hotel struct {
 	Location    string   `json:"location"`
 	Rating      float64  `json:"rating"`
 	Photos      []string `json:"photos,omitempty"`
+	CommCount   int      `json:"comm_count"`
 }
 
 type HotelPreview struct {
