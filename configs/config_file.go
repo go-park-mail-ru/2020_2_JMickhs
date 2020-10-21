@@ -6,24 +6,30 @@ import (
 )
 
 type postgresConfig struct {
-	User string
+	User     string
 	Password string
-	DBName string
+	DBName   string
 }
 
-type redisConfig struct{
-	Address string
+type redisConfig struct {
+	Address  string
 	Password string
-	Bd string
+	Bd       string
 }
+
 var BdConfig postgresConfig
 var RedisConfig redisConfig
+var PrefixPath string
 
 const ApiVersion = "api/v1"
+const Domen = "http://www.hostelscan.ru"
+const LocalOrigin = "http://127.0.0.1"
 const StaticPath = "static/img"
-const Port  = ":8080"
-const CookieLifeTime = time.Hour*24*30
+const Port = ":8080"
+const CookieLifeTime = time.Hour * 24 * 30
 const BaseAvatarPath = "static/img/defaultAvatar.png"
+const RequestUser = "User"
+const DeliveryError = "Error"
 
 const (
 	MB = 1 << 20
@@ -38,8 +44,8 @@ func Init() {
 	}
 
 	RedisConfig = redisConfig{
-		Address:   os.Getenv("RedisAddress"),
-		Password:  os.Getenv("RedisPassword"),
-		Bd: os.Getenv("RedisBd"),
+		Address:  os.Getenv("RedisAddress"),
+		Password: os.Getenv("RedisPassword"),
+		Bd:       os.Getenv("RedisBd"),
 	}
 }

@@ -1,6 +1,6 @@
-// Golang service API for HotelScanner
+//  Golang service API for HotelScanner
 //
-// Swagger spec.
+//  Swagger spec.
 //
 //  Schemes: http
 //  BasePath: /
@@ -12,36 +12,46 @@
 //
 //  Produces:
 //	- application/json
-// swagger:meta
+//  swagger:meta
 package main
 
 import (
 	"context"
 	"fmt"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"runtime"
 	"strconv"
 
-	sessionsRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/sessions/repository"
-	sessionsUseCase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/sessions/usecase"
+	"github.com/go-playground/validator/v10"
 
-	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/internal/middleware"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/logger"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
+	commentDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/delivery/http"
+	commentRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/repository"
+	commentUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/usecase"
+
+	sessionsRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/sessions/repository"
+	sessionsUseCase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/sessions/usecase"
+
+	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/middleware"
 
 	"github.com/go-openapi/runtime/middleware"
-	hotelDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/delivery/http"
+	hotelDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/delivery/http"
 
-	hotelUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/usecase"
+	hotelUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/usecase"
 
-	hotelRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/hotels/repository"
+	hotelRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/repository"
 
-	delivery "github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/delivery/http"
+	delivery "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/delivery/http"
 	"github.com/go-redis/redis/v8"
-	"github.com/sirupsen/logrus"
 
-	userRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/repository"
+	userRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/repository"
 
-	userUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/user/usecase"
+	userUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/usecase"
 
 	"github.com/jmoiron/sqlx"
 
@@ -91,9 +101,14 @@ func NewRouter() *mux.Router {
 	sh := middleware.Redoc(opts, nil)
 
 	router.Handle("/docs", sh)
-	router.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+	router.Handle("/swagger.yaml", http.FileServer(http.Dir("./api/swagger")))
 
 	return router
+}
+
+func initRelativePath() string {
+	_, fileName, _, _ := runtime.Caller(0)
+	return filepath.ToSlash(filepath.Dir(filepath.Dir(fileName))) + "/"
 }
 
 func main() {
@@ -101,6 +116,16 @@ func main() {
 	store := NewSessStore()
 	db := initDB()
 	defer store.Close()
+
+	configs.PrefixPath = initRelativePath()
+	logOutput, err := os.Create("log.txt")
+	if err != nil {
+		panic(err)
+	}
+	defer logOutput.Close()
+
+	log := logger.NewLogger(logOutput)
+	validate := validator.New()
 
 	r := NewRouter()
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
@@ -110,18 +135,20 @@ func main() {
 	rep := userRepository.NewPostgresUserRepository(db)
 	repHot := hotelRepository.NewPostgresHotelRepository(db)
 	repSes := sessionsRepository.NewSessionsUserRepository(store)
+	repCom := commentRepository.NewCommentRepository(db)
 
-	u := userUsecase.NewUserUsecase(&rep)
+	u := userUsecase.NewUserUsecase(&rep, validate)
 	uHot := hotelUsecase.NewHotelUsecase(&repHot)
 	uSes := sessionsUseCase.NewSessionsUsecase(&repSes)
-
-	var log = logrus.New()
+	uCom := commentUsecase.NewCommentUsecase(&repCom)
 
 	sessMidleware := middlewareApi.NewSessionMiddleware(uSes, u, log)
 	r.Use(sessMidleware.SessionMiddleware())
+	r.Use(middlewareApi.LoggerMiddleware(log))
 
 	hotelDelivery.NewHotelHandler(r, uHot, log)
 	delivery.NewUserHandler(r, uSes, u, log)
+	commentDelivery.NewCommentHandler(r, uCom, log)
 	log.Info("Server started at port", configs.Port)
 	http.ListenAndServe(configs.Port, r)
 }
