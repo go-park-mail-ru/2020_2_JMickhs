@@ -2,14 +2,14 @@ package swagger
 
 import (
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
+	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
 )
 
 // swagger:parameters searchHotel
 type SearchStringRequest struct {
-	// in: query
-	Pattern string `json:"pattern"`
-	Prev    string `json:"prev"`
-	Next    string `json:"next"`
+	// page num start from 0
+	// required:true
+	Page string `json:"page"`
 	// required:true
 	Limit int `json:"limit"`
 }
@@ -29,8 +29,8 @@ type RateRequest struct {
 }
 
 type SearchDataResponse struct {
-	Hotels []hotelmodel.Hotel `json:"hotels"`
-	Cursor hotelmodel.Cursor  `json:"cursor"`
+	Hotels  []hotelmodel.Hotel             `json:"hotels"`
+	PagInfo paginationModel.PaginationInfo `json:"Pag_info"`
 }
 
 type HotelData struct {

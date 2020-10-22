@@ -1,7 +1,7 @@
 package commModel
 
 type Comment struct {
-	UserID  int     `json:"user_id"`
+	UserID  int     `json:"user_id" db:"user_id"`
 	HotelID int     `json:"hotel_id"`
 	CommID  int     `json:"comm_id"`
 	Message string  `json:"message"`
@@ -11,14 +11,14 @@ type Comment struct {
 
 //swagger:response commentInfo
 type FullCommentInfo struct {
-	UserID   int     `json:"user_id"`
-	CommID   int     `json:"comm_id"`
-	HotelID  int     `json:"hotel_id"`
-	Message  string  `json:"message"`
-	Rating   float64 `json:"rating"`
-	Avatar   string  `json:"avatar"`
-	Username string  `json:"username"`
-	Time     string  `json:"time"`
+	UserID   int     `json:"user_id" db:"user_id"`
+	CommID   int     `json:"comm_id" db:"comm_id"`
+	HotelID  int     `json:"hotel_id" db:"hotel_id"`
+	Message  string  `json:"message" db:"message"`
+	Rating   float64 `json:"rating" db:"rating"`
+	Avatar   string  `json:"avatar" db:"avatar"`
+	Username string  `json:"username" db:"username"`
+	Time     string  `json:"time" db:"time"`
 }
 
 type RateInfo struct {

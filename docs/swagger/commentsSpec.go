@@ -1,6 +1,9 @@
 package swagger
 
-import commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
+import (
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
+	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
+)
 
 type AddCommentRequest struct {
 	HotelID int    `json:"hotel_id"`
@@ -14,12 +17,17 @@ type UpdateCommentRequest struct {
 	Rate    int    `json:"rate"`
 }
 
+type GetCommentsRequest struct {
+	Comments []commModel.FullCommentInfo    `json:"comments"`
+	PagInfo  paginationModel.PaginationInfo `json:"Pag_info"`
+}
+
 // swagger:parameters comments
 type CommentsIDParameterWrapper struct {
-	// the start ID to get comments
+	// page num start from 0
 	// in: query
 	// required:true
-	From int `json:"from"`
+	Page int `json:"page"`
 	// the ID of hotel which comments you get
 	// required:true
 	ID int `json:"id"`
@@ -36,7 +44,7 @@ type CommentsDeleteParameterWrapper struct {
 //swagger:response comments
 type Comments struct {
 	//in: body
-	Body []commModel.FullCommentInfo
+	Body GetCommentsRequest
 }
 
 // swagger:response AddComment

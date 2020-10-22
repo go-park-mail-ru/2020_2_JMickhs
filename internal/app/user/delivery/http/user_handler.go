@@ -121,6 +121,7 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return
 	}
+
 	responses.SendDataResponse(w, path)
 }
 

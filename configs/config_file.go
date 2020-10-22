@@ -30,6 +30,8 @@ const CookieLifeTime = time.Hour * 24 * 30
 const BaseAvatarPath = "static/img/defaultAvatar.png"
 const RequestUser = "User"
 const DeliveryError = "Error"
+const BasePageCount = 30
+const BaseItemsPerPage = 1
 
 const (
 	MB = 1 << 20

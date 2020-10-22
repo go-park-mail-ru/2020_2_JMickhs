@@ -140,6 +140,7 @@ func main() {
 	u := userUsecase.NewUserUsecase(&rep, validate)
 	uHot := hotelUsecase.NewHotelUsecase(&repHot)
 	uSes := sessionsUseCase.NewSessionsUsecase(&repSes)
+
 	uCom := commentUsecase.NewCommentUsecase(&repCom)
 
 	sessMidleware := middlewareApi.NewSessionMiddleware(uSes, u, log)

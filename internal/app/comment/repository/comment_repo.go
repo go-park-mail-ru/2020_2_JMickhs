@@ -4,6 +4,8 @@ import (
 	"errors"
 	"strconv"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/serverError"
 
@@ -22,19 +24,11 @@ func NewCommentRepository(conn *sqlx.DB) CommentRepository {
 	return CommentRepository{conn: conn}
 }
 
-func (r *CommentRepository) GetComments(hotelID int, StartID int) ([]commModel.FullCommentInfo, error) {
-	rows, err := r.conn.Query(sqlrequests.GetCommentsPostgreRequest, strconv.Itoa(hotelID), strconv.Itoa(StartID))
+func (r *CommentRepository) GetComments(hotelID int, offset int) ([]commModel.FullCommentInfo, error) {
 	comments := []commModel.FullCommentInfo{}
+	err := r.conn.Select(&comments, sqlrequests.GetCommentsPostgreRequest, strconv.Itoa(offset), configs.BaseItemsPerPage, strconv.Itoa(hotelID))
 	if err != nil {
-		return comments, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
-	}
-	comment := commModel.FullCommentInfo{}
-	for rows.Next() {
-		err := rows.Scan(&comment.UserID, &comment.CommID, &comment.Message, &comment.Rating, &comment.Avatar, &comment.Username, &comment.HotelID, &comment.Time)
-		if err != nil {
-			return comments, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
-		}
-		comments = append(comments, comment)
+		return comments, customerror.NewCustomError(err, clientError.BadRequest, nil)
 	}
 	return comments, nil
 }
@@ -71,6 +65,15 @@ func (p *CommentRepository) UpdateHotelRating(hotelID int, NewRate float64) erro
 		return customerror.NewCustomError(err, clientError.BadRequest, nil)
 	}
 	return nil
+}
+
+func (p *CommentRepository) GetCommentsCount(hotelID int) (int, error) {
+	count := -1
+	err := p.conn.QueryRow(sqlrequests.GetCommentsCountPostgreRequest, hotelID).Scan(&count)
+	if err != nil {
+		return count, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
+	}
+	return count, nil
 }
 
 func (p *CommentRepository) GetCurrentRating(hotelID int) (commModel.RateInfo, error) {
