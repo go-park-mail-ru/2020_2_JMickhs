@@ -34,6 +34,14 @@ create table hotels (
     comm_count int DEFAULT 0 CHECK(comm_count >= 0)
 );
 
+
+create table wishlists (
+    wishlist_id int not null,
+    name text,
+    user_id int not null,
+    hotel_id int
+);
+
 CREATE EXTENSION pg_trgm;
 
 CREATE INDEX hotels_trgm_name_idx ON hotels

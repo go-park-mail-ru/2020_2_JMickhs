@@ -38,3 +38,5 @@ const UpdateUserAvatarPostgreRequest = "UPDATE users SET avatar=$2 WHERE user_id
 const UpdateUserPasswordPostgreRequest = "UPDATE users SET  password=$2 WHERE user_id=$1"
 
 const CheckRateIfExistPostgreRequest = "SELECT rating FROM comments WHERE user_id=$1 AND hotel_id=$2"
+
+const GetWishlistPostgreRequest = "SELECT hotel_id,name,description,img,location,curr_rating FROM hotels LEFT JOIN wishlists ON wishlists.hotel_id = hotels.hotel_id WHERE wishlist_id = $1"
