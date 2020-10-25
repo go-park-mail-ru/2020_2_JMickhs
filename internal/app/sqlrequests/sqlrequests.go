@@ -39,4 +39,15 @@ const UpdateUserPasswordPostgreRequest = "UPDATE users SET  password=$2 WHERE us
 
 const CheckRateIfExistPostgreRequest = "SELECT rating FROM comments WHERE user_id=$1 AND hotel_id=$2"
 
-const GetWishlistPostgreRequest = "SELECT hotel_id,name,description,img,location,curr_rating FROM hotels LEFT JOIN wishlists ON wishlists.hotel_id = hotels.hotel_id WHERE wishlist_id = $1"
+const GetWishlistPostgreRequest = "SELECT hotel_id,name,description,img,location,curr_rating FROM hotels AS h " +
+	"LEFT JOIN wishlistshotels AS wh ON h.hotel_id = wh.hotel_id" +
+	"LEFT JOIN wishlists AS w ON w.wishlist_id = wh.wishlist_id" +
+	"WHERE wh.wishlist_id = $1"
+
+const CreateWishlistPostgreRequest = "INSERT INTO wishlists (wishlist_id, name, user_id) VALUES ($1, $2, $3)"
+
+const DeleteWishlistPostgreRequest = "DELETE FROM wishlists WHERE wishlist_id = $1"
+
+const AddHotelToWishlistPostgreRequest = "INSERT INTO wishlistshotels (wishlist_id, hotel_id) VALUES ($1, $2)"
+
+const DeleteHotelFromWishlistPostgreRequest = "DELETE FROM wishlistshotels WHERE wishlist_id = $1 AND hotel_id = $2"

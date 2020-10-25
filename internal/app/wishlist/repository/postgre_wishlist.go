@@ -42,21 +42,33 @@ func (s *PostgreWishlistRepository) GetWishlist(wishlistID int) ([]hotelmodel.Ho
 }
 
 func (s *PostgreWishlistRepository) CreateWishlist(wishlist wishlistModel.Wishlist) error {
-	panic("not implemented") // TODO: Implement
+	err := s.conn.MustExec(sqlrequests.CreateWishlistPostgreRequest, wishlist.WishistID, wishlist.Name, wishlist.UserID)
+	if err != nil {
+		fmt.Errorf("Error while creating wishlist, %w", err)
+	}
+	return nil
 }
 
 func (s *PostgreWishlistRepository) DeleteWishlist(wishlistID int) error {
-	panic("not implemented") // TODO: Implement
-}
-
-func (s *PostgreWishlistRepository) UpdateWishlist(wishlist wishlistModel.Wishlist) error {
-	panic("not implemented") // TODO: Implement
+	err := s.conn.MustExec(sqlrequests.DeleteWishlistPostgreRequest, wishlistID)
+	if err != nil {
+		fmt.Errorf("Error while deleting wishlist, %w", err)
+	}
+	return nil
 }
 
 func (s *PostgreWishlistRepository) AddHotel(hotelID int, wishlistID int) error {
-	panic("not implemented") // TODO: Implement
+	err := s.conn.MustExec(sqlrequests.AddHotelToWishlistPostgreRequest, wishlistID, hotelID)
+	if err != nil {
+		fmt.Errorf("Error while adding hotel to wishlist, %w", err)
+	}
+	return nil
 }
 
 func (s *PostgreWishlistRepository) DeleteHotel(hotelID string, wishlistID int) error {
-	panic("not implemented") // TODO: Implement
+	err := s.conn.MustExec(sqlrequests.DeleteHotelFromWishlistPostgreRequest, wishlistID, hotelID)
+	if err != nil {
+		fmt.Errorf("Error while deleting hotel from wishlist, %w", err)
+	}
+	return nil
 }
