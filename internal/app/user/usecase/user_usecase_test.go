@@ -5,11 +5,16 @@ import (
 	"net/http"
 	"testing"
 
+	user_mock "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/mocks"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
+
+	"github.com/go-playground/validator/v10"
+
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/error"
 
 	"github.com/golang/mock/gomock"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/mocks"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,10 +25,14 @@ func TestUserUseCase_GetUserByID(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUserRepo := mocks.NewMockRepository(ctrl)
+		mockUserRepo := user_mock.NewMockRepository(ctrl)
 		mockUser := models.User{Username: "kotik", Email: "kek@mail.ru"}
-		mockUserRepo.EXPECT().GetUserByID(mockUser.ID).Return(mockUser, nil).Times(1)
-		u := NewUserUsecase(mockUserRepo)
+
+		mockUserRepo.EXPECT().
+			GetUserByID(mockUser.ID).
+			Return(mockUser, nil).Times(1)
+
+		u := NewUserUsecase(mockUserRepo, validator.New(), nil)
 
 		user, err := u.GetUserByID(mockUser.ID)
 
@@ -35,9 +44,12 @@ func TestUserUseCase_GetUserByID(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUserRepo := mocks.NewMockRepository(ctrl)
-		mockUserRepo.EXPECT().GetUserByID(mockUser.ID).Return(mockUser, errors.New("fdsfsd")).Times(1)
-		u := NewUserUsecase(mockUserRepo)
+		mockUserRepo := user_mock.NewMockRepository(ctrl)
+		mockUserRepo.EXPECT().
+			GetUserByID(mockUser.ID).
+			Return(mockUser, errors.New("fdsfsd")).Times(1)
+
+		u := NewUserUsecase(mockUserRepo, validator.New(), nil)
 		_, err := u.GetUserByID(mockUser.ID)
 
 		assert.Error(t, err)
@@ -52,10 +64,13 @@ func TestUserUseCase_Add(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUserRepo := mocks.NewMockRepository(ctrl)
+		mockUserRepo := user_mock.NewMockRepository(ctrl)
 
-		mockUserRepo.EXPECT().Add(gomock.Any()).Return(mockUser, nil).Times(1)
-		u := NewUserUsecase(mockUserRepo)
+		mockUserRepo.EXPECT().
+			Add(gomock.Any()).
+			Return(mockUser, nil).Times(1)
+
+		u := NewUserUsecase(mockUserRepo, validator.New(), nil)
 
 		user, err := u.Add(mockUser)
 
@@ -63,13 +78,28 @@ func TestUserUseCase_Add(t *testing.T) {
 		assert.NotNil(t, user)
 
 	})
+	t.Run("AddUser-error2", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		testUser := models.User{Username: "авы", Email: "kek", Password: "12345"}
+		mockUserRepoErr := user_mock.NewMockRepository(ctrl)
+		uEr := NewUserUsecase(mockUserRepoErr, validator.New(), nil)
+		_, err := uEr.Add(testUser)
+
+		assert.Error(t, err)
+		assert.Equal(t, customerror.ParseCode(err), clientError.BadRequest)
+	})
 	t.Run("AddUser-error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUserRepoErr := mocks.NewMockRepository(ctrl)
-		mockUserRepoErr.EXPECT().Add(gomock.Any()).Return(models.User{}, errors.New("fdsfs")).Times(1)
-		uEr := NewUserUsecase(mockUserRepoErr)
+		mockUserRepoErr := user_mock.NewMockRepository(ctrl)
+		mockUserRepoErr.EXPECT().
+			Add(gomock.Any()).
+			Return(models.User{}, errors.New("fdsfs")).Times(1)
+
+		uEr := NewUserUsecase(mockUserRepoErr, validator.New(), nil)
 		_, err := uEr.Add(mockUser)
 
 		assert.Error(t, err)
@@ -83,9 +113,13 @@ func TestUserUseCase_GetByUserName(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockUserRepo := mocks.NewMockRepository(ctrl)
-		mockUserRepo.EXPECT().GetByUserName("kotik").Return(mockUser, nil).Times(1)
-		u := NewUserUsecase(mockUserRepo)
+		mockUserRepo := user_mock.NewMockRepository(ctrl)
+
+		mockUserRepo.EXPECT().
+			GetByUserName("kotik").
+			Return(mockUser, nil).Times(1)
+
+		u := NewUserUsecase(mockUserRepo, validator.New(), nil)
 
 		user, err := u.GetByUserName("kotik")
 
@@ -97,9 +131,13 @@ func TestUserUseCase_GetByUserName(t *testing.T) {
 	t.Run("GetByUserName-error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		mockUserRepoErr := mocks.NewMockRepository(ctrl)
-		mockUserRepoErr.EXPECT().GetByUserName("kotik").Return(mockUser, errors.New("fsdfs")).Times(1)
-		uEr := NewUserUsecase(mockUserRepoErr)
+		mockUserRepoErr := user_mock.NewMockRepository(ctrl)
+
+		mockUserRepoErr.EXPECT().
+			GetByUserName("kotik").
+			Return(mockUser, errors.New("fsdfs")).Times(1)
+
+		uEr := NewUserUsecase(mockUserRepoErr, validator.New(), nil)
 
 		_, err := uEr.GetByUserName("kotik")
 		assert.Error(t, err)
@@ -112,9 +150,9 @@ func TestUserUseCase_UpdateUser(t *testing.T) {
 	t.Run("UpdateUser", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		mockUserRepo := mocks.NewMockRepository(ctrl)
+		mockUserRepo := user_mock.NewMockRepository(ctrl)
 		mockUserRepo.EXPECT().UpdateUser(mockUser).Return(nil).Times(1)
-		u := NewUserUsecase(mockUserRepo)
+		u := NewUserUsecase(mockUserRepo, validator.New(), nil)
 
 		err := u.UpdateUser(mockUser)
 		assert.NoError(t, err)
@@ -123,9 +161,13 @@ func TestUserUseCase_UpdateUser(t *testing.T) {
 	t.Run("UpdateUser-error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		mockUserRepoErr := mocks.NewMockRepository(ctrl)
-		mockUserRepoErr.EXPECT().UpdateUser(mockUser).Return(errors.New("fdsfs")).Times(1)
-		u := NewUserUsecase(mockUserRepoErr)
+		mockUserRepoErr := user_mock.NewMockRepository(ctrl)
+
+		mockUserRepoErr.EXPECT().
+			UpdateUser(mockUser).
+			Return(errors.New("fdsfs")).Times(1)
+
+		u := NewUserUsecase(mockUserRepoErr, validator.New(), nil)
 		err := u.UpdateUser(mockUser)
 
 		assert.Error(t, err)
@@ -138,10 +180,13 @@ func TestUserUseCase_UpdatePassword(t *testing.T) {
 	t.Run("UpdatePassword", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		mockUserRepo := mocks.NewMockRepository(ctrl)
+		mockUserRepo := user_mock.NewMockRepository(ctrl)
 
-		mockUserRepo.EXPECT().UpdatePassword(gomock.Any()).Return(nil).Times(1)
-		u := NewUserUsecase(mockUserRepo)
+		mockUserRepo.EXPECT().
+			UpdatePassword(gomock.Any()).
+			Return(nil).Times(1)
+
+		u := NewUserUsecase(mockUserRepo, validator.New(), nil)
 
 		err := u.UpdatePassword(mockUser)
 
@@ -152,9 +197,13 @@ func TestUserUseCase_UpdatePassword(t *testing.T) {
 	t.Run("UpdatePassword-error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		mockUserRepoErr := mocks.NewMockRepository(ctrl)
-		mockUserRepoErr.EXPECT().UpdatePassword(gomock.Any()).Return(customerror.NewCustomError("fdsfsd", http.StatusInternalServerError)).Times(1)
-		u := NewUserUsecase(mockUserRepoErr)
+		mockUserRepoErr := user_mock.NewMockRepository(ctrl)
+
+		mockUserRepoErr.EXPECT().
+			UpdatePassword(gomock.Any()).
+			Return(customerror.NewCustomError(errors.New(""), http.StatusInternalServerError, 1)).Times(1)
+
+		u := NewUserUsecase(mockUserRepoErr, validator.New(), nil)
 		err := u.UpdatePassword(mockUser)
 
 		assert.Error(t, err)
@@ -168,11 +217,13 @@ func TestUserUseCase_UpdateAvatar(t *testing.T) {
 	t.Run("UpdateAvatar-error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		mockUserRepo := mocks.NewMockRepository(ctrl)
+		mockUserRepo := user_mock.NewMockRepository(ctrl)
 
-		mockUserRepo.EXPECT().UpdateAvatar(gomock.Eq(mockUser)).Return(nil).Times(1)
+		mockUserRepo.EXPECT().
+			UpdateAvatar(gomock.Eq(mockUser)).
+			Return(nil).Times(1)
 
-		u := NewUserUsecase(mockUserRepo)
+		u := NewUserUsecase(mockUserRepo, validator.New(), nil)
 		err := u.UpdateAvatar(mockUser)
 
 		assert.NoError(t, err)
@@ -181,9 +232,13 @@ func TestUserUseCase_UpdateAvatar(t *testing.T) {
 	t.Run("UpdateAvatar-error", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		mockUserRepoErr := mocks.NewMockRepository(ctrl)
-		mockUserRepoErr.EXPECT().UpdateAvatar(gomock.Eq(mockUser)).Return(errors.New("fdsfsd")).Times(1)
-		u := NewUserUsecase(mockUserRepoErr)
+		mockUserRepoErr := user_mock.NewMockRepository(ctrl)
+
+		mockUserRepoErr.EXPECT().
+			UpdateAvatar(gomock.Eq(mockUser)).
+			Return(errors.New("fdsfsd")).Times(1)
+
+		u := NewUserUsecase(mockUserRepoErr, validator.New(), nil)
 		err := u.UpdateAvatar(mockUser)
 
 		assert.Error(t, err)
@@ -191,9 +246,9 @@ func TestUserUseCase_UpdateAvatar(t *testing.T) {
 }
 
 func TestUserUseCase_SetDefaultAvatar(t *testing.T) {
-	mockUserRepo := new(mocks.MockRepository)
+	mockUserRepo := new(user_mock.MockRepository)
 	mockUser := models.User{Username: "kotik", Email: "kek@mail.ru"}
-	u := NewUserUsecase(mockUserRepo)
+	u := NewUserUsecase(mockUserRepo, validator.New(), nil)
 
 	err := u.SetDefaultAvatar(&mockUser)
 

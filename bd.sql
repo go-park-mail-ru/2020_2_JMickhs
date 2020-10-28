@@ -83,7 +83,6 @@ CREATE OR REPLACE FUNCTION public.trproc_upd_hotels()
     $body$
 LANGUAGE 'plpgsql';
 
-
 INSERT INTO hotels(hotel_id,name,location,description,img,photos) VALUES
 (1,'Villa Domina','Россия г.Москва','Вилла Domina находится в городе Сплит, всего в 5 минутах ходьбы от дворца Диоклетиана, находящегося под охраной ЮНЕСКО.','static/img/hotelImg1.jpg','{"static/img/hotelImg1.jpg","static/img/hotelImg3.jpg"}'),
 (2,'Apartments Tudor','Италия г.Рим','В апартаментах Tudor, расположенных на побережье, всего в 200 метрах от пляжа Фируле, к услугам гостей номера с кондиционером, бесплатным WI-Fi, бесплатной парковкой и спутниковым телевидением.','static/img/hotelImg2.jpg','{"static/img/hotelImg1.jpg","static/img/hotelImg3.jpg"}'),

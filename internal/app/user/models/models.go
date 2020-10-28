@@ -1,5 +1,7 @@
+//go:generate  easyjson -all models.go
 package models
 
+// easyjson:json
 // swagger:response user
 type User struct {
 	ID       int    `json:"id" db:"id"`
@@ -9,6 +11,7 @@ type User struct {
 	Avatar   string `json:"avatar" db:"avatar"`
 }
 
+// easyjson:json
 type SafeUser struct {
 	ID       int    `json:"id" db:"id"`
 	Username string `json:"username" db:"username"`
@@ -16,10 +19,12 @@ type SafeUser struct {
 	Avatar   string `json:"avatar" db:"avatar"`
 }
 
+// easyjson:json
 type UserName struct {
 	Username string `json:"username"`
 }
 
+// easyjson:json
 type UpdatePassword struct {
 	OldPassword string `json:"oldpassword" db:"password" validate:"required"`
 	NewPassword string `json:"newpassword" db:"password" validate:"required,min=5,max=30"`

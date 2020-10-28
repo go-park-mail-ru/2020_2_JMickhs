@@ -1,7 +1,6 @@
 package hotelDelivery
 
 import (
-	"context"
 	"net/http"
 	"strconv"
 
@@ -33,9 +32,11 @@ func NewHotelHandler(r *mux.Router, hs hotels.Usecase, lg *logger.CustomLogger) 
 		log:          lg,
 	}
 	r.HandleFunc("/api/v1/hotels/{id:[0-9]+}", permissions.SetCSRF(handler.Hotel)).Methods("GET")
-	r.Path("/api/v1/hotels/search").Queries("pattern", "{pattern}", "prev", "{prev}", "next", "{next}", "limit", "{limit:[0-9]+}").
+	r.Path("/api/v1/hotels/search").Queries("pattern", "{pattern}", "page", "{page:[0-9]+}").
 		HandlerFunc(permissions.SetCSRF(handler.FetchHotels)).Methods("GET")
 	r.Path("/api/v1/hotels").Queries("from", "{from:[0-9]+}").HandlerFunc(permissions.SetCSRF(handler.ListHotels)).Methods("GET")
+	r.Path("/api/v1/hotels/previewSearch").Queries("pattern", "{pattern}").
+		HandlerFunc(permissions.SetCSRF(handler.FetchHotelsPreview)).Methods("GET")
 }
 
 // swagger:route GET /api/v1/hotels hotel hotels
@@ -57,6 +58,7 @@ func (hh *HotelHandler) ListHotels(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, nil)
+		return
 	}
 
 	responses.SendDataResponse(w, hotels)
@@ -76,12 +78,13 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, clientError.BadRequest)
+		return
 	}
 
 	hotel, err := hh.HotelUseCase.GetHotelByID(id)
 
 	if err != nil {
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, hh.log, err, nil)
 		return
 	}
 	data := hotelmodel.HotelData{Hotel: hotel}
@@ -108,21 +111,33 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 //  200: searchHotel
 //  400: badrequest
 func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
-	next := r.FormValue("next")
-	before := r.FormValue("prev")
-
-	cursor := hotelmodel.Cursor{next, before}
-
 	pattern := r.FormValue("pattern")
-	limits := r.FormValue("limit")
-	limit, err := strconv.Atoi(limits)
+	pageNum := r.FormValue("page")
+	page, err := strconv.Atoi(pageNum)
 
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, clientError.BadRequest)
 		return
 	}
 
-	hotels, err := hh.HotelUseCase.FetchHotels(pattern, cursor, limit)
+	hotels, err := hh.HotelUseCase.FetchHotels(pattern, page)
+
+	if err != nil {
+		customerror.PostError(w, r, hh.log, err, nil)
+	}
+
+	responses.SendDataResponse(w, hotels)
+}
+
+// swagger:route GET /api/v1/hotels/previewSearch hotel hotelPreview
+// Search hotels preview
+// responses:
+//  200: hotelsPreview
+//  400: badrequest
+func (hh *HotelHandler) FetchHotelsPreview(w http.ResponseWriter, r *http.Request) {
+	pattern := r.FormValue("pattern")
+
+	hotels, err := hh.HotelUseCase.GetHotelsPreview(pattern)
 
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, nil)

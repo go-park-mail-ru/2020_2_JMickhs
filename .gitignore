@@ -1,4 +1,6 @@
 /static
 .idea
 coverage.out
+cover.out
+cover.html
 log.txt

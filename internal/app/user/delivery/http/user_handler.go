@@ -1,7 +1,6 @@
 package userDelivery
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -60,17 +59,12 @@ func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, lg *log
 //  410:  gone
 func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-
-	if err != nil {
-		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
-		return
-	}
+	id, _ := strconv.Atoi(vars["id"])
 
 	user, err := u.UserUseCase.GetUserByID(id)
 
 	if err != nil {
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, u.log, err, nil)
 		return
 	}
 
@@ -121,6 +115,7 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return
 	}
+
 	responses.SendDataResponse(w, path)
 }
 
@@ -154,7 +149,7 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	usr.Password = twoPass.NewPassword
 	err = u.UserUseCase.UpdatePassword(usr)
 	if err != nil {
-		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
+		customerror.PostError(w, r, u.log, err, nil)
 		return
 	}
 	responses.SendOkResponse(w)
@@ -201,7 +196,7 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
-	u.UserUseCase.SetDefaultAvatar(&user)
+
 	if err != nil {
 		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return
@@ -243,7 +238,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 
 	if err != nil {
-		customerror.PostError(w, r, u.log, err, nil)
+		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return
 	}
 

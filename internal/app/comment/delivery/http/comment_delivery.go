@@ -38,7 +38,7 @@ func NewCommentHandler(r *mux.Router, hs comment.Usecase, lg *logger.CustomLogge
 	r.HandleFunc("/api/v1/comments", permissions.CheckCSRF(handler.AddComment)).Methods("POST")
 	r.HandleFunc("/api/v1/comments", permissions.CheckCSRF(handler.UpdateComment)).Methods("PUT")
 	r.HandleFunc("/api/v1/comments/{id:[0-9]+}", permissions.CheckCSRF(handler.DeleteComment)).Methods("DELETE")
-	r.Path("/api/v1/comments").Queries("id", "{id:[0-9]+}", "from", "{from:[0-9]+}").
+	r.Path("/api/v1/comments").Queries("id", "{id:[0-9]+}", "page", "{from:[0-9]+}").
 		HandlerFunc(permissions.SetCSRF(handler.ListComments)).Methods("GET")
 }
 
@@ -49,8 +49,8 @@ func NewCommentHandler(r *mux.Router, hs comment.Usecase, lg *logger.CustomLogge
 //  400: badrequest
 func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 
-	from := r.FormValue("from")
-	startId, err := strconv.Atoi(from)
+	pageNum := r.FormValue("page")
+	page, err := strconv.Atoi(pageNum)
 
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
@@ -58,13 +58,13 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id := r.FormValue("id")
-	hotelId, err := strconv.Atoi(id)
+	hotelID, err := strconv.Atoi(id)
+
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 		return
 	}
-
-	comments, err := ch.CommentUseCase.GetComments(hotelId, startId)
+	comments, err := ch.CommentUseCase.GetComments(hotelID, page)
 
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, nil)

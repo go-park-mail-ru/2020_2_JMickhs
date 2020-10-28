@@ -3,6 +3,10 @@ package commentUsecase
 import (
 	"math"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
+
+	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 )
@@ -17,8 +21,30 @@ func NewCommentUsecase(r comment.Repository) *CommentUseCase {
 	}
 }
 
-func (u *CommentUseCase) GetComments(hotelID int, StartID int) ([]commModel.FullCommentInfo, error) {
-	return u.commentRepo.GetComments(hotelID, StartID)
+func (u *CommentUseCase) GetComments(hotelID int, page int) (paginationModel.PaginationModel, error) {
+	pag := paginationModel.PaginationModel{}
+
+	numPages, err := u.commentRepo.GetCommentsCount(hotelID)
+	if err != nil {
+		return pag, err
+	}
+	pag.PagInfo.NumPages = int(math.Round(float64(numPages) / float64(configs.BaseItemsPerPage)))
+	pag.PagInfo.PageNum = page + 1
+	offset := page * configs.BaseItemsPerPage
+	data, err := u.commentRepo.GetComments(hotelID, offset)
+	if err != nil {
+		return pag, err
+	}
+	pag.List = data
+
+	if page > 0 && page <= numPages {
+		pag.PagInfo.HasPrev = true
+	}
+	if page >= 0 && page < numPages {
+		pag.PagInfo.HasNext = true
+	}
+
+	return pag, nil
 }
 func (u *CommentUseCase) AddComment(comment commModel.Comment) (commModel.NewRate, error) {
 	newRate := commModel.NewRate{}

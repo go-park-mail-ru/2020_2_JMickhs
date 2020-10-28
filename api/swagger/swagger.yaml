@@ -51,16 +51,6 @@ definitions:
         x-go-name: UserID
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models
-  Cursor:
-    properties:
-      nextcursor:
-        type: string
-        x-go-name: NextCursor
-      prevcursor:
-        type: string
-        x-go-name: PrevCursor
-    type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models
   File:
     allOf:
     - properties:
@@ -108,8 +98,23 @@ definitions:
         x-go-name: Username
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models
+  GetCommentsRequest:
+    properties:
+      Pag_info:
+        $ref: '#/definitions/PaginationInfo'
+      comments:
+        items:
+          $ref: '#/definitions/FullCommentInfo'
+        type: array
+        x-go-name: Comments
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   Hotel:
     properties:
+      comm_count:
+        format: int64
+        type: integer
+        x-go-name: CommCount
       description:
         type: string
         x-go-name: Description
@@ -147,6 +152,23 @@ definitions:
         x-go-name: CurrRate
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+  HotelPreview:
+    properties:
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
+      image:
+        type: string
+        x-go-name: Image
+      location:
+        type: string
+        x-go-name: Location
+      name:
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models
   NewRate:
     properties:
       comment:
@@ -157,6 +179,24 @@ definitions:
         x-go-name: Rate
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models
+  PaginationInfo:
+    properties:
+      has_next:
+        type: boolean
+        x-go-name: HasNext
+      has_prev:
+        type: boolean
+        x-go-name: HasPrev
+      num_pages:
+        format: int64
+        type: integer
+        x-go-name: NumPages
+      page_num:
+        format: int64
+        type: integer
+        x-go-name: PageNum
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model
   PreviewHotel:
     properties:
       description:
@@ -199,8 +239,8 @@ definitions:
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/models
   SearchDataResponse:
     properties:
-      cursor:
-        $ref: '#/definitions/Cursor'
+      Pag_info:
+        $ref: '#/definitions/PaginationInfo'
       hotels:
         items:
           $ref: '#/definitions/Hotel'
@@ -282,13 +322,13 @@ paths:
       description: GetList of comments
       operationId: comments
       parameters:
-      - description: the start ID to get comments
+      - description: page num start from 0
         format: int64
         in: query
-        name: from
+        name: page
         required: true
         type: integer
-        x-go-name: From
+        x-go-name: Page
       - description: the ID of hotel which comments you get
         format: int64
         in: query
@@ -399,23 +439,28 @@ paths:
       summary: Get Single hotel by id,
       tags:
       - hotel
+  /api/v1/hotels/previewSearch:
+    get:
+      description: Search hotels preview
+      operationId: hotelPreview
+      responses:
+        "200":
+          $ref: '#/responses/hotelsPreview'
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - hotel
   /api/v1/hotels/search:
     get:
       description: Search hotels
       operationId: searchHotel
       parameters:
-      - in: query
-        name: pattern
+      - description: page num start from 0
+        in: query
+        name: page
+        required: true
         type: string
-        x-go-name: Pattern
-      - in: query
-        name: prev
-        type: string
-        x-go-name: Prev
-      - in: query
-        name: next
-        type: string
-        x-go-name: Next
+        x-go-name: Page
       - format: int64
         in: query
         name: limit
@@ -608,9 +653,7 @@ responses:
         type: string
   comments:
     schema:
-      items:
-        $ref: '#/definitions/FullCommentInfo'
-      type: array
+      $ref: '#/definitions/GetCommentsRequest'
   conflict:
     description: unique data already exists
   gone:
@@ -619,6 +662,11 @@ responses:
     schema:
       items:
         $ref: '#/definitions/PreviewHotel'
+      type: array
+  hotelsPreview:
+    schema:
+      items:
+        $ref: '#/definitions/HotelPreview'
       type: array
   locked:
     description: two times rate one hotel

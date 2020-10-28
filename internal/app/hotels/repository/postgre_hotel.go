@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/serverError"
 
@@ -23,77 +25,41 @@ func NewPostgresHotelRepository(conn *sqlx.DB) PostgreHotelRepository {
 }
 
 func (p *PostgreHotelRepository) GetHotels(StartID int) ([]hotelmodel.Hotel, error) {
-	rows, err := p.conn.Query(sqlrequests.GetHotelsPostgreRequest, strconv.Itoa(StartID))
-	defer rows.Close()
 	hotels := []hotelmodel.Hotel{}
+	err := p.conn.Select(&hotels, sqlrequests.GetHotelsPostgreRequest, strconv.Itoa(StartID), configs.S3Url)
 	if err != nil {
-		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
-	}
-	hotel := hotelmodel.Hotel{}
-	for rows.Next() {
-		err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location, &hotel.Rating)
-		if err != nil {
-			return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
-		}
-		hotels = append(hotels, hotel)
+		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
 	return hotels, nil
 }
 
 func (p *PostgreHotelRepository) GetHotelByID(ID int) (hotelmodel.Hotel, error) {
-	rows := p.conn.QueryRow(sqlrequests.GetHotelByIDPostgreRequest, strconv.Itoa(ID))
 	hotel := hotelmodel.Hotel{}
-	err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location, &hotel.Rating, &hotel.CommCount)
+	err := p.conn.QueryRow(sqlrequests.GetHotelByIDPostgreRequest, strconv.Itoa(ID), configs.S3Url).
+		Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location, &hotel.Rating, &hotel.CommCount)
 	if err != nil {
-		return hotel, customerror.NewCustomError(err, clientError.Gone, nil)
+		return hotel, customerror.NewCustomError(err, clientError.Gone, 1)
 	}
 
-	photosRows, err := p.conn.Query(sqlrequests.GetHotelsPhotosPostgreRequest, strconv.Itoa(ID))
+	err = p.conn.Select(&hotel.Photos, sqlrequests.GetHotelsPhotosPostgreRequest, strconv.Itoa(ID), configs.S3Url)
 	if err != nil {
-		return hotel, customerror.NewCustomError(err, clientError.Gone, nil)
-	}
-	photo := ""
-	for photosRows.Next() {
-		err := photosRows.Scan(&photo)
-		if err != nil {
-			return hotel, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
-		}
-		hotel.Photos = append(hotel.Photos, photo)
+		return hotel, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
 
 	return hotel, nil
 }
 
-func (p *PostgreHotelRepository) FetchHotels(pattern string, filter hotelmodel.FilterData, limit int, nextOrPrev bool) ([]hotelmodel.Hotel, error) {
-	comprasion := ""
-	id := ""
-	order := "DESC"
-	orderId := "DESC"
-	if nextOrPrev == true {
-		comprasion = "<"
-		id = "<"
-	} else {
-		comprasion = ">"
-		id = ">"
-		order = "ASC"
-		orderId = "ASC"
-	}
-	query := fmt.Sprint("SELECT hotel_id, name, description, location, img, round( CAST (curr_rating as numeric),1),comm_count FROM hotels WHERE (name % $1"+
-		"or location % $1 or name LIKE '%' || $1 || '%' or location LIKE '%' || $1 || '%')  AND (curr_rating ", comprasion, " $4 OR (curr_rating = $4 AND hotel_id ", id,
-		" $3)) ORDER BY curr_rating ", order, ", hotel_id ", orderId, " LIMIT $2")
-	rows, err := p.conn.Query(query, pattern, strconv.Itoa(limit), filter.ID, filter.Rating)
+func (p *PostgreHotelRepository) FetchHotels(pattern string, offset int) ([]hotelmodel.Hotel, error) {
+	query := fmt.Sprint("SELECT hotel_id, name, description, location, concat($4::varchar,img), curr_rating , comm_count FROM hotels ",
+		sqlrequests.SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $3 OFFSET $2")
+
 	hotels := []hotelmodel.Hotel{}
+
+	err := p.conn.Select(&hotels, query, pattern, offset, configs.BaseItemsPerPage, configs.S3Url)
 	if err != nil {
-		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
+		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
-	hotel := hotelmodel.Hotel{}
-	for rows.Next() {
-		err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Location, &hotel.Image, &hotel.Rating, &hotel.CommCount)
-		if err != nil {
-			return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
-		}
-		hotels = append(hotels, hotel)
-	}
+
 	return hotels, nil
 }
 
@@ -101,7 +67,21 @@ func (p *PostgreHotelRepository) CheckRateExist(UserID int, HotelID int) (int, e
 	rate := -1
 	err := p.conn.QueryRow(sqlrequests.CheckRateIfExistPostgreRequest, UserID, HotelID).Scan(&rate)
 	if err != nil {
-		return rate, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
+		return rate, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
 	return rate, nil
+}
+
+func (p *PostgreHotelRepository) GetHotelsPreview(pattern string) ([]hotelmodel.HotelPreview, error) {
+	query := fmt.Sprint("SELECT hotel_id, name, location, concat($4::varchar,img) FROM hotels ",
+		sqlrequests.SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $2")
+
+	hotels := []hotelmodel.HotelPreview{}
+
+	err := p.conn.Select(&hotels, query, pattern, configs.PreviewItemLimit, configs.S3Url)
+	if err != nil {
+		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+
+	return hotels, nil
 }

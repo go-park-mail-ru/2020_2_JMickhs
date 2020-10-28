@@ -25,6 +25,12 @@ import (
 	"runtime"
 	"strconv"
 
+	"github.com/aws/aws-sdk-go/aws"
+
+	"github.com/aws/aws-sdk-go/aws/session"
+
+	"github.com/aws/aws-sdk-go/service/s3"
+
 	"github.com/go-playground/validator/v10"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/logger"
@@ -89,6 +95,14 @@ func initDB() *sqlx.DB {
 	return db
 }
 
+func initS3Session() *s3.S3 {
+	return s3.New(session.Must(session.NewSession(&aws.Config{
+		Region:   aws.String("ru-msk"),
+		Endpoint: aws.String("http://hb.bizmrg.com"),
+	})))
+
+}
+
 func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 
@@ -115,6 +129,11 @@ func main() {
 	configs.Init()
 	store := NewSessStore()
 	db := initDB()
+	s3 := initS3Session()
+	_, err := s3.Config.Credentials.Get()
+	if err != nil {
+		panic(err)
+	}
 	defer store.Close()
 
 	configs.PrefixPath = initRelativePath()
@@ -137,9 +156,10 @@ func main() {
 	repSes := sessionsRepository.NewSessionsUserRepository(store)
 	repCom := commentRepository.NewCommentRepository(db)
 
-	u := userUsecase.NewUserUsecase(&rep, validate)
+	u := userUsecase.NewUserUsecase(&rep, validate, s3)
 	uHot := hotelUsecase.NewHotelUsecase(&repHot)
 	uSes := sessionsUseCase.NewSessionsUsecase(&repSes)
+
 	uCom := commentUsecase.NewCommentUsecase(&repCom)
 
 	sessMidleware := middlewareApi.NewSessionMiddleware(uSes, u, log)
@@ -149,6 +169,7 @@ func main() {
 	hotelDelivery.NewHotelHandler(r, uHot, log)
 	delivery.NewUserHandler(r, uSes, u, log)
 	commentDelivery.NewCommentHandler(r, uCom, log)
+
 	log.Info("Server started at port", configs.Port)
 	http.ListenAndServe(configs.Port, r)
 }
