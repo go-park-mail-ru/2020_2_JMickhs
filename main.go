@@ -53,10 +53,14 @@ import (
 
 	userUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/usecase"
 
+	wishlistDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/delivery/http"
+	wishlistRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/repository"
+	wishlistUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/usecase"
+
 	"github.com/jmoiron/sqlx"
 
 	"github.com/gorilla/mux"
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // here
 )
 
 func NewSessStore() *redis.Client {
@@ -136,11 +140,12 @@ func main() {
 	repHot := hotelRepository.NewPostgresHotelRepository(db)
 	repSes := sessionsRepository.NewSessionsUserRepository(store)
 	repCom := commentRepository.NewCommentRepository(db)
+	repWish := wishlistRepository.NewPostgreWishlistRepository(db)
 
 	u := userUsecase.NewUserUsecase(&rep, validate)
 	uHot := hotelUsecase.NewHotelUsecase(&repHot)
 	uSes := sessionsUseCase.NewSessionsUsecase(&repSes)
-
+	uWish := wishlistUsecase.NewWishlistUseCase(&repWish)
 	uCom := commentUsecase.NewCommentUsecase(&repCom)
 
 	sessMidleware := middlewareApi.NewSessionMiddleware(uSes, u, log)
@@ -150,6 +155,7 @@ func main() {
 	hotelDelivery.NewHotelHandler(r, uHot, log)
 	delivery.NewUserHandler(r, uSes, u, log)
 	commentDelivery.NewCommentHandler(r, uCom, log)
+	wishlistDelivery.NewWishlistHandler(r, uWish, log)
 	log.Info("Server started at port", configs.Port)
 	http.ListenAndServe(configs.Port, r)
 }
