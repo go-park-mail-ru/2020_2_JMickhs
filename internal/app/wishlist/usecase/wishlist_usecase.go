@@ -35,3 +35,4 @@ func (w *WishlistUseCase) AddHotel(hotelID int, wishlistID int) error {
 func (w *WishlistUseCase) DeleteHotel(hotelID string, wishlistID int) error {
 	return w.wishlistRepo.DeleteHotel(hotelID, wishlistID)
 }
+

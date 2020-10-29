@@ -38,7 +38,7 @@ create table hotels (
 create table wishlists (
     wishlist_id int not null,
     name text,
-    user_id int not null,
+    user_id int not null
 );
 
 create table wishlistshotels (

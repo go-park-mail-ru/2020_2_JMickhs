@@ -12,3 +12,4 @@ type Usecase interface {
 	AddHotel(hotelID int, wishlistID int) error
 	DeleteHotel(hotelID string, wishlistID int) error
 }
+
