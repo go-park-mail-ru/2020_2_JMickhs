@@ -44,7 +44,7 @@ func easyjson47583779DecodeGithubComGoParkMailRu20202JMickhsInternalAppPaginator
 			} else {
 				out.List = in.Interface()
 			}
-		case "Pag_info":
+		case "pag_info":
 			(out.PagInfo).UnmarshalEasyJSON(in)
 		default:
 			in.SkipRecursive()
@@ -72,7 +72,7 @@ func easyjson47583779EncodeGithubComGoParkMailRu20202JMickhsInternalAppPaginator
 		}
 	}
 	{
-		const prefix string = ",\"Pag_info\":"
+		const prefix string = ",\"pag_info\":"
 		out.RawString(prefix)
 		(in.PagInfo).MarshalEasyJSON(out)
 	}

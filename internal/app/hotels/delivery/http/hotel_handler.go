@@ -95,12 +95,12 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rate, err := hh.HotelUseCase.CheckRateExist(usr.ID, hotel.HotelID)
+	comment, err := hh.HotelUseCase.CheckRateExist(usr.ID, hotel.HotelID)
 	if err != nil {
 		responses.SendDataResponse(w, data)
 		return
 	}
-	data.CurrRate = rate
+	data.Comment = &comment
 
 	responses.SendDataResponse(w, data)
 }

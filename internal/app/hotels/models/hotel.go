@@ -1,7 +1,10 @@
 //go:generate easyjson -all hotel.go
 package hotelmodel
 
-import paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
+import (
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
+	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
+)
 
 // easyjson:json
 type Hotel struct {
@@ -26,7 +29,7 @@ type HotelPreview struct {
 // easyjson:json
 type HotelData struct {
 	Hotel    Hotel `json:"hotel"`
-	CurrRate int   `json:"rate,omitempty" mapstructure:"currate"`
+	Comment  *commModel.FullCommentInfo  `json:"comment,omitempty" mapstructure:"currate"`
 }
 
 // easyjson:json

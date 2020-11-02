@@ -4,7 +4,7 @@ package paginationModel
 // easyjson:json
 type PaginationModel struct {
 	List    interface{}    `json:"list"`
-	PagInfo PaginationInfo `json:"Pag_info"`
+	PagInfo PaginationInfo `json:"pag_info"`
 }
 
 // easyjson:json

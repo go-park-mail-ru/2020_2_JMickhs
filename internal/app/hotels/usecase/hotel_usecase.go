@@ -2,6 +2,7 @@ package hotelUsecase
 
 import (
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 
 	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
 
@@ -52,6 +53,6 @@ func (p *HotelUseCase) GetHotelsPreview(pattern string) ([]hotelmodel.HotelPrevi
 	return p.hotelRepo.GetHotelsPreview(pattern)
 }
 
-func (p *HotelUseCase) CheckRateExist(UserID int, HotelID int) (int, error) {
+func (p *HotelUseCase) CheckRateExist(UserID int, HotelID int) (commModel.FullCommentInfo, error) {
 	return p.hotelRepo.CheckRateExist(UserID, HotelID)
 }

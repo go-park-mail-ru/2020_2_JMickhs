@@ -40,7 +40,7 @@ func (u *CommentUseCase) GetComments(hotelID int, page int) (paginationModel.Pag
 	if page > 0 && page <= numPages {
 		pag.PagInfo.HasPrev = true
 	}
-	if page >= 0 && page < numPages {
+	if page >= 0 && page < numPages -1 {
 		pag.PagInfo.HasNext = true
 	}
 

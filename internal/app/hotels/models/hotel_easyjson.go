@@ -4,6 +4,7 @@ package hotelmodel
 
 import (
 	json "encoding/json"
+	models "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -296,8 +297,16 @@ func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsInternalAppHotelsMod
 		switch key {
 		case "hotel":
 			(out.Hotel).UnmarshalEasyJSON(in)
-		case "rate":
-			out.CurrRate = int(in.Int())
+		case "comment":
+			if in.IsNull() {
+				in.Skip()
+				out.Comment = nil
+			} else {
+				if out.Comment == nil {
+					out.Comment = new(models.FullCommentInfo)
+				}
+				easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsInternalAppCommentModels(in, out.Comment)
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -317,10 +326,10 @@ func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsInternalAppHotelsMod
 		out.RawString(prefix[1:])
 		(in.Hotel).MarshalEasyJSON(out)
 	}
-	if in.CurrRate != 0 {
-		const prefix string = ",\"rate\":"
+	if in.Comment != nil {
+		const prefix string = ",\"comment\":"
 		out.RawString(prefix)
-		out.Int(int(in.CurrRate))
+		easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsInternalAppCommentModels(out, *in.Comment)
 	}
 	out.RawByte('}')
 }
@@ -347,6 +356,97 @@ func (v *HotelData) UnmarshalJSON(data []byte) error {
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *HotelData) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsInternalAppHotelsModels3(l, v)
+}
+func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsInternalAppCommentModels(in *jlexer.Lexer, out *models.FullCommentInfo) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "user_id":
+			out.UserID = int(in.Int())
+		case "comm_id":
+			out.CommID = int(in.Int())
+		case "hotel_id":
+			out.HotelID = int(in.Int())
+		case "message":
+			out.Message = string(in.String())
+		case "rating":
+			out.Rating = float64(in.Float64())
+		case "avatar":
+			out.Avatar = string(in.String())
+		case "username":
+			out.Username = string(in.String())
+		case "time":
+			out.Time = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsInternalAppCommentModels(out *jwriter.Writer, in models.FullCommentInfo) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"user_id\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.UserID))
+	}
+	{
+		const prefix string = ",\"comm_id\":"
+		out.RawString(prefix)
+		out.Int(int(in.CommID))
+	}
+	{
+		const prefix string = ",\"hotel_id\":"
+		out.RawString(prefix)
+		out.Int(int(in.HotelID))
+	}
+	{
+		const prefix string = ",\"message\":"
+		out.RawString(prefix)
+		out.String(string(in.Message))
+	}
+	{
+		const prefix string = ",\"rating\":"
+		out.RawString(prefix)
+		out.Float64(float64(in.Rating))
+	}
+	{
+		const prefix string = ",\"avatar\":"
+		out.RawString(prefix)
+		out.String(string(in.Avatar))
+	}
+	{
+		const prefix string = ",\"username\":"
+		out.RawString(prefix)
+		out.String(string(in.Username))
+	}
+	{
+		const prefix string = ",\"time\":"
+		out.RawString(prefix)
+		out.String(string(in.Time))
+	}
+	out.RawByte('}')
 }
 func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsInternalAppHotelsModels4(in *jlexer.Lexer, out *Hotel) {
 	isTopLevel := in.IsStart()

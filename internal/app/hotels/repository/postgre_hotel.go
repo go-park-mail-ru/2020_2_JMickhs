@@ -2,6 +2,7 @@ package hotelRepository
 
 import (
 	"fmt"
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 	"strconv"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
@@ -63,13 +64,15 @@ func (p *PostgreHotelRepository) FetchHotels(pattern string, offset int) ([]hote
 	return hotels, nil
 }
 
-func (p *PostgreHotelRepository) CheckRateExist(UserID int, HotelID int) (int, error) {
-	rate := -1
-	err := p.conn.QueryRow(sqlrequests.CheckRateIfExistPostgreRequest, UserID, HotelID).Scan(&rate)
+func (p *PostgreHotelRepository) CheckRateExist(UserID int, HotelID int) (commModel.FullCommentInfo, error) {
+	comment := commModel.FullCommentInfo{}
+
+	err := p.conn.QueryRow(sqlrequests.CheckRateIfExistPostgreRequest, UserID, HotelID).Scan(&comment.Message,&comment.Time,&comment.HotelID,
+		&comment.Avatar,&comment.UserID,&comment.CommID,&comment.Username,&comment.Rating)
 	if err != nil {
-		return rate, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+		return comment, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
-	return rate, nil
+	return comment, nil
 }
 
 func (p *PostgreHotelRepository) GetHotelsPreview(pattern string) ([]hotelmodel.HotelPreview, error) {
@@ -84,4 +87,12 @@ func (p *PostgreHotelRepository) GetHotelsPreview(pattern string) ([]hotelmodel.
 	}
 
 	return hotels, nil
+}
+
+func (p *PostgreHotelRepository) AddHotel(hotel hotelmodel.Hotel) error{
+	_, err := p.conn.Exec(sqlrequests.AddHotelPostgreRequest,hotel.Name,hotel.Location,hotel.Description,hotel.Image,hotel.Photos)
+	if err != nil{
+		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	return nil
 }
