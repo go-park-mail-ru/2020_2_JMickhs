@@ -42,6 +42,15 @@ type SearchData struct {
 	Hotels  []Hotel                        `json:"hotels"`
 	PagInfo paginationModel.PaginationInfo `json:"pag_info"`
 }
+// easyjson:json
+type Hotels struct{
+	Hotels []Hotel `json:"hotels"`
+}
+
+// easyjson:json
+type HotelsPreview struct{
+	Hotels []HotelPreview`json:"hotels_preview"`
+}
 
 // easyjson:json
 type Cursor struct {

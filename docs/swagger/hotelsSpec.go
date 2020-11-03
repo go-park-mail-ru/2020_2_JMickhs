@@ -1,6 +1,7 @@
 package swagger
 
 import (
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
 	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
 )
@@ -9,10 +10,18 @@ import (
 type SearchStringRequest struct {
 	// page num start from 0
 	// required:true
-	Page string `json:"page"`
+	Pattern string `json:"pattern"`
 	// required:true
-	Limit int `json:"limit"`
+	Page string `json:"page"`
 }
+
+// swagger:parameters hotelPreview
+type SearchPreviewStringRequest struct {
+	// page num start from 0
+	// required:true
+	Pattern string `json:"pattern"`
+}
+
 
 type PreviewHotel struct {
 	HotelID     int    `json:"hotel_id"`
@@ -35,7 +44,7 @@ type SearchDataResponse struct {
 
 type HotelData struct {
 	Hotel    hotelmodel.Hotel `json:"hotel"`
-	CurrRate int              `json:"rate"`
+	Comment  commModel.FullCommentInfo  `json:"comment,omitempty"`
 }
 
 // swagger:parameters hotel
@@ -70,13 +79,13 @@ type hotelsIDParameterWrapper struct {
 // swagger:response hotels
 type hotelListWrapper struct {
 	//in: body
-	Body []PreviewHotel
+	Body hotelmodel.Hotels
 }
 
 // swagger:response hotelsPreview
 type hotelsPreviewResponse struct {
 	//in: body
-	Body []hotelmodel.HotelPreview
+	Body hotelmodel.HotelsPreview
 }
 
 // swagger:response searchHotel

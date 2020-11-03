@@ -76,7 +76,7 @@ func (p *PostgreHotelRepository) CheckRateExist(UserID int, HotelID int) (commMo
 }
 
 func (p *PostgreHotelRepository) GetHotelsPreview(pattern string) ([]hotelmodel.HotelPreview, error) {
-	query := fmt.Sprint("SELECT hotel_id, name, location, concat($4::varchar,img) FROM hotels ",
+	query := fmt.Sprint("SELECT hotel_id, name, location, concat($3::varchar,img) FROM hotels ",
 		sqlrequests.SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $2")
 
 	hotels := []hotelmodel.HotelPreview{}

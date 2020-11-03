@@ -8,7 +8,7 @@ type Comment struct {
 	HotelID int     `json:"hotel_id"`
 	CommID  int     `json:"comm_id"`
 	Message string  `json:"message"`
-	Rate    float64 `json:"rate"`
+	Rate    float64 `json:"rating"`
 	Time    string  `json:"time"`
 }
 

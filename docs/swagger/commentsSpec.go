@@ -8,18 +8,18 @@ import (
 type AddCommentRequest struct {
 	HotelID int    `json:"hotel_id"`
 	Message string `json:"message"`
-	Rating  int    `json:"rate"`
+	Rating  int    `json:"rating"`
 }
 
 type UpdateCommentRequest struct {
 	CommID  int    `json:"comm_id"`
 	Message string `json:"message"`
-	Rate    int    `json:"rate"`
+	Rate    int    `json:"rating"`
 }
 
 type GetCommentsRequest struct {
 	Comments []commModel.FullCommentInfo    `json:"comments"`
-	PagInfo  paginationModel.PaginationInfo `json:"Pag_info"`
+	PagInfo  paginationModel.PaginationInfo `json:"pag_info"`
 }
 
 // swagger:parameters comments

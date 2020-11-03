@@ -4,8 +4,6 @@ import (
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 
-	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
-
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
 )
@@ -27,8 +25,8 @@ func (p *HotelUseCase) GetHotelByID(ID int) (hotelmodel.Hotel, error) {
 	return p.hotelRepo.GetHotelByID(ID)
 }
 
-func (p *HotelUseCase) FetchHotels(pattern string, page int) (paginationModel.PaginationModel, error) {
-	pag := paginationModel.PaginationModel{}
+func (p *HotelUseCase) FetchHotels(pattern string, page int) (hotelmodel.SearchData, error) {
+	pag := hotelmodel.SearchData{}
 
 	pag.PagInfo.NumPages = configs.BasePageCount
 	pag.PagInfo.PageNum = page
@@ -37,7 +35,7 @@ func (p *HotelUseCase) FetchHotels(pattern string, page int) (paginationModel.Pa
 	if err != nil {
 		return pag, err
 	}
-	pag.List = data
+	pag.Hotels = data
 
 	if page > 0 && page <= configs.BasePageCount {
 		pag.PagInfo.HasPrev = true

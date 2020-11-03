@@ -13,7 +13,7 @@ const DeleteCommentsPostgreRequest = "DELETE FROM comments WHERE comm_id=$1"
 
 const UpdateCommentsPostgreRequest = "UPDATE comments SET message=$2,rating=$3 WHERE comm_id=$1 RETURNING time"
 
-const GetHotelsPostgreRequest = "SELECT hotel_id,name,description,concat($2::varchar,img),location,curr_rating FROM hotels LIMIT 4 OFFSET $1"
+const GetHotelsPostgreRequest = "SELECT hotel_id,name,description,concat($2::varchar,img),location,curr_rating,comm_count FROM hotels LIMIT 4 OFFSET $1"
 
 const GetHotelByIDPostgreRequest = "SELECT hotel_id,name,description,concat($2::varchar,img),location,curr_rating,comm_count FROM hotels WHERE hotel_id=$1 GROUP BY hotel_id"
 

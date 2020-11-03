@@ -1,6 +1,7 @@
 package commentUsecase
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
@@ -57,6 +58,7 @@ func (u *CommentUseCase) AddComment(comment commModel.Comment) (commModel.NewRat
 	if err != nil {
 		return newRate, err
 	}
+	fmt.Println(hotelRate)
 	newRate.Rate = hotelRate
 	return newRate, nil
 

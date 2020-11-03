@@ -9,4 +9,5 @@ const (
 	PaymentReq           = 402
 	Forbidden            = 403
 	UnsupportedMediaType = 415
+	NotFound             = 404
 )

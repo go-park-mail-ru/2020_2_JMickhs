@@ -54,14 +54,14 @@ func (hh *HotelHandler) ListHotels(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hotels, err := hh.HotelUseCase.GetHotels(startId)
+	hotel, err := hh.HotelUseCase.GetHotels(startId)
 
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, nil)
 		return
 	}
-
-	responses.SendDataResponse(w, hotels)
+	hotels := hotelmodel.Hotels{Hotels:hotel}
+	responses.SendDataResponse(w,hotels)
 }
 
 // swagger:route GET /api/v1/hotels/{id} hotel hotel
@@ -143,5 +143,5 @@ func (hh *HotelHandler) FetchHotelsPreview(w http.ResponseWriter, r *http.Reques
 		customerror.PostError(w, r, hh.log, err, nil)
 	}
 
-	responses.SendDataResponse(w, hotels)
+	responses.SendDataResponse(w, hotelmodel.HotelsPreview{hotels})
 }

@@ -94,7 +94,7 @@ func (p *CommentRepository) CheckUser(comment *commModel.Comment) (int, error) {
 	var usr_id int
 	err := p.conn.QueryRow(sqlrequests.GetPrevRatingOnCommentPostgreRequest, strconv.Itoa(comment.CommID)).Scan(&destRate, &usr_id, &comment.HotelID)
 	if err != nil {
-		return destRate, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+		return destRate, customerror.NewCustomError(err, clientError.NotFound, 1)
 	}
 	if comment.UserID != usr_id {
 		return destRate, customerror.NewCustomError(errors.New("user want update other comment"), clientError.Locked, 1)
