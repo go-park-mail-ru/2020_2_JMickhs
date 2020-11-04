@@ -66,7 +66,7 @@ func StartCrawler(db *sqlx.DB,s3 *s3.S3,log *logger.CustomLogger)  {
 
 	c.OnHTML("div[id=right]",func(e *colly.HTMLElement) {
 		hotel := hotelmodel.Hotel{}
-		hotel.Name = e.DOM.Find("h2[id=hp_hotel_name]").Text()
+		hotel.Name = e.DOM.Find("h2[id=hp_hotel_name]").RemoveAttr("span[class]").Text()
 		hotel.Name = strings.Split(hotel.Name,"\n")[1]
 		var decr string
 		sel := e.DOM.Find("div[id=property_description_content]").Children()
@@ -87,7 +87,8 @@ func StartCrawler(db *sqlx.DB,s3 *s3.S3,log *logger.CustomLogger)  {
 		var photos []string
 		e.DOM.Find(`div[class="bh-photo-grid-thumbs bh-photo-grid-thumbs-s-full"]`).Find("a[class]").
 			Each(func(number int,selection *goquery.Selection){
-				photo, err := UploadImage(s3,imageRef)
+			   ref,_ := selection.Attr("href")
+				photo, err := UploadImage(s3,ref)
 				if err != nil{
 					log.Error(err)
 				}
@@ -98,6 +99,7 @@ func StartCrawler(db *sqlx.DB,s3 *s3.S3,log *logger.CustomLogger)  {
 		if err != nil{
 			log.Error(err)
 		}
+		fmt.Println(hotel.Name)
 		hotels = append(hotels,hotel)
 
 	})
@@ -129,7 +131,6 @@ func UploadImage(filemanager *s3.S3,url string ) (string,error){
 	filename := uuid.NewV4().String()
 	fileType := "jpg"
 	relPath := configs.StaticPath + filename + "." + fileType
-	path := configs.S3Url + relPath
 
 	body,err := ioutil.ReadAll(resp.Body)
 	if err != nil{
@@ -149,5 +150,5 @@ func UploadImage(filemanager *s3.S3,url string ) (string,error){
 	}
 
 	fmt.Println("Success!")
-	return path,nil
+	return relPath,nil
 }
