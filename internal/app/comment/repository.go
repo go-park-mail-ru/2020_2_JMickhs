@@ -4,7 +4,7 @@ package comment
 import commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 
 type Repository interface {
-	GetComments(hotelID int, offset int) ([]commModel.FullCommentInfo, error)
+	GetComments(hotelID int, offset int,user_id int) ([]commModel.FullCommentInfo, error)
 	AddComment(comment commModel.Comment) (commModel.Comment, error)
 	DeleteComment(ID int) error
 	UpdateComment(comment *commModel.Comment) error

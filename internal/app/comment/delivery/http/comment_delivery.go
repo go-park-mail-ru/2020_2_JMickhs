@@ -64,7 +64,15 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 		return
 	}
-	comments, err := ch.CommentUseCase.GetComments(hotelID, page)
+	var user_id int
+	user, ok := r.Context().Value(configs.RequestUser).(models.User)
+	if !ok {
+		user_id = -1
+	}else {
+		user_id = user.ID
+	}
+
+	comments, err := ch.CommentUseCase.GetComments(hotelID, page,user_id)
 
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, nil)

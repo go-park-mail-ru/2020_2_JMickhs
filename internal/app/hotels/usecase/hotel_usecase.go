@@ -30,7 +30,7 @@ func (p *HotelUseCase) FetchHotels(pattern string, page int) (hotelmodel.SearchD
 
 	pag.PagInfo.NumPages = configs.BasePageCount
 	pag.PagInfo.PageNum = page
-	offset := page * configs.BaseItemsPerPage
+	offset := page * configs.BaseItemPerPage
 	data, err := p.hotelRepo.FetchHotels(pattern, offset)
 	if err != nil {
 		return pag, err

@@ -24,9 +24,9 @@ func NewCommentRepository(conn *sqlx.DB) CommentRepository {
 	return CommentRepository{conn: conn}
 }
 
-func (r *CommentRepository) GetComments(hotelID int, offset int) ([]commModel.FullCommentInfo, error) {
+func (r *CommentRepository) GetComments(hotelID int, offset int,user_id int) ([]commModel.FullCommentInfo, error) {
 	comments := []commModel.FullCommentInfo{}
-	err := r.conn.Select(&comments, sqlrequests.GetCommentsPostgreRequest, strconv.Itoa(offset), configs.BaseItemsPerPage, strconv.Itoa(hotelID))
+	err := r.conn.Select(&comments, sqlrequests.GetCommentsPostgreRequest, strconv.Itoa(offset), configs.BaseItemsPerPage, strconv.Itoa(hotelID),user_id)
 	if err != nil {
 		return comments, customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}

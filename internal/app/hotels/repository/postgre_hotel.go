@@ -56,7 +56,7 @@ func (p *PostgreHotelRepository) FetchHotels(pattern string, offset int) ([]hote
 
 	hotels := []hotelmodel.Hotel{}
 
-	err := p.conn.Select(&hotels, query, pattern, offset, configs.BaseItemsPerPage, configs.S3Url)
+	err := p.conn.Select(&hotels, query, pattern, offset, configs.BaseItemPerPage, configs.S3Url)
 	if err != nil {
 		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}

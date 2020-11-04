@@ -7,7 +7,7 @@ import (
 )
 
 type Usecase interface {
-	GetComments(hotelID int, page int) (paginationModel.PaginationModel, error)
+	GetComments(hotelID int, page int,user_id int) (paginationModel.PaginationModel, error)
 	AddComment(comment commModel.Comment) (commModel.NewRate, error)
 	DeleteComment(ID int) error
 	UpdateComment(comment commModel.Comment) (commModel.NewRate, error)

@@ -18,7 +18,7 @@ type UpdateCommentRequest struct {
 }
 
 type GetCommentsRequest struct {
-	Comments []commModel.FullCommentInfo    `json:"comments"`
+	Comments []commModel.FullCommentInfo    `json:"list"`
 	PagInfo  paginationModel.PaginationInfo `json:"pag_info"`
 }
 

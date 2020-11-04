@@ -35,6 +35,7 @@ const BaseItemsPerPage = 1
 const PreviewItemLimit = 6
 const BucketName = "hostelscan"
 const S3Url = "http://s3.hostelscan.ru/"
+const BaseItemPerPage = 4
 
 const (
 	MB = 1 << 20

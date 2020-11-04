@@ -22,7 +22,7 @@ func NewCommentUsecase(r comment.Repository) *CommentUseCase {
 	}
 }
 
-func (u *CommentUseCase) GetComments(hotelID int, page int) (paginationModel.PaginationModel, error) {
+func (u *CommentUseCase) GetComments(hotelID int, page int,user_id int) (paginationModel.PaginationModel, error) {
 	pag := paginationModel.PaginationModel{}
 
 	numPages, err := u.commentRepo.GetCommentsCount(hotelID)
@@ -32,7 +32,7 @@ func (u *CommentUseCase) GetComments(hotelID int, page int) (paginationModel.Pag
 	pag.PagInfo.NumPages = int(math.Round(float64(numPages) / float64(configs.BaseItemsPerPage)))
 	pag.PagInfo.PageNum = page + 1
 	offset := page * configs.BaseItemsPerPage
-	data, err := u.commentRepo.GetComments(hotelID, offset)
+	data, err := u.commentRepo.GetComments(hotelID, offset,user_id)
 	if err != nil {
 		return pag, err
 	}

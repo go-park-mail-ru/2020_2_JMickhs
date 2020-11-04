@@ -4,8 +4,8 @@ const SearchHotelsPostgreRequest = "WHERE (name % $1 or location % $1 or name LI
 
 const GetCommentsCountPostgreRequest = "SELECT comm_count FROM hotels WHERE hotel_id = $1"
 
-const GetCommentsPostgreRequest = "SELECT us.user_id,comm_id,message,rating,avatar,username,comm.hotel_id,time FROM comments as comm " +
-	"INNER JOIN users as us on us.user_id = comm.user_id WHERE comm.hotel_id = $3  LIMIT $2 OFFSET $1"
+const GetCommentsPostgreRequest = "SELECT DISTINCT us.user_id,comm_id,message,rating,avatar,username,comm.hotel_id,time FROM comments as comm " +
+	"INNER JOIN users as us on us.user_id = comm.user_id WHERE comm.hotel_id = $3 AND comm.user_id != $4 LIMIT $2 OFFSET $1"
 
 const AddCommentsPostgreRequest = "INSERT INTO comments VALUES (default, $1, $2,$3,$4) RETURNING comm_id,time"
 

@@ -102,7 +102,7 @@ definitions:
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models
   GetCommentsRequest:
     properties:
-      comments:
+      list:
         items:
           $ref: '#/definitions/FullCommentInfo'
         type: array
