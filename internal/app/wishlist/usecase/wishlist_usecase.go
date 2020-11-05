@@ -16,7 +16,7 @@ func NewWishlistUseCase(r wishlist.Repository) *WishlistUseCase {
 		wishlistRepo: r,
 	}
 }
-func (w *WishlistUseCase) GetWishlist(wishlistID int) ([]hotelmodel.Hotel, error) {
+func (w *WishlistUseCase) GetWishlist(wishlistID int) ([]hotelmodel.MiniHotel, error) {
 	return w.wishlistRepo.GetWishlist(wishlistID)
 }
 
@@ -32,7 +32,14 @@ func (w *WishlistUseCase) AddHotel(hotelID int, wishlistID int) error {
 	return w.wishlistRepo.AddHotel(hotelID, wishlistID)
 }
 
-func (w *WishlistUseCase) DeleteHotel(hotelID string, wishlistID int) error {
+func (w *WishlistUseCase) DeleteHotel(hotelID int, wishlistID int) error {
 	return w.wishlistRepo.DeleteHotel(hotelID, wishlistID)
 }
 
+func (w *WishlistUseCase) GetTable() ([]wishlistModel.WishlisstHotel, error) {
+	return w.wishlistRepo.GetTable()
+}
+
+func (w *WishlistUseCase) GetWhatYouWant() ([]hotelmodel.MiniHotel, error) {
+	return w.wishlistRepo.GetWishlist(42)
+}

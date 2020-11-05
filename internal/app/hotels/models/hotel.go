@@ -43,3 +43,12 @@ type FilterData struct {
 	Rating float64
 	ID     string
 }
+
+type MiniHotel struct {
+	HotelID     int     `json:"hotel_id" db:"hotel_id"`
+	Name        string  `json:"name" db:"name"`
+	Description string  `json:"description" db:"description"`
+	Image       string  `json:"image" db:"img"`
+	Location    string  `json:"location" db:"location"`
+	Rating      float64 `json:"rating" db:"curr_rating"`
+}

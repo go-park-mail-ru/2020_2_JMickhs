@@ -2,7 +2,6 @@ package wishlistrepository
 
 import (
 	"fmt"
-	"strconv"
 
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/sqlrequests"
@@ -20,25 +19,15 @@ func NewPostgreWishlistRepository(conn *sqlx.DB) PostgreWishlistRepository {
 	return PostgreWishlistRepository{conn}
 }
 
-func (s *PostgreWishlistRepository) GetWishlist(wishlistID int) ([]hotelmodel.Hotel, error) {
-	rows, err := s.conn.Query(sqlrequests.GetWishlistPostgreRequest, strconv.Itoa(wishlistID))
-	defer rows.Close()
+func (s *PostgreWishlistRepository) GetWishlist(wishlistID int) ([]hotelmodel.MiniHotel, error) {
+	bb := []hotelmodel.MiniHotel{}
 
-	hotels := []hotelmodel.Hotel{}
+	err := s.conn.Select(&bb, sqlrequests.GetWishlistPostgreRequest, wishlistID)
+
 	if err != nil {
-		fmt.Errorf("Error while geting hotels from wishlists, %w", err)
-		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
+		return bb, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
 	}
-	hotel := hotelmodel.Hotel{}
-	for rows.Next() {
-		err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location, &hotel.Rating)
-		if err != nil {
-			fmt.Errorf("Error while unpacking hotel from bd, %w", err)
-			return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
-		}
-		hotels = append(hotels, hotel)
-	}
-	return hotels, nil
+	return bb, nil
 }
 
 func (s *PostgreWishlistRepository) CreateWishlist(wishlist wishlistModel.Wishlist) error {
@@ -65,10 +54,21 @@ func (s *PostgreWishlistRepository) AddHotel(hotelID int, wishlistID int) error 
 	return nil
 }
 
-func (s *PostgreWishlistRepository) DeleteHotel(hotelID string, wishlistID int) error {
+func (s *PostgreWishlistRepository) DeleteHotel(hotelID int, wishlistID int) error {
 	err := s.conn.MustExec(sqlrequests.DeleteHotelFromWishlistPostgreRequest, wishlistID, hotelID)
 	if err != nil {
 		fmt.Errorf("Error while deleting hotel from wishlist, %w", err)
 	}
 	return nil
+}
+
+func (s *PostgreWishlistRepository) GetTable() ([]wishlistModel.WishlisstHotel, error) {
+	bb := []wishlistModel.WishlisstHotel{}
+	err := s.conn.Select(&bb, "SELECT * FROM wishlistshotels")
+
+	if err != nil {
+		return bb, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
+	}
+
+	return bb, nil
 }
