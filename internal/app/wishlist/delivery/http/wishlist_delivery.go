@@ -1,6 +1,7 @@
 package wishlistDelivery
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -70,12 +71,22 @@ func (wh *WishlistHandler) DeleteWishlist(w http.ResponseWriter, r *http.Request
 }
 
 func (wh *WishlistHandler) CreateWishlist(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-	wishlist_id := query["wishlist_id"][0]
-	name := query["name"][0]
-	user_id := query["user_id"][0]
-	wishlist := wishlistModel.Wishlist{wishlist_id, name, user_id}
-	if err := wh.useCase.CreateWishlist(wishlist); err != nil {
+	defer r.Body.Close()
+	decoder := json.NewDecoder(r.Body)
+	newWishlist := new(wishlistModel.Wishlist)
+	err := decoder.Decode(newWishlist)
+	if err != nil {
+		customerror.PostError(w, r, wh.log, err, nil)
+		w.Write([]byte("{}"))
+		return
+	}
+
+	// query := r.URL.Query()
+	// wishlist_id := query["wishlist_id"][0]
+	// name := query["name"][0]
+	// user_id := query["user_id"][0]
+	// wishlist := wishlistModel.Wishlist{wishlist_id, name, user_id}
+	if err := wh.useCase.CreateWishlist(*newWishlist); err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
 	}
 	w.Write([]byte("okay"))
