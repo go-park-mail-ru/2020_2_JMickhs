@@ -6,19 +6,19 @@
 
 * **Константин Павлов** - *Бэкендер* - [Kostikans](https://github.com/Kostikans)
 * **Сергей Алексеев** - *Фронтендер* - [serenehet](https://github.com/serenehet)
-* **Николай Манзеев** - *Фуллстек* - [Alkirys](https://github.com/Alkirys)
-* **Никита Щелканов** - *Фуллстек* - [n-shch](https://github.com/n-shch)
+* **Николай Манзеев** - *Фронтендер* - [Alkirys](https://github.com/Alkirys)
+* **Никита Щелканов** - *Бэкендер* - [n-shch](https://github.com/n-shch)
 
 
 ## Менторы
 * **Наташа Климова** - *Ментор по фронтенду* - [Tataklim](https://github.com/Tataklim)
-* **Дмитрий Рыбаков** - *Ментор по бэкенду* -[bulletmys](https://github.com/bulletmys)
+* **Дмитрий Рыбаков** - *Ментор по бэкенду* - [bulletmys](https://github.com/bulletmys)
 
 ## Репозиторий с фронтендом
 [Ссылка](https://github.com/frontend-park-mail-ru/2020_2_JMickhs)
 
 ## Ссылка на сайт проекта
-[HostelScan](http://www.hostelscan.ru/)
+[HostelScan](https://www.hostelscan.ru/)
 
 ## Ссылка на документацию
-[Swagger-doc](http://89.208.197.127:8080/docs)
+[Swagger-doc](https://www.hostelscan.ru:8080/docs)
