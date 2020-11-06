@@ -80,7 +80,7 @@ func InitDB() *sqlx.DB {
 func InitS3Session() *s3.S3 {
 	return s3.New(session.Must(session.NewSession(&aws.Config{
 		Region:   aws.String("ru-msk"),
-		Endpoint: aws.String("http://hb.bizmrg.com"),
+		Endpoint: aws.String("https://hb.bizmrg.com"),
 	})))
 
 }
@@ -116,22 +116,30 @@ func StartServer(store *redis.Client,db *sqlx.DB,s3 *s3.S3,log *logger.CustomLog
 	repHot := hotelRepository.NewPostgresHotelRepository(db)
 	repSes := sessionsRepository.NewSessionsUserRepository(store)
 	repCom := commentRepository.NewCommentRepository(db)
+	//repCsrf := csrfRepository.NewCsrfRepository(store)
 
 	u := userUsecase.NewUserUsecase(&rep, validate, s3)
 	uHot := hotelUsecase.NewHotelUsecase(&repHot)
 	uSes := sessionsUseCase.NewSessionsUsecase(&repSes)
+	//uCsrf := csrfUsecase.NewCsrfUsecase(&repCsrf)
 
 	uCom := commentUsecase.NewCommentUsecase(&repCom)
 
 	sessMidleware := middlewareApi.NewSessionMiddleware(uSes, u, log)
+	//csrfMidleware := middlewareApi.NewCsrfMiddleware(uCsrf,log)
+	//r.Use(csrfMidleware.CSRFCheck())
 	r.Use(sessMidleware.SessionMiddleware())
 	r.Use(middlewareApi.LoggerMiddleware(log))
+	r.Use()
 
 	hotelDelivery.NewHotelHandler(r, uHot, log)
 	delivery.NewUserHandler(r, uSes, u, log)
 	commentDelivery.NewCommentHandler(r, uCom, log)
 
 	log.Info("Server started at port", configs.Port)
-	http.ListenAndServe(configs.Port, r)
+	err := http.ListenAndServeTLS(configs.Port, "/etc/ssl/hostelscan.ru.crt","/etc/ssl/hostelscan.ru.key",r)
+	if err != nil {
+		log.Error(err)
+	}
 }
 

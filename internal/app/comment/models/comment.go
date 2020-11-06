@@ -1,5 +1,7 @@
 package commModel
 
+import paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
+
 // easyjson -all comment.go
 
 // easyjson:json
@@ -29,6 +31,12 @@ type FullCommentInfo struct {
 type RateInfo struct {
 	RatesCount int
 	CurrRating float64
+}
+
+// easyjson:json
+type Comments struct {
+	Comments []FullCommentInfo `json:"comments"`
+	Info paginationModel.PaginationInfo `json:"pag_info"`
 }
 
 // easyjson:json

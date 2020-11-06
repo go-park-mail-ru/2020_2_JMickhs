@@ -6,6 +6,24 @@ create table users (
     avatar text
 );
 
+
+CREATE EXTENSION citext;
+create table hotels (
+    hotel_id serial PRIMARY KEY NOT NULL,
+    name citext,
+    location citext,
+    description text,
+    img text,
+    photos text[],
+    curr_rating float DEFAULT 0 CHECK (curr_rating >= 0  AND curr_rating <=10),
+    comm_count int DEFAULT 0 CHECK(comm_count >= 0)
+);
+
+
+
+CREATE EXTENSION pg_trgm;
+
+
 create table comments (
     comm_id serial not null PRIMARY KEY,
     user_id int not null,
@@ -14,28 +32,14 @@ create table comments (
     rating int,
     time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     UNIQUE (hotel_id,user_id),
-     CONSTRAINT fk_comments
-        FOREIGN KEY(hotel_id)
-	        REFERENCES hotels(hotel_id)
-	        ON DELETE CASCADE,
-	 CONSTRAINT fk_users
-        FOREIGN KEY(user_id)
-	        REFERENCES users(user_id)
+        CONSTRAINT fk_comments
+           FOREIGN KEY(hotel_id)
+           REFERENCES hotels(hotel_id)
+         ON DELETE CASCADE,
+    CONSTRAINT fk_users
+         FOREIGN KEY(user_id)
+         REFERENCES users(user_id)
 );
-
-create table hotels (
-    hotel_id serial PRIMARY KEY NOT NULL,
-    name text ,
-    location text,
-    description text,
-    img text,
-    photos text[],
-    curr_rating float DEFAULT 0 CHECK (curr_rating >= 0  AND curr_rating <=10),
-    comm_count int DEFAULT 0 CHECK(comm_count >= 0)
-);
-
-CREATE EXTENSION pg_trgm;
-
 CREATE INDEX hotels_trgm_name_idx ON hotels
   USING gin (name gin_trgm_ops);
 

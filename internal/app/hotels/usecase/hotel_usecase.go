@@ -28,8 +28,6 @@ func (p *HotelUseCase) GetHotelByID(ID int) (hotelmodel.Hotel, error) {
 func (p *HotelUseCase) FetchHotels(pattern string, page int) (hotelmodel.SearchData, error) {
 	pag := hotelmodel.SearchData{}
 
-	pag.PagInfo.NumPages = configs.BasePageCount
-	pag.PagInfo.PageNum = page
 	offset := page * configs.BaseItemPerPage
 	data, err := p.hotelRepo.FetchHotels(pattern, offset)
 	if err != nil {
@@ -38,10 +36,10 @@ func (p *HotelUseCase) FetchHotels(pattern string, page int) (hotelmodel.SearchD
 	pag.Hotels = data
 
 	if page > 0 && page <= configs.BasePageCount {
-		pag.PagInfo.HasPrev = true
+		pag.PagInfo.PrevLink = ""
 	}
 	if page >= 0 && page < configs.BasePageCount {
-		pag.PagInfo.HasNext = true
+		pag.PagInfo.NextLink = ""
 	}
 
 	return pag, nil

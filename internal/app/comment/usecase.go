@@ -3,11 +3,10 @@ package comment
 
 import (
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
-	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
 )
 
 type Usecase interface {
-	GetComments(hotelID int, page int,user_id int) (paginationModel.PaginationModel, error)
+	GetComments(hotelID string, limit string, offset string,user_id int) (commModel.Comments, error)
 	AddComment(comment commModel.Comment) (commModel.NewRate, error)
 	DeleteComment(ID int) error
 	UpdateComment(comment commModel.Comment) (commModel.NewRate, error)

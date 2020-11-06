@@ -10,4 +10,5 @@ const (
 	Forbidden            = 403
 	UnsupportedMediaType = 415
 	NotFound             = 404
+	NotAccespteble       = 406
 )

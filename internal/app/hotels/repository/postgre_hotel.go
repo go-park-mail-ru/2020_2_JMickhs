@@ -10,8 +10,6 @@ import (
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/serverError"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/sqlrequests"
-
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/error"
 	"github.com/jmoiron/sqlx"
@@ -27,7 +25,7 @@ func NewPostgresHotelRepository(conn *sqlx.DB) PostgreHotelRepository {
 
 func (p *PostgreHotelRepository) GetHotels(StartID int) ([]hotelmodel.Hotel, error) {
 	hotels := []hotelmodel.Hotel{}
-	err := p.conn.Select(&hotels, sqlrequests.GetHotelsPostgreRequest, strconv.Itoa(StartID), configs.S3Url)
+	err := p.conn.Select(&hotels, GetHotelsPostgreRequest, strconv.Itoa(StartID), configs.S3Url)
 	if err != nil {
 		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
@@ -36,13 +34,13 @@ func (p *PostgreHotelRepository) GetHotels(StartID int) ([]hotelmodel.Hotel, err
 
 func (p *PostgreHotelRepository) GetHotelByID(ID int) (hotelmodel.Hotel, error) {
 	hotel := hotelmodel.Hotel{}
-	err := p.conn.QueryRow(sqlrequests.GetHotelByIDPostgreRequest, strconv.Itoa(ID), configs.S3Url).
+	err := p.conn.QueryRow(GetHotelByIDPostgreRequest, strconv.Itoa(ID), configs.S3Url).
 		Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location, &hotel.Rating, &hotel.CommCount)
 	if err != nil {
 		return hotel, customerror.NewCustomError(err, clientError.Gone, 1)
 	}
 
-	err = p.conn.Select(&hotel.Photos, sqlrequests.GetHotelsPhotosPostgreRequest, strconv.Itoa(ID), configs.S3Url)
+	err = p.conn.Select(&hotel.Photos, GetHotelsPhotosPostgreRequest, strconv.Itoa(ID), configs.S3Url)
 	if err != nil {
 		return hotel, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
@@ -52,7 +50,7 @@ func (p *PostgreHotelRepository) GetHotelByID(ID int) (hotelmodel.Hotel, error) 
 
 func (p *PostgreHotelRepository) FetchHotels(pattern string, offset int) ([]hotelmodel.Hotel, error) {
 	query := fmt.Sprint("SELECT hotel_id, name, description, location, concat($4::varchar,img), curr_rating , comm_count FROM hotels ",
-		sqlrequests.SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $3 OFFSET $2")
+		SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $3 OFFSET $2")
 
 	hotels := []hotelmodel.Hotel{}
 
@@ -67,7 +65,7 @@ func (p *PostgreHotelRepository) FetchHotels(pattern string, offset int) ([]hote
 func (p *PostgreHotelRepository) CheckRateExist(UserID int, HotelID int) (commModel.FullCommentInfo, error) {
 	comment := commModel.FullCommentInfo{}
 
-	err := p.conn.QueryRow(sqlrequests.CheckRateIfExistPostgreRequest, UserID, HotelID).Scan(&comment.Message,&comment.Time,&comment.HotelID,
+	err := p.conn.QueryRow(CheckRateIfExistPostgreRequest, UserID, HotelID).Scan(&comment.Message,&comment.Time,&comment.HotelID,
 		&comment.Avatar,&comment.UserID,&comment.CommID,&comment.Username,&comment.Rating)
 	if err != nil {
 		return comment, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
@@ -77,7 +75,7 @@ func (p *PostgreHotelRepository) CheckRateExist(UserID int, HotelID int) (commMo
 
 func (p *PostgreHotelRepository) GetHotelsPreview(pattern string) ([]hotelmodel.HotelPreview, error) {
 	query := fmt.Sprint("SELECT hotel_id, name, location, concat($3::varchar,img) FROM hotels ",
-		sqlrequests.SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $2")
+		SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $2")
 
 	hotels := []hotelmodel.HotelPreview{}
 
@@ -90,7 +88,7 @@ func (p *PostgreHotelRepository) GetHotelsPreview(pattern string) ([]hotelmodel.
 }
 
 func (p *PostgreHotelRepository) AddHotel(hotel hotelmodel.Hotel) error{
-	_, err := p.conn.Exec(sqlrequests.AddHotelPostgreRequest,hotel.Name,hotel.Location,hotel.Description,hotel.Image,hotel.Photos)
+	_, err := p.conn.Exec(AddHotelPostgreRequest,hotel.Name,hotel.Location,hotel.Description,hotel.Image,hotel.Photos)
 	if err != nil{
 		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}

@@ -14,7 +14,7 @@ import (
 
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/sqlrequests"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/s"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
@@ -31,10 +31,10 @@ func TestGetHoteBytIDErr(t *testing.T) {
 		rowsHotel := sqlmock.NewRows([]string{"hotel_id", "name", "description", "img", "location", "curr_rating", "comm_count"}).AddRow(
 			1, "hotel", "top hotel in the world", "src/kek.jpg", "Moscow", "3.5", "4")
 
-		query := sqlrequests.GetHotelByIDPostgreRequest
+		query := s.GetHotelByIDPostgreRequest
 		mock.ExpectQuery(query).WithArgs("1", configs.S3Url).WillReturnRows(rowsHotel)
 
-		query = sqlrequests.GetHotelsPhotosPostgreRequest
+		query = s.GetHotelsPhotosPostgreRequest
 		mock.ExpectQuery(query).WithArgs("1", configs.S3Url).
 			WillReturnError(errors.New(""))
 
@@ -51,12 +51,12 @@ func TestGetHoteBytIDErr(t *testing.T) {
 		rowsImages := sqlmock.NewRows([]string{"photos"}).AddRow(
 			"kek.jpeg")
 
-		query := sqlrequests.GetHotelByIDPostgreRequest
+		query := s.GetHotelByIDPostgreRequest
 
 		mock.ExpectQuery(query).WithArgs("2", configs.S3Url).
 			WillReturnError(errors.New(""))
 
-		query = sqlrequests.GetHotelsPhotosPostgreRequest
+		query = s.GetHotelsPhotosPostgreRequest
 
 		mock.ExpectQuery(query).WithArgs("2", configs.S3Url).WillReturnRows(rowsImages)
 
@@ -87,11 +87,11 @@ func TestGetHoteBytID(t *testing.T) {
 		hotelTest := hotelmodel.Hotel{3, "hotel", "top hotel in the world",
 			"src/kek.jpg", "Moscow", 3.5, []string{"kek.jpeg"}, 4}
 
-		query := sqlrequests.GetHotelByIDPostgreRequest
+		query := s.GetHotelByIDPostgreRequest
 
 		mock.ExpectQuery(query).WithArgs("3", configs.S3Url).WillReturnRows(rowsHotel)
 
-		query = sqlrequests.GetHotelsPhotosPostgreRequest
+		query = s.GetHotelsPhotosPostgreRequest
 
 		mock.ExpectQuery(query).WithArgs("3", configs.S3Url).WillReturnRows(rowsImages)
 
@@ -121,7 +121,7 @@ func TestFetchHotels(t *testing.T) {
 			"src/kek.jpg", "Moscow", 3.5, nil, 4}
 
 		query := fmt.Sprint("SELECT hotel_id, name, description, location, concat($4::varchar,img), curr_rating , comm_count FROM hotels ",
-			sqlrequests.SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $3 OFFSET $2")
+			s.SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $3 OFFSET $2")
 
 		mock.ExpectQuery(query).WithArgs("top", 0, configs.BaseItemsPerPage, configs.S3Url).WillReturnRows(rowsHotel)
 
@@ -136,7 +136,7 @@ func TestFetchHotels(t *testing.T) {
 	})
 	t.Run("FetchHotelsErr", func(t *testing.T) {
 		query := fmt.Sprint("SELECT hotel_id, name, description, location, concat($4::varchar,img), curr_rating , comm_count FROM hotels ",
-			sqlrequests.SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $3 OFFSET $2")
+			s.SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $3 OFFSET $2")
 
 		mock.ExpectQuery(query).WithArgs("top", 0, configs.BaseItemsPerPage, configs.S3Url).
 			WillReturnError(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
@@ -164,7 +164,7 @@ func TestCheckRateExist(t *testing.T) {
 
 		ratingTest := 5
 
-		query := sqlrequests.CheckRateIfExistPostgreRequest
+		query := s.CheckRateIfExistPostgreRequest
 
 		mock.ExpectQuery(query).WithArgs(3, 5).WillReturnRows(rows)
 
@@ -178,7 +178,7 @@ func TestCheckRateExist(t *testing.T) {
 		assert.Equal(t, rating, ratingTest)
 	})
 	t.Run("CheckRateExistErr", func(t *testing.T) {
-		query := sqlrequests.CheckRateIfExistPostgreRequest
+		query := s.CheckRateIfExistPostgreRequest
 
 		mock.ExpectQuery(query).WithArgs(3, 5).
 			WillReturnError(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
@@ -206,7 +206,7 @@ func TestGetHotelsPreview(t *testing.T) {
 			2, "Hostel", "src/kek.jpg", "China")
 
 		query := fmt.Sprint("SELECT hotel_id, name, location, concat($4::varchar,img) FROM hotels ",
-			sqlrequests.SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $2")
+			s.SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $2")
 
 		hotelTest := hotelmodel.HotelPreview{1, "Villa", "src/kek.jpg", "Moscow"}
 
@@ -223,7 +223,7 @@ func TestGetHotelsPreview(t *testing.T) {
 	})
 	t.Run("GetHotelsPreviewErr", func(t *testing.T) {
 		query := fmt.Sprint("SELECT hotel_id, name, location, concat($4::varchar,img)  FROM hotels ",
-			sqlrequests.SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $2")
+			s.SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $2")
 
 		mock.ExpectQuery(query).WithArgs("top", configs.PreviewItemLimit, configs.S3Url).
 			WillReturnError(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
@@ -250,7 +250,7 @@ func TestGetHotels(t *testing.T) {
 			1, "Villa", "top hotel in the world", "src/kek.jpg", "Moscow", "3.5", "4").AddRow(
 			2, "Hostel", "top hotel in the world", "src/kek.jpg", "China", "7", "3")
 
-		query := sqlrequests.GetHotelsPostgreRequest
+		query := s.GetHotelsPostgreRequest
 
 		hotelTest := hotelmodel.Hotel{1, "Villa", "top hotel in the world", "src/kek.jpg", "Moscow", 3.5,
 			nil, 4}
@@ -268,7 +268,7 @@ func TestGetHotels(t *testing.T) {
 	})
 	t.Run("GetHotelsErr", func(t *testing.T) {
 
-		query := sqlrequests.GetHotelsPostgreRequest
+		query := s.GetHotelsPostgreRequest
 
 		mock.ExpectQuery(query).WithArgs("4", configs.S3Url).
 			WillReturnError(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))

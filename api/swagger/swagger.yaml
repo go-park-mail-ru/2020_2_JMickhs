@@ -205,20 +205,16 @@ definitions:
   PaginationInfo:
     description: easyjson:json
     properties:
-      has_next:
-        type: boolean
-        x-go-name: HasNext
-      has_prev:
-        type: boolean
-        x-go-name: HasPrev
-      num_pages:
+      items_count:
         format: int64
         type: integer
-        x-go-name: NumPages
-      page_num:
-        format: int64
-        type: integer
-        x-go-name: PageNum
+        x-go-name: ItemsCount
+      next:
+        type: string
+        x-go-name: NextLink
+      prev:
+        type: string
+        x-go-name: PrevLink
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model
   SafeUser:
@@ -570,6 +566,8 @@ paths:
           $ref: '#/responses/unauthorizied'
         "403":
           $ref: '#/responses/Forbidden'
+        "406":
+          $ref: '#/responses/WrongEmail'
         "409":
           $ref: '#/responses/conflict'
       tags:
@@ -631,6 +629,8 @@ responses:
   UpdateComment:
     schema:
       $ref: '#/definitions/NewRate'
+  WrongEmail:
+    description: wrong email
   avatar:
     schema:
       $ref: '#/definitions/Avatar'

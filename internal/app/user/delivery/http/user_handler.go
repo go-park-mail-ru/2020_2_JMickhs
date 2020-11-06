@@ -162,6 +162,7 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 // 400: badrequest
 // 401: unauthorizied
 // 409: conflict
+// 406: WrongEmail
 func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User

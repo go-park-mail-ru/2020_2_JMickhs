@@ -3,10 +3,8 @@ package commentUsecase
 import (
 	"fmt"
 	"math"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
-
-	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
+	"net/url"
+	"strconv"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
@@ -22,29 +20,73 @@ func NewCommentUsecase(r comment.Repository) *CommentUseCase {
 	}
 }
 
-func (u *CommentUseCase) GetComments(hotelID int, page int,user_id int) (paginationModel.PaginationModel, error) {
-	pag := paginationModel.PaginationModel{}
+func (u *CommentUseCase) GetComments(hotelID string, limit string, offsets string,user_id int) (commModel.Comments, error) {
+	pag := commModel.Comments{}
+	hotId,_ := strconv.Atoi(hotelID)
+	lim, _ := strconv.Atoi(limit)
+	offset,_ := strconv.Atoi(offsets)
 
-	numPages, err := u.commentRepo.GetCommentsCount(hotelID)
+
+	count, err := u.commentRepo.GetCommentsCount(hotId)
 	if err != nil {
 		return pag, err
 	}
-	pag.PagInfo.NumPages = int(math.Round(float64(numPages) / float64(configs.BaseItemsPerPage)))
-	pag.PagInfo.PageNum = page + 1
-	offset := page * configs.BaseItemsPerPage
-	data, err := u.commentRepo.GetComments(hotelID, offset,user_id)
+	if user_id != 0{
+		check,err := u.commentRepo.CheckRateExistForComments(hotId,user_id)
+		if err != nil{
+			return pag,err
+		}
+		if check{
+			count--
+		}
+	}
+
+	if offset > count {
+		return pag,nil
+	}
+
+	data, err := u.commentRepo.GetComments(hotelID, lim,offsets,user_id)
 	if err != nil {
 		return pag, err
 	}
-	pag.List = data
+	pag.Comments = data
 
-	if page > 0 && page <= numPages {
-		pag.PagInfo.HasPrev = true
+	url := url.URL{
+		Host:"localhost:8080",
+		Scheme: "http",
+		Path: "api/v1/comments/",
 	}
-	if page >= 0 && page < numPages -1 {
-		pag.PagInfo.HasNext = true
-	}
+	query := url.Query()
+	query.Set("id",hotelID)
+	query.Set("limit",limit)
+	if offset + lim >= count{
+		query.Set("offset",strconv.Itoa(offset - lim))
+		url.RawQuery = query.Encode()
+		pag.Info.PrevLink = url.String()
 
+		query.Set("offset","0")
+		url.RawQuery = query.Encode()
+		pag.Info.NextLink = url.String()
+	}
+	if offset - lim < 0 {
+		query.Set("offset",strconv.Itoa(offset + lim))
+		url.RawQuery = query.Encode()
+		pag.Info.NextLink = url.String()
+
+		query.Set("offset",strconv.Itoa(count - lim))
+		url.RawQuery = query.Encode()
+		pag.Info.PrevLink = url.String()
+	}
+	if offset + lim < count && offset -lim >= 0  {
+		query.Set("offset",strconv.Itoa(offset+lim))
+		url.RawQuery = query.Encode()
+		pag.Info.NextLink = url.String()
+
+		query.Set("offset",strconv.Itoa(offset-lim))
+		url.RawQuery = query.Encode()
+		pag.Info.PrevLink = url.String()
+	}
+	pag.Info.ItemsCount = count
 	return pag, nil
 }
 func (u *CommentUseCase) AddComment(comment commModel.Comment) (commModel.NewRate, error) {

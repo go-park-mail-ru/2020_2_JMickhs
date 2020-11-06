@@ -14,7 +14,7 @@ import (
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/sqlrequests"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/s"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 )
@@ -32,7 +32,7 @@ func TestCommentRepository_GetComments(t *testing.T) {
 
 		commentsTest := commModel.FullCommentInfo{3, 2, 1, "hello",
 			3, "src/kek.jpg", "kotik", "22-02-2000"}
-		query := sqlrequests.GetCommentsPostgreRequest
+		query := s.GetCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("0", configs.BaseItemsPerPage, "1").
@@ -49,7 +49,7 @@ func TestCommentRepository_GetComments(t *testing.T) {
 	})
 	t.Run("GetCommentsErr", func(t *testing.T) {
 
-		query := sqlrequests.GetCommentsPostgreRequest
+		query := s.GetCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("0", configs.BaseItemsPerPage, "1").
@@ -77,7 +77,7 @@ func TestCommentRepository_AddComment(t *testing.T) {
 			3, "22-02-2000")
 
 		commentsTest := commModel.Comment{CommID: 3, Time: "22-02-2000", UserID: 1, HotelID: 1, Message: "hello", Rate: 3}
-		query := sqlrequests.AddCommentsPostgreRequest
+		query := s.AddCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(commentsTest.UserID, commentsTest.HotelID, commentsTest.Message, commentsTest.Rate).
@@ -95,7 +95,7 @@ func TestCommentRepository_AddComment(t *testing.T) {
 	t.Run("AddCommentsErr", func(t *testing.T) {
 
 		commentsTest := commModel.Comment{CommID: 3, Time: "22-02-2000", UserID: 1, HotelID: 1, Message: "hello", Rate: 3}
-		query := sqlrequests.AddCommentsPostgreRequest
+		query := s.AddCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(commentsTest.UserID, commentsTest.HotelID, commentsTest.Message, commentsTest.Rate).
@@ -119,7 +119,7 @@ func TestCommentRepository_DeleteComment(t *testing.T) {
 	}
 	defer db.Close()
 	t.Run("DeleteComments", func(t *testing.T) {
-		query := sqlrequests.DeleteCommentsPostgreRequest
+		query := s.DeleteCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("2").
@@ -134,7 +134,7 @@ func TestCommentRepository_DeleteComment(t *testing.T) {
 		assert.NoError(t, err)
 	})
 	t.Run("DeleteCommentsErr", func(t *testing.T) {
-		query := sqlrequests.DeleteCommentsPostgreRequest
+		query := s.DeleteCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("2").
@@ -162,7 +162,7 @@ func TestCommentRepository_UpdateComment(t *testing.T) {
 			"22-02-2000")
 		commentsTest := commModel.Comment{CommID: 3, Time: "22-02-2000", UserID: 1, HotelID: 1, Message: "hello", Rate: 3}
 
-		query := sqlrequests.UpdateCommentsPostgreRequest
+		query := s.UpdateCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(commentsTest.CommID, commentsTest.Message, commentsTest.Rate).
@@ -180,7 +180,7 @@ func TestCommentRepository_UpdateComment(t *testing.T) {
 	t.Run("UpdateCommentsErr", func(t *testing.T) {
 		commentsTest := commModel.Comment{CommID: 3, Time: "22-02-2000", UserID: 1, HotelID: 1, Message: "hello", Rate: 3}
 
-		query := sqlrequests.UpdateCommentsPostgreRequest
+		query := s.UpdateCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(commentsTest.CommID, commentsTest.Message, commentsTest.Rate).
@@ -204,7 +204,7 @@ func TestCommentRepository_UpdateHotelRating(t *testing.T) {
 	}
 	defer db.Close()
 	t.Run("UpdateHotelRating", func(t *testing.T) {
-		query := sqlrequests.UpdateHotelRatingPostgreRequest
+		query := s.UpdateHotelRatingPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("4.5", "3").
@@ -219,7 +219,7 @@ func TestCommentRepository_UpdateHotelRating(t *testing.T) {
 		assert.NoError(t, err)
 	})
 	t.Run("UpdateHotelRatingErr", func(t *testing.T) {
-		query := sqlrequests.UpdateHotelRatingPostgreRequest
+		query := s.UpdateHotelRatingPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("4.5", "3").
@@ -245,7 +245,7 @@ func TestGetCommentsCount(t *testing.T) {
 	t.Run("GetCommentsCount", func(t *testing.T) {
 		rowsComments := sqlmock.NewRows([]string{"comm_count"}).AddRow(
 			34)
-		query := sqlrequests.GetCommentsCountPostgreRequest
+		query := s.GetCommentsCountPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(5).
@@ -261,7 +261,7 @@ func TestGetCommentsCount(t *testing.T) {
 		assert.Equal(t, count, 34)
 	})
 	t.Run("GetCommentsCountErr", func(t *testing.T) {
-		query := sqlrequests.GetCommentsCountPostgreRequest
+		query := s.GetCommentsCountPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(5).
@@ -288,7 +288,7 @@ func TestGetCurrentRating(t *testing.T) {
 		rowsComments := sqlmock.NewRows([]string{"round", "comm_count"}).AddRow(
 			8.5, 32)
 
-		query := sqlrequests.GetCurrRatingPostgreRequest
+		query := s.GetCurrRatingPostgreRequest
 		testInfo := commModel.RateInfo{32, 8.5}
 
 		mock.ExpectQuery(query).
@@ -306,7 +306,7 @@ func TestGetCurrentRating(t *testing.T) {
 	})
 	t.Run("GetCurrentRatingErr", func(t *testing.T) {
 
-		query := sqlrequests.GetCurrRatingPostgreRequest
+		query := s.GetCurrRatingPostgreRequest
 		mock.ExpectQuery(query).
 			WithArgs(5).
 			WillReturnError(errors.New(""))
@@ -333,7 +333,7 @@ func TestCommentRepository_CheckUser(t *testing.T) {
 			8, 1, 1)
 		commentsTest := commModel.Comment{CommID: 3, Time: "22-02-2000", UserID: 1, HotelID: 1, Message: "hello", Rate: 3}
 
-		query := sqlrequests.GetPrevRatingOnCommentPostgreRequest
+		query := s.GetPrevRatingOnCommentPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("3").
@@ -351,7 +351,7 @@ func TestCommentRepository_CheckUser(t *testing.T) {
 	t.Run("CheckUserErr", func(t *testing.T) {
 		commentsTest := commModel.Comment{CommID: 3, Time: "22-02-2000", UserID: 1, HotelID: 1, Message: "hello", Rate: 3}
 
-		query := sqlrequests.GetPrevRatingOnCommentPostgreRequest
+		query := s.GetPrevRatingOnCommentPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("3").
@@ -379,7 +379,7 @@ func TestCommentRepository_CheckUserErr(t *testing.T) {
 			8, 1, 1)
 		commentsTest := commModel.Comment{CommID: 3, Time: "22-02-2000", UserID: 2, HotelID: 1, Message: "hello", Rate: 3}
 
-		query := sqlrequests.GetPrevRatingOnCommentPostgreRequest
+		query := s.GetPrevRatingOnCommentPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("3").
