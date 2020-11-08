@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -36,7 +37,12 @@ import (
 
 func TestHotelHandler_Hotel(t *testing.T) {
 	testHotel := hotelmodel.Hotel{}
+	comment := commModel.FullCommentInfo{}
 	err := faker.FakeData(&testHotel)
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when create fake data", err)
+	}
+	err = faker.FakeData(&comment)
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when create fake data", err)
 	}
@@ -53,7 +59,7 @@ func TestHotelHandler_Hotel(t *testing.T) {
 
 		mockHUseCase.EXPECT().
 			CheckRateExist(2, testHotel.HotelID).
-			Return(3, nil)
+			Return(comment, nil)
 
 		req, err := http.NewRequest("GET", "/api/v1/hotels", nil)
 		assert.NoError(t, err)
@@ -154,7 +160,7 @@ func TestHotelHandler_Hotel(t *testing.T) {
 
 		mockHUseCase.EXPECT().
 			CheckRateExist(2, testHotel.HotelID).
-			Return(3, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
+			Return(comment, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
 		req, err := http.NewRequest("GET", "/api/v1/hotels", nil)
 		assert.NoError(t, err)
@@ -186,15 +192,12 @@ func TestHotelHandler_Hotel(t *testing.T) {
 }
 
 func TestHotelHandler_ListHotels(t *testing.T) {
-	testHotels := []hotelmodel.Hotel{}
-	err := faker.FakeData(&testHotels)
-
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when create fake data", err)
+	testHotels := []hotelmodel.Hotel{
+		{ 3,"kek","kekw hotel","src/image.png","moscow",2,[]string{"fds","fsd"},3},
+		{ 4,"kek","kekw hotel","src/image.png","moscow",2,[]string{"fds","fsd"},3},
 	}
+
 	t.Run("GetHotels", func(t *testing.T) {
-		testHotels := []hotelmodel.Hotel{}
-		err := faker.FakeData(&testHotels)
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
@@ -223,7 +226,7 @@ func TestHotelHandler_ListHotels(t *testing.T) {
 
 		err = json.Unmarshal(body, &response)
 		assert.NoError(t, err)
-		err = mapstructure.Decode(response.Data.([]interface{}), &hotels)
+		err = mapstructure.Decode(response.Data.(map[string]interface{})["hotels"], &hotels)
 		assert.NoError(t, err)
 
 		assert.Equal(t, hotels, testHotels)

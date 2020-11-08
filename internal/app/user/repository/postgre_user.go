@@ -53,28 +53,13 @@ func (p *PostgresUserRepository) GetUserByID(ID int) (models.User, error) {
 
 func (p *PostgresUserRepository) UpdateUser(user models.User) error {
 	_, err := p.conn.Query(UpdateUserPostgreRequest,
-		user.ID, user.Username)
-	if err != nil {
-		return customerror.NewCustomError(err, clientError.Conflict, 1)
-	}
-
-	_, err = p.conn.Query(UpdateEmailPostgreRequest,
-		user.ID, user.Email)
+		user.ID, user.Username,user.Email)
 	if err != nil {
 		return customerror.NewCustomError(err, clientError.Conflict, 1)
 	}
 	return nil
-}
 
-func (p *PostgresUserRepository) UpdateUserNickname(user models.User) error {
-	_, err := p.conn.Query(UpdateUserPostgreRequest,
-		user.ID, user.Username)
-	if err != nil {
-		return customerror.NewCustomError(err, clientError.Conflict, 1)
-	}
-	return nil
 }
-
 
 func (p *PostgresUserRepository) UpdateAvatar(user models.User) error {
 	_, err := p.conn.Query(UpdateUserAvatarPostgreRequest,

@@ -20,10 +20,12 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/sessions v1.2.1
+	github.com/jackc/pgx/v4 v4.9.2 // indirect
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
-	github.com/lib/pq v1.0.0
+	github.com/lib/pq v1.3.0
 	github.com/mailru/easyjson v0.7.6
+	github.com/microcosm-cc/bluemonday v1.0.4
 	github.com/mitchellh/mapstructure v1.3.3
 	github.com/rs/cors v1.7.0
 	github.com/satori/go.uuid v1.2.0

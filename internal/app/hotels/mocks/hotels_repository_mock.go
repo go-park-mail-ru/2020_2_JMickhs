@@ -5,6 +5,7 @@
 package hotels_mock
 
 import (
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
@@ -79,10 +80,10 @@ func (mr *MockRepositoryMockRecorder) FetchHotels(pattern, offset interface{}) *
 }
 
 // CheckRateExist mocks base method
-func (m *MockRepository) CheckRateExist(UserID, HotelID int) (int, error) {
+func (m *MockRepository) CheckRateExist(UserID, HotelID int) (commModel.FullCommentInfo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CheckRateExist", UserID, HotelID)
-	ret0, _ := ret[0].(int)
+	ret0, _ := ret[0].(commModel.FullCommentInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -106,4 +107,18 @@ func (m *MockRepository) GetHotelsPreview(pattern string) ([]hotelmodel.HotelPre
 func (mr *MockRepositoryMockRecorder) GetHotelsPreview(pattern interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHotelsPreview", reflect.TypeOf((*MockRepository)(nil).GetHotelsPreview), pattern)
+}
+
+// AddHotel mocks base method
+func (m *MockRepository) AddHotel(hotel hotelmodel.Hotel) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddHotel", hotel)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddHotel indicates an expected call of AddHotel
+func (mr *MockRepositoryMockRecorder) AddHotel(hotel interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddHotel", reflect.TypeOf((*MockRepository)(nil).AddHotel), hotel)
 }

@@ -52,9 +52,9 @@ func (u *CommentUseCase) GetComments(hotelID string, limit string, offsets strin
 	pag.Comments = data
 
 	url := url.URL{
-		Host:"localhost:8080",
-		Scheme: "http",
-		Path: "api/v1/comments/",
+		Host :"hostelscan.ru:8080",
+		Scheme: "https",
+		Path: "/api/v1/comments/",
 	}
 	query := url.Query()
 	query.Set("id",hotelID)
@@ -62,29 +62,29 @@ func (u *CommentUseCase) GetComments(hotelID string, limit string, offsets strin
 	if offset + lim >= count{
 		query.Set("offset",strconv.Itoa(offset - lim))
 		url.RawQuery = query.Encode()
-		pag.Info.PrevLink = url.String()
+		pag.Info.PrevLink = url.Path + "?" + url.RawQuery
 
 		query.Set("offset","0")
 		url.RawQuery = query.Encode()
-		pag.Info.NextLink = url.String()
+		pag.Info.NextLink = url.Path + "?" + url.RawQuery
 	}
 	if offset - lim < 0 {
 		query.Set("offset",strconv.Itoa(offset + lim))
 		url.RawQuery = query.Encode()
-		pag.Info.NextLink = url.String()
+		pag.Info.NextLink = url.Path + "?" + url.RawQuery
 
 		query.Set("offset",strconv.Itoa(count - lim))
 		url.RawQuery = query.Encode()
-		pag.Info.PrevLink = url.String()
+		pag.Info.PrevLink = url.Path + "?" + url.RawQuery
 	}
 	if offset + lim < count && offset -lim >= 0  {
 		query.Set("offset",strconv.Itoa(offset+lim))
 		url.RawQuery = query.Encode()
-		pag.Info.NextLink = url.String()
+		pag.Info.NextLink = url.Path + "?" + url.RawQuery
 
 		query.Set("offset",strconv.Itoa(offset-lim))
 		url.RawQuery = query.Encode()
-		pag.Info.PrevLink = url.String()
+		pag.Info.PrevLink = url.Path + "?" + url.RawQuery
 	}
 	pag.Info.ItemsCount = count
 	return pag, nil
@@ -157,7 +157,7 @@ func (p *CommentUseCase) UpdateRating(prevRate commModel.PrevRate) (float64, err
 	nextRate := float64(-1.0)
 
 	currRate, err := p.commentRepo.GetCurrentRating(prevRate.Comment.HotelID)
-	if err != nil {
+	if err != nil 	{
 		return nextRate, err
 	}
 

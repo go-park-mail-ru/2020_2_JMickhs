@@ -8,13 +8,11 @@ import (
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/error"
 
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/s"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 )
@@ -32,10 +30,10 @@ func TestCommentRepository_GetComments(t *testing.T) {
 
 		commentsTest := commModel.FullCommentInfo{3, 2, 1, "hello",
 			3, "src/kek.jpg", "kotik", "22-02-2000"}
-		query := s.GetCommentsPostgreRequest
+		query := GetCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
-			WithArgs("0", configs.BaseItemsPerPage, "1").
+			WithArgs("0", 1, "1",3).
 			WillReturnRows(rowsComments)
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
@@ -43,16 +41,16 @@ func TestCommentRepository_GetComments(t *testing.T) {
 
 		rep := NewCommentRepository(sqlxDb)
 
-		comments, err := rep.GetComments(1, 0)
+		comments, err := rep.GetComments("1", 1,"0",3)
 		assert.NoError(t, err)
 		assert.Equal(t, commentsTest, comments[1])
 	})
 	t.Run("GetCommentsErr", func(t *testing.T) {
 
-		query := s.GetCommentsPostgreRequest
+		query := GetCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
-			WithArgs("0", configs.BaseItemsPerPage, "1").
+			WithArgs("0", 1, "1",3).
 			WillReturnError(errors.New("fdsfs"))
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
@@ -60,7 +58,7 @@ func TestCommentRepository_GetComments(t *testing.T) {
 
 		rep := NewCommentRepository(sqlxDb)
 
-		_, err := rep.GetComments(1, 0)
+		_, err := rep.GetComments("1", 0,"0",3)
 		assert.Error(t, err)
 		assert.Equal(t, customerror.ParseCode(err), clientError.BadRequest)
 	})
@@ -77,7 +75,7 @@ func TestCommentRepository_AddComment(t *testing.T) {
 			3, "22-02-2000")
 
 		commentsTest := commModel.Comment{CommID: 3, Time: "22-02-2000", UserID: 1, HotelID: 1, Message: "hello", Rate: 3}
-		query := s.AddCommentsPostgreRequest
+		query := AddCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(commentsTest.UserID, commentsTest.HotelID, commentsTest.Message, commentsTest.Rate).
@@ -95,7 +93,7 @@ func TestCommentRepository_AddComment(t *testing.T) {
 	t.Run("AddCommentsErr", func(t *testing.T) {
 
 		commentsTest := commModel.Comment{CommID: 3, Time: "22-02-2000", UserID: 1, HotelID: 1, Message: "hello", Rate: 3}
-		query := s.AddCommentsPostgreRequest
+		query := AddCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(commentsTest.UserID, commentsTest.HotelID, commentsTest.Message, commentsTest.Rate).
@@ -119,7 +117,7 @@ func TestCommentRepository_DeleteComment(t *testing.T) {
 	}
 	defer db.Close()
 	t.Run("DeleteComments", func(t *testing.T) {
-		query := s.DeleteCommentsPostgreRequest
+		query := DeleteCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("2").
@@ -134,7 +132,7 @@ func TestCommentRepository_DeleteComment(t *testing.T) {
 		assert.NoError(t, err)
 	})
 	t.Run("DeleteCommentsErr", func(t *testing.T) {
-		query := s.DeleteCommentsPostgreRequest
+		query := DeleteCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("2").
@@ -162,7 +160,7 @@ func TestCommentRepository_UpdateComment(t *testing.T) {
 			"22-02-2000")
 		commentsTest := commModel.Comment{CommID: 3, Time: "22-02-2000", UserID: 1, HotelID: 1, Message: "hello", Rate: 3}
 
-		query := s.UpdateCommentsPostgreRequest
+		query := UpdateCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(commentsTest.CommID, commentsTest.Message, commentsTest.Rate).
@@ -180,7 +178,7 @@ func TestCommentRepository_UpdateComment(t *testing.T) {
 	t.Run("UpdateCommentsErr", func(t *testing.T) {
 		commentsTest := commModel.Comment{CommID: 3, Time: "22-02-2000", UserID: 1, HotelID: 1, Message: "hello", Rate: 3}
 
-		query := s.UpdateCommentsPostgreRequest
+		query := UpdateCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(commentsTest.CommID, commentsTest.Message, commentsTest.Rate).
@@ -204,7 +202,7 @@ func TestCommentRepository_UpdateHotelRating(t *testing.T) {
 	}
 	defer db.Close()
 	t.Run("UpdateHotelRating", func(t *testing.T) {
-		query := s.UpdateHotelRatingPostgreRequest
+		query := UpdateHotelRatingPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("4.5", "3").
@@ -219,7 +217,7 @@ func TestCommentRepository_UpdateHotelRating(t *testing.T) {
 		assert.NoError(t, err)
 	})
 	t.Run("UpdateHotelRatingErr", func(t *testing.T) {
-		query := s.UpdateHotelRatingPostgreRequest
+		query := UpdateHotelRatingPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("4.5", "3").
@@ -245,7 +243,7 @@ func TestGetCommentsCount(t *testing.T) {
 	t.Run("GetCommentsCount", func(t *testing.T) {
 		rowsComments := sqlmock.NewRows([]string{"comm_count"}).AddRow(
 			34)
-		query := s.GetCommentsCountPostgreRequest
+		query := GetCommentsCountPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(5).
@@ -261,7 +259,7 @@ func TestGetCommentsCount(t *testing.T) {
 		assert.Equal(t, count, 34)
 	})
 	t.Run("GetCommentsCountErr", func(t *testing.T) {
-		query := s.GetCommentsCountPostgreRequest
+		query := GetCommentsCountPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(5).
@@ -288,7 +286,7 @@ func TestGetCurrentRating(t *testing.T) {
 		rowsComments := sqlmock.NewRows([]string{"round", "comm_count"}).AddRow(
 			8.5, 32)
 
-		query := s.GetCurrRatingPostgreRequest
+		query := GetCurrRatingPostgreRequest
 		testInfo := commModel.RateInfo{32, 8.5}
 
 		mock.ExpectQuery(query).
@@ -306,7 +304,7 @@ func TestGetCurrentRating(t *testing.T) {
 	})
 	t.Run("GetCurrentRatingErr", func(t *testing.T) {
 
-		query := s.GetCurrRatingPostgreRequest
+		query := GetCurrRatingPostgreRequest
 		mock.ExpectQuery(query).
 			WithArgs(5).
 			WillReturnError(errors.New(""))
@@ -333,7 +331,7 @@ func TestCommentRepository_CheckUser(t *testing.T) {
 			8, 1, 1)
 		commentsTest := commModel.Comment{CommID: 3, Time: "22-02-2000", UserID: 1, HotelID: 1, Message: "hello", Rate: 3}
 
-		query := s.GetPrevRatingOnCommentPostgreRequest
+		query := GetPrevRatingOnCommentPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("3").
@@ -351,7 +349,7 @@ func TestCommentRepository_CheckUser(t *testing.T) {
 	t.Run("CheckUserErr", func(t *testing.T) {
 		commentsTest := commModel.Comment{CommID: 3, Time: "22-02-2000", UserID: 1, HotelID: 1, Message: "hello", Rate: 3}
 
-		query := s.GetPrevRatingOnCommentPostgreRequest
+		query := GetPrevRatingOnCommentPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("3").
@@ -364,7 +362,7 @@ func TestCommentRepository_CheckUser(t *testing.T) {
 
 		_, err := rep.CheckUser(&commentsTest)
 		assert.Error(t, err)
-		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
+		assert.Equal(t, customerror.ParseCode(err), clientError.NotFound)
 	})
 }
 
@@ -379,7 +377,7 @@ func TestCommentRepository_CheckUserErr(t *testing.T) {
 			8, 1, 1)
 		commentsTest := commModel.Comment{CommID: 3, Time: "22-02-2000", UserID: 2, HotelID: 1, Message: "hello", Rate: 3}
 
-		query := s.GetPrevRatingOnCommentPostgreRequest
+		query := GetPrevRatingOnCommentPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("3").
@@ -395,3 +393,28 @@ func TestCommentRepository_CheckUserErr(t *testing.T) {
 		assert.Equal(t, customerror.ParseCode(err), clientError.Locked)
 	})
 }
+
+//func TestCommentRepository_CheckRateExistForComments(t *testing.T) {
+//	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+//	if err != nil {
+//		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+//	}
+//	defer db.Close()
+//	t.Run("CheckRateExist", func(t *testing.T) {
+//
+//		query := CheckRateExistForCommentsRequest
+//		res:= sqlmock.NewResult(0,1)
+//		mock.ExpectExec(query).
+//			WithArgs(2,3)
+//
+//		sqlxDb := sqlx.NewDb(db, "sqlmock")
+//		defer sqlxDb.Close()
+//
+//		rep := NewCommentRepository(sqlxDb)
+//
+//		res, err := rep.CheckRateExistForComments(2, 3)
+//		assert.NoError(t, err)
+//		assert.Equal(t, res, true)
+//	})
+//
+//}

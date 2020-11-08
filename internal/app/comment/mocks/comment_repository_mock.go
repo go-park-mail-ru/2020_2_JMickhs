@@ -34,18 +34,18 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // GetComments mocks base method
-func (m *MockRepository) GetComments(hotelID, offset int) ([]commModel.FullCommentInfo, error) {
+func (m *MockRepository) GetComments(hotelID string, limit int, offset string, user_id int) ([]commModel.FullCommentInfo, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetComments", hotelID, offset)
+	ret := m.ctrl.Call(m, "GetComments", hotelID, limit, offset, user_id)
 	ret0, _ := ret[0].([]commModel.FullCommentInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetComments indicates an expected call of GetComments
-func (mr *MockRepositoryMockRecorder) GetComments(hotelID, offset interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetComments(hotelID, limit, offset, user_id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetComments", reflect.TypeOf((*MockRepository)(nil).GetComments), hotelID, offset)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetComments", reflect.TypeOf((*MockRepository)(nil).GetComments), hotelID, limit, offset, user_id)
 }
 
 // AddComment mocks base method
@@ -133,6 +133,21 @@ func (m *MockRepository) CheckUser(comment *commModel.Comment) (int, error) {
 func (mr *MockRepositoryMockRecorder) CheckUser(comment interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUser", reflect.TypeOf((*MockRepository)(nil).CheckUser), comment)
+}
+
+// CheckRateExistForComments mocks base method
+func (m *MockRepository) CheckRateExistForComments(hotelID, userID int) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckRateExistForComments", hotelID, userID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CheckRateExistForComments indicates an expected call of CheckRateExistForComments
+func (mr *MockRepositoryMockRecorder) CheckRateExistForComments(hotelID, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckRateExistForComments", reflect.TypeOf((*MockRepository)(nil).CheckRateExistForComments), hotelID, userID)
 }
 
 // GetCommentsCount mocks base method

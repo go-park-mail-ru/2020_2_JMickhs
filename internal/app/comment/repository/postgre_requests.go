@@ -17,4 +17,4 @@ const DeleteCommentsPostgreRequest = "DELETE FROM comments WHERE comm_id=$1"
 
 const UpdateCommentsPostgreRequest = "UPDATE comments SET message=$2,rating=$3 WHERE comm_id=$1 RETURNING time"
 
-const CheckRateExistForCommentsRequest = "SELECT FROM comments where hotel_id=$1 and user_id=$2"
+const CheckRateExistForCommentsRequest = "SELECT * FROM comments where hotel_id=$1 and user_id=$2"

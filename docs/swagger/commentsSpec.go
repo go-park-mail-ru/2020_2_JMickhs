@@ -18,16 +18,18 @@ type UpdateCommentRequest struct {
 }
 
 type GetCommentsRequest struct {
-	Comments []commModel.FullCommentInfo    `json:"list"`
+	Comments []commModel.FullCommentInfo    `json:"comments"`
 	PagInfo  paginationModel.PaginationInfo `json:"pag_info"`
 }
 
 // swagger:parameters comments
 type CommentsIDParameterWrapper struct {
-	// page num start from 0
+	// offset  start from 0
 	// in: query
 	// required:true
-	Page int `json:"page"`
+	Offset int `json:"offset"`
+	// number of comments to show
+	Limit int `json:"limit"`
 	// the ID of hotel which comments you get
 	// required:true
 	ID int `json:"id"`

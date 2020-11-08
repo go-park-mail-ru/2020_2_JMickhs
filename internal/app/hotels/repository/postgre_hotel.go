@@ -86,11 +86,3 @@ func (p *PostgreHotelRepository) GetHotelsPreview(pattern string) ([]hotelmodel.
 
 	return hotels, nil
 }
-
-func (p *PostgreHotelRepository) AddHotel(hotel hotelmodel.Hotel) error{
-	_, err := p.conn.Exec(AddHotelPostgreRequest,hotel.Name,hotel.Location,hotel.Description,hotel.Image,hotel.Photos)
-	if err != nil{
-		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
-	}
-	return nil
-}

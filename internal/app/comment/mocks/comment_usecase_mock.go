@@ -6,7 +6,6 @@ package comment_mock
 
 import (
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
-	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -35,18 +34,18 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 }
 
 // GetComments mocks base method
-func (m *MockUsecase) GetComments(hotelID, page int) (paginationModel.PaginationModel, error) {
+func (m *MockUsecase) GetComments(hotelID, limit, offset string, user_id int) (commModel.Comments, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetComments", hotelID, page)
-	ret0, _ := ret[0].(paginationModel.PaginationModel)
+	ret := m.ctrl.Call(m, "GetComments", hotelID, limit, offset, user_id)
+	ret0, _ := ret[0].(commModel.Comments)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetComments indicates an expected call of GetComments
-func (mr *MockUsecaseMockRecorder) GetComments(hotelID, page interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) GetComments(hotelID, limit, offset, user_id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetComments", reflect.TypeOf((*MockUsecase)(nil).GetComments), hotelID, page)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetComments", reflect.TypeOf((*MockUsecase)(nil).GetComments), hotelID, limit, offset, user_id)
 }
 
 // AddComment mocks base method

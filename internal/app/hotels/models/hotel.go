@@ -14,7 +14,7 @@ type Hotel struct {
 	Image       string   `json:"image" db:"concat"`
 	Location    string   `json:"location" db:"location"`
 	Rating      float64  `json:"rating" db:"curr_rating"`
-	Photos      []string `json:"photos,omitempty" db:"photos" mapstructure:",omitempty"`
+	Photos      []string `json:"photos,omitempty" db:"photos" faker:"len=50"`
 	CommCount   int      `json:"comm_count" db:"comm_count" mapstructure:"comm_count"`
 }
 

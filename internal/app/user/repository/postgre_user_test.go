@@ -9,8 +9,6 @@ import (
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/error"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/s"
-
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/models"
 	"github.com/jmoiron/sqlx"
@@ -29,7 +27,7 @@ func TestPostgresUserRepository_GetUserByID(t *testing.T) {
 
 		testUser := models.User{1, "kotik", "kek@mail.ru", "12345", "src/kek.jpg"}
 
-		query := s.GetUserByIDPostgreRequest
+		query := GetUserByIDPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("1").
@@ -46,7 +44,7 @@ func TestPostgresUserRepository_GetUserByID(t *testing.T) {
 	})
 
 	t.Run("GetUserByIDerr", func(t *testing.T) {
-		query := s.GetUserByIDPostgreRequest
+		query := GetUserByIDPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("1").
@@ -75,7 +73,7 @@ func TestPostgresUserRepository_GetByUserName(t *testing.T) {
 
 		testUser := models.User{1, "kotik", "kek@mail.ru", "12345", "src/kek.jpg"}
 
-		query := s.GetUserByNamePostgreRequest
+		query := GetUserByNamePostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("kotik").
@@ -92,7 +90,7 @@ func TestPostgresUserRepository_GetByUserName(t *testing.T) {
 	})
 
 	t.Run("GetUserByNameErr", func(t *testing.T) {
-		query := s.GetUserByNamePostgreRequest
+		query := GetUserByNamePostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("kotik").
@@ -116,7 +114,7 @@ func TestPostgresUserRepository_UpdateUser(t *testing.T) {
 	}
 	defer db.Close()
 	t.Run("UpdateUser", func(t *testing.T) {
-		query := s.UpdateUserCredPostgreRequest
+		query := UpdateUserPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(1, "kotik", "kek@mail.ru").
@@ -132,7 +130,7 @@ func TestPostgresUserRepository_UpdateUser(t *testing.T) {
 		assert.NoError(t, err)
 	})
 	t.Run("UpdateUserErr", func(t *testing.T) {
-		query := s.UpdateUserCredPostgreRequest
+		query := UpdateUserPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(1, "kotik", "kek@mail.ru").
@@ -155,7 +153,7 @@ func TestPostgresUserRepository_UpdatePassword(t *testing.T) {
 	}
 	defer db.Close()
 	t.Run("UpdatePassword", func(t *testing.T) {
-		query := s.UpdateUserPasswordPostgreRequest
+		query := UpdateUserPasswordPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(1, "12345").
@@ -170,7 +168,7 @@ func TestPostgresUserRepository_UpdatePassword(t *testing.T) {
 		assert.NoError(t, err)
 	})
 	t.Run("UpdatePasswordErr", func(t *testing.T) {
-		query := s.UpdateUserPasswordPostgreRequest
+		query := UpdateUserPasswordPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(1, "12345").
@@ -193,7 +191,7 @@ func TestPostgresUserRepository_UpdateAvatar(t *testing.T) {
 	}
 	defer db.Close()
 	t.Run("UpdateAvatar", func(t *testing.T) {
-		query := s.UpdateUserAvatarPostgreRequest
+		query := UpdateUserAvatarPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(1, "src/kek.jpg").
@@ -209,7 +207,7 @@ func TestPostgresUserRepository_UpdateAvatar(t *testing.T) {
 		assert.NotNil(t, user)
 	})
 	t.Run("UpdateAvatarErr", func(t *testing.T) {
-		query := s.UpdateUserAvatarPostgreRequest
+		query := UpdateUserAvatarPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs(1, "src/kek.jpg").
@@ -233,7 +231,7 @@ func TestPostgresUserRepository_Add(t *testing.T) {
 	defer db.Close()
 	t.Run("AddUser", func(t *testing.T) {
 		rows := sqlmock.NewRows([]string{"user_id"}).AddRow(1)
-		query := s.AddUserPostgreRequest
+		query := AddUserPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("kotik", "kek@mail.ru", "12345", "src/kek.jpg").
@@ -250,7 +248,7 @@ func TestPostgresUserRepository_Add(t *testing.T) {
 		assert.Equal(t, 1, user.ID)
 	})
 	t.Run("AddUserErr", func(t *testing.T) {
-		query := s.AddUserPostgreRequest
+		query := AddUserPostgreRequest
 
 		mock.ExpectQuery(query).
 			WithArgs("kotik", "kek@mail.ru", "12345", "src/kek.jpg").

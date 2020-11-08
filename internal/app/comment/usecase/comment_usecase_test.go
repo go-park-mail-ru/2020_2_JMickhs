@@ -21,11 +21,12 @@ import (
 
 func TestCommentUseCase_GetComments(t *testing.T) {
 
-	testHotels := []commModel.FullCommentInfo{}
-	err := faker.FakeData(&testHotels)
-	paginfo := paginationModel.PaginationInfo{PageNum: 3, HasNext: true, HasPrev: true, NumPages: 4}
+	testComments := []commModel.FullCommentInfo{}
+	err := faker.FakeData(&testComments)
+	paginfo := paginationModel.PaginationInfo{NextLink: "/api/v1/comments/?id=3&limit=1&offset=3",
+		PrevLink: "/api/v1/comments/?id=3&limit=1&offset=1",ItemsCount: 20}
 
-	searchTestData := paginationModel.PaginationModel{List: testHotels, PagInfo: paginfo}
+	searchTestData := commModel.Comments{Comments: testComments, Info: paginfo}
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when create fake data", err)
 	}
@@ -39,15 +40,73 @@ func TestCommentUseCase_GetComments(t *testing.T) {
 			GetCommentsCount(3).
 			Return(20, nil)
 		mockCommentRepo.EXPECT().
-			GetComments(3, 10).
-			Return(testHotels, nil)
+			GetComments("3", 1,"2",3).
+			Return(testComments, nil)
+
+		mockCommentRepo.EXPECT().
+			CheckRateExistForComments(3,3).
+			Return(false, nil)
 
 		u := NewCommentUsecase(mockCommentRepo)
 
-		hotels, err := u.GetComments(3, 2)
+		comments, err := u.GetComments("3", "1","2",3)
 
 		assert.NoError(t, err)
-		assert.Equal(t, hotels, searchTestData)
+		assert.Equal(t, comments, searchTestData)
+	})
+	t.Run("GetComments1", func(t *testing.T) {
+		paginfo = paginationModel.PaginationInfo{NextLink: "/api/v1/comments/?id=3&limit=1&offset=0",
+			PrevLink: "/api/v1/comments/?id=3&limit=1&offset=2",ItemsCount: 3}
+		searchTestData1 := commModel.Comments{Comments: testComments, Info: paginfo}
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+
+		mockCommentRepo.EXPECT().
+			GetCommentsCount(3).
+			Return(3, nil)
+		mockCommentRepo.EXPECT().
+			GetComments("3", 1,"3",3).
+			Return(testComments, nil)
+
+		mockCommentRepo.EXPECT().
+			CheckRateExistForComments(3,3).
+			Return(false, nil)
+
+		u := NewCommentUsecase(mockCommentRepo)
+
+		comments, err := u.GetComments("3", "1","3",3)
+
+		assert.NoError(t, err)
+		assert.Equal(t, comments, 	searchTestData1)
+	})
+	t.Run("GetComments2", func(t *testing.T) {
+		paginfo = paginationModel.PaginationInfo{NextLink: "/api/v1/comments/?id=3&limit=1&offset=1",
+			PrevLink: "/api/v1/comments/?id=3&limit=1&offset=2",ItemsCount: 3}
+		searchTestData1 := commModel.Comments{Comments: testComments, Info: paginfo}
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+
+		mockCommentRepo.EXPECT().
+			GetCommentsCount(3).
+			Return(3, nil)
+		mockCommentRepo.EXPECT().
+			GetComments("3", 1,"0",3).
+			Return(testComments, nil)
+
+		mockCommentRepo.EXPECT().
+			CheckRateExistForComments(3,3).
+			Return(false, nil)
+
+		u := NewCommentUsecase(mockCommentRepo)
+
+		comments, err := u.GetComments("3", "1","0",3)
+
+		assert.NoError(t, err)
+		assert.Equal(t, comments, 	searchTestData1)
 	})
 	t.Run("GetCommentsErr1", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -61,7 +120,7 @@ func TestCommentUseCase_GetComments(t *testing.T) {
 
 		u := NewCommentUsecase(mockCommentRepo)
 
-		_, err := u.GetComments(3, 2)
+		_, err := u.GetComments("3", "1","2",3)
 
 		assert.Error(t, err)
 		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
@@ -76,12 +135,16 @@ func TestCommentUseCase_GetComments(t *testing.T) {
 			GetCommentsCount(3).
 			Return(20, nil)
 		mockCommentRepo.EXPECT().
-			GetComments(3, 10).
-			Return(testHotels, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
+			GetComments("3", 1,"2",3).
+			Return(testComments, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
+
+		mockCommentRepo.EXPECT().
+			CheckRateExistForComments(3,3).
+			Return(false, nil)
 
 		u := NewCommentUsecase(mockCommentRepo)
 
-		_, err := u.GetComments(3, 2)
+		_, err := u.GetComments("3", "1","2",3)
 
 		assert.Error(t, err)
 		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)

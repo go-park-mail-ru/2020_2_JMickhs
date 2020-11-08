@@ -80,12 +80,13 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 //  423: locked
 func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 	comment := commModel.Comment{}
+
 	err := json.NewDecoder(r.Body).Decode(&comment)
+
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 		return
 	}
-
 	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
 		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
@@ -130,6 +131,7 @@ func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) 
 		customerror.PostError(w, r, ch.log, err, nil)
 		return
 	}
+
 	responses.SendDataResponse(w, upComm)
 }
 
@@ -143,6 +145,12 @@ func (ch *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) 
 
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
+		return
+	}
+
+	_, ok := r.Context().Value(configs.RequestUser).(models.User)
+	if !ok {
+		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
 	}
 

@@ -1,25 +1,24 @@
+//go:generate  easyjson -all comment.go
 package commModel
 
 import paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
 
-// easyjson -all comment.go
-
 // easyjson:json
 type Comment struct {
-	UserID  int     `json:"user_id" db:"user_id"`
-	HotelID int     `json:"hotel_id"`
-	CommID  int     `json:"comm_id"`
-	Message string  `json:"message"`
-	Rate    float64 `json:"rating"`
-	Time    string  `json:"time"`
+	UserID  int     `json:"user_id" db:"user_id" mapstructure:"user_id"`
+	HotelID int     `json:"hotel_id" mapstructure:"hotel_id"`
+	CommID  int     `json:"comm_id" mapstructure:"comm_id"`
+	Message string  `json:"message" mapstructure:"message"`
+	Rate    float64 `json:"rating" mapstructure:"rating"`
+	Time    string  `json:"time" mapstructure:"time"`
 }
 
 // easyjson:json
 //swagger:response commentInfo
 type FullCommentInfo struct {
-	UserID   int     `json:"user_id" db:"user_id"`
-	CommID   int     `json:"comm_id" db:"comm_id"`
-	HotelID  int     `json:"hotel_id" db:"hotel_id"`
+	UserID   int     `json:"user_id" db:"user_id" mapstructure:"user_id"`
+	CommID   int     `json:"comm_id" db:"comm_id" mapstructure:"comm_id"`
+	HotelID  int     `json:"hotel_id" db:"hotel_id" mapstructure:"hotel_id"`
 	Message  string  `json:"message" db:"message"`
 	Rating   float64 `json:"rating" db:"rating"`
 	Avatar   string  `json:"avatar" db:"avatar"`
@@ -41,8 +40,8 @@ type Comments struct {
 
 // easyjson:json
 type NewRate struct {
-	Rate    float64 `json:"new_rate"`
-	Comment Comment `json:"comment"`
+	Rate    float64 `json:"new_rate" mapstructure:"new_rate"`
+	Comment Comment `json:"comment" mapstructure:"comment"`
 }
 
 // easyjson:json

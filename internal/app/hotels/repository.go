@@ -12,5 +12,4 @@ type Repository interface {
 	FetchHotels(pattern string, offset int) ([]hotelmodel.Hotel, error)
 	CheckRateExist(UserID int, HotelID int) (commModel.FullCommentInfo, error)
 	GetHotelsPreview(pattern string) ([]hotelmodel.HotelPreview, error)
-	AddHotel(hotel hotelmodel.Hotel) error
 }

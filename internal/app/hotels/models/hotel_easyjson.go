@@ -208,7 +208,7 @@ func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsInternalAppHotelsMod
 			continue
 		}
 		switch key {
-		case "hotels":
+		case "hotels_preview":
 			if in.IsNull() {
 				in.Skip()
 				out.Hotels = nil
@@ -246,7 +246,7 @@ func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsInternalAppHotelsMod
 	first := true
 	_ = first
 	{
-		const prefix string = ",\"hotels\":"
+		const prefix string = ",\"hotels_preview\":"
 		out.RawString(prefix[1:])
 		if in.Hotels == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
 			out.RawString("null")
@@ -501,7 +501,7 @@ func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsInternalAppHotelsMod
 				if out.Comment == nil {
 					out.Comment = new(models.FullCommentInfo)
 				}
-				easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsInternalAppCommentModels(in, out.Comment)
+				(*out.Comment).UnmarshalEasyJSON(in)
 			}
 		default:
 			in.SkipRecursive()
@@ -525,7 +525,7 @@ func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsInternalAppHotelsMod
 	if in.Comment != nil {
 		const prefix string = ",\"comment\":"
 		out.RawString(prefix)
-		easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsInternalAppCommentModels(out, *in.Comment)
+		(*in.Comment).MarshalEasyJSON(out)
 	}
 	out.RawByte('}')
 }
@@ -552,97 +552,6 @@ func (v *HotelData) UnmarshalJSON(data []byte) error {
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *HotelData) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsInternalAppHotelsModels5(l, v)
-}
-func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsInternalAppCommentModels(in *jlexer.Lexer, out *models.FullCommentInfo) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "user_id":
-			out.UserID = int(in.Int())
-		case "comm_id":
-			out.CommID = int(in.Int())
-		case "hotel_id":
-			out.HotelID = int(in.Int())
-		case "message":
-			out.Message = string(in.String())
-		case "rating":
-			out.Rating = float64(in.Float64())
-		case "avatar":
-			out.Avatar = string(in.String())
-		case "username":
-			out.Username = string(in.String())
-		case "time":
-			out.Time = string(in.String())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsInternalAppCommentModels(out *jwriter.Writer, in models.FullCommentInfo) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"user_id\":"
-		out.RawString(prefix[1:])
-		out.Int(int(in.UserID))
-	}
-	{
-		const prefix string = ",\"comm_id\":"
-		out.RawString(prefix)
-		out.Int(int(in.CommID))
-	}
-	{
-		const prefix string = ",\"hotel_id\":"
-		out.RawString(prefix)
-		out.Int(int(in.HotelID))
-	}
-	{
-		const prefix string = ",\"message\":"
-		out.RawString(prefix)
-		out.String(string(in.Message))
-	}
-	{
-		const prefix string = ",\"rating\":"
-		out.RawString(prefix)
-		out.Float64(float64(in.Rating))
-	}
-	{
-		const prefix string = ",\"avatar\":"
-		out.RawString(prefix)
-		out.String(string(in.Avatar))
-	}
-	{
-		const prefix string = ",\"username\":"
-		out.RawString(prefix)
-		out.String(string(in.Username))
-	}
-	{
-		const prefix string = ",\"time\":"
-		out.RawString(prefix)
-		out.String(string(in.Time))
-	}
-	out.RawByte('}')
 }
 func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsInternalAppHotelsModels6(in *jlexer.Lexer, out *Hotel) {
 	isTopLevel := in.IsStart()

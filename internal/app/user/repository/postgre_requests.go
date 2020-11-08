@@ -7,7 +7,7 @@ const GetUserByNamePostgreRequest = "SELECT user_id,username,email,password,avat
 
 const GetUserByIDPostgreRequest = "SELECT user_id,username,email,password,avatar FROM users WHERE user_id=$1"
 
-const UpdateUserPostgreRequest = "UPDATE users SET username=$2 WHERE user_id=$1"
+const UpdateUserPostgreRequest = "UPDATE users SET username=$2,email=$3 WHERE user_id=$1"
 
 const UpdateEmailPostgreRequest = "UPDATE users SET email=$2 WHERE user_id=$1"
 

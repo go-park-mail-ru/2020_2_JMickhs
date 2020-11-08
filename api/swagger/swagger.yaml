@@ -102,7 +102,7 @@ definitions:
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models
   GetCommentsRequest:
     properties:
-      list:
+      comments:
         items:
           $ref: '#/definitions/FullCommentInfo'
         type: array
@@ -267,6 +267,13 @@ definitions:
         x-go-name: Rate
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+  UpdateEmail:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   UpdatePassword:
     description: easyjson:json
     properties:
@@ -280,9 +287,6 @@ definitions:
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/models
   UpdateUser:
     properties:
-      email:
-        type: string
-        x-go-name: Email
       username:
         type: string
         x-go-name: Username
@@ -321,13 +325,19 @@ paths:
       description: GetList of comments
       operationId: comments
       parameters:
-      - description: page num start from 0
+      - description: offset  start from 0
         format: int64
         in: query
-        name: page
+        name: offset
         required: true
         type: integer
-        x-go-name: Page
+        x-go-name: Offset
+      - description: number of comments to show
+        format: int64
+        in: query
+        name: limit
+        type: integer
+        x-go-name: Limit
       - description: the ID of hotel which comments you get
         format: int64
         in: query
@@ -566,8 +576,26 @@ paths:
           $ref: '#/responses/unauthorizied'
         "403":
           $ref: '#/responses/Forbidden'
-        "406":
-          $ref: '#/responses/WrongEmail'
+        "409":
+          $ref: '#/responses/conflict'
+      tags:
+      - Users
+  /api/v1/users/email:
+    put:
+      description: Get data from form  which need to change and change user email
+      operationId: email
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UpdateEmail'
+      responses:
+        "400":
+          $ref: '#/responses/badrequest'
+        "401":
+          $ref: '#/responses/unauthorizied'
+        "403":
+          $ref: '#/responses/Forbidden'
         "409":
           $ref: '#/responses/conflict'
       tags:

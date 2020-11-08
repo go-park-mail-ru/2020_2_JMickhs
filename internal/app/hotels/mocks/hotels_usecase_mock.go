@@ -5,8 +5,8 @@
 package hotels_mock
 
 import (
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
-	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -65,10 +65,10 @@ func (mr *MockUsecaseMockRecorder) GetHotelByID(ID interface{}) *gomock.Call {
 }
 
 // FetchHotels mocks base method
-func (m *MockUsecase) FetchHotels(pattern string, page int) (paginationModel.PaginationModel, error) {
+func (m *MockUsecase) FetchHotels(pattern string, page int) (hotelmodel.SearchData, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FetchHotels", pattern, page)
-	ret0, _ := ret[0].(paginationModel.PaginationModel)
+	ret0, _ := ret[0].(hotelmodel.SearchData)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -80,10 +80,10 @@ func (mr *MockUsecaseMockRecorder) FetchHotels(pattern, page interface{}) *gomoc
 }
 
 // CheckRateExist mocks base method
-func (m *MockUsecase) CheckRateExist(UserID, HotelID int) (int, error) {
+func (m *MockUsecase) CheckRateExist(UserID, HotelID int) (commModel.FullCommentInfo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CheckRateExist", UserID, HotelID)
-	ret0, _ := ret[0].(int)
+	ret0, _ := ret[0].(commModel.FullCommentInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

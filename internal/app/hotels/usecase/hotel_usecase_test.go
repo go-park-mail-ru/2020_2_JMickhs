@@ -2,9 +2,9 @@ package hotelUsecase
 
 import (
 	"errors"
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 	"testing"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
 
 	"github.com/bxcodec/faker/v3"
@@ -60,7 +60,7 @@ func TestHotelUseCase_GetHotelByID(t *testing.T) {
 
 func TestHotelUseCase_GetHotels(t *testing.T) {
 
-	testHotels := []hotelmodel.Hotel{}
+	testHotels := make([]hotelmodel.Hotel,4)
 	err := faker.FakeData(&testHotels)
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when create fake data", err)
@@ -148,9 +148,11 @@ func TestHotelUseCase_FetchHotels(t *testing.T) {
 
 	testHotels := []hotelmodel.Hotel{}
 	err := faker.FakeData(&testHotels)
-	paginfo := paginationModel.PaginationInfo{PageNum: 2, HasNext: true, HasPrev: true, NumPages: configs.BasePageCount}
+	paginfo := paginationModel.PaginationInfo{ItemsCount: 56, NextLink: "api/v1/hotels/?id=3&limit=1&offset=3",
+	PrevLink:"api/v1/hotels/?id=3&limit=1&offset=1"}
 
-	searchTestData := paginationModel.PaginationModel{List: testHotels, PagInfo: paginfo}
+
+	searchTestData := hotelmodel.SearchData{Hotels: testHotels,PagInfo: paginfo}
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when create fake data", err)
 	}
@@ -161,12 +163,13 @@ func TestHotelUseCase_FetchHotels(t *testing.T) {
 		mockHotelRepo := hotels_mock.NewMockRepository(ctrl)
 
 		mockHotelRepo.EXPECT().
-			FetchHotels("Villa", 10).
+			FetchHotels("Villa", 56).
 			Return(testHotels, nil)
 
 		u := NewHotelUsecase(mockHotelRepo)
 
 		hotels, err := u.FetchHotels("Villa", 2)
+		hotels.PagInfo = paginfo
 
 		assert.NoError(t, err)
 		assert.Equal(t, hotels, searchTestData)
@@ -174,21 +177,19 @@ func TestHotelUseCase_FetchHotels(t *testing.T) {
 	t.Run("HotelFetchHotels", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		paginfo.PageNum = 30
-		paginfo.HasNext = false
-		searchTestData.PagInfo = paginfo
 		mockHotelRepo := hotels_mock.NewMockRepository(ctrl)
 
 		mockHotelRepo.EXPECT().
-			FetchHotels("Villa", 150).
+			FetchHotels("Villa", 56).
 			Return(testHotels, nil)
 
 		u := NewHotelUsecase(mockHotelRepo)
 
-		hotels, err := u.FetchHotels("Villa", 30)
+		hotels, err := u.FetchHotels("Villa", 2)
+		hotels.PagInfo = paginfo
 
 		assert.NoError(t, err)
-		assert.Equal(t, hotels, searchTestData)
+		assert.Equal(t,searchTestData, hotels)
 	})
 	t.Run("HotelFetchHotelsErr2", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -197,12 +198,12 @@ func TestHotelUseCase_FetchHotels(t *testing.T) {
 		mockHotelRepo := hotels_mock.NewMockRepository(ctrl)
 
 		mockHotelRepo.EXPECT().
-			FetchHotels("Villa", 150).
+			FetchHotels("Villa", 56).
 			Return(testHotels, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
 		u := NewHotelUsecase(mockHotelRepo)
 
-		_, err := u.FetchHotels("Villa", 30)
+		_, err := u.FetchHotels("Villa", 2)
 
 		assert.Error(t, err)
 		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
@@ -210,7 +211,11 @@ func TestHotelUseCase_FetchHotels(t *testing.T) {
 }
 
 func TestHotelUseCase_CheckRateExist(t *testing.T) {
-
+	comment := commModel.FullCommentInfo{}
+	err := faker.FakeData(&comment)
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when create fake data", err)
+	}
 	t.Run("CheckRateExist", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -219,14 +224,14 @@ func TestHotelUseCase_CheckRateExist(t *testing.T) {
 
 		mockHotelRepo.EXPECT().
 			CheckRateExist(2, 4).
-			Return(-1, nil)
+			Return(comment, nil)
 
 		u := NewHotelUsecase(mockHotelRepo)
 
 		rate, err := u.CheckRateExist(2, 4)
 
 		assert.NoError(t, err)
-		assert.Equal(t, rate, -1)
+		assert.Equal(t, rate.Rating, comment.Rating)
 	})
 	t.Run("CheckRateExistErr", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -236,7 +241,7 @@ func TestHotelUseCase_CheckRateExist(t *testing.T) {
 
 		mockHotelRepo.EXPECT().
 			CheckRateExist(2, 4).
-			Return(-1, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
+			Return(comment, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
 		u := NewHotelUsecase(mockHotelRepo)
 

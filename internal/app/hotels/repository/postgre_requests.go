@@ -10,5 +10,5 @@ const CheckRateIfExistPostgreRequest = "SELECT message,time,c.hotel_id,avatar,c.
 
 const AddHotelPostgreRequest = "INSERT INTO hotels VALUES(default,$1,$2,$3,$4,$5)"
 
-const SearchHotelsPostgreRequest = "WHERE (lower(name) % lower($1) or lower(location) % lower($1) or lower(name) LIKE '%' || lower($1)" +
-	" || '%' or lower(location) LIKE '%' || lower($1) || '%')"
+const SearchHotelsPostgreRequest = "WHERE (lower(name) % lower($1) or lower(location) % lower($1) " +
+	"or lower(name) LIKE '%' || lower($1) || '%' or lower(location) LIKE '%' || lower($1) || '%')"
