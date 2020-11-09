@@ -14,7 +14,6 @@ import (
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/error"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/logger"
-	permissions "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/permission"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/responses"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels"
@@ -31,12 +30,12 @@ func NewHotelHandler(r *mux.Router, hs hotels.Usecase, lg *logger.CustomLogger) 
 		HotelUseCase: hs,
 		log:          lg,
 	}
-	r.HandleFunc("/api/v1/hotels/{id:[0-9]+}", permissions.SetCSRF(handler.Hotel)).Methods("GET")
+	r.HandleFunc("/api/v1/hotels/{id:[0-9]+}", handler.Hotel).Methods("GET")
 	r.Path("/api/v1/hotels/search").Queries("pattern", "{pattern}", "page", "{page:[0-9]+}").
-		HandlerFunc(permissions.SetCSRF(handler.FetchHotels)).Methods("GET")
-	r.Path("/api/v1/hotels").Queries("from", "{from:[0-9]+}").HandlerFunc(permissions.SetCSRF(handler.ListHotels)).Methods("GET")
+		HandlerFunc(handler.FetchHotels).Methods("GET")
+	r.Path("/api/v1/hotels").Queries("from", "{from:[0-9]+}").HandlerFunc(handler.ListHotels).Methods("GET")
 	r.Path("/api/v1/hotels/previewSearch").Queries("pattern", "{pattern}").
-		HandlerFunc(permissions.SetCSRF(handler.FetchHotelsPreview)).Methods("GET")
+		HandlerFunc(handler.FetchHotelsPreview).Methods("GET")
 }
 
 // swagger:route GET /api/v1/hotels hotel hotels

@@ -3,6 +3,7 @@ package commentDelivery
 import (
 	"encoding/json"
 	"errors"
+	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/middleware"
 	"net/http"
 	"strconv"
 
@@ -19,7 +20,6 @@ import (
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/logger"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment"
-	permissions "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/permission"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/responses"
 	"github.com/gorilla/mux"
 )
@@ -35,11 +35,11 @@ func NewCommentHandler(r *mux.Router, hs comment.Usecase, lg *logger.CustomLogge
 		log:            lg,
 	}
 
-	r.HandleFunc("/api/v1/comments", permissions.CheckCSRF(handler.AddComment)).Methods("POST")
-	r.HandleFunc("/api/v1/comments", permissions.CheckCSRF(handler.UpdateComment)).Methods("PUT")
-	r.HandleFunc("/api/v1/comments/{id:[0-9]+}", permissions.CheckCSRF(handler.DeleteComment)).Methods("DELETE")
+	r.HandleFunc("/api/v1/comments", middlewareApi.CheckCSRFOnHandler(handler.AddComment)).Methods("POST")
+	r.HandleFunc("/api/v1/comments", middlewareApi.CheckCSRFOnHandler(handler.UpdateComment)).Methods("PUT")
+	r.HandleFunc("/api/v1/comments/{id:[0-9]+}", middlewareApi.CheckCSRFOnHandler(handler.DeleteComment)).Methods("DELETE")
 	r.Path("/api/v1/comments").Queries("id", "{id:[0-9]+}", "limit", "{limit:[0-9]+}","offset", "{from:[0-9]+}").
-		HandlerFunc(permissions.SetCSRF(handler.ListComments)).Methods("GET")
+		HandlerFunc(handler.ListComments).Methods("GET")
 }
 
 // swagger:route GET /api/v1/comments comment comments
