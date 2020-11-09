@@ -23,7 +23,6 @@ var BdConfig postgresConfig
 var RedisConfig redisConfig
 var PrefixPath string
 
-const ApiVersion = "api/v1"
 const Domen = "https://hostelscan.ru"
 const LocalOrigin = "http://127.0.0.1"
 const StaticPath = "static/img/"
@@ -32,7 +31,6 @@ const CookieLifeTime = time.Hour * 24 * 30
 const CsrfExpire = time.Minute * 15
 const BaseAvatarPath = "static/img/defaultAvatar.png"
 const RequestUser = "User"
-const DeliveryError = "Error"
 const BasePageCount = 30
 const BaseItemsPerPage = 1
 const PreviewItemLimit = 6
@@ -41,7 +39,6 @@ const S3Url = "https://hostelscan.hb.bizmrg.com/"
 const BaseItemPerPage = 28
 const SessionID = "SessionID"
 const CorrectToken = "CorrectToken"
-const Host = "hostelscan.ru"
 
 const (
 	MB = 1 << 20

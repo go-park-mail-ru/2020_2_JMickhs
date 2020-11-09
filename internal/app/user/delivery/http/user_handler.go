@@ -3,6 +3,8 @@ package userDelivery
 import (
 	"encoding/json"
 	"errors"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/csrf"
+	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/middleware"
 	"net/http"
 	"strconv"
 	"time"
@@ -20,8 +22,6 @@ import (
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/responses"
 
-	permissions "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/permission"
-
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/sessions"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user"
@@ -31,24 +31,27 @@ import (
 type UserHandler struct {
 	UserUseCase     user.Usecase
 	SessionsUseCase sessions.Usecase
+	csrfUseCase     csrf.Usecase
 	log             *logger.CustomLogger
 }
 
-func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, lg *logger.CustomLogger) {
+func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, csrf csrf.Usecase,lg *logger.CustomLogger) {
 	handler := UserHandler{
 		UserUseCase:     us,
 		SessionsUseCase: su,
 		log:             lg,
+		csrfUseCase:     csrf,
 	}
 
-	r.HandleFunc("/api/v1/users", permissions.SetCSRF(handler.Registration)).Methods("POST")
-	r.HandleFunc("/api/v1/users/sessions", permissions.SetCSRF(handler.Auth)).Methods("POST")
-	r.HandleFunc("/api/v1/users", permissions.SetCSRF(handler.UserHandler)).Methods("GET")
-	r.HandleFunc("/api/v1/users/sessions", permissions.SetCSRF(handler.SignOut)).Methods("DELETE")
-	r.HandleFunc("/api/v1/users/credentials", permissions.CheckCSRF(handler.UpdateUser)).Methods("PUT")
-	r.HandleFunc("/api/v1/users/avatar", permissions.CheckCSRF(handler.UpdateAvatar)).Methods("PUT")
-	r.HandleFunc("/api/v1/users/password", permissions.CheckCSRF(handler.updatePassword)).Methods("PUT")
-	r.HandleFunc("/api/v1/users/{id:[0-9]+}", permissions.SetCSRF(handler.getAccInfo)).Methods("GET")
+	r.HandleFunc("/api/v1/users", handler.Registration).Methods("POST")
+	r.HandleFunc("/api/v1/users/sessions", handler.Auth).Methods("POST")
+	r.HandleFunc("/api/v1/users", handler.UserHandler).Methods("GET")
+	r.HandleFunc("/api/v1/users/sessions", handler.SignOut).Methods("DELETE")
+	r.HandleFunc("/api/v1/users/credentials", middlewareApi.CheckCSRFOnHandler(handler.UpdateUser)).Methods("PUT")
+	r.HandleFunc("/api/v1/users/avatar", middlewareApi.CheckCSRFOnHandler(handler.UpdateAvatar)).Methods("PUT")
+	r.HandleFunc("/api/v1/users/password", middlewareApi.CheckCSRFOnHandler(handler.updatePassword)).Methods("PUT")
+	r.HandleFunc("/api/v1/users/{id:[0-9]+}", handler.getAccInfo).Methods("GET")
+	r.HandleFunc("/api/v1/csrf",handler.GetCsrf).Methods("GET")
 }
 
 // swagger:route GET /api/v1/users/{id}  Users userById
@@ -308,4 +311,21 @@ func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, c)
 		responses.SendOkResponse(w)
 	}
+}
+
+// swagger:route GET /api/1/csrf Csrf Csrf
+// get csrf token, token expire = 15 min
+func(u *UserHandler) GetCsrf(w http.ResponseWriter,r *http.Request){
+	sId, ok := r.Context().Value(configs.SessionID).(string)
+	if !ok {
+		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
+		return
+	}
+	token, err := u.csrfUseCase.CreateToken(sId,time.Now().Unix())
+	if err != nil{
+		customerror.PostError(w, r, u.log, err, serverError.ServerInternalError)
+		return
+	}
+	w.Header().Set("Csrf",token)
+	responses.SendOkResponse(w)
 }

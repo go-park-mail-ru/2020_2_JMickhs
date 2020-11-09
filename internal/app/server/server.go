@@ -3,6 +3,8 @@ package server
 import (
 	"context"
 	"fmt"
+	csrfRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/csrf/repository"
+	csrfUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/csrf/usecase"
 	"log"
 	"net/http"
 	"strconv"
@@ -108,25 +110,30 @@ func StartServer(store *redis.Client,db *sqlx.DB,s3 *s3.S3,log *logger.CustomLog
 
 	r := NewRouter()
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
-	r.Use(middlewareApi.MyCORSMethodMiddleware())
+	r.Use(middlewareApi.LoggerMiddleware(log))
 	r.Use(middlewareApi.NewPanicMiddleware())
+	r.Use(middlewareApi.MyCORSMethodMiddleware())
 
 	rep := userRepository.NewPostgresUserRepository(db)
 	repHot := hotelRepository.NewPostgresHotelRepository(db)
 	repSes := sessionsRepository.NewSessionsUserRepository(store)
 	repCom := commentRepository.NewCommentRepository(db)
+	repCsrf := csrfRepository.NewCsrfRepository(store)
 
 	u := userUsecase.NewUserUsecase(&rep, validate, s3)
 	uHot := hotelUsecase.NewHotelUsecase(&repHot)
 	uSes := sessionsUseCase.NewSessionsUsecase(&repSes)
 	uCom := commentUsecase.NewCommentUsecase(&repCom)
+	uCsrf := csrfUsecase.NewCsrfUsecase(&repCsrf)
 
 	sessMidleware := middlewareApi.NewSessionMiddleware(uSes, u, log)
+	csrfMidleware := middlewareApi.NewCsrfMiddleware(uCsrf,log)
 	r.Use(sessMidleware.SessionMiddleware())
-	r.Use(middlewareApi.LoggerMiddleware(log))
+	r.Use(csrfMidleware.CSRFCheck())
+
 
 	hotelDelivery.NewHotelHandler(r, uHot, log)
-	delivery.NewUserHandler(r, uSes, u, log)
+	delivery.NewUserHandler(r, uSes, u, uCsrf,log)
 	commentDelivery.NewCommentHandler(r, uCom, log)
 
 	log.Info("Server started at port", configs.Port)
