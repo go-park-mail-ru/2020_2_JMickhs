@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -577,3 +578,129 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		assert.Equal(t, clientError.Unauthorizied, response.Code)
 	})
 }
+
+func TestUserHandler_UpdateUser(t *testing.T) {
+	testUser := models.User{ID: 1, Username: "kostik", Email: "sdfs@mail.ru", Password: "12345", Avatar: "kek/img.jpeg"}
+
+	t.Run("UpdateUser", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUCase := user_mock.NewMockUsecase(ctrl)
+		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+
+		mockUCase.EXPECT().
+			UpdateUser(testUser).
+			Return(nil)
+
+		body, _ := json.Marshal(testUser)
+		req, err := http.NewRequest("PUT", "/api/v1/users/credentials", bytes.NewBuffer(body))
+
+		assert.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		handler := UserHandler{
+			UserUseCase:     mockUCase,
+			SessionsUseCase: mockSCase,
+			log:             logger.NewLogger(os.Stdout),
+		}
+
+		handler.UpdateUser(rec, req)
+		resp := rec.Result()
+		response := responses.HttpResponse{}
+		json.NewDecoder(resp.Body).Decode(&response)
+
+		assert.Equal(t, http.StatusOK, response.Code)
+	})
+
+	t.Run("UpdateUserErr1", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUCase := user_mock.NewMockUsecase(ctrl)
+		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+
+		hotel:=[]hotelmodel.Hotel{{Name: "fds"},{Name: "lel"}}
+		body, _ := json.Marshal(hotel)
+		req, err := http.NewRequest("PUT", "/api/v1/users/credentials", bytes.NewBuffer(body))
+
+		assert.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		handler := UserHandler{
+			UserUseCase:     mockUCase,
+			SessionsUseCase: mockSCase,
+			log:             logger.NewLogger(os.Stdout),
+		}
+
+		handler.UpdateUser(rec, req)
+		resp := rec.Result()
+		response := responses.HttpResponse{}
+		json.NewDecoder(resp.Body).Decode(&response)
+
+		assert.Equal(t, clientError.BadRequest, response.Code)
+	})
+
+	t.Run("UpdateUserErr2", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUCase := user_mock.NewMockUsecase(ctrl)
+		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+
+		body, _ := json.Marshal(testUser)
+		req, err := http.NewRequest("PUT", "/api/v1/users/credentials", bytes.NewBuffer(body))
+
+		assert.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		handler := UserHandler{
+			UserUseCase:     mockUCase,
+			SessionsUseCase: mockSCase,
+			log:             logger.NewLogger(os.Stdout),
+		}
+
+		handler.UpdateUser(rec, req)
+		resp := rec.Result()
+		response := responses.HttpResponse{}
+		json.NewDecoder(resp.Body).Decode(&response)
+
+		assert.Equal(t, clientError.Unauthorizied, response.Code)
+	})
+
+	t.Run("UpdateUserErr2", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUCase := user_mock.NewMockUsecase(ctrl)
+		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+
+		mockUCase.EXPECT().
+			UpdateUser(testUser).
+			Return(customerror.NewCustomError(errors.New(""),clientError.Conflict,1))
+
+		body, _ := json.Marshal(testUser)
+		req, err := http.NewRequest("PUT", "/api/v1/users/credentials", bytes.NewBuffer(body))
+
+		assert.NoError(t, err)
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		rec := httptest.NewRecorder()
+		handler := UserHandler{
+			UserUseCase:     mockUCase,
+			SessionsUseCase: mockSCase,
+			log:             logger.NewLogger(os.Stdout),
+		}
+
+		handler.UpdateUser(rec, req)
+		resp := rec.Result()
+		response := responses.HttpResponse{}
+		json.NewDecoder(resp.Body).Decode(&response)
+
+		assert.Equal(t, clientError.Conflict, response.Code)
+	})
+
+
+}
+

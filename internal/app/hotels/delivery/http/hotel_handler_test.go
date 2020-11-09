@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
+	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -291,4 +292,172 @@ func TestHotelHandler_ListHotels(t *testing.T) {
 
 		assert.Equal(t, clientError.BadRequest, response.Code)
 	})
+}
+
+func TestHotelHandler_FetchHotels(t *testing.T) {
+	testHotels := []hotelmodel.Hotel{
+		{ 3,"kek","kekw hotel","src/image.png","moscow",2,[]string{"fds","fsd"},3},
+		{ 4,"kek","kekw hotel","src/image.png","moscow",2,[]string{"fds","fsd"},3},
+	}
+	pagInfo := paginationModel.PaginationInfo{NextLink: "",PrevLink: "",ItemsCount: 3}
+	searchData := hotelmodel.SearchData{Hotels:testHotels,PagInfo:pagInfo}
+
+	t.Run("FetchHotels", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockHUseCase := hotels_mock.NewMockUsecase(ctrl)
+
+		mockHUseCase.EXPECT().
+			FetchHotels("kekw",0).
+			Return(searchData, nil)
+
+		req, err := http.NewRequest("GET", "/api/v1/hotels/search?pattern=kekw&page=0", nil)
+		assert.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		handler := HotelHandler{
+			HotelUseCase: mockHUseCase,
+			log:          logger.NewLogger(os.Stdout),
+		}
+
+		handler.FetchHotels(rec, req)
+		resp := rec.Result()
+		hotels := []hotelmodel.Hotel{}
+		body, err := ioutil.ReadAll(resp.Body)
+		response := responses.HttpResponse{}
+
+		err = json.Unmarshal(body, &response)
+		assert.NoError(t, err)
+		err = mapstructure.Decode(response.Data.(map[string]interface{})["hotels"], &hotels)
+		assert.NoError(t, err)
+
+		assert.Equal(t, hotels, searchData.Hotels)
+		assert.Equal(t, http.StatusOK, response.Code)
+	})
+
+	t.Run("FetchHotelsErr1", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockHUseCase := hotels_mock.NewMockUsecase(ctrl)
+
+		req, err := http.NewRequest("GET", "/api/v1/hotels/search?pattern=kekw", nil)
+		assert.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		handler := HotelHandler{
+			HotelUseCase: mockHUseCase,
+			log:          logger.NewLogger(os.Stdout),
+		}
+
+		handler.FetchHotels(rec, req)
+		resp := rec.Result()
+		body, err := ioutil.ReadAll(resp.Body)
+		response := responses.HttpResponse{}
+
+		err = json.Unmarshal(body, &response)
+		assert.NoError(t, err)
+
+		assert.Equal(t, clientError.BadRequest, response.Code)
+	})
+
+	t.Run("FetchHotelsErr2", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockHUseCase := hotels_mock.NewMockUsecase(ctrl)
+
+		mockHUseCase.EXPECT().
+			FetchHotels("kekw",0).
+			Return(searchData, customerror.NewCustomError(errors.New("fds"),serverError.ServerInternalError,1))
+
+		req, err := http.NewRequest("GET", "/api/v1/hotels/search?pattern=kekw&page=0", nil)
+		assert.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		handler := HotelHandler{
+			HotelUseCase: mockHUseCase,
+			log:          logger.NewLogger(os.Stdout),
+		}
+
+		handler.FetchHotels(rec, req)
+		resp := rec.Result()
+		body, err := ioutil.ReadAll(resp.Body)
+		response := responses.HttpResponse{}
+
+		err = json.Unmarshal(body, &response)
+		assert.NoError(t, err)
+		assert.Equal(t, serverError.ServerInternalError, response.Code)
+	})
+}
+
+func TestHotelHandler_FetchHotelsPreview(t *testing.T) {
+	previews := []hotelmodel.HotelPreview{
+		{3,"kekw hotel","src/image.png","moscow"},
+		{3,"kekw hotel","src/image.png","moscow"}}
+
+	t.Run("FetchHotelsPreviews", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockHUseCase := hotels_mock.NewMockUsecase(ctrl)
+
+		mockHUseCase.EXPECT().
+			GetHotelsPreview("kekw").
+			Return(previews, nil)
+
+		req, err := http.NewRequest("GET", "/api/v1/hotels/searchPreview?pattern=kekw", nil)
+		assert.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		handler := HotelHandler{
+			HotelUseCase: mockHUseCase,
+			log:          logger.NewLogger(os.Stdout),
+		}
+
+		handler.FetchHotelsPreview(rec, req)
+		resp := rec.Result()
+		hotels := []hotelmodel.HotelPreview{}
+		body, err := ioutil.ReadAll(resp.Body)
+		response := responses.HttpResponse{}
+
+		err = json.Unmarshal(body, &response)
+		assert.NoError(t, err)
+		err = mapstructure.Decode(response.Data.(map[string]interface{})["hotels_preview"], &hotels)
+		assert.NoError(t, err)
+
+		assert.Equal(t, hotels,previews)
+		assert.Equal(t, http.StatusOK, response.Code)
+	})
+
+	t.Run("FetchHotelsPreviews2", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockHUseCase := hotels_mock.NewMockUsecase(ctrl)
+
+		mockHUseCase.EXPECT().
+			GetHotelsPreview("kekw").
+			Return(previews, customerror.NewCustomError(errors.New("f"),serverError.ServerInternalError,1))
+
+		req, err := http.NewRequest("GET", "/api/v1/hotels/searchPreview?pattern=kekw", nil)
+		assert.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		handler := HotelHandler{
+			HotelUseCase: mockHUseCase,
+			log:          logger.NewLogger(os.Stdout),
+		}
+
+		handler.FetchHotelsPreview(rec, req)
+		resp := rec.Result()
+		body, err := ioutil.ReadAll(resp.Body)
+		response := responses.HttpResponse{}
+
+		err = json.Unmarshal(body, &response)
+		assert.NoError(t, err)
+		assert.Equal(t, serverError.ServerInternalError, response.Code)
+	})
+
 }

@@ -113,10 +113,6 @@ func (u *userUseCase) UploadAvatar(file multipart.File, header string, user *mod
 
 }
 
-type Sizer interface {
-	Size() int64
-}
-
 func (u *userUseCase) CheckAvatar(file multipart.File) (string, error) {
 	fileHeader := make([]byte, 512)
 	ContentType := ""
@@ -128,10 +124,17 @@ func (u *userUseCase) CheckAvatar(file multipart.File) (string, error) {
 		return ContentType, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
 
-	ContentType = http.DetectContentType(fileHeader)
-	if file.(Sizer).Size() > 5*configs.MB {
+	count,err := file.Seek(0,2)
+	if err != nil{
+		return ContentType, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+    if count > 5 * configs.MB {
 		return ContentType, customerror.NewCustomError(errors.New("file bigger than 5 mb"), clientError.BadRequest, 1)
 	}
+	if _,err := file.Seek(0,0); err != nil{
+		return ContentType, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	ContentType = http.DetectContentType(fileHeader)
 
 	if ContentType != "image/jpg" && ContentType != "image/png" && ContentType != "image/jpeg" {
 		return ContentType, customerror.NewCustomError(errors.New("Wrong file type"), clientError.UnsupportedMediaType, 1)

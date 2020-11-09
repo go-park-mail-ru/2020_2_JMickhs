@@ -85,6 +85,7 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(5 * configs.MB)
 
 	r.Body = http.MaxBytesReader(w, r.Body, 5*configs.MB)
+
 	file, _, err := r.FormFile("avatar")
 
 	if err != nil {

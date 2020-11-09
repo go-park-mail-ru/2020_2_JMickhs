@@ -20,7 +20,7 @@ type Hotel struct {
 
 // easyjson:json
 type HotelPreview struct {
-	HotelID  int    `json:"hotel_id" db:"hotel_id"`
+	HotelID  int    `json:"hotel_id" db:"hotel_id" mapstructure:"hotel_id"`
 	Name     string `json:"name" db:"name"`
 	Image    string `json:"image" db:"concat"`
 	Location string `json:"location" db:"location"`

@@ -124,6 +124,7 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, nil)
+		return
 	}
 
 	responses.SendDataResponse(w, hotels)
@@ -141,6 +142,7 @@ func (hh *HotelHandler) FetchHotelsPreview(w http.ResponseWriter, r *http.Reques
 
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, nil)
+		return
 	}
 
 	responses.SendDataResponse(w, hotelmodel.HotelsPreview{hotels})

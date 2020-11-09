@@ -3,7 +3,6 @@ package hotelUsecase
 import (
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
-
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
 )

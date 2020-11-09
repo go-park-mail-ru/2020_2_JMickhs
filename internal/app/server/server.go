@@ -124,7 +124,6 @@ func StartServer(store *redis.Client,db *sqlx.DB,s3 *s3.S3,log *logger.CustomLog
 	sessMidleware := middlewareApi.NewSessionMiddleware(uSes, u, log)
 	r.Use(sessMidleware.SessionMiddleware())
 	r.Use(middlewareApi.LoggerMiddleware(log))
-	r.Use(middlewareApi.NewXssMiddleware())
 
 	hotelDelivery.NewHotelHandler(r, uHot, log)
 	delivery.NewUserHandler(r, uSes, u, log)
