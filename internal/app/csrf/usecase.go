@@ -1,3 +1,4 @@
+//go:generate mockgen -source usecase.go -destination mocks/csrf_usecase_mock.go -package csrf_mock
 package csrf
 
 

@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/PuerkitoBio/goquery v1.5.1
-	github.com/alicebob/miniredis/v2 v2.13.3 // indirect
+	github.com/alicebob/miniredis/v2 v2.13.3
 	github.com/aws/aws-sdk-go v1.15.77
 	github.com/bxcodec/faker/v3 v3.5.0
 	github.com/elliotchance/redismock v1.5.3 // indirect

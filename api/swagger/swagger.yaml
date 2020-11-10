@@ -407,6 +407,12 @@ paths:
           $ref: '#/responses/Forbidden'
       tags:
       - comment
+  /api/v1/csrf:
+    get:
+      description: get csrf token, token expire = 15 min
+      operationId: Csrf
+      tags:
+      - Csrf
   /api/v1/hotels:
     get:
       description: GetList of hotels
@@ -569,26 +575,6 @@ paths:
         name: Body
         schema:
           $ref: '#/definitions/UpdateUser'
-      responses:
-        "400":
-          $ref: '#/responses/badrequest'
-        "401":
-          $ref: '#/responses/unauthorizied'
-        "403":
-          $ref: '#/responses/Forbidden'
-        "409":
-          $ref: '#/responses/conflict'
-      tags:
-      - Users
-  /api/v1/users/email:
-    put:
-      description: Get data from form  which need to change and change user email
-      operationId: email
-      parameters:
-      - in: body
-        name: Body
-        schema:
-          $ref: '#/definitions/UpdateEmail'
       responses:
         "400":
           $ref: '#/responses/badrequest'

@@ -108,17 +108,3 @@ func (mr *MockRepositoryMockRecorder) GetHotelsPreview(pattern interface{}) *gom
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHotelsPreview", reflect.TypeOf((*MockRepository)(nil).GetHotelsPreview), pattern)
 }
-
-// AddHotel mocks base method
-func (m *MockRepository) AddHotel(hotel hotelmodel.Hotel) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddHotel", hotel)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// AddHotel indicates an expected call of AddHotel
-func (mr *MockRepositoryMockRecorder) AddHotel(hotel interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddHotel", reflect.TypeOf((*MockRepository)(nil).AddHotel), hotel)
-}

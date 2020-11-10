@@ -310,10 +310,12 @@ func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		c.Path = "/"
 		http.SetCookie(w, c)
 		responses.SendOkResponse(w)
+		return
 	}
+	responses.SendErrorResponse(w,clientError.BadRequest)
 }
 
-// swagger:route GET /api/1/csrf Csrf Csrf
+// swagger:route GET /api/v1/csrf Csrf Csrf
 // get csrf token, token expire = 15 min
 func(u *UserHandler) GetCsrf(w http.ResponseWriter,r *http.Request){
 	sId, ok := r.Context().Value(configs.SessionID).(string)

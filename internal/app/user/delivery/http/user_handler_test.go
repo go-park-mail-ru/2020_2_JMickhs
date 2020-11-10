@@ -5,12 +5,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	csrf_mock "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/csrf/mocks"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 
@@ -700,7 +702,207 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 
 		assert.Equal(t, clientError.Conflict, response.Code)
 	})
+}
+
+func TestUserHandler_GetCsrf(t *testing.T) {
+	t.Run("UpdateUser", func(t *testing.T) {
+		sId := "fsdfsd"
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUCase := user_mock.NewMockUsecase(ctrl)
+		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockCsrfCase := csrf_mock.NewMockUsecase(ctrl)
+		mockCsrfCase.EXPECT().
+			CreateToken(sId, time.Now().Unix()).
+			Return("21fds",nil)
+
+		req, err := http.NewRequest("GET", "/api/v1/csrf", nil)
+
+		assert.NoError(t, err)
+		req = req.WithContext(context.WithValue(req.Context(), configs.SessionID,sId ))
+		rec := httptest.NewRecorder()
+		handler := UserHandler{
+			UserUseCase:     mockUCase,
+			SessionsUseCase: mockSCase,
+			csrfUseCase: mockCsrfCase,
+			log:             logger.NewLogger(os.Stdout),
+		}
+
+		handler.GetCsrf(rec, req)
+		resp := rec.Result()
+		response := responses.HttpResponse{}
+		json.NewDecoder(resp.Body).Decode(&response)
+
+		assert.Equal(t, http.StatusOK, response.Code)
+	})
+
+	t.Run("UpdateUserErr1", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUCase := user_mock.NewMockUsecase(ctrl)
+		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+
+		req, err := http.NewRequest("GET", "/api/v1/csrf", nil)
+
+		assert.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		handler := UserHandler{
+			UserUseCase:     mockUCase,
+			SessionsUseCase: mockSCase,
+			log:             logger.NewLogger(os.Stdout),
+		}
+
+		handler.GetCsrf(rec, req)
+		resp := rec.Result()
+		response := responses.HttpResponse{}
+		json.NewDecoder(resp.Body).Decode(&response)
+
+		assert.Equal(t, clientError.Unauthorizied, response.Code)
+	})
+
+	t.Run("UpdateUserErr2", func(t *testing.T) {
+		sId := "fsdfsd"
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUCase := user_mock.NewMockUsecase(ctrl)
+		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockCsrfCase := csrf_mock.NewMockUsecase(ctrl)
+		mockCsrfCase.EXPECT().
+			CreateToken(sId, time.Now().Unix()).
+			Return("21fds",customerror.NewCustomError(errors.New("fds"),serverError.ServerInternalError,1))
+
+		req, err := http.NewRequest("GET", "/api/v1/csrf", nil)
+
+		assert.NoError(t, err)
+		req = req.WithContext(context.WithValue(req.Context(), configs.SessionID,sId ))
+		rec := httptest.NewRecorder()
+		handler := UserHandler{
+			UserUseCase:     mockUCase,
+			SessionsUseCase: mockSCase,
+			csrfUseCase: mockCsrfCase,
+			log:             logger.NewLogger(os.Stdout),
+		}
+
+		handler.GetCsrf(rec, req)
+		resp := rec.Result()
+		response := responses.HttpResponse{}
+		json.NewDecoder(resp.Body).Decode(&response)
+
+		assert.Equal(t, serverError.ServerInternalError, response.Code)
+	})
+
+}
+
+func TestUserHandler_SignOut(t *testing.T) {
+	t.Run("SignOut", func(t *testing.T) {
+		token := "dfsdxzc"
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUCase := user_mock.NewMockUsecase(ctrl)
+		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockCsrfCase := csrf_mock.NewMockUsecase(ctrl)
+		mockSCase.EXPECT().
+			DeleteSession(token).
+			Return(nil)
+
+		req, err := http.NewRequest("DELETE", "/api/v1/sessions", nil)
+
+		assert.NoError(t, err)
+		cookie := &http.Cookie{
+			Name:     "session_token",
+			Value:    token,
+			Path:     "/",
+			HttpOnly: true,
+			Expires:  time.Now().Add(configs.CookieLifeTime),
+		}
+		req.AddCookie(cookie)
+		rec := httptest.NewRecorder()
+		handler := UserHandler{
+			UserUseCase:     mockUCase,
+			SessionsUseCase: mockSCase,
+			csrfUseCase: mockCsrfCase,
+			log:             logger.NewLogger(os.Stdout),
+		}
+
+		handler.SignOut(rec, req)
+		resp := rec.Result()
+		response := responses.HttpResponse{}
+		json.NewDecoder(resp.Body).Decode(&response)
+
+		assert.Equal(t, http.StatusOK, response.Code)
+	})
+
+	t.Run("SignOutErr1", func(t *testing.T) {
+
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUCase := user_mock.NewMockUsecase(ctrl)
+		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockCsrfCase := csrf_mock.NewMockUsecase(ctrl)
 
 
+		req, err := http.NewRequest("DELETE", "/api/v1/sessions", nil)
+
+		assert.NoError(t, err)
+		rec := httptest.NewRecorder()
+		handler := UserHandler{
+			UserUseCase:     mockUCase,
+			SessionsUseCase: mockSCase,
+			csrfUseCase: mockCsrfCase,
+			log:             logger.NewLogger(os.Stdout),
+		}
+
+		handler.SignOut(rec, req)
+		resp := rec.Result()
+		response := responses.HttpResponse{}
+		json.NewDecoder(resp.Body).Decode(&response)
+
+		assert.Equal(t, clientError.BadRequest, response.Code)
+	})
+
+	t.Run("SignOutErr2", func(t *testing.T) {
+		token := "dfsdxzc"
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUCase := user_mock.NewMockUsecase(ctrl)
+		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockCsrfCase := csrf_mock.NewMockUsecase(ctrl)
+		mockSCase.EXPECT().
+			DeleteSession(token).
+			Return(customerror.NewCustomError(errors.New(""),serverError.ServerInternalError,1))
+
+		req, err := http.NewRequest("DELETE", "/api/v1/sessions", nil)
+
+		assert.NoError(t, err)
+		cookie := &http.Cookie{
+			Name:     "session_token",
+			Value:    token,
+			Path:     "/",
+			HttpOnly: true,
+			Expires:  time.Now().Add(configs.CookieLifeTime),
+		}
+		req.AddCookie(cookie)
+		rec := httptest.NewRecorder()
+		handler := UserHandler{
+			UserUseCase:     mockUCase,
+			SessionsUseCase: mockSCase,
+			csrfUseCase: mockCsrfCase,
+			log:             logger.NewLogger(os.Stdout),
+		}
+
+		handler.SignOut(rec, req)
+		resp := rec.Result()
+		response := responses.HttpResponse{}
+		json.NewDecoder(resp.Body).Decode(&response)
+
+		assert.Equal(t, serverError.ServerInternalError, response.Code)
+	})
 }
 

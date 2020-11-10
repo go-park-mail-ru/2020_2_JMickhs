@@ -107,20 +107,6 @@ func (mr *MockUsecaseMockRecorder) UpdateUser(user interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockUsecase)(nil).UpdateUser), user)
 }
 
-// UpdateEmail mocks base method
-func (m *MockUsecase) UpdateEmail(user models.User) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateEmail", user)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UpdateEmail indicates an expected call of UpdateEmail
-func (mr *MockUsecaseMockRecorder) UpdateEmail(user interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateEmail", reflect.TypeOf((*MockUsecase)(nil).UpdateEmail), user)
-}
-
 // UpdateAvatar mocks base method
 func (m *MockUsecase) UpdateAvatar(user models.User) error {
 	m.ctrl.T.Helper()

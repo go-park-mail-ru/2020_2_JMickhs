@@ -35,8 +35,6 @@ func RandomString() string {
 }
 
 func StartCrawler(db *sqlx.DB,s3 *s3.S3,log *logger.CustomLogger)  {
-	//rep := hotelRepository.NewPostgresHotelRepository(db)
-
 	hotels := []hotelmodel.Hotel{}
 
 	c := colly.NewCollector(
