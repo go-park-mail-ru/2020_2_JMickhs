@@ -18,9 +18,9 @@ func NewCsrfRepository(sessStore *redis.Client) csrfRepository {
 }
 
 func (r *csrfRepository) Add(token string) error {
-	err := r.csrfStore.Set( context.Background(),token, 1, configs.CsrfExpire).Err()
+	err := r.csrfStore.Set(context.Background(), token, 1, configs.CsrfExpire).Err()
 	if err != nil {
-		return customerror.NewCustomError(err,serverError.ServerInternalError,1)
+		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
 	return nil
 }

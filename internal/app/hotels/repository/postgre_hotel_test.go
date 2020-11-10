@@ -14,7 +14,6 @@ import (
 
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
 
-
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
@@ -158,9 +157,9 @@ func TestCheckRateExist(t *testing.T) {
 	}
 	defer db.Close()
 	t.Run("CheckRateExist", func(t *testing.T) {
-		rows := sqlmock.NewRows([]string{"message","time","hotel_id","avatar","user_id",
-			"comm_id","username","rating"}).AddRow("kekw","22-02-2000","3","src/kek.jpg","1",
-			"10","kostik","5")
+		rows := sqlmock.NewRows([]string{"message", "time", "hotel_id", "avatar", "user_id",
+			"comm_id", "username", "rating"}).AddRow("kekw", "22-02-2000", "3", "src/kek.jpg", "1",
+			"10", "kostik", "5")
 
 		ratingTest := 5
 

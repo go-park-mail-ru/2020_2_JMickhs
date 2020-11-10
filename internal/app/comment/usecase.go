@@ -6,7 +6,7 @@ import (
 )
 
 type Usecase interface {
-	GetComments(hotelID string, limit string, offset string,user_id int) (commModel.Comments, error)
+	GetComments(hotelID string, limit string, offset string, user_id int) (commModel.Comments, error)
 	AddComment(comment commModel.Comment) (commModel.NewRate, error)
 	DeleteComment(ID int) error
 	UpdateComment(comment commModel.Comment) (commModel.NewRate, error)

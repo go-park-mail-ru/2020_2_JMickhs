@@ -53,7 +53,7 @@ func (p *PostgresUserRepository) GetUserByID(ID int) (models.User, error) {
 
 func (p *PostgresUserRepository) UpdateUser(user models.User) error {
 	_, err := p.conn.Query(UpdateUserPostgreRequest,
-		user.ID, user.Username,user.Email)
+		user.ID, user.Username, user.Email)
 	if err != nil {
 		return customerror.NewCustomError(err, clientError.Conflict, 1)
 	}

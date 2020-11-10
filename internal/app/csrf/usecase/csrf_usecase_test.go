@@ -41,13 +41,12 @@ func TestCSRF(t *testing.T) {
 			Add(token).
 			Return(nil)
 
-		ok, err := cryptHashToken.CheckToken(sID,token)
+		ok, err := cryptHashToken.CheckToken(sID, token)
 		assert.NoError(t, err)
 		assert.Equal(t, ok, true)
 	})
 
 	t.Run("TestToken2", func(t *testing.T) {
-
 
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -63,7 +62,7 @@ func TestCSRF(t *testing.T) {
 			Check(token).
 			Return(testError)
 
-		ok, err := cryptHashToken.CheckToken(sID,token)
+		ok, err := cryptHashToken.CheckToken(sID, token)
 		assert.NoError(t, err)
 		assert.Equal(t, ok, false)
 	})
@@ -88,7 +87,7 @@ func TestCSRF(t *testing.T) {
 			Add(token).
 			Return(testError)
 
-		ok, err := cryptHashToken.CheckToken(sID,token)
+		ok, err := cryptHashToken.CheckToken(sID, token)
 		assert.Error(t, err)
 		assert.Equal(t, ok, false)
 	})

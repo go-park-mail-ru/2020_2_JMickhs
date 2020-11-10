@@ -24,7 +24,7 @@ func (s *Suite) SetupSuite() {
 
 	addr := s.redisServer.Addr()
 	redisConn := redis.NewClient(&redis.Options{
-		Addr:  addr,
+		Addr: addr,
 	})
 	s.tokenValue = "1"
 

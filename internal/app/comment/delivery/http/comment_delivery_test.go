@@ -29,14 +29,14 @@ import (
 func TestCommentHandler_ListComments(t *testing.T) {
 
 	testComments := []commModel.FullCommentInfo{
-		{2,1,2,"kek",2,"src/kek.jpg","kostik","20-10-2000"},
-		{2,2,2,"kekw",2,"src/kek.jpg","kostik","20-10-2000"},
+		{2, 1, 2, "kek", 2, "src/kek.jpg", "kostik", "20-10-2000"},
+		{2, 2, 2, "kekw", 2, "src/kek.jpg", "kostik", "20-10-2000"},
 	}
 
 	testUser := models.User{ID: 2, Username: "kostik", Email: "sdfs@mail.ru", Password: "12345", Avatar: "kek/img.jpeg"}
 	paginfo := paginationModel.PaginationInfo{ItemsCount: 56, NextLink: "api/v1/comments/?id=3&limit=1&offset=57",
-		PrevLink:"api/v1/comments/?id=3&limit=1&offset=1"}
-	commentsTest := commModel.Comments{Comments: testComments,Info: paginfo}
+		PrevLink: "api/v1/comments/?id=3&limit=1&offset=1"}
+	commentsTest := commModel.Comments{Comments: testComments, Info: paginfo}
 
 	t.Run("GetComments", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -45,13 +45,11 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		mockCUseCase := comment_mock.NewMockUsecase(ctrl)
 
 		mockCUseCase.EXPECT().
-			GetComments("2","1","0",2).
+			GetComments("2", "1", "0", 2).
 			Return(commentsTest, nil)
-
 
 		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=0", nil)
 		assert.NoError(t, err)
-
 
 		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
 		rec := httptest.NewRecorder()
@@ -71,7 +69,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		err = mapstructure.Decode(response.Data.(map[string]interface{})["comments"], &comments)
 		assert.NoError(t, err)
 
-		assert.Equal(t, comments,testComments)
+		assert.Equal(t, comments, testComments)
 		assert.Equal(t, http.StatusOK, response.Code)
 	})
 
@@ -82,19 +80,17 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		mockCUseCase := comment_mock.NewMockUsecase(ctrl)
 
 		mockCUseCase.EXPECT().
-			GetComments("2","1","0",2).
-			Return(commentsTest, customerror.NewCustomError(errors.New(""),serverError.ServerInternalError,1))
-
+			GetComments("2", "1", "0", 2).
+			Return(commentsTest, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
 		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=0", nil)
 		assert.NoError(t, err)
-
 
 		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
-			log: logger.NewLogger(os.Stdout),
+			log:            logger.NewLogger(os.Stdout),
 		}
 
 		handler.ListComments(rec, req)
@@ -113,11 +109,11 @@ func TestCommentHandler_ListComments(t *testing.T) {
 func TestCommentHandler_AddComment(t *testing.T) {
 
 	testComment := commModel.Comment{
-		2,1,2,"kek",2,"20-10-2000",
+		2, 1, 2, "kek", 2, "20-10-2000",
 	}
 
 	testUser := models.User{ID: 2, Username: "kostik", Email: "sdfs@mail.ru", Password: "12345", Avatar: "kek/img.jpeg"}
-	newRate := commModel.NewRate{Comment: testComment,Rate: 3}
+	newRate := commModel.NewRate{Comment: testComment, Rate: 3}
 	t.Run("AddComment", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -132,15 +128,14 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
 
-
 		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
-			log: logger.NewLogger(os.Stdout),
+			log:            logger.NewLogger(os.Stdout),
 		}
 
-		handler.AddComment(rec,req)
+		handler.AddComment(rec, req)
 		resp := rec.Result()
 		comment := commModel.NewRate{}
 
@@ -152,14 +147,14 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		err = mapstructure.Decode(response.Data.(map[string]interface{}), &comment)
 		assert.NoError(t, err)
 
-		assert.Equal(t, newRate,comment)
+		assert.Equal(t, newRate, comment)
 		assert.Equal(t, http.StatusOK, response.Code)
 	})
 
 	t.Run("AddCommentErr1", func(t *testing.T) {
 		testComments := []commModel.FullCommentInfo{
-			{2,1,2,"kek",2,"src/kek.jpg","kostik","20-10-2000"},
-			{2,2,2,"kekw",2,"src/kek.jpg","kostik","20-10-2000"},
+			{2, 1, 2, "kek", 2, "src/kek.jpg", "kostik", "20-10-2000"},
+			{2, 2, 2, "kekw", 2, "src/kek.jpg", "kostik", "20-10-2000"},
 		}
 
 		ctrl := gomock.NewController(t)
@@ -167,22 +162,19 @@ func TestCommentHandler_AddComment(t *testing.T) {
 
 		mockCUseCase := comment_mock.NewMockUsecase(ctrl)
 
-
 		bodys, _ := json.Marshal(testComments)
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
-
 
 		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
-			log: logger.NewLogger(os.Stdout),
+			log:            logger.NewLogger(os.Stdout),
 		}
 
-		handler.AddComment(rec,req)
+		handler.AddComment(rec, req)
 		resp := rec.Result()
-
 
 		body, err := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
@@ -200,7 +192,6 @@ func TestCommentHandler_AddComment(t *testing.T) {
 
 		mockCUseCase := comment_mock.NewMockUsecase(ctrl)
 
-
 		bodys, _ := json.Marshal(testComment)
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
@@ -208,12 +199,11 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
-			log: logger.NewLogger(os.Stdout),
+			log:            logger.NewLogger(os.Stdout),
 		}
 
-		handler.AddComment(rec,req)
+		handler.AddComment(rec, req)
 		resp := rec.Result()
-
 
 		body, err := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
@@ -233,7 +223,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 
 		mockCUseCase.EXPECT().
 			AddComment(testComment).
-			Return(newRate, customerror.NewCustomError(errors.New(""),serverError.ServerInternalError,1))
+			Return(newRate, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
 		bodys, _ := json.Marshal(testComment)
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
@@ -243,12 +233,11 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
-			log: logger.NewLogger(os.Stdout),
+			log:            logger.NewLogger(os.Stdout),
 		}
 
-		handler.AddComment(rec,req)
+		handler.AddComment(rec, req)
 		resp := rec.Result()
-
 
 		body, err := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
@@ -264,11 +253,11 @@ func TestCommentHandler_AddComment(t *testing.T) {
 func TestCommentHandler_UpdateComment(t *testing.T) {
 
 	testComment := commModel.Comment{
-		2,1,2,"kek",2,"20-10-2000",
+		2, 1, 2, "kek", 2, "20-10-2000",
 	}
 
 	testUser := models.User{ID: 2, Username: "kostik", Email: "sdfs@mail.ru", Password: "12345", Avatar: "kek/img.jpeg"}
-	newRate := commModel.NewRate{Comment: testComment,Rate: 3}
+	newRate := commModel.NewRate{Comment: testComment, Rate: 3}
 	t.Run("UpdateComment", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -283,15 +272,14 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
 
-
 		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
-			log: logger.NewLogger(os.Stdout),
+			log:            logger.NewLogger(os.Stdout),
 		}
 
-		handler.UpdateComment(rec,req)
+		handler.UpdateComment(rec, req)
 		resp := rec.Result()
 		comment := commModel.NewRate{}
 
@@ -303,14 +291,14 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		err = mapstructure.Decode(response.Data.(map[string]interface{}), &comment)
 		assert.NoError(t, err)
 
-		assert.Equal(t, newRate,comment)
+		assert.Equal(t, newRate, comment)
 		assert.Equal(t, http.StatusOK, response.Code)
 	})
 
 	t.Run("UpdateCommentErr1", func(t *testing.T) {
 		testComments := []commModel.FullCommentInfo{
-			{2,1,2,"kek",2,"src/kek.jpg","kostik","20-10-2000"},
-			{2,2,2,"kekw",2,"src/kek.jpg","kostik","20-10-2000"},
+			{2, 1, 2, "kek", 2, "src/kek.jpg", "kostik", "20-10-2000"},
+			{2, 2, 2, "kekw", 2, "src/kek.jpg", "kostik", "20-10-2000"},
 		}
 
 		ctrl := gomock.NewController(t)
@@ -318,22 +306,19 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 
 		mockCUseCase := comment_mock.NewMockUsecase(ctrl)
 
-
 		bodys, _ := json.Marshal(testComments)
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
-
 
 		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
-			log: logger.NewLogger(os.Stdout),
+			log:            logger.NewLogger(os.Stdout),
 		}
 
-		handler.UpdateComment(rec,req)
+		handler.UpdateComment(rec, req)
 		resp := rec.Result()
-
 
 		body, err := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
@@ -351,7 +336,6 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 
 		mockCUseCase := comment_mock.NewMockUsecase(ctrl)
 
-
 		bodys, _ := json.Marshal(testComment)
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
@@ -359,12 +343,11 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
-			log: logger.NewLogger(os.Stdout),
+			log:            logger.NewLogger(os.Stdout),
 		}
 
-		handler.UpdateComment(rec,req)
+		handler.UpdateComment(rec, req)
 		resp := rec.Result()
-
 
 		body, err := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
@@ -384,7 +367,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 
 		mockCUseCase.EXPECT().
 			UpdateComment(testComment).
-			Return(newRate, customerror.NewCustomError(errors.New(""),serverError.ServerInternalError,1))
+			Return(newRate, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
 		bodys, _ := json.Marshal(testComment)
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
@@ -394,12 +377,11 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
-			log: logger.NewLogger(os.Stdout),
+			log:            logger.NewLogger(os.Stdout),
 		}
 
-		handler.UpdateComment(rec,req)
+		handler.UpdateComment(rec, req)
 		resp := rec.Result()
-
 
 		body, err := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
@@ -428,7 +410,6 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		req, err := http.NewRequest("DELETE", "/api/v1/comments/1", nil)
 		assert.NoError(t, err)
 
-
 		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
 		req = mux.SetURLVars(req, map[string]string{
 			"id": "1",
@@ -436,10 +417,10 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
-			log: logger.NewLogger(os.Stdout),
+			log:            logger.NewLogger(os.Stdout),
 		}
 
-		handler.DeleteComment(rec,req)
+		handler.DeleteComment(rec, req)
 		resp := rec.Result()
 
 		body, err := ioutil.ReadAll(resp.Body)
@@ -460,15 +441,14 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		req, err := http.NewRequest("DELETE", "/api/v1/comments/1", nil)
 		assert.NoError(t, err)
 
-
 		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
-			log: logger.NewLogger(os.Stdout),
+			log:            logger.NewLogger(os.Stdout),
 		}
 
-		handler.DeleteComment(rec,req)
+		handler.DeleteComment(rec, req)
 		resp := rec.Result()
 
 		body, err := ioutil.ReadAll(resp.Body)
@@ -495,10 +475,10 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
-			log: logger.NewLogger(os.Stdout),
+			log:            logger.NewLogger(os.Stdout),
 		}
 
-		handler.DeleteComment(rec,req)
+		handler.DeleteComment(rec, req)
 		resp := rec.Result()
 
 		body, err := ioutil.ReadAll(resp.Body)
@@ -518,11 +498,10 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 
 		mockCUseCase.EXPECT().
 			DeleteComment(1).
-			Return(customerror.NewCustomError(errors.New(""),serverError.ServerInternalError,1))
+			Return(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
 		req, err := http.NewRequest("DELETE", "/api/v1/comments/1", nil)
 		assert.NoError(t, err)
-
 
 		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
 		req = mux.SetURLVars(req, map[string]string{
@@ -531,10 +510,10 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
-			log: logger.NewLogger(os.Stdout),
+			log:            logger.NewLogger(os.Stdout),
 		}
 
-		handler.DeleteComment(rec,req)
+		handler.DeleteComment(rec, req)
 		resp := rec.Result()
 
 		body, err := ioutil.ReadAll(resp.Body)

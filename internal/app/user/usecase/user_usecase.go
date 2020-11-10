@@ -124,14 +124,14 @@ func (u *userUseCase) CheckAvatar(file multipart.File) (string, error) {
 		return ContentType, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
 
-	count,err := file.Seek(0,2)
-	if err != nil{
+	count, err := file.Seek(0, 2)
+	if err != nil {
 		return ContentType, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
-    if count > 5 * configs.MB {
+	if count > 5*configs.MB {
 		return ContentType, customerror.NewCustomError(errors.New("file bigger than 5 mb"), clientError.BadRequest, 1)
 	}
-	if _,err := file.Seek(0,0); err != nil{
+	if _, err := file.Seek(0, 0); err != nil {
 		return ContentType, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
 	ContentType = http.DetectContentType(fileHeader)

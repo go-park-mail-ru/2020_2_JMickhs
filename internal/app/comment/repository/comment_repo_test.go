@@ -33,7 +33,7 @@ func TestCommentRepository_GetComments(t *testing.T) {
 		query := GetCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
-			WithArgs("0", 1, "1",3).
+			WithArgs("0", 1, "1", 3).
 			WillReturnRows(rowsComments)
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
@@ -41,7 +41,7 @@ func TestCommentRepository_GetComments(t *testing.T) {
 
 		rep := NewCommentRepository(sqlxDb)
 
-		comments, err := rep.GetComments("1", 1,"0",3)
+		comments, err := rep.GetComments("1", 1, "0", 3)
 		assert.NoError(t, err)
 		assert.Equal(t, commentsTest, comments[1])
 	})
@@ -50,7 +50,7 @@ func TestCommentRepository_GetComments(t *testing.T) {
 		query := GetCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
-			WithArgs("0", 1, "1",3).
+			WithArgs("0", 1, "1", 3).
 			WillReturnError(errors.New("fdsfs"))
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
@@ -58,7 +58,7 @@ func TestCommentRepository_GetComments(t *testing.T) {
 
 		rep := NewCommentRepository(sqlxDb)
 
-		_, err := rep.GetComments("1", 0,"0",3)
+		_, err := rep.GetComments("1", 0, "0", 3)
 		assert.Error(t, err)
 		assert.Equal(t, customerror.ParseCode(err), clientError.BadRequest)
 	})

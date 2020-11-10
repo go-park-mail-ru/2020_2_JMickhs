@@ -13,15 +13,14 @@ import (
 	"time"
 )
 
-type CsrfUsecase struct{
+type CsrfUsecase struct {
 	CsrfRep csrf.Repository
 }
 
-type CsrfToken struct{
+type CsrfToken struct {
 	SessionID string
 	Timestamp int64
 }
-
 
 func NewCsrfUsecase(r csrf.Repository) *CsrfUsecase {
 	return &CsrfUsecase{
@@ -29,10 +28,10 @@ func NewCsrfUsecase(r csrf.Repository) *CsrfUsecase {
 	}
 }
 
-func(u *CsrfUsecase) CreateToken (sesID string, timeStamp int64 ) (string,error){
+func (u *CsrfUsecase) CreateToken(sesID string, timeStamp int64) (string, error) {
 	block, err := aes.NewCipher([]byte(configs.SecretTokenKey))
 	if err != nil {
-		return "",err
+		return "", err
 	}
 
 	aesgcm, err := cipher.NewGCM(block)
@@ -41,7 +40,7 @@ func(u *CsrfUsecase) CreateToken (sesID string, timeStamp int64 ) (string,error)
 	}
 	nonce := make([]byte, aesgcm.NonceSize())
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		return "",err
+		return "", err
 	}
 
 	td := &CsrfToken{SessionID: sesID, Timestamp: timeStamp}
@@ -57,18 +56,18 @@ func(u *CsrfUsecase) CreateToken (sesID string, timeStamp int64 ) (string,error)
 
 }
 
-func(u *CsrfUsecase) CheckToken (sesID string, token string  ) (bool, error){
+func (u *CsrfUsecase) CheckToken(sesID string, token string) (bool, error) {
 
 	ciphertext, _ := base64.StdEncoding.DecodeString(token)
 
 	block, err := aes.NewCipher([]byte(configs.SecretTokenKey))
 	if err != nil {
-		return false,err
+		return false, err
 	}
 
 	aesgcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return false,err
+		return false, err
 	}
 
 	nonceSize := aesgcm.NonceSize()
@@ -80,7 +79,7 @@ func(u *CsrfUsecase) CheckToken (sesID string, token string  ) (bool, error){
 
 	plaintext, err := aesgcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
-		return false,err
+		return false, err
 	}
 
 	CsrfTok := CsrfToken{}
@@ -89,7 +88,7 @@ func(u *CsrfUsecase) CheckToken (sesID string, token string  ) (bool, error){
 		return false, err
 	}
 
-	if time.Now().Unix() - CsrfTok.Timestamp >  int64(configs.CsrfExpire) {
+	if time.Now().Unix()-CsrfTok.Timestamp > int64(configs.CsrfExpire) {
 		return false, errors.New("token expired")
 	}
 

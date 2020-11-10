@@ -44,14 +44,15 @@ const S3EndPoint = "https://hb.bizmrg.com"
 const (
 	MB = 1 << 20
 )
-var AllowedOrigins  = map[string]bool{
-	Domen : true,
-	LocalOrigin:true,
-	Domen+":511" : true,
-	Domen+":72"  : true,
-	LocalOrigin+":511" :true,
-	LocalOrigin+":72" :true,
-	LocalOrigin+":443":true,
+
+var AllowedOrigins = map[string]bool{
+	Domen:                true,
+	LocalOrigin:          true,
+	Domen + ":511":       true,
+	Domen + ":72":        true,
+	LocalOrigin + ":511": true,
+	LocalOrigin + ":72":  true,
+	LocalOrigin + ":443": true,
 }
 
 func Init() {

@@ -20,11 +20,11 @@ func NewCommentUsecase(r comment.Repository) *CommentUseCase {
 	}
 }
 
-func (u *CommentUseCase) GetComments(hotelID string, limit string, offsets string,user_id int) (commModel.Comments, error) {
+func (u *CommentUseCase) GetComments(hotelID string, limit string, offsets string, user_id int) (commModel.Comments, error) {
 	pag := commModel.Comments{}
-	hotId,_ := strconv.Atoi(hotelID)
+	hotId, _ := strconv.Atoi(hotelID)
 	lim, _ := strconv.Atoi(limit)
-	offset,_ := strconv.Atoi(offsets)
+	offset, _ := strconv.Atoi(offsets)
 
 	if lim < 1 || lim > 30 {
 		lim = 10
@@ -33,58 +33,58 @@ func (u *CommentUseCase) GetComments(hotelID string, limit string, offsets strin
 	if err != nil {
 		return pag, err
 	}
-	if user_id != 0{
-		check,err := u.commentRepo.CheckRateExistForComments(hotId,user_id)
-		if err != nil{
-			return pag,err
+	if user_id != 0 {
+		check, err := u.commentRepo.CheckRateExistForComments(hotId, user_id)
+		if err != nil {
+			return pag, err
 		}
-		if check{
+		if check {
 			count--
 		}
 	}
 
 	if offset > count {
-		return pag,nil
+		return pag, nil
 	}
 
-	data, err := u.commentRepo.GetComments(hotelID, lim,offsets,user_id)
+	data, err := u.commentRepo.GetComments(hotelID, lim, offsets, user_id)
 	if err != nil {
 		return pag, err
 	}
 	pag.Comments = data
 
 	url := url.URL{
-		Host :"hostelscan.ru:8080",
+		Host:   "hostelscan.ru:8080",
 		Scheme: "https",
-		Path: "/api/v1/comments/",
+		Path:   "/api/v1/comments/",
 	}
 	query := url.Query()
-	query.Set("id",hotelID)
-	query.Set("limit",limit)
-	if offset + lim >= count{
-		query.Set("offset",strconv.Itoa(offset - lim))
+	query.Set("id", hotelID)
+	query.Set("limit", limit)
+	if offset+lim >= count {
+		query.Set("offset", strconv.Itoa(offset-lim))
 		url.RawQuery = query.Encode()
 		pag.Info.PrevLink = url.Path + "?" + url.RawQuery
 
-		query.Set("offset","0")
+		query.Set("offset", "0")
 		url.RawQuery = query.Encode()
 		pag.Info.NextLink = url.Path + "?" + url.RawQuery
 	}
-	if offset - lim < 0 {
-		query.Set("offset",strconv.Itoa(offset + lim))
+	if offset-lim < 0 {
+		query.Set("offset", strconv.Itoa(offset+lim))
 		url.RawQuery = query.Encode()
 		pag.Info.NextLink = url.Path + "?" + url.RawQuery
 
-		query.Set("offset",strconv.Itoa(count - lim))
+		query.Set("offset", strconv.Itoa(count-lim))
 		url.RawQuery = query.Encode()
 		pag.Info.PrevLink = url.Path + "?" + url.RawQuery
 	}
-	if offset + lim < count && offset -lim >= 0  {
-		query.Set("offset",strconv.Itoa(offset+lim))
+	if offset+lim < count && offset-lim >= 0 {
+		query.Set("offset", strconv.Itoa(offset+lim))
 		url.RawQuery = query.Encode()
 		pag.Info.NextLink = url.Path + "?" + url.RawQuery
 
-		query.Set("offset",strconv.Itoa(offset-lim))
+		query.Set("offset", strconv.Itoa(offset-lim))
 		url.RawQuery = query.Encode()
 		pag.Info.PrevLink = url.Path + "?" + url.RawQuery
 	}
@@ -159,7 +159,7 @@ func (p *CommentUseCase) UpdateRating(prevRate commModel.PrevRate) (float64, err
 	nextRate := float64(-1.0)
 
 	currRate, err := p.commentRepo.GetCurrentRating(prevRate.Comment.HotelID)
-	if err != nil 	{
+	if err != nil {
 		return nextRate, err
 	}
 

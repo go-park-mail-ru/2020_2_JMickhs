@@ -60,7 +60,7 @@ func TestHotelUseCase_GetHotelByID(t *testing.T) {
 
 func TestHotelUseCase_GetHotels(t *testing.T) {
 
-	testHotels := make([]hotelmodel.Hotel,4)
+	testHotels := make([]hotelmodel.Hotel, 4)
 	err := faker.FakeData(&testHotels)
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when create fake data", err)
@@ -149,10 +149,9 @@ func TestHotelUseCase_FetchHotels(t *testing.T) {
 	testHotels := []hotelmodel.Hotel{}
 	err := faker.FakeData(&testHotels)
 	paginfo := paginationModel.PaginationInfo{ItemsCount: 56, NextLink: "api/v1/hotels/?id=3&limit=1&offset=3",
-	PrevLink:"api/v1/hotels/?id=3&limit=1&offset=1"}
+		PrevLink: "api/v1/hotels/?id=3&limit=1&offset=1"}
 
-
-	searchTestData := hotelmodel.SearchData{Hotels: testHotels,PagInfo: paginfo}
+	searchTestData := hotelmodel.SearchData{Hotels: testHotels, PagInfo: paginfo}
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when create fake data", err)
 	}
@@ -189,7 +188,7 @@ func TestHotelUseCase_FetchHotels(t *testing.T) {
 		hotels.PagInfo = paginfo
 
 		assert.NoError(t, err)
-		assert.Equal(t,searchTestData, hotels)
+		assert.Equal(t, searchTestData, hotels)
 	})
 	t.Run("HotelFetchHotelsErr2", func(t *testing.T) {
 		ctrl := gomock.NewController(t)

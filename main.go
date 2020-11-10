@@ -31,11 +31,11 @@ func initRelativePath() string {
 	return filepath.ToSlash(filepath.Dir(filepath.Dir(fileName))) + "/"
 }
 
-func main(){
+func main() {
 	var serverVar bool
 	var crawlerVar bool
-	flag.BoolVar(&crawlerVar,"fill",false,"crawl a sites with hotels to fill bd")
-	flag.BoolVar(&serverVar,"server",false,"start server")
+	flag.BoolVar(&crawlerVar, "fill", false, "crawl a sites with hotels to fill bd")
+	flag.BoolVar(&serverVar, "server", false, "start server")
 	flag.Parse()
 
 	configs.Init()
@@ -51,12 +51,12 @@ func main(){
 
 	log := logger.NewLogger(logOutput)
 
-	if crawlerVar{
-		crawler.StartCrawler(db,s3,log)
+	if crawlerVar {
+		crawler.StartCrawler(db, s3, log)
 	}
 	if serverVar {
 		store := server.NewSessStore()
 		defer store.Close()
-		server.StartServer(store,db,s3,log)
+		server.StartServer(store, db, s3, log)
 	}
 }

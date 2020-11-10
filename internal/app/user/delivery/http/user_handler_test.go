@@ -623,7 +623,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		mockUCase := user_mock.NewMockUsecase(ctrl)
 		mockSCase := SessionMocks.NewMockUsecase(ctrl)
 
-		hotel:=[]hotelmodel.Hotel{{Name: "fds"},{Name: "lel"}}
+		hotel := []hotelmodel.Hotel{{Name: "fds"}, {Name: "lel"}}
 		body, _ := json.Marshal(hotel)
 		req, err := http.NewRequest("PUT", "/api/v1/users/credentials", bytes.NewBuffer(body))
 
@@ -681,7 +681,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 
 		mockUCase.EXPECT().
 			UpdateUser(testUser).
-			Return(customerror.NewCustomError(errors.New(""),clientError.Conflict,1))
+			Return(customerror.NewCustomError(errors.New(""), clientError.Conflict, 1))
 
 		body, _ := json.Marshal(testUser)
 		req, err := http.NewRequest("PUT", "/api/v1/users/credentials", bytes.NewBuffer(body))
@@ -715,17 +715,17 @@ func TestUserHandler_GetCsrf(t *testing.T) {
 		mockCsrfCase := csrf_mock.NewMockUsecase(ctrl)
 		mockCsrfCase.EXPECT().
 			CreateToken(sId, time.Now().Unix()).
-			Return("21fds",nil)
+			Return("21fds", nil)
 
 		req, err := http.NewRequest("GET", "/api/v1/csrf", nil)
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), configs.SessionID,sId ))
+		req = req.WithContext(context.WithValue(req.Context(), configs.SessionID, sId))
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
 			UserUseCase:     mockUCase,
 			SessionsUseCase: mockSCase,
-			csrfUseCase: mockCsrfCase,
+			csrfUseCase:     mockCsrfCase,
 			log:             logger.NewLogger(os.Stdout),
 		}
 
@@ -773,17 +773,17 @@ func TestUserHandler_GetCsrf(t *testing.T) {
 		mockCsrfCase := csrf_mock.NewMockUsecase(ctrl)
 		mockCsrfCase.EXPECT().
 			CreateToken(sId, time.Now().Unix()).
-			Return("21fds",customerror.NewCustomError(errors.New("fds"),serverError.ServerInternalError,1))
+			Return("21fds", customerror.NewCustomError(errors.New("fds"), serverError.ServerInternalError, 1))
 
 		req, err := http.NewRequest("GET", "/api/v1/csrf", nil)
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), configs.SessionID,sId ))
+		req = req.WithContext(context.WithValue(req.Context(), configs.SessionID, sId))
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
 			UserUseCase:     mockUCase,
 			SessionsUseCase: mockSCase,
-			csrfUseCase: mockCsrfCase,
+			csrfUseCase:     mockCsrfCase,
 			log:             logger.NewLogger(os.Stdout),
 		}
 
@@ -825,7 +825,7 @@ func TestUserHandler_SignOut(t *testing.T) {
 		handler := UserHandler{
 			UserUseCase:     mockUCase,
 			SessionsUseCase: mockSCase,
-			csrfUseCase: mockCsrfCase,
+			csrfUseCase:     mockCsrfCase,
 			log:             logger.NewLogger(os.Stdout),
 		}
 
@@ -846,7 +846,6 @@ func TestUserHandler_SignOut(t *testing.T) {
 		mockSCase := SessionMocks.NewMockUsecase(ctrl)
 		mockCsrfCase := csrf_mock.NewMockUsecase(ctrl)
 
-
 		req, err := http.NewRequest("DELETE", "/api/v1/sessions", nil)
 
 		assert.NoError(t, err)
@@ -854,7 +853,7 @@ func TestUserHandler_SignOut(t *testing.T) {
 		handler := UserHandler{
 			UserUseCase:     mockUCase,
 			SessionsUseCase: mockSCase,
-			csrfUseCase: mockCsrfCase,
+			csrfUseCase:     mockCsrfCase,
 			log:             logger.NewLogger(os.Stdout),
 		}
 
@@ -876,7 +875,7 @@ func TestUserHandler_SignOut(t *testing.T) {
 		mockCsrfCase := csrf_mock.NewMockUsecase(ctrl)
 		mockSCase.EXPECT().
 			DeleteSession(token).
-			Return(customerror.NewCustomError(errors.New(""),serverError.ServerInternalError,1))
+			Return(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
 		req, err := http.NewRequest("DELETE", "/api/v1/sessions", nil)
 
@@ -893,7 +892,7 @@ func TestUserHandler_SignOut(t *testing.T) {
 		handler := UserHandler{
 			UserUseCase:     mockUCase,
 			SessionsUseCase: mockSCase,
-			csrfUseCase: mockCsrfCase,
+			csrfUseCase:     mockCsrfCase,
 			log:             logger.NewLogger(os.Stdout),
 		}
 
@@ -905,4 +904,3 @@ func TestUserHandler_SignOut(t *testing.T) {
 		assert.Equal(t, serverError.ServerInternalError, response.Code)
 	})
 }
-

@@ -57,7 +57,7 @@ func (u *SessionMidleware) SessionMiddleware() mux.MiddlewareFunc {
 					return
 				}
 				ctx := context.WithValue(r.Context(), configs.RequestUser, user)
-				ctx = context.WithValue(ctx,configs.SessionID,sessionToken)
+				ctx = context.WithValue(ctx, configs.SessionID, sessionToken)
 				r = r.WithContext(ctx)
 			}
 			next.ServeHTTP(w, r)

@@ -59,8 +59,8 @@ func (hh *HotelHandler) ListHotels(w http.ResponseWriter, r *http.Request) {
 		customerror.PostError(w, r, hh.log, err, nil)
 		return
 	}
-	hotels := hotelmodel.Hotels{Hotels:hotel}
-	responses.SendDataResponse(w,hotels)
+	hotels := hotelmodel.Hotels{Hotels: hotel}
+	responses.SendDataResponse(w, hotels)
 }
 
 // swagger:route GET /api/v1/hotels/{id} hotel hotel

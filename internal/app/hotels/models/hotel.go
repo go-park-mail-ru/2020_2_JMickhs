@@ -28,8 +28,8 @@ type HotelPreview struct {
 
 // easyjson:json
 type HotelData struct {
-	Hotel    Hotel `json:"hotel"`
-	Comment  *commModel.FullCommentInfo  `json:"comment,omitempty" mapstructure:"currate"`
+	Hotel   Hotel                      `json:"hotel"`
+	Comment *commModel.FullCommentInfo `json:"comment,omitempty" mapstructure:"currate"`
 }
 
 // easyjson:json
@@ -42,14 +42,15 @@ type SearchData struct {
 	Hotels  []Hotel                        `json:"hotels"`
 	PagInfo paginationModel.PaginationInfo `json:"pag_info"`
 }
+
 // easyjson:json
-type Hotels struct{
+type Hotels struct {
 	Hotels []Hotel `json:"hotels"`
 }
 
 // easyjson:json
-type HotelsPreview struct{
-	Hotels []HotelPreview`json:"hotels_preview"`
+type HotelsPreview struct {
+	Hotels []HotelPreview `json:"hotels_preview"`
 }
 
 // easyjson:json

@@ -19,7 +19,7 @@ type UpdateUser struct {
 }
 
 type UpdateEmail struct {
-	Email    string `json:"email" db:"email"`
+	Email string `json:"email" db:"email"`
 }
 
 type UserAuth struct {
@@ -89,7 +89,7 @@ type AvatarUserResponse struct {
 }
 
 // swagger:parameters email
-type EmailParameteter struct{
+type EmailParameteter struct {
 	//in:body
 	Body UpdateEmail
 }

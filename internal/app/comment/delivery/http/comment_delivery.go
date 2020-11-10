@@ -3,9 +3,10 @@ package commentDelivery
 import (
 	"encoding/json"
 	"errors"
-	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/middleware"
 	"net/http"
 	"strconv"
+
+	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/middleware"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
 
@@ -38,7 +39,7 @@ func NewCommentHandler(r *mux.Router, hs comment.Usecase, lg *logger.CustomLogge
 	r.HandleFunc("/api/v1/comments", middlewareApi.CheckCSRFOnHandler(handler.AddComment)).Methods("POST")
 	r.HandleFunc("/api/v1/comments", middlewareApi.CheckCSRFOnHandler(handler.UpdateComment)).Methods("PUT")
 	r.HandleFunc("/api/v1/comments/{id:[0-9]+}", middlewareApi.CheckCSRFOnHandler(handler.DeleteComment)).Methods("DELETE")
-	r.Path("/api/v1/comments").Queries("id", "{id:[0-9]+}", "limit", "{limit:[0-9]+}","offset", "{from:[0-9]+}").
+	r.Path("/api/v1/comments").Queries("id", "{id:[0-9]+}", "limit", "{limit:[0-9]+}", "offset", "{from:[0-9]+}").
 		HandlerFunc(handler.ListComments).Methods("GET")
 }
 
@@ -57,11 +58,11 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 	user, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
 		user_id = -1
-	}else {
+	} else {
 		user_id = user.ID
 	}
 
-	comments, err := ch.CommentUseCase.GetComments(hotelID,limit,offsetVar ,user_id)
+	comments, err := ch.CommentUseCase.GetComments(hotelID, limit, offsetVar, user_id)
 
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, nil)

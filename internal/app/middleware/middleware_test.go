@@ -16,78 +16,77 @@ import (
 	"testing"
 )
 
-
 func TestCsrfCheck(t *testing.T) {
 	t.Run("CsrfCheck", func(t *testing.T) {
 
-		handler := func(w http.ResponseWriter,r *http.Request){}
+		handler := func(w http.ResponseWriter, r *http.Request) {}
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		mockCsrfCase := csrf_mock.NewMockUsecase(ctrl)
 		mockCsrfCase.EXPECT().
-			CheckToken("fdsfsd","token").
-			Return(true,nil)
-		middleware := NewCsrfMiddleware(mockCsrfCase,logger.NewLogger(os.Stdout))
+			CheckToken("fdsfsd", "token").
+			Return(true, nil)
+		middleware := NewCsrfMiddleware(mockCsrfCase, logger.NewLogger(os.Stdout))
 
 		req, err := http.NewRequest("POST", "/api/v1/comments", nil)
 		assert.NoError(t, err)
 		req = req.WithContext(context.WithValue(req.Context(), configs.CorrectToken, false))
 		req = req.WithContext(context.WithValue(req.Context(), configs.SessionID, "fdsfsd"))
-		req.Header.Set("X-Csrf-Token","token")
+		req.Header.Set("X-Csrf-Token", "token")
 
 		res := httptest.NewRecorder()
-		handler(res,req)
+		handler(res, req)
 		middle := middleware.CSRFCheck().Middleware(http.HandlerFunc(handler))
-		middle.ServeHTTP(res,req)
+		middle.ServeHTTP(res, req)
 
 	})
 	t.Run("CsrfCheckErr", func(t *testing.T) {
 
-		handler := func(w http.ResponseWriter,r *http.Request){}
+		handler := func(w http.ResponseWriter, r *http.Request) {}
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		mockCsrfCase := csrf_mock.NewMockUsecase(ctrl)
-		middleware := NewCsrfMiddleware(mockCsrfCase,logger.NewLogger(os.Stdout))
+		middleware := NewCsrfMiddleware(mockCsrfCase, logger.NewLogger(os.Stdout))
 		mockCsrfCase.EXPECT().
-			CheckToken("fdsfsd","token").
-			Return(true,nil)
+			CheckToken("fdsfsd", "token").
+			Return(true, nil)
 
 		req, err := http.NewRequest("POST", "/api/v1/comments", nil)
 		assert.NoError(t, err)
 
 		req = req.WithContext(context.WithValue(req.Context(), configs.SessionID, "fdsfsd"))
-		req = req.WithContext(context.WithValue(req.Context(), configs.CorrectToken ,false))
-		req.Header.Set("X-Csrf-Token","token")
+		req = req.WithContext(context.WithValue(req.Context(), configs.CorrectToken, false))
+		req.Header.Set("X-Csrf-Token", "token")
 
 		res := httptest.NewRecorder()
-		handler(res,req)
+		handler(res, req)
 		middle := middleware.CSRFCheck().Middleware(http.HandlerFunc(handler))
-		middle.ServeHTTP(res,req)
+		middle.ServeHTTP(res, req)
 
-		corrTok,ok := req.Context().Value(configs.CorrectToken).(bool)
+		corrTok, ok := req.Context().Value(configs.CorrectToken).(bool)
 		if !ok {
 			t.Error("correctToken value doesn't exist")
 		}
-		assert.Equal(t,corrTok,false)
+		assert.Equal(t, corrTok, false)
 
 	})
 
 	t.Run("CsrfCheckErr", func(t *testing.T) {
 
-		handler := func(w http.ResponseWriter,r *http.Request){}
+		handler := func(w http.ResponseWriter, r *http.Request) {}
 
 		req, err := http.NewRequest("POST", "/api/v1/comments", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.CorrectToken ,false))
-		req.Header.Set("X-Csrf-Token","token")
+		req = req.WithContext(context.WithValue(req.Context(), configs.CorrectToken, false))
+		req.Header.Set("X-Csrf-Token", "token")
 
 		res := httptest.NewRecorder()
-		handler(res,req)
+		handler(res, req)
 		middle := CheckCSRFOnHandler(http.HandlerFunc(handler))
-		middle.ServeHTTP(res,req)
+		middle.ServeHTTP(res, req)
 
 		resp := res.Result()
 		response := responses.HttpResponse{}

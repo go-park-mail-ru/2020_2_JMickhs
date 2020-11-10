@@ -22,7 +22,6 @@ type SearchPreviewStringRequest struct {
 	Pattern string `json:"pattern"`
 }
 
-
 type PreviewHotel struct {
 	HotelID     int    `json:"hotel_id"`
 	Name        string `json:"name"`
@@ -43,8 +42,8 @@ type SearchDataResponse struct {
 }
 
 type HotelData struct {
-	Hotel    hotelmodel.Hotel `json:"hotel"`
-	Comment  commModel.FullCommentInfo  `json:"comment,omitempty"`
+	Hotel   hotelmodel.Hotel          `json:"hotel"`
+	Comment commModel.FullCommentInfo `json:"comment,omitempty"`
 }
 
 // swagger:parameters hotel

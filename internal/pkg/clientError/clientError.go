@@ -11,5 +11,4 @@ const (
 	UnsupportedMediaType = 415
 	NotFound             = 404
 	NotAccespteble       = 406
-
 )

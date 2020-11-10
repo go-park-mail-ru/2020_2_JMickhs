@@ -34,8 +34,8 @@ type RateInfo struct {
 
 // easyjson:json
 type Comments struct {
-	Comments []FullCommentInfo `json:"comments"`
-	Info paginationModel.PaginationInfo `json:"pag_info"`
+	Comments []FullCommentInfo              `json:"comments"`
+	Info     paginationModel.PaginationInfo `json:"pag_info"`
 }
 
 // easyjson:json

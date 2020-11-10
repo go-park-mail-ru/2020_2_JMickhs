@@ -35,7 +35,7 @@ type UserHandler struct {
 	log             *logger.CustomLogger
 }
 
-func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, csrf csrf.Usecase,lg *logger.CustomLogger) {
+func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, csrf csrf.Usecase, lg *logger.CustomLogger) {
 	handler := UserHandler{
 		UserUseCase:     us,
 		SessionsUseCase: su,
@@ -51,7 +51,7 @@ func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, csrf cs
 	r.HandleFunc("/api/v1/users/avatar", middlewareApi.CheckCSRFOnHandler(handler.UpdateAvatar)).Methods("PUT")
 	r.HandleFunc("/api/v1/users/password", middlewareApi.CheckCSRFOnHandler(handler.updatePassword)).Methods("PUT")
 	r.HandleFunc("/api/v1/users/{id:[0-9]+}", handler.getAccInfo).Methods("GET")
-	r.HandleFunc("/api/v1/csrf",handler.GetCsrf).Methods("GET")
+	r.HandleFunc("/api/v1/csrf", handler.GetCsrf).Methods("GET")
 }
 
 // swagger:route GET /api/v1/users/{id}  Users userById
@@ -312,22 +312,22 @@ func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		responses.SendOkResponse(w)
 		return
 	}
-	responses.SendErrorResponse(w,clientError.BadRequest)
+	responses.SendErrorResponse(w, clientError.BadRequest)
 }
 
 // swagger:route GET /api/v1/csrf Csrf Csrf
 // get csrf token, token expire = 15 min
-func(u *UserHandler) GetCsrf(w http.ResponseWriter,r *http.Request){
+func (u *UserHandler) GetCsrf(w http.ResponseWriter, r *http.Request) {
 	sId, ok := r.Context().Value(configs.SessionID).(string)
 	if !ok {
 		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
 		return
 	}
-	token, err := u.csrfUseCase.CreateToken(sId,time.Now().Unix())
-	if err != nil{
+	token, err := u.csrfUseCase.CreateToken(sId, time.Now().Unix())
+	if err != nil {
 		customerror.PostError(w, r, u.log, err, serverError.ServerInternalError)
 		return
 	}
-	w.Header().Set("Csrf",token)
+	w.Header().Set("Csrf", token)
 	responses.SendOkResponse(w)
 }

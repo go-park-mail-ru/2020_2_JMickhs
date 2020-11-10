@@ -20,9 +20,9 @@ func NewCommentRepository(conn *sqlx.DB) CommentRepository {
 	return CommentRepository{conn: conn}
 }
 
-func (r *CommentRepository) GetComments(hotelID string, limit int, offset string,user_id int) ([]commModel.FullCommentInfo, error) {
+func (r *CommentRepository) GetComments(hotelID string, limit int, offset string, user_id int) ([]commModel.FullCommentInfo, error) {
 	comments := []commModel.FullCommentInfo{}
-	err := r.conn.Select(&comments, GetCommentsPostgreRequest, offset,limit, hotelID,user_id)
+	err := r.conn.Select(&comments, GetCommentsPostgreRequest, offset, limit, hotelID, user_id)
 	if err != nil {
 		return comments, customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}
@@ -98,14 +98,14 @@ func (p *CommentRepository) CheckUser(comment *commModel.Comment) (int, error) {
 	return destRate, nil
 }
 
-func (p* CommentRepository) CheckRateExistForComments(hotelID int, userID int) (bool,error){
-	res,err := p.conn.Exec(CheckRateExistForCommentsRequest,hotelID,userID)
-	if err != nil{
-		return false,  customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+func (p *CommentRepository) CheckRateExistForComments(hotelID int, userID int) (bool, error) {
+	res, err := p.conn.Exec(CheckRateExistForCommentsRequest, hotelID, userID)
+	if err != nil {
+		return false, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
-	count,_ := res.RowsAffected()
-	if count == 0{
-		return false,nil
+	count, _ := res.RowsAffected()
+	if count == 0 {
+		return false, nil
 	}
-	return true,nil
+	return true, nil
 }

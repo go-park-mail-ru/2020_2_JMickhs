@@ -3,11 +3,12 @@ package server
 import (
 	"context"
 	"fmt"
-	csrfRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/csrf/repository"
-	csrfUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/csrf/usecase"
 	"log"
 	"net/http"
 	"strconv"
+
+	csrfRepository "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/csrf/repository"
+	csrfUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/csrf/usecase"
 
 	"github.com/aws/aws-sdk-go/aws"
 
@@ -87,6 +88,7 @@ func InitS3Session() *s3.S3 {
 }
 
 func NewRouter() *mux.Router {
+
 	router := mux.NewRouter().StrictSlash(true)
 
 	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
@@ -98,8 +100,7 @@ func NewRouter() *mux.Router {
 	return router
 }
 
-
-func StartServer(store *redis.Client,db *sqlx.DB,s3 *s3.S3,log *logger.CustomLogger) {
+func StartServer(store *redis.Client, db *sqlx.DB, s3 *s3.S3, log *logger.CustomLogger) {
 
 	validate := validator.New()
 
@@ -122,20 +123,18 @@ func StartServer(store *redis.Client,db *sqlx.DB,s3 *s3.S3,log *logger.CustomLog
 	uCsrf := csrfUsecase.NewCsrfUsecase(&repCsrf)
 
 	sessMidleware := middlewareApi.NewSessionMiddleware(uSes, u, log)
-	csrfMidleware := middlewareApi.NewCsrfMiddleware(uCsrf,log)
+	csrfMidleware := middlewareApi.NewCsrfMiddleware(uCsrf, log)
 	r.Use(sessMidleware.SessionMiddleware())
 	r.Use(csrfMidleware.CSRFCheck())
 
-
 	hotelDelivery.NewHotelHandler(r, uHot, log)
-	delivery.NewUserHandler(r, uSes, u, uCsrf,log)
+	delivery.NewUserHandler(r, uSes, u, uCsrf, log)
 	commentDelivery.NewCommentHandler(r, uCom, log)
 
 	log.Info("Server started at port", configs.Port)
 	//err := http.ListenAndServeTLS(configs.Port, "/etc/ssl/hostelscan.ru.crt","/etc/ssl/hostelscan.ru.key",r)
-	err := http.ListenAndServe(configs.Port,r)
+	err := http.ListenAndServe(configs.Port, r)
 	if err != nil {
 		log.Error(err)
 	}
 }
-

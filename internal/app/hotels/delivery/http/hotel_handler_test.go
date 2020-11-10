@@ -194,8 +194,8 @@ func TestHotelHandler_Hotel(t *testing.T) {
 
 func TestHotelHandler_ListHotels(t *testing.T) {
 	testHotels := []hotelmodel.Hotel{
-		{ 3,"kek","kekw hotel","src/image.png","moscow",2,[]string{"fds","fsd"},3},
-		{ 4,"kek","kekw hotel","src/image.png","moscow",2,[]string{"fds","fsd"},3},
+		{3, "kek", "kekw hotel", "src/image.png", "moscow", 2, []string{"fds", "fsd"}, 3},
+		{4, "kek", "kekw hotel", "src/image.png", "moscow", 2, []string{"fds", "fsd"}, 3},
 	}
 
 	t.Run("GetHotels", func(t *testing.T) {
@@ -296,11 +296,11 @@ func TestHotelHandler_ListHotels(t *testing.T) {
 
 func TestHotelHandler_FetchHotels(t *testing.T) {
 	testHotels := []hotelmodel.Hotel{
-		{ 3,"kek","kekw hotel","src/image.png","moscow",2,[]string{"fds","fsd"},3},
-		{ 4,"kek","kekw hotel","src/image.png","moscow",2,[]string{"fds","fsd"},3},
+		{3, "kek", "kekw hotel", "src/image.png", "moscow", 2, []string{"fds", "fsd"}, 3},
+		{4, "kek", "kekw hotel", "src/image.png", "moscow", 2, []string{"fds", "fsd"}, 3},
 	}
-	pagInfo := paginationModel.PaginationInfo{NextLink: "",PrevLink: "",ItemsCount: 3}
-	searchData := hotelmodel.SearchData{Hotels:testHotels,PagInfo:pagInfo}
+	pagInfo := paginationModel.PaginationInfo{NextLink: "", PrevLink: "", ItemsCount: 3}
+	searchData := hotelmodel.SearchData{Hotels: testHotels, PagInfo: pagInfo}
 
 	t.Run("FetchHotels", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -309,7 +309,7 @@ func TestHotelHandler_FetchHotels(t *testing.T) {
 		mockHUseCase := hotels_mock.NewMockUsecase(ctrl)
 
 		mockHUseCase.EXPECT().
-			FetchHotels("kekw",0).
+			FetchHotels("kekw", 0).
 			Return(searchData, nil)
 
 		req, err := http.NewRequest("GET", "/api/v1/hotels/search?pattern=kekw&page=0", nil)
@@ -369,8 +369,8 @@ func TestHotelHandler_FetchHotels(t *testing.T) {
 		mockHUseCase := hotels_mock.NewMockUsecase(ctrl)
 
 		mockHUseCase.EXPECT().
-			FetchHotels("kekw",0).
-			Return(searchData, customerror.NewCustomError(errors.New("fds"),serverError.ServerInternalError,1))
+			FetchHotels("kekw", 0).
+			Return(searchData, customerror.NewCustomError(errors.New("fds"), serverError.ServerInternalError, 1))
 
 		req, err := http.NewRequest("GET", "/api/v1/hotels/search?pattern=kekw&page=0", nil)
 		assert.NoError(t, err)
@@ -394,8 +394,8 @@ func TestHotelHandler_FetchHotels(t *testing.T) {
 
 func TestHotelHandler_FetchHotelsPreview(t *testing.T) {
 	previews := []hotelmodel.HotelPreview{
-		{3,"kekw hotel","src/image.png","moscow"},
-		{3,"kekw hotel","src/image.png","moscow"}}
+		{3, "kekw hotel", "src/image.png", "moscow"},
+		{3, "kekw hotel", "src/image.png", "moscow"}}
 
 	t.Run("FetchHotelsPreviews", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -427,7 +427,7 @@ func TestHotelHandler_FetchHotelsPreview(t *testing.T) {
 		err = mapstructure.Decode(response.Data.(map[string]interface{})["hotels_preview"], &hotels)
 		assert.NoError(t, err)
 
-		assert.Equal(t, hotels,previews)
+		assert.Equal(t, hotels, previews)
 		assert.Equal(t, http.StatusOK, response.Code)
 	})
 
@@ -439,7 +439,7 @@ func TestHotelHandler_FetchHotelsPreview(t *testing.T) {
 
 		mockHUseCase.EXPECT().
 			GetHotelsPreview("kekw").
-			Return(previews, customerror.NewCustomError(errors.New("f"),serverError.ServerInternalError,1))
+			Return(previews, customerror.NewCustomError(errors.New("f"), serverError.ServerInternalError, 1))
 
 		req, err := http.NewRequest("GET", "/api/v1/hotels/searchPreview?pattern=kekw", nil)
 		assert.NoError(t, err)
