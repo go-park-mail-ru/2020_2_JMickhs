@@ -80,19 +80,14 @@ func InitDB() *sqlx.DB {
 
 func InitS3Session() *s3.S3 {
 	return s3.New(session.Must(session.NewSession(&aws.Config{
-		Region:   aws.String("ru-msk"),
-		Endpoint: aws.String("https://hb.bizmrg.com"),
+		Region:   aws.String(configs.S3Region),
+		Endpoint: aws.String(configs.S3EndPoint),
 	})))
 
 }
 
 func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
-
-	staticDir := "../static/"
-	router.
-		PathPrefix("/static").
-		Handler(http.StripPrefix("/static", http.FileServer(http.Dir(staticDir))))
 
 	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
 	sh := middleware.Redoc(opts, nil)

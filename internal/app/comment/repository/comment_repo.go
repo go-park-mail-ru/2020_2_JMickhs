@@ -21,9 +21,6 @@ func NewCommentRepository(conn *sqlx.DB) CommentRepository {
 }
 
 func (r *CommentRepository) GetComments(hotelID string, limit int, offset string,user_id int) ([]commModel.FullCommentInfo, error) {
-	if limit < 1 || limit > 30 {
-		limit = 10
-	}
 	comments := []commModel.FullCommentInfo{}
 	err := r.conn.Select(&comments, GetCommentsPostgreRequest, offset,limit, hotelID,user_id)
 	if err != nil {
@@ -109,7 +106,6 @@ func (p* CommentRepository) CheckRateExistForComments(hotelID int, userID int) (
 	count,_ := res.RowsAffected()
 	if count == 0{
 		return false,nil
-	}else{
-		return true,nil
 	}
+	return true,nil
 }

@@ -26,7 +26,9 @@ func (u *CommentUseCase) GetComments(hotelID string, limit string, offsets strin
 	lim, _ := strconv.Atoi(limit)
 	offset,_ := strconv.Atoi(offsets)
 
-
+	if lim < 1 || lim > 30 {
+		lim = 10
+	}
 	count, err := u.commentRepo.GetCommentsCount(hotId)
 	if err != nil {
 		return pag, err

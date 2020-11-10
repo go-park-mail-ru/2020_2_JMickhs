@@ -39,7 +39,8 @@ const S3Url = "https://hostelscan.hb.bizmrg.com/"
 const BaseItemPerPage = 28
 const SessionID = "SessionID"
 const CorrectToken = "CorrectToken"
-
+const S3Region = "ru-msk"
+const S3EndPoint = "https://hb.bizmrg.com"
 const (
 	MB = 1 << 20
 )

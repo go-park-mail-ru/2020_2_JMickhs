@@ -50,7 +50,7 @@ func NewCommentHandler(r *mux.Router, hs comment.Usecase, lg *logger.CustomLogge
 func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 
 	limit := r.FormValue("limit")
-	offset := r.FormValue("offset")
+	offsetVar := r.FormValue("offset")
 	hotelID := r.FormValue("id")
 
 	var user_id int
@@ -61,7 +61,7 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 		user_id = user.ID
 	}
 
-	comments, err := ch.CommentUseCase.GetComments(hotelID,limit,offset ,user_id)
+	comments, err := ch.CommentUseCase.GetComments(hotelID,limit,offsetVar ,user_id)
 
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, nil)
