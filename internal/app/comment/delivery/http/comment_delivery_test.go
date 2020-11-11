@@ -5,6 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"testing"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 	comment_mock "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/mocks"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
@@ -19,11 +25,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mitchellh/mapstructure"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
-	"os"
-	"testing"
 )
 
 func TestCommentHandler_ListComments(t *testing.T) {
@@ -46,7 +47,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 
 		mockCUseCase.EXPECT().
 			GetComments("2", "1", "0", 2).
-			Return(commentsTest, nil)
+			Return(56, commentsTest, nil)
 
 		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=0", nil)
 		assert.NoError(t, err)
@@ -81,7 +82,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 
 		mockCUseCase.EXPECT().
 			GetComments("2", "1", "0", 2).
-			Return(commentsTest, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
+			Return(56, commentsTest, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
 		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=0", nil)
 		assert.NoError(t, err)
@@ -103,6 +104,68 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
+	t.Run("GetCommentsErr2", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockCUseCase := comment_mock.NewMockUsecase(ctrl)
+
+		mockCUseCase.EXPECT().
+			GetComments("2", "1", "1", 2).
+			Return(56, commentsTest, nil)
+
+		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=1", nil)
+		assert.NoError(t, err)
+
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		rec := httptest.NewRecorder()
+		handler := CommentHandler{
+			CommentUseCase: mockCUseCase,
+			log:            logger.NewLogger(os.Stdout),
+		}
+
+		handler.ListComments(rec, req)
+		resp := rec.Result()
+
+		body, err := ioutil.ReadAll(resp.Body)
+		response := responses.HttpResponse{}
+
+		err = json.Unmarshal(body, &response)
+		assert.NoError(t, err)
+
+		assert.Equal(t, http.StatusOK, response.Code)
+	})
+	t.Run("GetCommentsErr3", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockCUseCase := comment_mock.NewMockUsecase(ctrl)
+
+		mockCUseCase.EXPECT().
+			GetComments("2", "1", "56", 2).
+			Return(56, commentsTest, nil)
+
+		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=56", nil)
+		assert.NoError(t, err)
+
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		rec := httptest.NewRecorder()
+		handler := CommentHandler{
+			CommentUseCase: mockCUseCase,
+			log:            logger.NewLogger(os.Stdout),
+		}
+
+		handler.ListComments(rec, req)
+		resp := rec.Result()
+
+		body, err := ioutil.ReadAll(resp.Body)
+		response := responses.HttpResponse{}
+
+		err = json.Unmarshal(body, &response)
+		assert.NoError(t, err)
+
+		assert.Equal(t, http.StatusOK, response.Code)
 	})
 }
 

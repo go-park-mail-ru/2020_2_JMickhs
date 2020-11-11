@@ -34,12 +34,13 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 }
 
 // GetComments mocks base method
-func (m *MockUsecase) GetComments(hotelID, limit, offset string, user_id int) (commModel.Comments, error) {
+func (m *MockUsecase) GetComments(hotelID, limit, offset string, user_id int) (int, commModel.Comments, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetComments", hotelID, limit, offset, user_id)
-	ret0, _ := ret[0].(commModel.Comments)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(commModel.Comments)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // GetComments indicates an expected call of GetComments

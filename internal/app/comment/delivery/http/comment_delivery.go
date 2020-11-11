@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/middleware"
@@ -62,11 +63,48 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 		user_id = user.ID
 	}
 
-	comments, err := ch.CommentUseCase.GetComments(hotelID, limit, offsetVar, user_id)
-
+	count, comments, err := ch.CommentUseCase.GetComments(hotelID, limit, offsetVar, user_id)
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, nil)
 		return
+	}
+	url := url.URL{
+		Host:   "hostelscan.ru:8080",
+		Scheme: "https",
+		Path:   "/api/v1/comments/",
+	}
+	lim, _ := strconv.Atoi(limit)
+	offset, _ := strconv.Atoi(offsetVar)
+
+	query := url.Query()
+	query.Set("id", hotelID)
+	query.Set("limit", limit)
+	if offset+lim >= count {
+		query.Set("offset", strconv.Itoa(offset-lim))
+		url.RawQuery = query.Encode()
+		comments.Info.PrevLink = url.Path + "?" + url.RawQuery
+
+		query.Set("offset", "0")
+		url.RawQuery = query.Encode()
+		comments.Info.NextLink = url.Path + "?" + url.RawQuery
+	}
+	if offset-lim < 0 {
+		query.Set("offset", strconv.Itoa(offset+lim))
+		url.RawQuery = query.Encode()
+		comments.Info.NextLink = url.Path + "?" + url.RawQuery
+
+		query.Set("offset", strconv.Itoa(count-lim))
+		url.RawQuery = query.Encode()
+		comments.Info.PrevLink = url.Path + "?" + url.RawQuery
+	}
+	if offset+lim < count && offset-lim >= 0 {
+		query.Set("offset", strconv.Itoa(offset+lim))
+		url.RawQuery = query.Encode()
+		comments.Info.NextLink = url.Path + "?" + url.RawQuery
+
+		query.Set("offset", strconv.Itoa(offset-lim))
+		url.RawQuery = query.Encode()
+		comments.Info.PrevLink = url.Path + "?" + url.RawQuery
 	}
 
 	responses.SendDataResponse(w, comments)
