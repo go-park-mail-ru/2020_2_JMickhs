@@ -44,7 +44,6 @@ func (wh *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(WishlistID)
 	if err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
-		w.Write([]byte("{}"))
 		return
 	}
 
@@ -71,14 +70,12 @@ func (wh *WishlistHandler) AddHotelToWishlist(w http.ResponseWriter, r *http.Req
 	err := decoder.Decode(Data)
 	if err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
-		w.Write([]byte("{}"))
 		return
 	}
 
 	if err := wh.useCase.AddHotel(Data.HotelID, Data.WishlistID); err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
 	}
-	w.Write([]byte("okay"))
 	responses.SendOkResponse(w)
 }
 
@@ -98,20 +95,18 @@ func (wh *WishlistHandler) DeleteHotelFromWishlist(w http.ResponseWriter, r *htt
 	err := decoder.Decode(Data)
 	if err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
-		w.Write([]byte("{}"))
 		return
 	}
 	if err := wh.useCase.DeleteHotel(Data.HotelID, Data.WishlistID); err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
 	}
-	w.Write([]byte("okay"))
 	responses.SendOkResponse(w)
 }
 
 // swagger:route GET /api/v1/deletewishlist Wishlist deleteWishlist
 // Delete wishlist
 // responses:
-//  200: hotels
+//  200:
 //  400: badrequest
 func (wh *WishlistHandler) DeleteWishlist(w http.ResponseWriter, r *http.Request) {
 	type DeleteWishlistRequest struct {
@@ -123,13 +118,11 @@ func (wh *WishlistHandler) DeleteWishlist(w http.ResponseWriter, r *http.Request
 	err := decoder.Decode(WishlistID)
 	if err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
-		w.Write([]byte("{}"))
 		return
 	}
 	if err := wh.useCase.DeleteWishlist(WishlistID.ID); err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
 	}
-	w.Write([]byte("okay"))
 	responses.SendOkResponse(w)
 }
 
@@ -146,13 +139,11 @@ func (wh *WishlistHandler) CreateWishlist(w http.ResponseWriter, r *http.Request
 	err := decoder.Decode(newWishlist)
 	if err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
-		w.Write([]byte("{}"))
 		return
 	}
 
 	if err := wh.useCase.CreateWishlist(*newWishlist); err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
 	}
-	w.Write([]byte("okay"))
 	responses.SendOkResponse(w)
 }
