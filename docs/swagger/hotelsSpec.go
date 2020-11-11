@@ -1,17 +1,25 @@
 package swagger
 
 import (
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
+	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
 )
 
 // swagger:parameters searchHotel
 type SearchStringRequest struct {
-	// in: query
-	Pattern string `json:"pattern"`
-	Prev    string `json:"prev"`
-	Next    string `json:"next"`
+	// page num start from 0
 	// required:true
-	Limit int `json:"limit"`
+	Pattern string `json:"pattern"`
+	// required:true
+	Page string `json:"page"`
+}
+
+// swagger:parameters hotelPreview
+type SearchPreviewStringRequest struct {
+	// page num start from 0
+	// required:true
+	Pattern string `json:"pattern"`
 }
 
 type PreviewHotel struct {
@@ -29,13 +37,13 @@ type RateRequest struct {
 }
 
 type SearchDataResponse struct {
-	Hotels []hotelmodel.Hotel `json:"hotels"`
-	Cursor hotelmodel.Cursor  `json:"cursor"`
+	Hotels  []hotelmodel.Hotel             `json:"hotels"`
+	PagInfo paginationModel.PaginationInfo `json:"Pag_info"`
 }
 
 type HotelData struct {
-	Hotel    hotelmodel.Hotel `json:"hotel"`
-	CurrRate int              `json:"rate"`
+	Hotel   hotelmodel.Hotel          `json:"hotel"`
+	Comment commModel.FullCommentInfo `json:"comment,omitempty"`
 }
 
 // swagger:parameters hotel
@@ -44,6 +52,13 @@ type hotelIDParameterWrapper struct {
 	// in: path
 	// required:true
 	ID int `json:"id"`
+}
+
+// swagger:parameters hotelsPreview
+type hotelsPreviewRequest struct {
+	// in: query
+	// required:true
+	ID int `json:"pattern"`
 }
 
 // swagger:response HotelData
@@ -63,7 +78,13 @@ type hotelsIDParameterWrapper struct {
 // swagger:response hotels
 type hotelListWrapper struct {
 	//in: body
-	Body []PreviewHotel
+	Body hotelmodel.Hotels
+}
+
+// swagger:response hotelsPreview
+type hotelsPreviewResponse struct {
+	//in: body
+	Body hotelmodel.HotelsPreview
 }
 
 // swagger:response searchHotel

@@ -39,3 +39,8 @@ type credentials struct {
 // swagger:response locked
 type locked struct {
 }
+
+// wrong email
+// swagger:response WrongEmail
+type wrongEmail struct {
+}

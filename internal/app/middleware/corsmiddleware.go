@@ -12,7 +12,7 @@ func NewOptionsHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 		allowedOrigin := ""
-		if origin == configs.Domen || origin == configs.LocalOrigin {
+		if configs.AllowedOrigins[origin] {
 			allowedOrigin = origin
 		}
 		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
@@ -31,7 +31,7 @@ func MyCORSMethodMiddleware() mux.MiddlewareFunc {
 		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			origin := req.Header.Get("Origin")
 			allowedOrigin := ""
-			if origin == configs.Domen || origin == configs.LocalOrigin {
+			if configs.AllowedOrigins[origin] {
 				allowedOrigin = origin
 			}
 			w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)

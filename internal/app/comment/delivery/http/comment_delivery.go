@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/url"
 	"strconv"
+
+	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/middleware"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
 
@@ -19,7 +22,6 @@ import (
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/logger"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment"
-	permissions "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/permission"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/responses"
 	"github.com/gorilla/mux"
 )
@@ -35,11 +37,11 @@ func NewCommentHandler(r *mux.Router, hs comment.Usecase, lg *logger.CustomLogge
 		log:            lg,
 	}
 
-	r.HandleFunc("/api/v1/comments", permissions.CheckCSRF(handler.AddComment)).Methods("POST")
-	r.HandleFunc("/api/v1/comments", permissions.CheckCSRF(handler.UpdateComment)).Methods("PUT")
-	r.HandleFunc("/api/v1/comments/{id:[0-9]+}", permissions.CheckCSRF(handler.DeleteComment)).Methods("DELETE")
-	r.Path("/api/v1/comments").Queries("id", "{id:[0-9]+}", "from", "{from:[0-9]+}").
-		HandlerFunc(permissions.SetCSRF(handler.ListComments)).Methods("GET")
+	r.HandleFunc("/api/v1/comments", middlewareApi.CheckCSRFOnHandler(handler.AddComment)).Methods("POST")
+	r.HandleFunc("/api/v1/comments", middlewareApi.CheckCSRFOnHandler(handler.UpdateComment)).Methods("PUT")
+	r.HandleFunc("/api/v1/comments/{id:[0-9]+}", middlewareApi.CheckCSRFOnHandler(handler.DeleteComment)).Methods("DELETE")
+	r.Path("/api/v1/comments").Queries("id", "{id:[0-9]+}", "limit", "{limit:[0-9]+}", "offset", "{from:[0-9]+}").
+		HandlerFunc(handler.ListComments).Methods("GET")
 }
 
 // swagger:route GET /api/v1/comments comment comments
@@ -49,28 +51,24 @@ func NewCommentHandler(r *mux.Router, hs comment.Usecase, lg *logger.CustomLogge
 //  400: badrequest
 func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 
-	from := r.FormValue("from")
-	startId, err := strconv.Atoi(from)
+	limit := r.FormValue("limit")
+	offsetVar := r.FormValue("offset")
+	hotelID := r.FormValue("id")
 
-	if err != nil {
-		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
-		return
+	var user_id int
+	user, ok := r.Context().Value(configs.RequestUser).(models.User)
+	if !ok {
+		user_id = -1
+	} else {
+		user_id = user.ID
 	}
 
-	id := r.FormValue("id")
-	hotelId, err := strconv.Atoi(id)
-	if err != nil {
-		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
-		return
-	}
-
-	comments, err := ch.CommentUseCase.GetComments(hotelId, startId)
-
+	count, comments, err := ch.CommentUseCase.GetComments(hotelID, limit, offsetVar, user_id)
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, nil)
 		return
 	}
-
+	ch.NextPrevUrl(count, limit, offsetVar, hotelID, &comments)
 	responses.SendDataResponse(w, comments)
 }
 
@@ -83,12 +81,13 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 //  423: locked
 func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 	comment := commModel.Comment{}
+
 	err := json.NewDecoder(r.Body).Decode(&comment)
+
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 		return
 	}
-
 	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
 	if !ok {
 		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
@@ -133,6 +132,7 @@ func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) 
 		customerror.PostError(w, r, ch.log, err, nil)
 		return
 	}
+
 	responses.SendDataResponse(w, upComm)
 }
 
@@ -149,6 +149,12 @@ func (ch *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	_, ok := r.Context().Value(configs.RequestUser).(models.User)
+	if !ok {
+		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
+		return
+	}
+
 	err = ch.CommentUseCase.DeleteComment(id)
 
 	if err != nil {
@@ -157,4 +163,47 @@ func (ch *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) 
 	}
 
 	responses.SendOkResponse(w)
+}
+
+func (ch *CommentHandler) NextPrevUrl(count int, limit string, offsetVar string, hotelID string, comments *commModel.Comments) {
+	url := url.URL{
+		Host:   "hostelscan.ru:8080",
+		Scheme: "https",
+		Path:   "/api/v1/comments/",
+	}
+
+	query := url.Query()
+	query.Set("id", hotelID)
+	query.Set("limit", limit)
+
+	lim, _ := strconv.Atoi(limit)
+	offset, _ := strconv.Atoi(offsetVar)
+
+	if offset+lim >= count {
+		query.Set("offset", strconv.Itoa(offset-lim))
+		url.RawQuery = query.Encode()
+		comments.Info.PrevLink = url.Path + "?" + url.RawQuery
+
+		query.Set("offset", "0")
+		url.RawQuery = query.Encode()
+		comments.Info.NextLink = url.Path + "?" + url.RawQuery
+	}
+	if offset-lim < 0 {
+		query.Set("offset", strconv.Itoa(offset+lim))
+		url.RawQuery = query.Encode()
+		comments.Info.NextLink = url.Path + "?" + url.RawQuery
+
+		query.Set("offset", strconv.Itoa(count-lim))
+		url.RawQuery = query.Encode()
+		comments.Info.PrevLink = url.Path + "?" + url.RawQuery
+	}
+	if offset+lim < count && offset-lim >= 0 {
+		query.Set("offset", strconv.Itoa(offset+lim))
+		url.RawQuery = query.Encode()
+		comments.Info.NextLink = url.Path + "?" + url.RawQuery
+
+		query.Set("offset", strconv.Itoa(offset-lim))
+		url.RawQuery = query.Encode()
+		comments.Info.PrevLink = url.Path + "?" + url.RawQuery
+	}
 }

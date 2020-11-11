@@ -18,6 +18,8 @@ var convertStatusToHTTP = map[int]int{
 	clientError.Gone:                 http.StatusGone,
 	clientError.UnsupportedMediaType: http.StatusUnsupportedMediaType,
 	serverError.ServerInternalError:  http.StatusInternalServerError,
+	clientError.NotFound:             http.StatusNotFound,
+	clientError.NotAccespteble:       http.StatusNotAcceptable,
 }
 
 func StatusCode(code int) int {

@@ -18,14 +18,10 @@ type CustomError struct {
 	code int
 }
 
-func NewCustomError(err error, code int, skip interface{}) *CustomError {
+func NewCustomError(err error, code int, skip int) *CustomError {
 	var fn string
 	var line int
-	if skip == nil {
-		_, fn, line, _ = runtime.Caller(1)
-	} else {
-		_, fn, line, _ = runtime.Caller(skip.(int))
-	}
+	_, fn, line, _ = runtime.Caller(skip)
 	return &CustomError{err.Error(), relative(fn), line, code}
 }
 

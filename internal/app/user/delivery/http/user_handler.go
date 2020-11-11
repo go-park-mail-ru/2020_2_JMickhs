@@ -1,9 +1,10 @@
 package userDelivery
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/csrf"
+	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/middleware"
 	"net/http"
 	"strconv"
 	"time"
@@ -21,8 +22,6 @@ import (
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/responses"
 
-	permissions "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/permission"
-
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/sessions"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user"
@@ -32,24 +31,27 @@ import (
 type UserHandler struct {
 	UserUseCase     user.Usecase
 	SessionsUseCase sessions.Usecase
+	csrfUseCase     csrf.Usecase
 	log             *logger.CustomLogger
 }
 
-func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, lg *logger.CustomLogger) {
+func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, csrf csrf.Usecase, lg *logger.CustomLogger) {
 	handler := UserHandler{
 		UserUseCase:     us,
 		SessionsUseCase: su,
 		log:             lg,
+		csrfUseCase:     csrf,
 	}
 
-	r.HandleFunc("/api/v1/users", permissions.SetCSRF(handler.Registration)).Methods("POST")
-	r.HandleFunc("/api/v1/users/sessions", permissions.SetCSRF(handler.Auth)).Methods("POST")
-	r.HandleFunc("/api/v1/users", permissions.SetCSRF(handler.UserHandler)).Methods("GET")
-	r.HandleFunc("/api/v1/users/sessions", permissions.SetCSRF(handler.SignOut)).Methods("DELETE")
-	r.HandleFunc("/api/v1/users/credentials", permissions.CheckCSRF(handler.UpdateUser)).Methods("PUT")
-	r.HandleFunc("/api/v1/users/avatar", permissions.CheckCSRF(handler.UpdateAvatar)).Methods("PUT")
-	r.HandleFunc("/api/v1/users/password", permissions.CheckCSRF(handler.updatePassword)).Methods("PUT")
-	r.HandleFunc("/api/v1/users/{id:[0-9]+}", permissions.SetCSRF(handler.getAccInfo)).Methods("GET")
+	r.HandleFunc("/api/v1/users", handler.Registration).Methods("POST")
+	r.HandleFunc("/api/v1/users/sessions", handler.Auth).Methods("POST")
+	r.HandleFunc("/api/v1/users", handler.UserHandler).Methods("GET")
+	r.HandleFunc("/api/v1/users/sessions", handler.SignOut).Methods("DELETE")
+	r.HandleFunc("/api/v1/users/credentials", middlewareApi.CheckCSRFOnHandler(handler.UpdateUser)).Methods("PUT")
+	r.HandleFunc("/api/v1/users/avatar", middlewareApi.CheckCSRFOnHandler(handler.UpdateAvatar)).Methods("PUT")
+	r.HandleFunc("/api/v1/users/password", middlewareApi.CheckCSRFOnHandler(handler.updatePassword)).Methods("PUT")
+	r.HandleFunc("/api/v1/users/{id:[0-9]+}", handler.getAccInfo).Methods("GET")
+	r.HandleFunc("/api/v1/csrf", handler.GetCsrf).Methods("GET")
 }
 
 // swagger:route GET /api/v1/users/{id}  Users userById
@@ -60,17 +62,12 @@ func NewUserHandler(r *mux.Router, su sessions.Usecase, us user.Usecase, lg *log
 //  410:  gone
 func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-
-	if err != nil {
-		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
-		return
-	}
+	id, _ := strconv.Atoi(vars["id"])
 
 	user, err := u.UserUseCase.GetUserByID(id)
 
 	if err != nil {
-		r = r.WithContext(context.WithValue(r.Context(), configs.DeliveryError, err))
+		customerror.PostError(w, r, u.log, err, nil)
 		return
 	}
 
@@ -91,6 +88,7 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(5 * configs.MB)
 
 	r.Body = http.MaxBytesReader(w, r.Body, 5*configs.MB)
+
 	file, _, err := r.FormFile("avatar")
 
 	if err != nil {
@@ -121,6 +119,7 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return
 	}
+
 	responses.SendDataResponse(w, path)
 }
 
@@ -154,7 +153,7 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	usr.Password = twoPass.NewPassword
 	err = u.UserUseCase.UpdatePassword(usr)
 	if err != nil {
-		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
+		customerror.PostError(w, r, u.log, err, nil)
 		return
 	}
 	responses.SendOkResponse(w)
@@ -201,7 +200,7 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
-	u.UserUseCase.SetDefaultAvatar(&user)
+
 	if err != nil {
 		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return
@@ -243,7 +242,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 
 	if err != nil {
-		customerror.PostError(w, r, u.log, err, nil)
+		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return
 	}
 
@@ -311,5 +310,24 @@ func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		c.Path = "/"
 		http.SetCookie(w, c)
 		responses.SendOkResponse(w)
+		return
 	}
+	responses.SendErrorResponse(w, clientError.BadRequest)
+}
+
+// swagger:route GET /api/v1/csrf Csrf Csrf
+// get csrf token, token expire = 15 min
+func (u *UserHandler) GetCsrf(w http.ResponseWriter, r *http.Request) {
+	sId, ok := r.Context().Value(configs.SessionID).(string)
+	if !ok {
+		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
+		return
+	}
+	token, err := u.csrfUseCase.CreateToken(sId, time.Now().Unix())
+	if err != nil {
+		customerror.PostError(w, r, u.log, err, serverError.ServerInternalError)
+		return
+	}
+	w.Header().Set("Csrf", token)
+	responses.SendOkResponse(w)
 }

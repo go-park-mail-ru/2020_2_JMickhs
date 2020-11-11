@@ -1,7 +1,9 @@
 package commentUsecase
 
 import (
+	"fmt"
 	"math"
+	"strconv"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
@@ -17,8 +19,41 @@ func NewCommentUsecase(r comment.Repository) *CommentUseCase {
 	}
 }
 
-func (u *CommentUseCase) GetComments(hotelID int, StartID int) ([]commModel.FullCommentInfo, error) {
-	return u.commentRepo.GetComments(hotelID, StartID)
+func (u *CommentUseCase) GetComments(hotelID string, limit string, offsets string, user_id int) (int, commModel.Comments, error) {
+	pag := commModel.Comments{}
+	hotId, _ := strconv.Atoi(hotelID)
+	lim, _ := strconv.Atoi(limit)
+	offset, _ := strconv.Atoi(offsets)
+
+	if lim < 1 || lim > 30 {
+		lim = 10
+	}
+	count, err := u.commentRepo.GetCommentsCount(hotId)
+	if err != nil {
+		return 0, pag, err
+	}
+	if user_id != 0 {
+		check, err := u.commentRepo.CheckRateExistForComments(hotId, user_id)
+		if err != nil {
+			return 0, pag, err
+		}
+		if check {
+			count--
+		}
+	}
+
+	if offset > count {
+		return 0, pag, nil
+	}
+
+	data, err := u.commentRepo.GetComments(hotelID, lim, offsets, user_id)
+	if err != nil {
+		return 0, pag, err
+	}
+	pag.Comments = data
+
+	pag.Info.ItemsCount = count
+	return count, pag, nil
 }
 func (u *CommentUseCase) AddComment(comment commModel.Comment) (commModel.NewRate, error) {
 	newRate := commModel.NewRate{}
@@ -31,6 +66,7 @@ func (u *CommentUseCase) AddComment(comment commModel.Comment) (commModel.NewRat
 	if err != nil {
 		return newRate, err
 	}
+	fmt.Println(hotelRate)
 	newRate.Rate = hotelRate
 	return newRate, nil
 

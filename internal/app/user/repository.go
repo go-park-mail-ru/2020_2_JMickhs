@@ -1,4 +1,4 @@
-//go:generate mockgen -source repository.go -destination mocks/user_repository_mock.go -package mocks
+//go:generate mockgen -source repository.go -destination mocks/user_repository_mock.go -package user_mock
 package user
 
 import "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/models"

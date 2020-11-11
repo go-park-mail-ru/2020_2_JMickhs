@@ -37,7 +37,7 @@ func (u *SessionMidleware) SessionMiddleware() mux.MiddlewareFunc {
 			c, err := r.Cookie("session_token")
 
 			if err != nil {
-				err = customerror.NewCustomError(err, clientError.BadRequest, nil)
+				err = customerror.NewCustomError(err, clientError.BadRequest, 1)
 				u.log.Info(err.Error())
 				next.ServeHTTP(w, r)
 				return
@@ -57,6 +57,7 @@ func (u *SessionMidleware) SessionMiddleware() mux.MiddlewareFunc {
 					return
 				}
 				ctx := context.WithValue(r.Context(), configs.RequestUser, user)
+				ctx = context.WithValue(ctx, configs.SessionID, sessionToken)
 				r = r.WithContext(ctx)
 			}
 			next.ServeHTTP(w, r)

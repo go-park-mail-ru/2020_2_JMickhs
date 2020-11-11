@@ -3,10 +3,13 @@ package responses
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/mailru/easyjson"
 )
 
 func SendDataResponse(w http.ResponseWriter, data interface{}) {
-	err := json.NewEncoder(w).Encode(HttpResponse{Data: data, Code: 200})
+	response := HttpResponse{Data: data, Code: 200}
+	_, _, err := easyjson.MarshalToHTTPResponseWriter(response, w)
 	if err != nil {
 		SendErrorResponse(w, http.StatusInternalServerError)
 	}

@@ -16,7 +16,10 @@ type Avatar struct {
 
 type UpdateUser struct {
 	Username string `json:"username" db:"username"`
-	Email    string `json:"email" db:"email"`
+}
+
+type UpdateEmail struct {
+	Email string `json:"email" db:"email"`
 }
 
 type UserAuth struct {
@@ -83,4 +86,10 @@ type UserIdParameter struct {
 type AvatarUserResponse struct {
 	//in:body
 	Body Avatar
+}
+
+// swagger:parameters email
+type EmailParameteter struct {
+	//in:body
+	Body UpdateEmail
 }

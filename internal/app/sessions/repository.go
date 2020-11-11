@@ -1,4 +1,4 @@
-//go:generate mockgen -source repository.go -destination mocks/sessions_repository_mock.go -package mocks
+//go:generate mockgen -source repository.go -destination mocks/sessions_repository_mock.go -package sessions_mock
 package sessions
 
 type Repository interface {

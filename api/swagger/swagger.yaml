@@ -12,7 +12,7 @@ definitions:
       message:
         type: string
         x-go-name: Message
-      rate:
+      rating:
         format: int64
         type: integer
         x-go-name: Rating
@@ -26,6 +26,7 @@ definitions:
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   Comment:
+    description: easyjson:json
     properties:
       comm_id:
         format: int64
@@ -38,7 +39,7 @@ definitions:
       message:
         type: string
         x-go-name: Message
-      rate:
+      rating:
         format: double
         type: number
         x-go-name: Rate
@@ -51,16 +52,6 @@ definitions:
         x-go-name: UserID
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models
-  Cursor:
-    properties:
-      nextcursor:
-        type: string
-        x-go-name: NextCursor
-      prevcursor:
-        type: string
-        x-go-name: PrevCursor
-    type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models
   File:
     allOf:
     - properties:
@@ -77,6 +68,7 @@ definitions:
     type: object
     x-go-package: mime/multipart
   FullCommentInfo:
+    description: easyjson:json
     properties:
       avatar:
         type: string
@@ -108,8 +100,24 @@ definitions:
         x-go-name: Username
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models
-  Hotel:
+  GetCommentsRequest:
     properties:
+      comments:
+        items:
+          $ref: '#/definitions/FullCommentInfo'
+        type: array
+        x-go-name: Comments
+      pag_info:
+        $ref: '#/definitions/PaginationInfo'
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+  Hotel:
+    description: easyjson:json
+    properties:
+      comm_count:
+        format: int64
+        type: integer
+        x-go-name: CommCount
       description:
         type: string
         x-go-name: Description
@@ -139,29 +147,15 @@ definitions:
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models
   HotelData:
     properties:
+      comment:
+        $ref: '#/definitions/FullCommentInfo'
       hotel:
         $ref: '#/definitions/Hotel'
-      rate:
-        format: int64
-        type: integer
-        x-go-name: CurrRate
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
-  NewRate:
+  HotelPreview:
+    description: easyjson:json
     properties:
-      comment:
-        $ref: '#/definitions/Comment'
-      new_rate:
-        format: double
-        type: number
-        x-go-name: Rate
-    type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models
-  PreviewHotel:
-    properties:
-      description:
-        type: string
-        x-go-name: Description
       hotel_id:
         format: int64
         type: integer
@@ -175,12 +169,56 @@ definitions:
       name:
         type: string
         x-go-name: Name
-      rating:
-        type: string
-        x-go-name: Rating
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models
+  Hotels:
+    description: easyjson:json
+    properties:
+      hotels:
+        items:
+          $ref: '#/definitions/Hotel'
+        type: array
+        x-go-name: Hotels
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models
+  HotelsPreview:
+    description: easyjson:json
+    properties:
+      hotels_preview:
+        items:
+          $ref: '#/definitions/HotelPreview'
+        type: array
+        x-go-name: Hotels
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models
+  NewRate:
+    description: easyjson:json
+    properties:
+      comment:
+        $ref: '#/definitions/Comment'
+      new_rate:
+        format: double
+        type: number
+        x-go-name: Rate
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models
+  PaginationInfo:
+    description: easyjson:json
+    properties:
+      items_count:
+        format: int64
+        type: integer
+        x-go-name: ItemsCount
+      next:
+        type: string
+        x-go-name: NextLink
+      prev:
+        type: string
+        x-go-name: PrevLink
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model
   SafeUser:
+    description: easyjson:json
     properties:
       avatar:
         type: string
@@ -199,8 +237,8 @@ definitions:
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/models
   SearchDataResponse:
     properties:
-      cursor:
-        $ref: '#/definitions/Cursor'
+      Pag_info:
+        $ref: '#/definitions/PaginationInfo'
       hotels:
         items:
           $ref: '#/definitions/Hotel'
@@ -223,13 +261,21 @@ definitions:
       message:
         type: string
         x-go-name: Message
-      rate:
+      rating:
         format: int64
         type: integer
         x-go-name: Rate
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+  UpdateEmail:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   UpdatePassword:
+    description: easyjson:json
     properties:
       newpassword:
         type: string
@@ -241,9 +287,6 @@ definitions:
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/models
   UpdateUser:
     properties:
-      email:
-        type: string
-        x-go-name: Email
       username:
         type: string
         x-go-name: Username
@@ -282,13 +325,19 @@ paths:
       description: GetList of comments
       operationId: comments
       parameters:
-      - description: the start ID to get comments
+      - description: offset  start from 0
         format: int64
         in: query
-        name: from
+        name: offset
         required: true
         type: integer
-        x-go-name: From
+        x-go-name: Offset
+      - description: number of comments to show
+        format: int64
+        in: query
+        name: limit
+        type: integer
+        x-go-name: Limit
       - description: the ID of hotel which comments you get
         format: int64
         in: query
@@ -358,6 +407,12 @@ paths:
           $ref: '#/responses/Forbidden'
       tags:
       - comment
+  /api/v1/csrf:
+    get:
+      description: get csrf token, token expire = 15 min
+      operationId: Csrf
+      tags:
+      - Csrf
   /api/v1/hotels:
     get:
       description: GetList of hotels
@@ -399,29 +454,40 @@ paths:
       summary: Get Single hotel by id,
       tags:
       - hotel
+  /api/v1/hotels/previewSearch:
+    get:
+      description: Search hotels preview
+      operationId: hotelPreview
+      parameters:
+      - description: page num start from 0
+        in: query
+        name: pattern
+        required: true
+        type: string
+        x-go-name: Pattern
+      responses:
+        "200":
+          $ref: '#/responses/hotelsPreview'
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - hotel
   /api/v1/hotels/search:
     get:
       description: Search hotels
       operationId: searchHotel
       parameters:
-      - in: query
+      - description: page num start from 0
+        in: query
         name: pattern
+        required: true
         type: string
         x-go-name: Pattern
       - in: query
-        name: prev
-        type: string
-        x-go-name: Prev
-      - in: query
-        name: next
-        type: string
-        x-go-name: Next
-      - format: int64
-        in: query
-        name: limit
+        name: page
         required: true
-        type: integer
-        x-go-name: Limit
+        type: string
+        x-go-name: Page
       responses:
         "200":
           $ref: '#/responses/searchHotel'
@@ -577,6 +643,8 @@ responses:
   UpdateComment:
     schema:
       $ref: '#/definitions/NewRate'
+  WrongEmail:
+    description: wrong email
   avatar:
     schema:
       $ref: '#/definitions/Avatar'
@@ -585,6 +653,7 @@ responses:
   badrequest:
     description: cannot parse data or undefined query or path parameters
   commentInfo:
+    description: easyjson:json
     headers:
       avatar:
         type: string
@@ -608,18 +677,17 @@ responses:
         type: string
   comments:
     schema:
-      items:
-        $ref: '#/definitions/FullCommentInfo'
-      type: array
+      $ref: '#/definitions/GetCommentsRequest'
   conflict:
     description: unique data already exists
   gone:
     description: This data does not exist
   hotels:
     schema:
-      items:
-        $ref: '#/definitions/PreviewHotel'
-      type: array
+      $ref: '#/definitions/Hotels'
+  hotelsPreview:
+    schema:
+      $ref: '#/definitions/HotelsPreview'
   locked:
     description: two times rate one hotel
   safeUser:
@@ -636,6 +704,7 @@ responses:
   unsupport:
     description: Unsupported Media Type
   user:
+    description: easyjson:json
     headers:
       avatar:
         type: string
