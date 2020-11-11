@@ -13,3 +13,6 @@ fillbd:
 
 server:
 	go run main.go -server
+
+tests:
+	go test -coverprofile=coverage1.out -coverpkg=./... -cover ./... && cat coverage1.out | grep -v  easyjson | grep -v mocks | grep -v server > cover.out &&go tool cover -func=cover.out
