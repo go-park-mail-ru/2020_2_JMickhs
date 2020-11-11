@@ -50,6 +50,7 @@ func (wh *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 	hotels, err := wh.useCase.GetWishlist(WishlistID.ID)
 	if err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
+		return
 	}
 	responses.SendDataResponse(w, hotels)
 }
@@ -75,6 +76,7 @@ func (wh *WishlistHandler) AddHotelToWishlist(w http.ResponseWriter, r *http.Req
 
 	if err := wh.useCase.AddHotel(Data.HotelID, Data.WishlistID); err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
+		return
 	}
 	responses.SendOkResponse(w)
 }
@@ -99,6 +101,7 @@ func (wh *WishlistHandler) DeleteHotelFromWishlist(w http.ResponseWriter, r *htt
 	}
 	if err := wh.useCase.DeleteHotel(Data.HotelID, Data.WishlistID); err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
+		return
 	}
 	responses.SendOkResponse(w)
 }
@@ -122,6 +125,7 @@ func (wh *WishlistHandler) DeleteWishlist(w http.ResponseWriter, r *http.Request
 	}
 	if err := wh.useCase.DeleteWishlist(WishlistID.ID); err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
+		return
 	}
 	responses.SendOkResponse(w)
 }
@@ -144,6 +148,7 @@ func (wh *WishlistHandler) CreateWishlist(w http.ResponseWriter, r *http.Request
 
 	if err := wh.useCase.CreateWishlist(*newWishlist); err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
+		return
 	}
 	responses.SendOkResponse(w)
 }
