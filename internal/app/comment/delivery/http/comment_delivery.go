@@ -68,45 +68,7 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 		customerror.PostError(w, r, ch.log, err, nil)
 		return
 	}
-	url := url.URL{
-		Host:   "hostelscan.ru:8080",
-		Scheme: "https",
-		Path:   "/api/v1/comments/",
-	}
-	lim, _ := strconv.Atoi(limit)
-	offset, _ := strconv.Atoi(offsetVar)
-
-	query := url.Query()
-	query.Set("id", hotelID)
-	query.Set("limit", limit)
-	if offset+lim >= count {
-		query.Set("offset", strconv.Itoa(offset-lim))
-		url.RawQuery = query.Encode()
-		comments.Info.PrevLink = url.Path + "?" + url.RawQuery
-
-		query.Set("offset", "0")
-		url.RawQuery = query.Encode()
-		comments.Info.NextLink = url.Path + "?" + url.RawQuery
-	}
-	if offset-lim < 0 {
-		query.Set("offset", strconv.Itoa(offset+lim))
-		url.RawQuery = query.Encode()
-		comments.Info.NextLink = url.Path + "?" + url.RawQuery
-
-		query.Set("offset", strconv.Itoa(count-lim))
-		url.RawQuery = query.Encode()
-		comments.Info.PrevLink = url.Path + "?" + url.RawQuery
-	}
-	if offset+lim < count && offset-lim >= 0 {
-		query.Set("offset", strconv.Itoa(offset+lim))
-		url.RawQuery = query.Encode()
-		comments.Info.NextLink = url.Path + "?" + url.RawQuery
-
-		query.Set("offset", strconv.Itoa(offset-lim))
-		url.RawQuery = query.Encode()
-		comments.Info.PrevLink = url.Path + "?" + url.RawQuery
-	}
-
+	ch.NextPrevUrl(count, limit, offsetVar, hotelID, &comments)
 	responses.SendDataResponse(w, comments)
 }
 
@@ -201,4 +163,47 @@ func (ch *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) 
 	}
 
 	responses.SendOkResponse(w)
+}
+
+func (ch *CommentHandler) NextPrevUrl(count int, limit string, offsetVar string, hotelID string, comments *commModel.Comments) {
+	url := url.URL{
+		Host:   "hostelscan.ru:8080",
+		Scheme: "https",
+		Path:   "/api/v1/comments/",
+	}
+
+	query := url.Query()
+	query.Set("id", hotelID)
+	query.Set("limit", limit)
+
+	lim, _ := strconv.Atoi(limit)
+	offset, _ := strconv.Atoi(offsetVar)
+
+	if offset+lim >= count {
+		query.Set("offset", strconv.Itoa(offset-lim))
+		url.RawQuery = query.Encode()
+		comments.Info.PrevLink = url.Path + "?" + url.RawQuery
+
+		query.Set("offset", "0")
+		url.RawQuery = query.Encode()
+		comments.Info.NextLink = url.Path + "?" + url.RawQuery
+	}
+	if offset-lim < 0 {
+		query.Set("offset", strconv.Itoa(offset+lim))
+		url.RawQuery = query.Encode()
+		comments.Info.NextLink = url.Path + "?" + url.RawQuery
+
+		query.Set("offset", strconv.Itoa(count-lim))
+		url.RawQuery = query.Encode()
+		comments.Info.PrevLink = url.Path + "?" + url.RawQuery
+	}
+	if offset+lim < count && offset-lim >= 0 {
+		query.Set("offset", strconv.Itoa(offset+lim))
+		url.RawQuery = query.Encode()
+		comments.Info.NextLink = url.Path + "?" + url.RawQuery
+
+		query.Set("offset", strconv.Itoa(offset-lim))
+		url.RawQuery = query.Encode()
+		comments.Info.PrevLink = url.Path + "?" + url.RawQuery
+	}
 }
