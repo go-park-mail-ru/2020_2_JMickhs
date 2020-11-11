@@ -3,7 +3,6 @@ package wishlistDelivery
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist"
 	wishlistModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/models"
@@ -30,46 +29,116 @@ func NewWishlistHandler(r *mux.Router, useCase wishlist.Usecase, lg *logger.Cust
 	r.HandleFunc("/api/v1/createwishlist", handler.CreateWishlist)
 }
 
+// swagger:route GET /api/v1/wishlist Wishlist getWishlist
+// Get list of hotels in wishlist
+// responses:
+//  200: hotels
+//  400: badrequest
 func (wh *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
-	hotels, err := wh.useCase.GetWishlist(42)
+	type WishlistByIdRequest struct {
+		ID int `json:"id"`
+	}
+	defer r.Body.Close()
+	decoder := json.NewDecoder(r.Body)
+	WishlistID := new(WishlistByIdRequest)
+	err := decoder.Decode(WishlistID)
+	if err != nil {
+		customerror.PostError(w, r, wh.log, err, nil)
+		w.Write([]byte("{}"))
+		return
+	}
+
+	hotels, err := wh.useCase.GetWishlist(WishlistID.ID)
 	if err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
 	}
 	responses.SendDataResponse(w, hotels)
 }
 
+// swagger:route GET /api/v1/addhotel Wishlist addHotelToWishlist
+// Add hotel to wishlist
+// responses:
+//  200:
+//  400: badrequest
 func (wh *WishlistHandler) AddHotelToWishlist(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-	wishlist_id, _ := strconv.Atoi(query["wishlist_id"][0])
-	hotel_id, _ := strconv.Atoi(query["hotel_id"][0])
-	if err := wh.useCase.AddHotel(hotel_id, wishlist_id); err != nil {
+	type AddHotelToWishlistRequest struct {
+		HotelID    int `json:"hotel_id"`
+		WishlistID int `json:"wishlist_id"`
+	}
+	defer r.Body.Close()
+	decoder := json.NewDecoder(r.Body)
+	Data := new(AddHotelToWishlistRequest)
+	err := decoder.Decode(Data)
+	if err != nil {
+		customerror.PostError(w, r, wh.log, err, nil)
+		w.Write([]byte("{}"))
+		return
+	}
+
+	if err := wh.useCase.AddHotel(Data.HotelID, Data.WishlistID); err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
 	}
 	w.Write([]byte("okay"))
 	responses.SendOkResponse(w)
 }
 
+// swagger:route GET /api/v1/deletehotel Wishlist deleteHotelFromWishlist
+// Delete hotel from wishlist
+// responses:
+//  200:
+//  400: badrequest
 func (wh *WishlistHandler) DeleteHotelFromWishlist(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-	wishlist_id, _ := strconv.Atoi(query["wishlist_id"][0])
-	hotel_id, _ := strconv.Atoi(query["hotel_id"][0])
-	if err := wh.useCase.DeleteHotel(hotel_id, wishlist_id); err != nil {
+	type DeleteHotelFromWishlistRequest struct {
+		HotelID    int `json:"hotel_id"`
+		WishlistID int `json:"wishlist_id"`
+	}
+	defer r.Body.Close()
+	decoder := json.NewDecoder(r.Body)
+	Data := new(DeleteHotelFromWishlistRequest)
+	err := decoder.Decode(Data)
+	if err != nil {
+		customerror.PostError(w, r, wh.log, err, nil)
+		w.Write([]byte("{}"))
+		return
+	}
+	if err := wh.useCase.DeleteHotel(Data.HotelID, Data.WishlistID); err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
 	}
 	w.Write([]byte("okay"))
 	responses.SendOkResponse(w)
 }
 
+// swagger:route GET /api/v1/deletewishlist Wishlist deleteWishlist
+// Delete wishlist
+// responses:
+//  200: hotels
+//  400: badrequest
 func (wh *WishlistHandler) DeleteWishlist(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-	wishlist_id, _ := strconv.Atoi(query["wishlist_id"][0])
-	if err := wh.useCase.DeleteWishlist(wishlist_id); err != nil {
+	type DeleteWishlistRequest struct {
+		ID int `json:"id"`
+	}
+	defer r.Body.Close()
+	decoder := json.NewDecoder(r.Body)
+	WishlistID := new(DeleteWishlistRequest)
+	err := decoder.Decode(WishlistID)
+	if err != nil {
+		customerror.PostError(w, r, wh.log, err, nil)
+		w.Write([]byte("{}"))
+		return
+	}
+	if err := wh.useCase.DeleteWishlist(WishlistID.ID); err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
 	}
 	w.Write([]byte("okay"))
 	responses.SendOkResponse(w)
 }
 
+// swagger:route POST /api/v1/createwishlist Wishlist createWishlist
+// Creates a new Wishlist
+// responses:
+//  200: saveWishlist
+//  400: badrequest
+//  409: conflict
 func (wh *WishlistHandler) CreateWishlist(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	decoder := json.NewDecoder(r.Body)
@@ -81,11 +150,6 @@ func (wh *WishlistHandler) CreateWishlist(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// query := r.URL.Query()
-	// wishlist_id := query["wishlist_id"][0]
-	// name := query["name"][0]
-	// user_id := query["user_id"][0]
-	// wishlist := wishlistModel.Wishlist{wishlist_id, name, user_id}
 	if err := wh.useCase.CreateWishlist(*newWishlist); err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
 	}
