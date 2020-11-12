@@ -46,6 +46,12 @@ type SaveWIshlistResponse struct {
 	Body wishlistModel.Wishlist
 }
 
+// // swagger:response
+// type SaveHotelToWishlistResponse struct {
+// 	//in:body
+// 	Body wishlistModel.Wishlist
+// }
+
 // swagger:parameters createWishlist
 type createWishlistRequest struct {
 	//in: body

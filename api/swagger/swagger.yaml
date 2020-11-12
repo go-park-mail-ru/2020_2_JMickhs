@@ -18,6 +18,18 @@ definitions:
         x-go-name: Rating
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+  AddHotelToWishlistRequest:
+    properties:
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
+      wishlist_id:
+        format: int64
+        type: integer
+        x-go-name: WishlistID
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   Avatar:
     properties:
       avatar:
@@ -51,6 +63,41 @@ definitions:
         x-go-name: UserID
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models
+  CreateWishlistRequest:
+    properties:
+      name:
+        type: string
+        x-go-name: Name
+      user_id:
+        format: int64
+        type: integer
+        x-go-name: UserID
+      wishlist_id:
+        format: int64
+        type: integer
+        x-go-name: WishlistID
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+  DeleteHotelFromWishlistRequest:
+    properties:
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
+      wishlist_id:
+        format: int64
+        type: integer
+        x-go-name: WishlistID
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+  DeleteWishlistRequest:
+    properties:
+      id:
+        format: int64
+        type: integer
+        x-go-name: ID
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   File:
     allOf:
     - properties:
@@ -107,6 +154,14 @@ definitions:
           $ref: '#/definitions/FullCommentInfo'
         type: array
         x-go-name: Comments
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+  GetWishlistRequest:
+    properties:
+      id:
+        format: int64
+        type: integer
+        x-go-name: ID
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
   Hotel:
@@ -295,11 +350,39 @@ definitions:
         x-go-name: Username
     type: object
     x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+  Wishlist:
+    properties:
+      name:
+        type: string
+        x-go-name: Name
+      user_id:
+        type: string
+        x-go-name: UserID
+      wishlist_id:
+        type: string
+        x-go-name: WishistID
+    type: object
+    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/models
 info:
   description: Swagger spec.
   title: Golang service API for HotelScanner
   version: 1.0.0
 paths:
+  /api/v1/addhotel:
+    get:
+      description: Add hotel to wishlist
+      operationId: addHotelToWishlist
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/AddHotelToWishlistRequest'
+      responses:
+        "200": {}
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - Wishlist
   /api/v1/comments:
     get:
       description: GetList of comments
@@ -381,6 +464,54 @@ paths:
           $ref: '#/responses/Forbidden'
       tags:
       - comment
+  /api/v1/createwishlist:
+    post:
+      description: Creates a new Wishlist
+      operationId: createWishlist
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/CreateWishlistRequest'
+      responses:
+        "200":
+          $ref: '#/responses/saveWishlist'
+        "400":
+          $ref: '#/responses/badrequest'
+        "409":
+          $ref: '#/responses/conflict'
+      tags:
+      - Wishlist
+  /api/v1/deletehotel:
+    get:
+      description: Delete hotel from wishlist
+      operationId: deleteHotelFromWishlist
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/DeleteHotelFromWishlistRequest'
+      responses:
+        "200": {}
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - Wishlist
+  /api/v1/deletewishlist:
+    get:
+      description: Delete wishlist
+      operationId: deleteWishlist
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/DeleteWishlistRequest'
+      responses:
+        "200": {}
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - Wishlist
   /api/v1/hotels:
     get:
       description: GetList of hotels
@@ -580,6 +711,22 @@ paths:
           $ref: '#/responses/unauthorizied'
       tags:
       - Sessions
+  /api/v1/wishlist:
+    get:
+      description: Get list of hotels in wishlist
+      operationId: getWishlist
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/GetWishlistRequest'
+      responses:
+        "200":
+          $ref: '#/responses/hotels'
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - Wishlist
 produces:
 - application/json
 responses:
@@ -640,6 +787,9 @@ responses:
   safeUser:
     schema:
       $ref: '#/definitions/SafeUser'
+  saveWishlist:
+    schema:
+      $ref: '#/definitions/Wishlist'
   searchHotel:
     schema:
       $ref: '#/definitions/SearchDataResponse'
