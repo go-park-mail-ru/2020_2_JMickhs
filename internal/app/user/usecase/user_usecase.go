@@ -6,10 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
 	uuid "github.com/satori/go.uuid"
-
-	"github.com/aws/aws-sdk-go/service/s3"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/serverError"
@@ -20,20 +17,17 @@ import (
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/models"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type userUseCase struct {
 	userRepo   user.Repository
 	validation *validator.Validate
-	s3         *s3.S3
 }
 
-func NewUserUsecase(r user.Repository, validator *validator.Validate, s3 *s3.S3) *userUseCase {
+func NewUserUsecase(r user.Repository, validator *validator.Validate) *userUseCase {
 	return &userUseCase{
 		userRepo:   r,
 		validation: validator,
-		s3:         s3,
 	}
 }
 
@@ -46,7 +40,7 @@ func (u *userUseCase) Add(user models.User) (models.User, error) {
 	if err != nil {
 		return user, customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	hashedPassword, err := u.userRepo.GenerateHashFromPassword(user.Password)
 	user.Password = string(hashedPassword)
 	u.SetDefaultAvatar(&user)
 	user, err = u.userRepo.Add(user)
@@ -67,7 +61,7 @@ func (u *userUseCase) UpdateUser(user models.User) error {
 }
 
 func (u *userUseCase) UpdatePassword(user models.User) error {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	hashedPassword, err := u.userRepo.GenerateHashFromPassword(user.Password)
 	if err != nil {
 		return customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}
@@ -84,28 +78,20 @@ func (u *userUseCase) UpdateAvatar(user models.User) error {
 }
 
 func (u *userUseCase) UploadAvatar(file multipart.File, header string, user *models.User) (string, error) {
-	relDele := strings.Split(user.Avatar, "/")
+	relativeDeletePath := strings.Split(user.Avatar, "/")
+	filename := relativeDeletePath[len(relativeDeletePath)-1]
+	err := u.userRepo.DeleteAvatarInStore(*user, filename)
 
-	if user.Avatar != configs.S3Url+configs.BaseAvatarPath {
-		_, err := u.s3.DeleteObject(&s3.DeleteObjectInput{
-			Bucket: aws.String(configs.BucketName),
-			Key:    aws.String(configs.StaticPath + relDele[len(relDele)-1]),
-		})
-		if err != nil {
-			return "", customerror.NewCustomError(err, http.StatusInternalServerError, 1)
-		}
+	if err != nil {
+		return "", customerror.NewCustomError(err, http.StatusInternalServerError, 1)
 	}
-	filename := uuid.NewV4().String()
-	fileType := strings.Split(header, "/")
-	relPath := configs.StaticPath + filename + "." + fileType[1]
-	user.Avatar = configs.S3Url + relPath
 
-	_, err := u.s3.PutObject(&s3.PutObjectInput{
-		Body:   file,
-		Bucket: aws.String(configs.BucketName),
-		Key:    aws.String(relPath),
-		ACL:    aws.String(s3.BucketCannedACLPublicRead),
-	})
+	newFilename := uuid.NewV4().String()
+	fileType := strings.Split(header, "/")
+	relPath := configs.StaticPath + newFilename + "." + fileType[1]
+
+	err = u.userRepo.UpdateAvatarInStore(file, user, relPath)
+
 	if err != nil {
 		return "", customerror.NewCustomError(err, http.StatusInternalServerError, 1)
 	}
@@ -144,7 +130,7 @@ func (u *userUseCase) CheckAvatar(file multipart.File) (string, error) {
 }
 
 func (u *userUseCase) ComparePassword(passIn string, passDest string) error {
-	return bcrypt.CompareHashAndPassword([]byte(passDest), []byte(passIn))
+	return u.userRepo.CompareHashAndPassword(passDest, passIn)
 }
 
 func (u *userUseCase) CheckEmpty(usr models.User) bool {
