@@ -4,6 +4,8 @@ import (
 	"mime/multipart"
 	"strconv"
 
+	uuid "github.com/satori/go.uuid"
+
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -50,7 +52,11 @@ func (p *PostgresUserRepository) DeleteAvatarInStore(user models.User, filename 
 	return nil
 }
 
-func (p *PostgresUserRepository) UpdateAvatarInStore(file multipart.File, user *models.User, relativePath string) error {
+func (p *PostgresUserRepository) UpdateAvatarInStore(file multipart.File, user *models.User, fileType string) error {
+
+	newFilename := uuid.NewV4().String()
+	relativePath := configs.StaticPath + newFilename + "." + fileType
+
 	_, err := p.s3.PutObject(&s3.PutObjectInput{
 		Body:   file,
 		Bucket: aws.String(configs.BucketName),
@@ -118,5 +124,4 @@ func (p *PostgresUserRepository) UpdatePassword(user models.User) error {
 		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
 	return nil
-
 }

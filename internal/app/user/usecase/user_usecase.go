@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"strings"
 
-	uuid "github.com/satori/go.uuid"
-
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/serverError"
 
@@ -86,11 +84,9 @@ func (u *userUseCase) UploadAvatar(file multipart.File, header string, user *mod
 		return "", customerror.NewCustomError(err, http.StatusInternalServerError, 1)
 	}
 
-	newFilename := uuid.NewV4().String()
 	fileType := strings.Split(header, "/")
-	relPath := configs.StaticPath + newFilename + "." + fileType[1]
 
-	err = u.userRepo.UpdateAvatarInStore(file, user, relPath)
+	err = u.userRepo.UpdateAvatarInStore(file, user, fileType[1])
 
 	if err != nil {
 		return "", customerror.NewCustomError(err, http.StatusInternalServerError, 1)

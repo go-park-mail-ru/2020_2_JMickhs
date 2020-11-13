@@ -17,5 +17,5 @@ type Repository interface {
 	GenerateHashFromPassword(password string) ([]byte, error)
 	CompareHashAndPassword(hashedPassword string, password string) error
 	DeleteAvatarInStore(user models.User, filename string) error
-	UpdateAvatarInStore(file multipart.File, user *models.User, relativePath string) error
+	UpdateAvatarInStore(file multipart.File, user *models.User, fileType string) error
 }
