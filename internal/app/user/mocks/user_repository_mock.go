@@ -7,6 +7,7 @@ package user_mock
 import (
 	models "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/models"
 	gomock "github.com/golang/mock/gomock"
+	multipart "mime/multipart"
 	reflect "reflect"
 )
 
@@ -118,4 +119,61 @@ func (m *MockRepository) UpdatePassword(user models.User) error {
 func (mr *MockRepositoryMockRecorder) UpdatePassword(user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePassword", reflect.TypeOf((*MockRepository)(nil).UpdatePassword), user)
+}
+
+// GenerateHashFromPassword mocks base method
+func (m *MockRepository) GenerateHashFromPassword(password string) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateHashFromPassword", password)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateHashFromPassword indicates an expected call of GenerateHashFromPassword
+func (mr *MockRepositoryMockRecorder) GenerateHashFromPassword(password interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateHashFromPassword", reflect.TypeOf((*MockRepository)(nil).GenerateHashFromPassword), password)
+}
+
+// CompareHashAndPassword mocks base method
+func (m *MockRepository) CompareHashAndPassword(hashedPassword, password string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CompareHashAndPassword", hashedPassword, password)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CompareHashAndPassword indicates an expected call of CompareHashAndPassword
+func (mr *MockRepositoryMockRecorder) CompareHashAndPassword(hashedPassword, password interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompareHashAndPassword", reflect.TypeOf((*MockRepository)(nil).CompareHashAndPassword), hashedPassword, password)
+}
+
+// DeleteAvatarInStore mocks base method
+func (m *MockRepository) DeleteAvatarInStore(user models.User, filename string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteAvatarInStore", user, filename)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteAvatarInStore indicates an expected call of DeleteAvatarInStore
+func (mr *MockRepositoryMockRecorder) DeleteAvatarInStore(user, filename interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAvatarInStore", reflect.TypeOf((*MockRepository)(nil).DeleteAvatarInStore), user, filename)
+}
+
+// UpdateAvatarInStore mocks base method
+func (m *MockRepository) UpdateAvatarInStore(file multipart.File, user *models.User, relativePath string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateAvatarInStore", file, user, relativePath)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateAvatarInStore indicates an expected call of UpdateAvatarInStore
+func (mr *MockRepositoryMockRecorder) UpdateAvatarInStore(file, user, relativePath interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAvatarInStore", reflect.TypeOf((*MockRepository)(nil).UpdateAvatarInStore), file, user, relativePath)
 }

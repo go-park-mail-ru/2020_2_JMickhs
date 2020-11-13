@@ -110,13 +110,13 @@ func StartServer(store *redis.Client, db *sqlx.DB, s3 *s3.S3, log *logger.Custom
 	r.Use(middlewareApi.NewPanicMiddleware())
 	r.Use(middlewareApi.MyCORSMethodMiddleware())
 
-	rep := userRepository.NewPostgresUserRepository(db)
+	rep := userRepository.NewPostgresUserRepository(db, s3)
 	repHot := hotelRepository.NewPostgresHotelRepository(db)
 	repSes := sessionsRepository.NewSessionsUserRepository(store)
 	repCom := commentRepository.NewCommentRepository(db)
 	repCsrf := csrfRepository.NewCsrfRepository(store)
 
-	u := userUsecase.NewUserUsecase(&rep, validate, s3)
+	u := userUsecase.NewUserUsecase(&rep, validate)
 	uHot := hotelUsecase.NewHotelUsecase(&repHot)
 	uSes := sessionsUseCase.NewSessionsUsecase(&repSes)
 	uCom := commentUsecase.NewCommentUsecase(&repCom)

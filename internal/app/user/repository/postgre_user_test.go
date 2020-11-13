@@ -36,7 +36,7 @@ func TestPostgresUserRepository_GetUserByID(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresUserRepository(sqlxDb)
+		rep := NewPostgresUserRepository(sqlxDb, nil)
 
 		user, err := rep.GetUserByID(1)
 		assert.NoError(t, err)
@@ -53,7 +53,7 @@ func TestPostgresUserRepository_GetUserByID(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresUserRepository(sqlxDb)
+		rep := NewPostgresUserRepository(sqlxDb, nil)
 
 		_, err := rep.GetUserByID(1)
 		assert.Error(t, err)
@@ -82,7 +82,7 @@ func TestPostgresUserRepository_GetByUserName(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresUserRepository(sqlxDb)
+		rep := NewPostgresUserRepository(sqlxDb, nil)
 
 		user, err := rep.GetByUserName("kotik")
 		assert.NoError(t, err)
@@ -99,7 +99,7 @@ func TestPostgresUserRepository_GetByUserName(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresUserRepository(sqlxDb)
+		rep := NewPostgresUserRepository(sqlxDb, nil)
 
 		_, err := rep.GetByUserName("kotik")
 		assert.Error(t, err)
@@ -123,7 +123,7 @@ func TestPostgresUserRepository_UpdateUser(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresUserRepository(sqlxDb)
+		rep := NewPostgresUserRepository(sqlxDb, nil)
 		user := models.User{ID: 1, Username: "kotik", Email: "kek@mail.ru"}
 
 		err = rep.UpdateUser(user)
@@ -138,7 +138,7 @@ func TestPostgresUserRepository_UpdateUser(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresUserRepository(sqlxDb)
+		rep := NewPostgresUserRepository(sqlxDb, nil)
 		user := models.User{ID: 1, Username: "kotik", Email: "kek@mail.ru"}
 
 		err = rep.UpdateUser(user)
@@ -162,7 +162,7 @@ func TestPostgresUserRepository_UpdatePassword(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresUserRepository(sqlxDb)
+		rep := NewPostgresUserRepository(sqlxDb, nil)
 		user := models.User{ID: 1, Password: "12345"}
 		err = rep.UpdatePassword(user)
 		assert.NoError(t, err)
@@ -177,7 +177,7 @@ func TestPostgresUserRepository_UpdatePassword(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresUserRepository(sqlxDb)
+		rep := NewPostgresUserRepository(sqlxDb, nil)
 		user := models.User{ID: 1, Password: "12345"}
 		err = rep.UpdatePassword(user)
 		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
@@ -200,7 +200,7 @@ func TestPostgresUserRepository_UpdateAvatar(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresUserRepository(sqlxDb)
+		rep := NewPostgresUserRepository(sqlxDb, nil)
 		user := models.User{ID: 1, Avatar: "src/kek.jpg"}
 		err = rep.UpdateAvatar(user)
 		assert.NoError(t, err)
@@ -215,7 +215,7 @@ func TestPostgresUserRepository_UpdateAvatar(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresUserRepository(sqlxDb)
+		rep := NewPostgresUserRepository(sqlxDb, nil)
 		user := models.User{ID: 1, Avatar: "src/kek.jpg"}
 		err = rep.UpdateAvatar(user)
 		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
@@ -240,7 +240,7 @@ func TestPostgresUserRepository_Add(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresUserRepository(sqlxDb)
+		rep := NewPostgresUserRepository(sqlxDb, nil)
 		user := models.User{Username: "kotik", Email: "kek@mail.ru", Password: "12345", Avatar: "src/kek.jpg"}
 
 		user, err = rep.Add(user)
@@ -257,7 +257,7 @@ func TestPostgresUserRepository_Add(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresUserRepository(sqlxDb)
+		rep := NewPostgresUserRepository(sqlxDb, nil)
 		user := models.User{Username: "kotik", Email: "kek@mail.ru", Password: "12345", Avatar: "src/kek.jpg"}
 
 		_, err = rep.Add(user)
