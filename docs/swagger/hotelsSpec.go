@@ -13,6 +13,8 @@ type SearchStringRequest struct {
 	Pattern string `json:"pattern"`
 	// required:true
 	Page string `json:"page"`
+	// set -1 for all
+	RateStart int `json:"rateStart"`
 }
 
 // swagger:parameters hotelPreview
@@ -44,6 +46,22 @@ type SearchDataResponse struct {
 type HotelData struct {
 	Hotel   hotelmodel.Hotel          `json:"hotel"`
 	Comment commModel.FullCommentInfo `json:"comment,omitempty"`
+}
+
+// swagger:parameters hotel hotelsByRadius
+type hotelByRadiusParameterWrapper struct {
+	// в метрах
+	// in: query
+	// required:true
+	Radius string `json:"radius"`
+	// широта
+	// in: query
+	// required:true
+	Latitude string `json:"latitude"`
+	// долгота
+	// in: query
+	// required:true
+	Longitude string `json:"longitude"`
 }
 
 // swagger:parameters hotel

@@ -118,6 +118,9 @@ definitions:
         format: int64
         type: integer
         x-go-name: CommCount
+      coordinates:
+        type: string
+        x-go-name: Coordinates
       description:
         type: string
         x-go-name: Description
@@ -437,6 +440,24 @@ paths:
       description: if don't rate by curr user, field "rate" should be empty
       operationId: hotel
       parameters:
+      - description: в метрах
+        in: query
+        name: radius
+        required: true
+        type: string
+        x-go-name: Radius
+      - description: широта
+        in: query
+        name: latitude
+        required: true
+        type: string
+        x-go-name: Latitude
+      - description: долгота
+        in: query
+        name: longitude
+        required: true
+        type: string
+        x-go-name: Longitude
       - description: the id of hotel to get from database
         format: int64
         in: path
@@ -472,6 +493,36 @@ paths:
           $ref: '#/responses/badrequest'
       tags:
       - hotel
+  /api/v1/hotels/radiusSearch:
+    get:
+      description: GetList of hotels by radius
+      operationId: hotelsByRadius
+      parameters:
+      - description: в метрах
+        in: query
+        name: radius
+        required: true
+        type: string
+        x-go-name: Radius
+      - description: широта
+        in: query
+        name: latitude
+        required: true
+        type: string
+        x-go-name: Latitude
+      - description: долгота
+        in: query
+        name: longitude
+        required: true
+        type: string
+        x-go-name: Longitude
+      responses:
+        "200":
+          $ref: '#/responses/hotels'
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - hotel
   /api/v1/hotels/search:
     get:
       description: Search hotels
@@ -488,6 +539,11 @@ paths:
         required: true
         type: string
         x-go-name: Page
+      - format: int64
+        in: query
+        name: rateStart
+        type: integer
+        x-go-name: RateStart
       responses:
         "200":
           $ref: '#/responses/searchHotel'

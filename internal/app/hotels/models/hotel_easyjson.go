@@ -609,6 +609,8 @@ func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsInternalAppHotelsMod
 			}
 		case "comm_count":
 			out.CommCount = int(in.Int())
+		case "coordinates":
+			out.Coordinates = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -671,6 +673,11 @@ func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsInternalAppHotelsMod
 		const prefix string = ",\"comm_count\":"
 		out.RawString(prefix)
 		out.Int(int(in.CommCount))
+	}
+	{
+		const prefix string = ",\"coordinates\":"
+		out.RawString(prefix)
+		out.String(string(in.Coordinates))
 	}
 	out.RawByte('}')
 }

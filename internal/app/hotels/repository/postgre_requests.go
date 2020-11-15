@@ -11,4 +11,7 @@ const CheckRateIfExistPostgreRequest = "SELECT message,time,c.hotel_id,avatar,c.
 const AddHotelPostgreRequest = "INSERT INTO hotels VALUES(default,$1,$2,$3,$4,$5)"
 
 const SearchHotelsPostgreRequest = "WHERE (lower(name) % lower($1) or lower(location) % lower($1) " +
-	"or lower(name) LIKE '%' || lower($1) || '%' or lower(location) LIKE '%' || lower($1) || '%')"
+	"or lower(name) ~* lower($1) or lower(location) ~* lower($1))"
+
+const GetHotelsByRadiusPostgreRequest = "SELECT hotel_id,name,description,concat($4::varchar,img)," +
+	"location,curr_rating,comm_count,POINT(coordinates) FROM hotels WHERE ST_Distance(coordinates::geography, $1::geography)<$2 ORDER BY coordinates <-> $1 LIMIT $3"

@@ -13,9 +13,11 @@ type Hotel struct {
 	Description string   `json:"description" db:"description"`
 	Image       string   `json:"image" db:"concat"`
 	Location    string   `json:"location" db:"location"`
+	Email       string   `json:"email" db:"email"`
 	Rating      float64  `json:"rating" db:"curr_rating"`
 	Photos      []string `json:"photos,omitempty" db:"photos" faker:"len=50"`
 	CommCount   int      `json:"comm_count" db:"comm_count" mapstructure:"comm_count"`
+	Coordinates string   `json:"coordinates" db:"point" mapstructure:"coordinates"`
 }
 
 // easyjson:json
@@ -24,6 +26,13 @@ type HotelPreview struct {
 	Name     string `json:"name" db:"name"`
 	Image    string `json:"image" db:"concat"`
 	Location string `json:"location" db:"location"`
+}
+
+type HotelFiltering struct {
+	RatingOrdering                  bool
+	CommentsCountOrdering           bool
+	RatingFilterStartNumber         int
+	RatingFilterMoreThenStartNumber bool
 }
 
 // easyjson:json

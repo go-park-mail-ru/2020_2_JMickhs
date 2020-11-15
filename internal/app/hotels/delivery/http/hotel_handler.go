@@ -36,6 +36,29 @@ func NewHotelHandler(r *mux.Router, hs hotels.Usecase, lg *logger.CustomLogger) 
 	r.Path("/api/v1/hotels").Queries("from", "{from:[0-9]+}").HandlerFunc(handler.ListHotels).Methods("GET")
 	r.Path("/api/v1/hotels/previewSearch").Queries("pattern", "{pattern}").
 		HandlerFunc(handler.FetchHotelsPreview).Methods("GET")
+
+	r.Path("/api/v1/hotels/radiusSearch").Queries("latitude", "{latitude}",
+		"longitude", "{longitude}", "radius", "{radius}").HandlerFunc(handler.FetchHotelsByRadius).Methods("GET")
+}
+
+// swagger:route GET /api/v1/hotels/radiusSearch hotel hotelsByRadius
+// GetList of hotels by radius
+// responses:
+//  200: hotels
+//  400: badrequest
+func (hh *HotelHandler) FetchHotelsByRadius(w http.ResponseWriter, r *http.Request) {
+
+	radius := r.FormValue("radius")
+	latitude := r.FormValue("latitude")
+	longitude := r.FormValue("longitude")
+
+	hotels, err := hh.HotelUseCase.GetHotelsByRadius(latitude, longitude, radius)
+
+	if err != nil {
+		customerror.PostError(w, r, hh.log, err, nil)
+		return
+	}
+	responses.SendDataResponse(w, hotelmodel.Hotels{hotels})
 }
 
 // swagger:route GET /api/v1/hotels hotel hotels
@@ -110,16 +133,25 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 //  200: searchHotel
 //  400: badrequest
 func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
+
 	pattern := r.FormValue("pattern")
 	pageNum := r.FormValue("page")
 	page, err := strconv.Atoi(pageNum)
 
+	var rateStart int
+	rateStartVar := r.FormValue("rateStart")
+	if rateStartVar == "" {
+		rateStart = -1
+	} else {
+		rateStart, _ = strconv.Atoi(rateStartVar)
+	}
+	orderData := hotelmodel.HotelFiltering{RatingFilterStartNumber: rateStart}
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, clientError.BadRequest)
 		return
 	}
 
-	hotels, err := hh.HotelUseCase.FetchHotels(pattern, page)
+	hotels, err := hh.HotelUseCase.FetchHotels(orderData, pattern, page)
 
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, nil)

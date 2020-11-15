@@ -108,3 +108,18 @@ func (mr *MockUsecaseMockRecorder) GetHotelsPreview(pattern interface{}) *gomock
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHotelsPreview", reflect.TypeOf((*MockUsecase)(nil).GetHotelsPreview), pattern)
 }
+
+// GetHotelsByRadius mocks base method
+func (m *MockUsecase) GetHotelsByRadius(latitude, longitude, radius string) ([]hotelmodel.Hotel, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHotelsByRadius", latitude, longitude, radius)
+	ret0, _ := ret[0].([]hotelmodel.Hotel)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHotelsByRadius indicates an expected call of GetHotelsByRadius
+func (mr *MockUsecaseMockRecorder) GetHotelsByRadius(latitude, longitude, radius interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHotelsByRadius", reflect.TypeOf((*MockUsecase)(nil).GetHotelsByRadius), latitude, longitude, radius)
+}

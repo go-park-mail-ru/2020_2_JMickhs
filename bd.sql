@@ -1,3 +1,9 @@
+ALTER SYSTEM SET shared_buffers = '128MB';
+CREATE EXTENSION citext;
+CREATE EXTENSION POSTGIS;
+CREATE EXTENSION pg_trgm;
+CREATE EXTENSION btree_gist;
+
 create table users (
     user_id  serial not null PRIMARY KEY,
     username VARCHAR (50) UNIQUE,
@@ -6,12 +12,12 @@ create table users (
     avatar text
 );
 
-
-CREATE EXTENSION citext;
 create table hotels (
     hotel_id serial PRIMARY KEY NOT NULL,
     name citext,
     location citext,
+    email text,
+    coordinates geometry(POINT,4326),
     description text,
     img text,
     photos text[],
@@ -19,10 +25,7 @@ create table hotels (
     comm_count int DEFAULT 0 CHECK(comm_count >= 0)
 );
 
-
-
-CREATE EXTENSION pg_trgm;
-
+CREATE INDEX if not exists hotels_gist_idx ON hotels USING gist (coordinates);
 
 create table comments (
     comm_id serial not null PRIMARY KEY,
@@ -40,11 +43,9 @@ create table comments (
          FOREIGN KEY(user_id)
          REFERENCES users(user_id)
 );
-CREATE INDEX hotels_trgm_name_idx ON hotels
-  USING gin (name gin_trgm_ops);
 
-CREATE INDEX hotels_trgm_loc_idx ON hotels
-  USING gin (location gin_trgm_ops);
+CREATE INDEX hotels_trgm_idx ON hotels
+  USING gist (name ,location);
 
 CREATE INDEX id_idx ON hotels USING btree (hotel_id);
 
