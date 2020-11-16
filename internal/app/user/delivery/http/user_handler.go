@@ -3,11 +3,12 @@ package userDelivery
 import (
 	"encoding/json"
 	"errors"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/csrf"
-	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/middleware"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/csrf"
+	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/middleware"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/serverError"
 
@@ -120,7 +121,7 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses.SendDataResponse(w, path)
+	responses.SendDataResponse(w, configs.S3Url+path)
 }
 
 // swagger:route PUT /api/v1/users/password Users password

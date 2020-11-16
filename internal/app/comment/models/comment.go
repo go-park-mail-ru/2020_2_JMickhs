@@ -21,7 +21,7 @@ type FullCommentInfo struct {
 	HotelID  int     `json:"hotel_id" db:"hotel_id" mapstructure:"hotel_id"`
 	Message  string  `json:"message" db:"message"`
 	Rating   float64 `json:"rating" db:"rating"`
-	Avatar   string  `json:"avatar" db:"avatar"`
+	Avatar   string  `json:"avatar" db:"concat"`
 	Username string  `json:"username" db:"username"`
 	Time     string  `json:"time" db:"time"`
 }

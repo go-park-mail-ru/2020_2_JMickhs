@@ -144,7 +144,7 @@ func UploadImage(filemanager *s3.S3, url string) (string, error) {
 
 	filename := uuid.NewV4().String()
 	fileType := "jpg"
-	relPath := configs.StaticPath + filename + "." + fileType
+	relPath := configs.StaticPathForHotels + filename + "." + fileType
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

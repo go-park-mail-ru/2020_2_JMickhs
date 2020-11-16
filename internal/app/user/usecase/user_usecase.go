@@ -50,7 +50,7 @@ func (u *userUseCase) GetUserByID(ID int) (models.User, error) {
 }
 
 func (u *userUseCase) SetDefaultAvatar(user *models.User) error {
-	user.Avatar = configs.S3Url + configs.BaseAvatarPath
+	user.Avatar = configs.BaseAvatarPath
 	return nil
 }
 

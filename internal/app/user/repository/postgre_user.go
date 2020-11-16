@@ -39,13 +39,14 @@ func (p *PostgresUserRepository) Add(user models.User) (models.User, error) {
 		return user, customerror.NewCustomError(err, clientError.Conflict, 1)
 	}
 	user.ID = id
+	user.Avatar = configs.S3Url + user.Avatar
 	return user, nil
 }
 func (p *PostgresUserRepository) DeleteAvatarInStore(user models.User, filename string) error {
 	if user.Avatar != configs.S3Url+configs.BaseAvatarPath {
 		_, err := p.s3.DeleteObject(&s3.DeleteObjectInput{
 			Bucket: aws.String(configs.BucketName),
-			Key:    aws.String(configs.StaticPath + filename),
+			Key:    aws.String(configs.StaticPathForAvatars + filename),
 		})
 		return err
 	}
@@ -55,7 +56,7 @@ func (p *PostgresUserRepository) DeleteAvatarInStore(user models.User, filename 
 func (p *PostgresUserRepository) UpdateAvatarInStore(file multipart.File, user *models.User, fileType string) error {
 
 	newFilename := uuid.NewV4().String()
-	relativePath := configs.StaticPath + newFilename + "." + fileType
+	relativePath := configs.StaticPathForAvatars + newFilename + "." + fileType
 
 	_, err := p.s3.PutObject(&s3.PutObjectInput{
 		Body:   file,
@@ -65,7 +66,7 @@ func (p *PostgresUserRepository) UpdateAvatarInStore(file multipart.File, user *
 	})
 
 	if err == nil {
-		user.Avatar = configs.S3Url + relativePath
+		user.Avatar = relativePath
 	}
 	return err
 }
@@ -79,7 +80,7 @@ func (u *PostgresUserRepository) CompareHashAndPassword(hashedPassword string, p
 
 func (p *PostgresUserRepository) GetByUserName(name string) (models.User, error) {
 	user := models.User{}
-	err := p.conn.QueryRow(GetUserByNamePostgreRequest, name).Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Avatar)
+	err := p.conn.QueryRow(GetUserByNamePostgreRequest, name, configs.S3Url).Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Avatar)
 	if err != nil {
 		return user, customerror.NewCustomError(err, clientError.Unauthorizied, 1)
 	}
@@ -87,7 +88,7 @@ func (p *PostgresUserRepository) GetByUserName(name string) (models.User, error)
 }
 
 func (p *PostgresUserRepository) GetUserByID(ID int) (models.User, error) {
-	row := p.conn.QueryRow(GetUserByIDPostgreRequest, strconv.Itoa(ID))
+	row := p.conn.QueryRow(GetUserByIDPostgreRequest, strconv.Itoa(ID), configs.S3Url)
 	user := models.User{}
 
 	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Avatar)

@@ -2,9 +2,9 @@ package userRepository
 
 const AddUserPostgreRequest = "INSERT INTO users VALUES (default, $1, $2,$3,$4) RETURNING user_id"
 
-const GetUserByNamePostgreRequest = "SELECT user_id,username,email,password,avatar FROM users WHERE username=$1"
+const GetUserByNamePostgreRequest = "SELECT user_id,username,email,password,concat($2::varchar,avatar) FROM users WHERE username=$1"
 
-const GetUserByIDPostgreRequest = "SELECT user_id,username,email,password,avatar FROM users WHERE user_id=$1"
+const GetUserByIDPostgreRequest = "SELECT user_id,username,email,password,concat($2::varchar,avatar) FROM users WHERE user_id=$1"
 
 const UpdateUserPostgreRequest = "UPDATE users SET username=$2,email=$3 WHERE user_id=$1"
 
