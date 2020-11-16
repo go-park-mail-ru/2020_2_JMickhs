@@ -137,15 +137,23 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 	pattern := r.FormValue("pattern")
 	pageNum := r.FormValue("page")
 	page, err := strconv.Atoi(pageNum)
-
-	var rateStart int
-	rateStartVar := r.FormValue("rateStart")
-	if rateStartVar == "" {
-		rateStart = -1
-	} else {
-		rateStart, _ = strconv.Atoi(rateStartVar)
+	if err != nil {
+		customerror.PostError(w, r, hh.log, err, clientError.BadRequest)
+		return
 	}
-	orderData := hotelmodel.HotelFiltering{RatingFilterStartNumber: rateStart}
+
+	rateStart := r.FormValue("rateStart")
+	commStart := r.FormValue("commentStart")
+
+	radius := r.FormValue("radius")
+	latitude := r.FormValue("latitude")
+	longitude := r.FormValue("longitude")
+
+	commCountConstraint := r.FormValue("commCount")
+	commCountPercent := r.FormValue("commPercent")
+
+	orderData := hotelmodel.HotelFiltering{rateStart, commStart,
+		longitude, latitude, radius, commCountConstraint, commCountPercent}
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, clientError.BadRequest)
 		return

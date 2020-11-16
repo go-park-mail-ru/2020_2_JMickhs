@@ -10,7 +10,8 @@ type Repository interface {
 	GetHotels(StartID int) ([]hotelmodel.Hotel, error)
 	GetHotelByID(ID int) (hotelmodel.Hotel, error)
 	FetchHotels(filter hotelmodel.HotelFiltering, pattern string, offset int) ([]hotelmodel.Hotel, error)
-	BuildQueryToFetchHotel(filter hotelmodel.HotelFiltering) string
+	BuildQueryForCommentsPercent(filter *hotelmodel.HotelFiltering, param string) string
+	BuildQueryToFetchHotel(filter *hotelmodel.HotelFiltering) string
 	CheckRateExist(UserID int, HotelID int) (commModel.FullCommentInfo, error)
 	GetHotelsPreview(pattern string) ([]hotelmodel.HotelPreview, error)
 	GetHotelsByRadius(latitude string, longitude string, radius string) ([]hotelmodel.Hotel, error)

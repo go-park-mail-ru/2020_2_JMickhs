@@ -75,9 +75,12 @@ func StartCrawler(db *sqlx.DB, s3 *s3.S3, log *logger.CustomLogger) {
 			Find("span").Text()
 		hotel.Location = strings.Split(hotel.Location, "\n")[1]
 
+		splitLocation := strings.Split(hotel.Location, ", ")
+		hotel.City = splitLocation[len(splitLocation)-2]
+		hotel.Country = splitLocation[len(splitLocation)-1]
+
 		coordinates, _ := e.DOM.Find(`a[id="hotel_address"]`).Attr("data-atlas-latlng")
-		hotel.Coordinates = coordinates
-		hotel.Email = "snalexeev@mail.ru"
+		hotel.Email = "ea56789@mail.ru"
 		imageRef, _ := e.DOM.Find(`a[class="bh-photo-grid-item bh-photo-grid-photo1 active-image "]`).Attr("href")
 		name, err := UploadImage(s3, imageRef)
 		if err != nil {
@@ -95,11 +98,11 @@ func StartCrawler(db *sqlx.DB, s3 *s3.S3, log *logger.CustomLogger) {
 				photos = append(photos, photo)
 			})
 		hotel.Photos = photos
-		err = UploadHotel(db, hotel)
+		err = UploadHotel(db, hotel, coordinates)
 		if err != nil {
 			log.Error(err)
 		}
-		fmt.Println(hotel.Name)
+		fmt.Println(hotel.Location)
 	})
 
 	c.OnRequest(func(r *colly.Request) {
@@ -119,11 +122,12 @@ func GeneratePointToGeo(latitude string, longitude string) string {
 	return fmt.Sprintf("SRID=4326;POINT(%s %s)", latitude, longitude)
 }
 
-func UploadHotel(db *sqlx.DB, hotel hotelmodel.Hotel) error {
-	lat, long := ParsePoint(hotel.Coordinates)
+func UploadHotel(db *sqlx.DB, hotel hotelmodel.Hotel, coordinates string) error {
+	lat, long := ParsePoint(coordinates)
 	point := GeneratePointToGeo(lat, long)
-	_, err := db.Exec("INSERT INTO hotels(hotel_id,name,location,description,img,photos,coordinates) VALUES  (default,$1,$2,$3,$4,$5,ST_GeomFromEWKT($6))",
-		hotel.Name, hotel.Location, hotel.Description, hotel.Image, pq.Array(hotel.Photos), point)
+	_, err := db.Exec("INSERT INTO hotels(hotel_id,name,location,description,img,photos,coordinates,email,country,city)"+
+		" VALUES  (default,$1,$2,$3,$4,$5,ST_GeomFromEWKT($6),$7,$8,$9)",
+		hotel.Name, hotel.Location, hotel.Description, hotel.Image, pq.Array(hotel.Photos), point, hotel.Email, hotel.Country, hotel.City)
 	if err != nil {
 		return err
 	}

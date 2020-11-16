@@ -14,10 +14,13 @@ type Hotel struct {
 	Image       string   `json:"image" db:"concat"`
 	Location    string   `json:"location" db:"location"`
 	Email       string   `json:"email" db:"email"`
+	Country     string   `json:"country" db:"country"`
+	City        string   `json:"city"   db:"city"`
 	Rating      float64  `json:"rating" db:"curr_rating"`
 	Photos      []string `json:"photos,omitempty" db:"photos" faker:"len=50"`
 	CommCount   int      `json:"comm_count" db:"comm_count" mapstructure:"comm_count"`
-	Coordinates string   `json:"coordinates" db:"point" mapstructure:"coordinates"`
+	Latitude    float64  `json:"latitude,omitempty" db:"x"`
+	Longitude   float64  `json:"longitude,omitempty" db:"y"`
 }
 
 // easyjson:json
@@ -29,10 +32,13 @@ type HotelPreview struct {
 }
 
 type HotelFiltering struct {
-	RatingOrdering                  bool
-	CommentsCountOrdering           bool
-	RatingFilterStartNumber         int
-	RatingFilterMoreThenStartNumber bool
+	RatingFilterStartNumber   string
+	CommentsFilterStartNumber string
+	Longitude                 string
+	Latitude                  string
+	Radius                    string
+	CommCountConstraint       string
+	CommCountPercent          string
 }
 
 // easyjson:json

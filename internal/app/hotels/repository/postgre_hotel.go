@@ -3,6 +3,7 @@ package hotelRepository
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
 
@@ -36,7 +37,8 @@ func (p *PostgreHotelRepository) GetHotels(StartID int) ([]hotelmodel.Hotel, err
 func (p *PostgreHotelRepository) GetHotelByID(ID int) (hotelmodel.Hotel, error) {
 	hotel := hotelmodel.Hotel{}
 	err := p.conn.QueryRow(GetHotelByIDPostgreRequest, strconv.Itoa(ID), configs.S3Url).
-		Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location, &hotel.Rating, &hotel.CommCount)
+		Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location,
+			&hotel.Rating, &hotel.CommCount, &hotel.Latitude, &hotel.Longitude)
 	if err != nil {
 		return hotel, customerror.NewCustomError(err, clientError.Gone, 1)
 	}
@@ -49,56 +51,91 @@ func (p *PostgreHotelRepository) GetHotelByID(ID int) (hotelmodel.Hotel, error) 
 	return hotel, nil
 }
 
-func (p *PostgreHotelRepository) BuildQueryToFetchHotel(filter hotelmodel.HotelFiltering) string {
-	baseQuery := fmt.Sprint("SELECT hotel_id, name, description, location, concat($4::varchar,img), curr_rating , "+
-		"comm_count,strict_word_similarity($1,name) as t1,strict_word_similarity($1,location) as t2 FROM hotels ",
-		SearchHotelsPostgreRequest)
-
-	RatingFilterQuery := ""
-	if filter.RatingFilterStartNumber != -1 {
-		if filter.RatingFilterMoreThenStartNumber {
-			RatingFilterQuery = fmt.Sprint(" AND curr_rating > $5 ")
-		} else {
-			RatingFilterQuery = fmt.Sprint(" AND curr_rating < $5 ")
+func (p *PostgreHotelRepository) BuildQueryForCommentsPercent(filter *hotelmodel.HotelFiltering, param string) string {
+	if filter.CommCountConstraint == "" || filter.CommCountPercent == "" {
+		return ""
+	}
+	query := ""
+	numbers := strings.Split(filter.CommCountConstraint, ",")
+	for _, numberStr := range numbers {
+		number, err := strconv.Atoi(numberStr)
+		if err != nil {
+			continue
 		}
+		query += fmt.Sprintf(" AND  comm_count_for_each[%d]::real/(case comm_count when 0 then 1 else comm_count end)::real >= %s::real/100::real  ",
+			number+1, param)
 	}
+	return query
+}
 
-	baseQuery += RatingFilterQuery
-	baseQuery += " ORDER BY  t1 DESC,t2 DESC,"
+func (p *PostgreHotelRepository) BuildQueryToFetchHotel(filter *hotelmodel.HotelFiltering) string {
+	baseQuery := fmt.Sprint("SELECT hotel_id, name, description, location, concat($4::varchar,img),country,city,curr_rating , " +
+		"comm_count,strict_word_similarity($1,name) as t1,strict_word_similarity($1,location) as t2 ")
 
-	rateOrderQuery := ""
-	if filter.RatingOrdering == true {
-		rateOrderQuery = fmt.Sprint("curr_rating DESC")
+	baseQuery += fmt.Sprint(" FROM hotels ", SearchHotelsPostgreRequest)
+
+	NearestFilterQuery := ""
+	if filter.Radius != "" {
+		NearestFilterQuery = fmt.Sprint(" AND ST_Distance(coordinates::geography, $7::geography)<$8")
+
+		baseQuery += p.BuildQueryForCommentsPercent(filter, "$9")
+
 	} else {
-		rateOrderQuery = fmt.Sprint("curr_rating ASC")
+		baseQuery += p.BuildQueryForCommentsPercent(filter, "$7")
 	}
+	baseQuery += NearestFilterQuery
+
+	RatingFilterQuery := fmt.Sprint(" AND curr_rating >= $5 ")
+	if filter.RatingFilterStartNumber == "" {
+		filter.RatingFilterStartNumber = "0"
+	}
+	baseQuery += RatingFilterQuery
+
+	CommentFilterQuery := fmt.Sprint(" AND comm_count >= $6")
+	if filter.CommentsFilterStartNumber == "" {
+		filter.CommentsFilterStartNumber = "0"
+	}
+	baseQuery += CommentFilterQuery
+
+	rateOrderQuery := fmt.Sprint(" ORDER BY curr_rating DESC,t1 DESC,t2 DESC ")
 
 	baseQuery += rateOrderQuery
-
-	commentOrderQuery := ""
-	if filter.CommentsCountOrdering == true {
-		commentOrderQuery = fmt.Sprint(",comm_count DESC")
-	} else {
-		commentOrderQuery = fmt.Sprint(",comm_count ASC")
-	}
-
-	baseQuery += commentOrderQuery
 	query := fmt.Sprint(baseQuery, " LIMIT $3 OFFSET $2")
 
 	return query
 }
 
 func (p *PostgreHotelRepository) FetchHotels(filter hotelmodel.HotelFiltering, pattern string, offset int) ([]hotelmodel.Hotel, error) {
-	query := p.BuildQueryToFetchHotel(filter)
+	query := p.BuildQueryToFetchHotel(&filter)
 	fmt.Println(query)
+	point := p.GeneratePointToGeo(filter.Latitude, filter.Longitude)
 	hotels := []hotelmodel.Hotel{}
-	p.conn.Exec("Select set_limit(0.25)")
+	p.conn.Exec("Select set_limit(0.18)")
+
 	udb := p.conn.Unsafe()
 	var err error
-	if filter.RatingFilterStartNumber == -1 {
-		err = udb.Select(&hotels, query, pattern, offset, configs.BaseItemPerPage, configs.S3Url)
+
+	if filter.Radius == "" {
+		if filter.CommCountPercent == "" {
+			err = udb.Select(&hotels, query, pattern, offset,
+				configs.BaseItemPerPage, configs.S3Url, filter.RatingFilterStartNumber,
+				filter.CommentsFilterStartNumber)
+		} else {
+			err = udb.Select(&hotels, query, pattern, offset,
+				configs.BaseItemPerPage, configs.S3Url, filter.RatingFilterStartNumber,
+				filter.CommentsFilterStartNumber, filter.CommCountPercent)
+		}
+
 	} else {
-		err = udb.Select(&hotels, query, pattern, offset, configs.BaseItemPerPage, configs.S3Url, filter.RatingFilterStartNumber)
+		if filter.CommCountPercent == "" {
+			err = udb.Select(&hotels, query, pattern, offset,
+				configs.BaseItemPerPage, configs.S3Url, filter.RatingFilterStartNumber, filter.CommentsFilterStartNumber,
+				point, filter.Radius)
+		} else {
+			err = udb.Select(&hotels, query, pattern, offset,
+				configs.BaseItemPerPage, configs.S3Url, filter.RatingFilterStartNumber, filter.CommentsFilterStartNumber,
+				point, filter.Radius, filter.CommCountPercent)
+		}
 	}
 
 	if err != nil {

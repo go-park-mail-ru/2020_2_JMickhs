@@ -65,18 +65,32 @@ func (mr *MockRepositoryMockRecorder) GetHotelByID(ID interface{}) *gomock.Call 
 }
 
 // FetchHotels mocks base method
-func (m *MockRepository) FetchHotels(pattern string, offset int) ([]hotelmodel.Hotel, error) {
+func (m *MockRepository) FetchHotels(filter hotelmodel.HotelFiltering, pattern string, offset int) ([]hotelmodel.Hotel, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FetchHotels", pattern, offset)
+	ret := m.ctrl.Call(m, "FetchHotels", filter, pattern, offset)
 	ret0, _ := ret[0].([]hotelmodel.Hotel)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FetchHotels indicates an expected call of FetchHotels
-func (mr *MockRepositoryMockRecorder) FetchHotels(pattern, offset interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) FetchHotels(filter, pattern, offset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchHotels", reflect.TypeOf((*MockRepository)(nil).FetchHotels), pattern, offset)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchHotels", reflect.TypeOf((*MockRepository)(nil).FetchHotels), filter, pattern, offset)
+}
+
+// BuildQueryToFetchHotel mocks base method
+func (m *MockRepository) BuildQueryToFetchHotel(filter *hotelmodel.HotelFiltering) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BuildQueryToFetchHotel", filter)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// BuildQueryToFetchHotel indicates an expected call of BuildQueryToFetchHotel
+func (mr *MockRepositoryMockRecorder) BuildQueryToFetchHotel(filter interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildQueryToFetchHotel", reflect.TypeOf((*MockRepository)(nil).BuildQueryToFetchHotel), filter)
 }
 
 // CheckRateExist mocks base method
