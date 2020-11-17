@@ -9,7 +9,8 @@ import (
 type Usecase interface {
 	GetHotels(StartID int) ([]hotelmodel.Hotel, error)
 	GetHotelByID(ID int) (hotelmodel.Hotel, error)
-	FetchHotels(pattern string, page int) (hotelmodel.SearchData, error)
+	FetchHotels(filter hotelmodel.HotelFiltering, pattern string, page int) (hotelmodel.SearchData, error)
 	CheckRateExist(UserID int, HotelID int) (commModel.FullCommentInfo, error)
 	GetHotelsPreview(pattern string) ([]hotelmodel.HotelPreview, error)
+	GetHotelsByRadius(latitude string, longitude string, radius string) ([]hotelmodel.Hotel, error)
 }

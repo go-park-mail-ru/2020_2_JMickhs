@@ -65,18 +65,18 @@ func (mr *MockUsecaseMockRecorder) GetHotelByID(ID interface{}) *gomock.Call {
 }
 
 // FetchHotels mocks base method
-func (m *MockUsecase) FetchHotels(pattern string, page int) (hotelmodel.SearchData, error) {
+func (m *MockUsecase) FetchHotels(filter hotelmodel.HotelFiltering, pattern string, page int) (hotelmodel.SearchData, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FetchHotels", pattern, page)
+	ret := m.ctrl.Call(m, "FetchHotels", filter, pattern, page)
 	ret0, _ := ret[0].(hotelmodel.SearchData)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FetchHotels indicates an expected call of FetchHotels
-func (mr *MockUsecaseMockRecorder) FetchHotels(pattern, page interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) FetchHotels(filter, pattern, page interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchHotels", reflect.TypeOf((*MockUsecase)(nil).FetchHotels), pattern, page)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchHotels", reflect.TypeOf((*MockUsecase)(nil).FetchHotels), filter, pattern, page)
 }
 
 // CheckRateExist mocks base method
@@ -107,4 +107,19 @@ func (m *MockUsecase) GetHotelsPreview(pattern string) ([]hotelmodel.HotelPrevie
 func (mr *MockUsecaseMockRecorder) GetHotelsPreview(pattern interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHotelsPreview", reflect.TypeOf((*MockUsecase)(nil).GetHotelsPreview), pattern)
+}
+
+// GetHotelsByRadius mocks base method
+func (m *MockUsecase) GetHotelsByRadius(latitude, longitude, radius string) ([]hotelmodel.Hotel, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHotelsByRadius", latitude, longitude, radius)
+	ret0, _ := ret[0].([]hotelmodel.Hotel)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHotelsByRadius indicates an expected call of GetHotelsByRadius
+func (mr *MockUsecaseMockRecorder) GetHotelsByRadius(latitude, longitude, radius interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHotelsByRadius", reflect.TypeOf((*MockUsecase)(nil).GetHotelsByRadius), latitude, longitude, radius)
 }

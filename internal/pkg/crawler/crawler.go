@@ -3,6 +3,7 @@ package crawler
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -35,7 +36,6 @@ func RandomString() string {
 }
 
 func StartCrawler(db *sqlx.DB, s3 *s3.S3, log *logger.CustomLogger) {
-	hotels := []hotelmodel.Hotel{}
 
 	c := colly.NewCollector(
 		colly.AllowedDomains("www.booking.com"),
@@ -63,8 +63,8 @@ func StartCrawler(db *sqlx.DB, s3 *s3.S3, log *logger.CustomLogger) {
 
 	c.OnHTML("div[id=right]", func(e *colly.HTMLElement) {
 		hotel := hotelmodel.Hotel{}
-		hotel.Name = e.DOM.Find("h2[id=hp_hotel_name]").RemoveAttr("span[class]").Text()
-		hotel.Name = strings.Split(hotel.Name, "\n")[1]
+		nodes := e.DOM.Find("h2[id=hp_hotel_name]").Nodes
+		hotel.Name = nodes[0].LastChild.Data
 		var decr string
 		sel := e.DOM.Find("div[id=property_description_content]").Children()
 		sel.Each(func(_ int, selection *goquery.Selection) {
@@ -75,6 +75,12 @@ func StartCrawler(db *sqlx.DB, s3 *s3.S3, log *logger.CustomLogger) {
 			Find("span").Text()
 		hotel.Location = strings.Split(hotel.Location, "\n")[1]
 
+		splitLocation := strings.Split(hotel.Location, ", ")
+		hotel.City = splitLocation[len(splitLocation)-2]
+		hotel.Country = splitLocation[len(splitLocation)-1]
+
+		coordinates, _ := e.DOM.Find(`a[id="hotel_address"]`).Attr("data-atlas-latlng")
+		hotel.Email = "ea56789@mail.ru"
 		imageRef, _ := e.DOM.Find(`a[class="bh-photo-grid-item bh-photo-grid-photo1 active-image "]`).Attr("href")
 		name, err := UploadImage(s3, imageRef)
 		if err != nil {
@@ -92,13 +98,11 @@ func StartCrawler(db *sqlx.DB, s3 *s3.S3, log *logger.CustomLogger) {
 				photos = append(photos, photo)
 			})
 		hotel.Photos = photos
-		err = UploadHotel(db, hotel)
+		err = UploadHotel(db, hotel, coordinates)
 		if err != nil {
 			log.Error(err)
 		}
-		fmt.Println(hotel.Name)
-		hotels = append(hotels, hotel)
-
+		fmt.Println(hotel.Location)
 	})
 
 	c.OnRequest(func(r *colly.Request) {
@@ -108,9 +112,22 @@ func StartCrawler(db *sqlx.DB, s3 *s3.S3, log *logger.CustomLogger) {
 	c.Wait()
 }
 
-func UploadHotel(db *sqlx.DB, hotel hotelmodel.Hotel) error {
-	_, err := db.Exec("INSERT INTO hotels(hotel_id,name,location,description,img,photos) VALUES  (default,$1,$2,$3,$4,$5)",
-		hotel.Name, hotel.Location, hotel.Description, hotel.Image, pq.Array(hotel.Photos))
+func ParsePoint(point string) (string, string) {
+	longlat := strings.Split(point, ",")
+
+	return longlat[0], longlat[1]
+}
+
+func GeneratePointToGeo(latitude string, longitude string) string {
+	return fmt.Sprintf("SRID=4326;POINT(%s %s)", latitude, longitude)
+}
+
+func UploadHotel(db *sqlx.DB, hotel hotelmodel.Hotel, coordinates string) error {
+	lat, long := ParsePoint(coordinates)
+	point := GeneratePointToGeo(lat, long)
+	_, err := db.Exec("INSERT INTO hotels(hotel_id,name,location,description,img,photos,coordinates,email,country,city)"+
+		" VALUES  (default,$1,$2,$3,$4,$5,ST_GeomFromEWKT($6),$7,$8,$9)",
+		hotel.Name, hotel.Location, hotel.Description, hotel.Image, pq.Array(hotel.Photos), point, hotel.Email, hotel.Country, hotel.City)
 	if err != nil {
 		return err
 	}
@@ -127,7 +144,7 @@ func UploadImage(filemanager *s3.S3, url string) (string, error) {
 
 	filename := uuid.NewV4().String()
 	fileType := "jpg"
-	relPath := configs.StaticPath + filename + "." + fileType
+	relPath := configs.StaticPathForHotels + filename + "." + fileType
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

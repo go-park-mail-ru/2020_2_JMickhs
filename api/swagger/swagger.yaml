@@ -114,13 +114,22 @@ definitions:
   Hotel:
     description: easyjson:json
     properties:
+      city:
+        type: string
+        x-go-name: City
       comm_count:
         format: int64
         type: integer
         x-go-name: CommCount
+      country:
+        type: string
+        x-go-name: Country
       description:
         type: string
         x-go-name: Description
+      email:
+        type: string
+        x-go-name: Email
       hotel_id:
         format: int64
         type: integer
@@ -128,9 +137,17 @@ definitions:
       image:
         type: string
         x-go-name: Image
+      latitude:
+        format: double
+        type: number
+        x-go-name: Latitude
       location:
         type: string
         x-go-name: Location
+      longitude:
+        format: double
+        type: number
+        x-go-name: Longitude
       name:
         type: string
         x-go-name: Name
@@ -437,6 +454,24 @@ paths:
       description: if don't rate by curr user, field "rate" should be empty
       operationId: hotel
       parameters:
+      - description: в метрах
+        in: query
+        name: radius
+        required: true
+        type: string
+        x-go-name: Radius
+      - description: широта
+        in: query
+        name: latitude
+        required: true
+        type: string
+        x-go-name: Latitude
+      - description: долгота
+        in: query
+        name: longitude
+        required: true
+        type: string
+        x-go-name: Longitude
       - description: the id of hotel to get from database
         format: int64
         in: path
@@ -472,22 +507,89 @@ paths:
           $ref: '#/responses/badrequest'
       tags:
       - hotel
+  /api/v1/hotels/radiusSearch:
+    get:
+      description: GetList of hotels by radius
+      operationId: hotelsByRadius
+      parameters:
+      - description: в метрах
+        in: query
+        name: radius
+        required: true
+        type: string
+        x-go-name: Radius
+      - description: широта
+        in: query
+        name: latitude
+        required: true
+        type: string
+        x-go-name: Latitude
+      - description: долгота
+        in: query
+        name: longitude
+        required: true
+        type: string
+        x-go-name: Longitude
+      responses:
+        "200":
+          $ref: '#/responses/hotels'
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - hotel
   /api/v1/hotels/search:
     get:
       description: Search hotels
       operationId: searchHotel
       parameters:
-      - description: page num start from 0
-        in: query
+      - in: query
         name: pattern
         required: true
         type: string
         x-go-name: Pattern
-      - in: query
+      - description: page num start from 0
+        in: query
         name: page
         required: true
         type: string
         x-go-name: Page
+      - description: в метрах
+        in: query
+        name: radius
+        type: string
+        x-go-name: Radius
+      - description: широта
+        in: query
+        name: latitude
+        type: string
+        x-go-name: Latitude
+      - description: долгота
+        in: query
+        name: longitude
+        type: string
+        x-go-name: Longitude
+      - format: int64
+        in: query
+        name: rateStart
+        type: integer
+        x-go-name: RateStart
+      - format: int64
+        in: query
+        name: commentStart
+        type: integer
+        x-go-name: CommentCountStart
+      - description: какие оценки выбираем через запятую пример "3,4,5"
+        format: int64
+        in: query
+        name: commCount
+        type: integer
+        x-go-name: CommCountConstraint
+      - description: процент выбранных оценок от общего кол-ва
+        format: int64
+        in: query
+        name: commPercent
+        type: integer
+        x-go-name: CommCountPercent
       responses:
         "200":
           $ref: '#/responses/searchHotel'

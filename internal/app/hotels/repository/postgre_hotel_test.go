@@ -83,7 +83,7 @@ func TestGetHoteBytID(t *testing.T) {
 			"kek.jpeg")
 
 		hotelTest := hotelmodel.Hotel{3, "hotel", "top hotel in the world",
-			"src/kek.jpg", "Moscow", 3.5, []string{"kek.jpeg"}, 4}
+			"src/kek.jpg", "Moscow", 3.5, []string{"kek.jpeg"}, 4, ""}
 
 		query := GetHotelByIDPostgreRequest
 
@@ -116,7 +116,7 @@ func TestFetchHotels(t *testing.T) {
 			2, "Hostel", "top hotel in the world", "src/kek.jpg", "China", "7", "3")
 
 		hotelTest := hotelmodel.Hotel{1, "Villa", "top hotel in the world",
-			"src/kek.jpg", "Moscow", 3.5, nil, 4}
+			"src/kek.jpg", "Moscow", 3.5, nil, 4, ""}
 
 		query := fmt.Sprint("SELECT hotel_id, name, description, location, concat($4::varchar,img), curr_rating , comm_count FROM hotels ",
 			SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $3 OFFSET $2")
@@ -252,7 +252,7 @@ func TestGetHotels(t *testing.T) {
 		query := GetHotelsPostgreRequest
 
 		hotelTest := hotelmodel.Hotel{1, "Villa", "top hotel in the world", "src/kek.jpg", "Moscow", 3.5,
-			nil, 4}
+			nil, 4, ""}
 
 		mock.ExpectQuery(query).WithArgs("4", configs.S3Url).WillReturnRows(rowsHotel)
 

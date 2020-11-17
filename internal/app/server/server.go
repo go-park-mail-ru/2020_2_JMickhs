@@ -132,8 +132,8 @@ func StartServer(store *redis.Client, db *sqlx.DB, s3 *s3.S3, log *logger.Custom
 	commentDelivery.NewCommentHandler(r, uCom, log)
 
 	log.Info("Server started at port", configs.Port)
-	//err := http.ListenAndServeTLS(configs.Port, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
-	err := http.ListenAndServe(configs.Port, r)
+	err := http.ListenAndServeTLS(configs.Port, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
+	//err := http.ListenAndServe(configs.Port, r)
 	if err != nil {
 		log.Error(err)
 	}

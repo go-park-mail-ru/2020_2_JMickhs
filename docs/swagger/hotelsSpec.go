@@ -8,11 +8,30 @@ import (
 
 // swagger:parameters searchHotel
 type SearchStringRequest struct {
-	// page num start from 0
 	// required:true
 	Pattern string `json:"pattern"`
+	// page num start from 0
 	// required:true
 	Page string `json:"page"`
+	// в метрах
+	// in: query
+	Radius string `json:"radius"`
+	// широта
+	// in: query
+	Latitude string `json:"latitude"`
+	// долгота
+	// in: query
+	Longitude string `json:"longitude"`
+	//in:query
+	RateStart int `json:"rateStart"`
+	//in:query
+	CommentCountStart int `json:"commentStart"`
+	// какие оценки выбираем через запятую пример "3,4,5"
+	//in:query
+	CommCountConstraint int `json:"commCount"`
+	//процент выбранных оценок от общего кол-ва
+	//in:query
+	CommCountPercent int `json:"commPercent"`
 }
 
 // swagger:parameters hotelPreview
@@ -44,6 +63,22 @@ type SearchDataResponse struct {
 type HotelData struct {
 	Hotel   hotelmodel.Hotel          `json:"hotel"`
 	Comment commModel.FullCommentInfo `json:"comment,omitempty"`
+}
+
+// swagger:parameters hotel hotelsByRadius
+type hotelByRadiusParameterWrapper struct {
+	// в метрах
+	// in: query
+	// required:true
+	Radius string `json:"radius"`
+	// широта
+	// in: query
+	// required:true
+	Latitude string `json:"latitude"`
+	// долгота
+	// in: query
+	// required:true
+	Longitude string `json:"longitude"`
 }
 
 // swagger:parameters hotel

@@ -5,14 +5,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
-	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strconv"
 	"testing"
+
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
+	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/serverError"
 
@@ -194,8 +195,8 @@ func TestHotelHandler_Hotel(t *testing.T) {
 
 func TestHotelHandler_ListHotels(t *testing.T) {
 	testHotels := []hotelmodel.Hotel{
-		{3, "kek", "kekw hotel", "src/image.png", "moscow", 2, []string{"fds", "fsd"}, 3},
-		{4, "kek", "kekw hotel", "src/image.png", "moscow", 2, []string{"fds", "fsd"}, 3},
+		{3, "kek", "kekw hotel", "src/image.png", "moscow", 2, []string{"fds", "fsd"}, 3, ""},
+		{4, "kek", "kekw hotel", "src/image.png", "moscow", 2, []string{"fds", "fsd"}, 3, ""},
 	}
 
 	t.Run("GetHotels", func(t *testing.T) {
@@ -296,8 +297,8 @@ func TestHotelHandler_ListHotels(t *testing.T) {
 
 func TestHotelHandler_FetchHotels(t *testing.T) {
 	testHotels := []hotelmodel.Hotel{
-		{3, "kek", "kekw hotel", "src/image.png", "moscow", 2, []string{"fds", "fsd"}, 3},
-		{4, "kek", "kekw hotel", "src/image.png", "moscow", 2, []string{"fds", "fsd"}, 3},
+		{3, "kek", "kekw hotel", "src/image.png", "moscow", 2, []string{"fds", "fsd"}, 3, ""},
+		{4, "kek", "kekw hotel", "src/image.png", "moscow", 2, []string{"fds", "fsd"}, 3, ""},
 	}
 	pagInfo := paginationModel.PaginationInfo{NextLink: "", PrevLink: "", ItemsCount: 3}
 	searchData := hotelmodel.SearchData{Hotels: testHotels, PagInfo: pagInfo}

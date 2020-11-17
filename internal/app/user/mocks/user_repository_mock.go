@@ -165,15 +165,15 @@ func (mr *MockRepositoryMockRecorder) DeleteAvatarInStore(user, filename interfa
 }
 
 // UpdateAvatarInStore mocks base method
-func (m *MockRepository) UpdateAvatarInStore(file multipart.File, user *models.User, relativePath string) error {
+func (m *MockRepository) UpdateAvatarInStore(file multipart.File, user *models.User, fileType string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateAvatarInStore", file, user, relativePath)
+	ret := m.ctrl.Call(m, "UpdateAvatarInStore", file, user, fileType)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateAvatarInStore indicates an expected call of UpdateAvatarInStore
-func (mr *MockRepositoryMockRecorder) UpdateAvatarInStore(file, user, relativePath interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) UpdateAvatarInStore(file, user, fileType interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAvatarInStore", reflect.TypeOf((*MockRepository)(nil).UpdateAvatarInStore), file, user, relativePath)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAvatarInStore", reflect.TypeOf((*MockRepository)(nil).UpdateAvatarInStore), file, user, fileType)
 }
