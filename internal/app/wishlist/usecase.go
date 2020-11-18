@@ -12,5 +12,4 @@ type Usecase interface {
 	AddHotel(hotelID int, wishlistID int) error
 	DeleteHotel(hotelID int, wishlistID int) error
 	GetTable() ([]wishlistModel.WishlisstHotel, error)
-	// GetWhatYouWant() ([]hotelmodel.MiniHotel, error)
 }
