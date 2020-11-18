@@ -1,8 +1,8 @@
 package swagger
 
 import (
-	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
-	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
+	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/paginator/model"
 )
 
 type AddCommentRequest struct {

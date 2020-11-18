@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+//protoc --go_out=plugins=grpc:. *.proto
+
+package sessions;
+
+message SessionID{
+   string SessionID = 1;
+}
+message UserID {
+   int64 UserID = 1;
+}
+
+message Empty{
+}
+
+service AuthorizationService{
+  rpc CreateSession(UserID)     returns (SessionID) {}
+  rpc GetIDBySession(SessionID) returns (UserID)    {}
+  rpc DeleteSession(SessionID)  returns (Empty)     {}
+}

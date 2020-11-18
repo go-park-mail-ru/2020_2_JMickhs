@@ -3,7 +3,7 @@ package swagger
 import (
 	"mime/multipart"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/models"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/user/models"
 )
 
 type UpdateAvatar struct {
