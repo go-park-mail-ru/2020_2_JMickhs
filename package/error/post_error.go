@@ -3,8 +3,8 @@ package customerror
 import (
 	"net/http"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/package/logger"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/package/responses"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_utils/logger"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_utils/responses"
 )
 
 func PostError(w http.ResponseWriter, req *http.Request, log *logger.CustomLogger, err error, code interface{}) {

@@ -108,6 +108,8 @@ github.com/go-openapi/validate v0.19.10/go.mod h1:RKEZTUWDkxKQxN2jDT7ZnZi2bhZlbN
 github.com/go-ozzo/ozzo-validation v3.6.0+incompatible/go.mod h1:gsEKFIVnabGBt6mXmxK0MoFy+cZoTJY6mu5Ll3LVLBU=
 github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201113122733-6f9ceb43c98e h1:YjpuzwjZpWVA6fHBfPADk+T7/fa/X4txMRuk5xouhAc=
 github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201113122733-6f9ceb43c98e/go.mod h1:qrk6ZphR43BVQZtd+JWOLtga7H7q+SAUc/zbZnjzGE0=
+github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201119152923-de2a8f3d8685 h1:mZjyHUAByJIAjXxmkIL2xUQeZ9r3u0y9Eec2HypYvK0=
+github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201119152923-de2a8f3d8685/go.mod h1:rBGHxEGDQRZlADeqs96Fm52cxw0rcaiwdlGZvHsY8Yo=
 github.com/go-playground/assert/v2 v2.0.1/go.mod h1:VDjEfimB/XKnb+ZQfWdccd7VUvScMdVu0Titje2rxJ4=
 github.com/go-playground/locales v0.13.0/go.mod h1:taPMhCMXrRLJO55olJkUXHZBHCxTMfnGwq/HNwmWNS8=
 github.com/go-playground/universal-translator v0.17.0/go.mod h1:UkSxE5sNxxRwHyU+Scu5vgOQjsIJAF8j9muTVoKLVtA=

@@ -4,9 +4,7 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/package/clientError"
-
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/package/error"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_utils/error"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/configs"
 
