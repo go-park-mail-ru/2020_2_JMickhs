@@ -2,12 +2,10 @@ package sessionsRepository
 
 import (
 	"context"
-
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
-
 	"strconv"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
 
 	"github.com/go-redis/redis/v8"
 )
