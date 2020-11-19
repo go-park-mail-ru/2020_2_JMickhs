@@ -2,9 +2,8 @@ package sessionsRepository
 
 import (
 	"context"
-	"strconv"
 
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_utils/error"
+	"strconv"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/configs"
 

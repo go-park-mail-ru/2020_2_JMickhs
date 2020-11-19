@@ -3,8 +3,8 @@ package customerror
 import (
 	"net/http"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_utils/clientError"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_utils/serverError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
 )
 
 var convertStatusToHTTP = map[int]int{
