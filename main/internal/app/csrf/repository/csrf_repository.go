@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/pkg/error"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/pkg/serverError"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/error"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/serverError"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 	"github.com/go-redis/redis/v8"

@@ -2,7 +2,7 @@
 package comment
 
 import (
-	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
 )
 
 type Usecase interface {

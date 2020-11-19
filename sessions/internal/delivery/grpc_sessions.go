@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"context"
+	"fmt"
 
 	session "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal"
 
@@ -19,6 +20,7 @@ func NewSessionDelivery(useCase session.Usecase) *SessionDelivery {
 
 func (sessDel *SessionDelivery) CreateSession(ctx context.Context, in *session.UserID) (*session.SessionID, error) {
 	sessionID, err := sessDel.SessionUseCase.AddToken(in.UserID)
+	fmt.Println(sessionID)
 	if err != nil {
 		return nil, status.Error(codes.Aborted, err.Error())
 	}

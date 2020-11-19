@@ -41,7 +41,7 @@ func (u *CommentUseCase) GetComments(hotelID string, limit string, offsets strin
 			count--
 		}
 	}
-
+	fmt.Println(count)
 	if offset > count {
 		return 0, pag, nil
 	}

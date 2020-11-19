@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"time"
 
+	userDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/delivery/http"
+
 	commentRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/repository"
 	hotelRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/repository"
 	userRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/repository"
@@ -126,7 +128,7 @@ func StartServer(store *redis.Client, db *sqlx.DB, s3 *s3.S3, log *logger.Custom
 	validate := validator.New()
 
 	grpcSessionsConn, err := grpc.Dial(
-		":6402",
+		":8079",
 		grpc.WithUnaryInterceptor(GetInterceptor(log)),
 		grpc.WithInsecure(),
 	)
@@ -159,7 +161,7 @@ func StartServer(store *redis.Client, db *sqlx.DB, s3 *s3.S3, log *logger.Custom
 	r.Use(csrfMidleware.CSRFCheck())
 
 	hotelDelivery.NewHotelHandler(r, uHot, log)
-	delivery.NewUserHandler(r, sessionService, u, uCsrf, log)
+	userDelivery.NewUserHandler(r, sessionService, u, uCsrf, log)
 	commentDelivery.NewCommentHandler(r, uCom, log)
 
 	log.Info("Server started at port", configs.Port)

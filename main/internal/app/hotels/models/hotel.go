@@ -2,8 +2,8 @@
 package hotelmodel
 
 import (
-	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
-	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/paginator/model"
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
+	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/paginator/model"
 )
 
 // easyjson:json

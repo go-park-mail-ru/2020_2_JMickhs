@@ -2,15 +2,15 @@ package middlewareApi
 
 import (
 	"context"
-	"net/http"
+	http "net/http"
 
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/pkg/error"
-	sessions "github.com/go-park-mail-ru/2020_2_JMickhs/sessions/proto/session"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/clientError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/proto/sessions"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/user"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/pkg/logger"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/pkg/clientError"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/error"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/logger"
 	"github.com/gorilla/mux"
 )
 

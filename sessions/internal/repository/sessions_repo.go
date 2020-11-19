@@ -4,8 +4,9 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_utils/clientError"
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_utils/error"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/package/clientError"
+
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/package/error"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/configs"
 
@@ -22,8 +23,8 @@ func NewSessionsUserRepository(sessStore *redis.Client) sessionsRepository {
 }
 
 func (p *sessionsRepository) AddToken(token string, ID int64) (string, error) {
-
 	err := p.sessStore.Set(context.Background(), token, ID, configs.CookieLifeTime).Err()
+
 	if err != nil {
 		return token, customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_utils/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
 
 	"github.com/sirupsen/logrus"
 )

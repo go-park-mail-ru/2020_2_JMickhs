@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/pkg/logger"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/logger"
 
 	"github.com/gorilla/mux"
 )

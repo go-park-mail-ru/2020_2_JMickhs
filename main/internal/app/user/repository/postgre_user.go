@@ -4,20 +4,21 @@ import (
 	"mime/multipart"
 	"strconv"
 
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/pkg/error"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/serverError"
+
+	models "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/models"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/clientError"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/error"
 
 	uuid "github.com/satori/go.uuid"
 
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/pkg/clientError"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/pkg/serverError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
 
 	"github.com/aws/aws-sdk-go/service/s3"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/user/models"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -43,7 +44,7 @@ func (p *PostgresUserRepository) Add(user models.User) (models.User, error) {
 }
 func (p *PostgresUserRepository) DeleteAvatarInStore(user models.User, filename string) error {
 	if user.Avatar != configs.S3Url+configs.BaseAvatarPath {
-		_, err := p.s3.DeleteObject(&s3.DeleteObjectInput{
+		var _, err = p.s3.DeleteObject(&s3.DeleteObjectInput{
 			Bucket: aws.String(configs.BucketName),
 			Key:    aws.String(configs.StaticPathForAvatars + filename),
 		})

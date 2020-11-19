@@ -4,17 +4,16 @@ import (
 	"net/http"
 	"strconv"
 
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/main/pkg/error"
+	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/models"
 
-	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/pkg/logger"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/pkg/clientError"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/pkg/responses"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/models"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/clientError"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/error"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/logger"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/responses"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/user/models"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels"
 	"github.com/gorilla/mux"
 )
 
@@ -53,10 +52,10 @@ func (hh *HotelHandler) FetchHotelsByRadius(w http.ResponseWriter, r *http.Reque
 	hotels, err := hh.HotelUseCase.GetHotelsByRadius(latitude, longitude, radius)
 
 	if err != nil {
-
 		customerror.PostError(w, r, hh.log, err, nil)
 		return
 	}
+
 	responses.SendDataResponse(w, hotelmodel.Hotels{hotels})
 }
 

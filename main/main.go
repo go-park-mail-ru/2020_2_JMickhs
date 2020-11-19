@@ -21,10 +21,10 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/server"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/crawler"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/logger"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/server"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/pkg/crawler"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/pkg/logger"
 )
 
 func initRelativePath() string {

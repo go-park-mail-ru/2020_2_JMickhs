@@ -7,6 +7,11 @@ import (
 	"net"
 	"strconv"
 
+	session "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/delivery"
+	sessionsRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/repository"
+	sessionsUseCase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/usecase"
+
 	"google.golang.org/grpc"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"

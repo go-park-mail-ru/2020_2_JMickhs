@@ -5,15 +5,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/pkg/clientError"
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/pkg/error"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/pkg/serverError"
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
 
-	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
+	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/models"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/clientError"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/error"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/serverError"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
-
-	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -28,6 +27,7 @@ func NewPostgresHotelRepository(conn *sqlx.DB) PostgreHotelRepository {
 func (p *PostgreHotelRepository) GetHotels(StartID int) ([]hotelmodel.Hotel, error) {
 	hotels := []hotelmodel.Hotel{}
 	err := p.conn.Select(&hotels, GetHotelsPostgreRequest, strconv.Itoa(StartID), configs.S3Url)
+
 	if err != nil {
 		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}

@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"fmt"
 
-	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/pkg/logger"
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/pkg/error"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
+
+	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/models"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/error"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/logger"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 	"github.com/gocolly/colly/v2"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"

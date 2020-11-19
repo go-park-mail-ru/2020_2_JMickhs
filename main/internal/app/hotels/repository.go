@@ -2,8 +2,8 @@
 package hotels
 
 import (
-	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
-	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
+	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/models"
 )
 
 type Repository interface {

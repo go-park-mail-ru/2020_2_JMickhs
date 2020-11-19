@@ -1,13 +1,21 @@
 package userDelivery
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/models"
+	models "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/models"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
+	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/middleware"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/clientError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/serverError"
+
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/error"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/responses"
 
@@ -203,9 +211,10 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 		customerror.PostError(w, r, u.log, err, nil)
 		return
 	}
-	sessionID, err := u.SessionsDelivery.CreateSession(r.Context(), &sessions.UserID{UserID: int64(user.ID)})
+
+	sessionID, err := u.SessionsDelivery.CreateSession(context.Background(), &sessions.UserID{UserID: int64(usr.ID)})
 	if err != nil {
-		customerror.PostError(w, r, u.log, err, nil)
+		customerror.PostError(w, r, u.log, err, serverError.ServerInternalError)
 		return
 	}
 
@@ -250,6 +259,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionID, err := u.SessionsDelivery.CreateSession(r.Context(), &sessions.UserID{UserID: int64(user.ID)})
+	fmt.Println("fd")
 	if err != nil {
 		customerror.PostError(w, r, u.log, err, nil)
 		return
