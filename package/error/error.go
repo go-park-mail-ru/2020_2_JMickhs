@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_utils/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
 )
 
 type CustomError struct {
