@@ -4,13 +4,13 @@ import (
 	"context"
 	http "net/http"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/clientError"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/proto/sessions"
 
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/error"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/logger"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
 	"github.com/gorilla/mux"
 )
 

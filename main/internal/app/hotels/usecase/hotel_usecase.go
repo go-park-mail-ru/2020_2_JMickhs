@@ -1,10 +1,10 @@
 package hotelUsecase
 
 import (
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/models"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 )
 
 type HotelUseCase struct {

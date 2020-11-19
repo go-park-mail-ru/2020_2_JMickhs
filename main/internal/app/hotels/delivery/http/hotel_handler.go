@@ -4,15 +4,16 @@ import (
 	"net/http"
 	"strconv"
 
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/models"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/responses"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/models"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/clientError"
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/error"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/logger"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/responses"
 
 	"github.com/gorilla/mux"
 )

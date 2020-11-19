@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
+	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
 
 	"github.com/sirupsen/logrus"
 )
@@ -30,7 +30,7 @@ func NewLogger(writer io.Writer) *CustomLogger {
 
 func (l *CustomLogger) relative(path string) string {
 
-	return strings.TrimPrefix(filepath.ToSlash(path), configs.PrefixPath)
+	return strings.TrimPrefix(filepath.ToSlash(path), packageConfig.PrefixPath)
 }
 
 func (l *CustomLogger) LogError(ctx context.Context, err error) {

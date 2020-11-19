@@ -8,7 +8,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
+
 	userDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/delivery/http"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
 
 	commentRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/repository"
 	hotelRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/repository"
@@ -26,7 +29,6 @@ import (
 	hotelUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/usecase"
 	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/middleware"
 	userUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/usecase"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/logger"
 
 	"google.golang.org/grpc"
 
@@ -37,8 +39,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 
 	"github.com/go-playground/validator/v10"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
 
 	"github.com/jmoiron/sqlx"
 

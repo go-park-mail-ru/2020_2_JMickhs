@@ -4,8 +4,10 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/configs"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/configs"
 
 	"github.com/go-redis/redis/v8"
 )

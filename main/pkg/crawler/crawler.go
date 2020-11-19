@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"fmt"
 
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
 
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/models"
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/error"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/logger"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/aws/aws-sdk-go/aws"

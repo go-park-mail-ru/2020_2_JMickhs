@@ -7,13 +7,13 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/clientError"
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/error"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/logger"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/responses"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/responses"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/models"
 

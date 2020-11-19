@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
+	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
 )
 
 type CustomError struct {
@@ -27,7 +27,7 @@ func NewCustomError(err error, code int, skip int) *CustomError {
 
 func relative(path string) string {
 
-	return strings.TrimPrefix(filepath.ToSlash(path), configs.PrefixPath)
+	return strings.TrimPrefix(filepath.ToSlash(path), packageConfig.PrefixPath)
 }
 
 func ParseCode(err error) int {
