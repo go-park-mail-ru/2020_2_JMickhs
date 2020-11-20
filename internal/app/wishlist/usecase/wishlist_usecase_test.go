@@ -14,8 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHotelUseCase_GetHotels(t *testing.T) {
-
+func TestwishlistUseCase_GetWishlist(t *testing.T) {
 	testHotels := make([]hotelmodel.MiniHotel, 4)
 	err := faker.FakeData(&testHotels)
 	if err != nil {
@@ -25,29 +24,29 @@ func TestHotelUseCase_GetHotels(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockHotelRepo := wishlist_mock.NewMockRepository(ctrl)
+		mockWishlistRepo := wishlist_mock.NewMockRepository(ctrl)
 
-		mockHotelRepo.EXPECT().GetWishlist(42).
+		mockWishlistRepo.EXPECT().GetWishlist(42).
 			Return(testHotels, nil)
 
-		u := NewWishlistUseCase(mockHotelRepo)
+		u := NewWishlistUseCase(mockWishlistRepo)
 
 		hotels, err := u.GetWishlist(42)
 
 		assert.NoError(t, err)
 		assert.Equal(t, hotels, testHotels)
 	})
-	t.Run("HotelGetHotelsErr", func(t *testing.T) {
+	t.Run("WishlistGetWishlistErr", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockHotelRepo := wishlist_mock.NewMockRepository(ctrl)
+		mockWishlistRepo := wishlist_mock.NewMockRepository(ctrl)
 
-		mockHotelRepo.EXPECT().
+		mockWishlistRepo.EXPECT().
 			GetWishlist(42).
 			Return(testHotels, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
-		u := NewWishlistUseCase(mockHotelRepo)
+		u := NewWishlistUseCase(mockWishlistRepo)
 
 		_, err := u.GetWishlist(42)
 

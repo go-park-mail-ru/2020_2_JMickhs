@@ -39,7 +39,3 @@ func (w *WishlistUseCase) DeleteHotel(hotelID int, wishlistID int) error {
 func (w *WishlistUseCase) GetTable() ([]wishlistModel.WishlisstHotel, error) {
 	return w.wishlistRepo.GetTable()
 }
-
-func (w *WishlistUseCase) GetWhatYouWant() ([]hotelmodel.MiniHotel, error) {
-	return w.wishlistRepo.GetWishlist(42)
-}
