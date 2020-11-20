@@ -1,26 +1,31 @@
-package user
+package main
 
 import (
 	"context"
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
 	"time"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/middlewareUser"
+
+	"github.com/gorilla/mux"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/middlewareApi"
 	sessionService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/configs"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
-	"github.com/go-playground/validator/v10"
-	"github.com/jmoiron/sqlx"
-
 	userDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/delivery/http"
 	userRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/repository"
 	userUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/usecase"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
+	"github.com/go-playground/validator/v10"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -109,14 +114,11 @@ func main() {
 	defer grpcSessionsConn.Close()
 	sessionService := sessionService.NewAuthorizationServiceClient(grpcSessionsConn)
 
-	r := NewRouter()
+	r := mux.NewRouter()
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
 	r.Use(middlewareApi.LoggerMiddleware(log))
 	r.Use(middlewareApi.NewPanicMiddleware())
 	r.Use(middlewareApi.MyCORSMethodMiddleware())
-
-	sessMidleware := middlewareApi.NewSessionMiddleware(sessionService, u, log)
-	csrfMidleware := middlewareApi.NewCsrfMiddleware(sessionService, log)
 
 	rep := userRepository.NewPostgresUserRepository(db, s3)
 	u := userUsecase.NewUserUsecase(&rep, validate)
@@ -124,15 +126,24 @@ func main() {
 	server := grpc.NewServer()
 	userDelivery.NewUserHandler(r, sessionService, u, log)
 
+	sessMidleware := middlewareUser.NewSessionMiddleware(sessionService, u, log)
+	csrfMidleware := middlewareApi.NewCsrfMiddleware(sessionService, log)
+
 	r.Use(sessMidleware.SessionMiddleware())
 	r.Use(csrfMidleware.CSRFCheck())
 
-	listener, err := net.Listen("tcp", ":8079")
+	listener, err := net.Listen("tcp", ":8081")
 	if err != nil {
 		log.Fatalf("can't listen port", err)
 	}
-	err = server.Serve(listener)
+	go server.Serve(listener)
 	if err != nil {
 		log.Fatal(err)
+	}
+	log.Info("Server started at port", ":8082")
+	//err := http.ListenAndServeTLS(configs.Port, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
+	err = http.ListenAndServe(":8082", r)
+	if err != nil {
+		log.Error(err)
 	}
 }

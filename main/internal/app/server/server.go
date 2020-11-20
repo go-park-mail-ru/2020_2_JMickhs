@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	userService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/user"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/middlewareApi"
 	sessionService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
 
@@ -105,11 +107,20 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 		grpc.WithUnaryInterceptor(GetInterceptor(log)),
 		grpc.WithInsecure(),
 	)
+	defer grpcSessionsConn.Close()
+
+	sessionService := sessionService.NewAuthorizationServiceClient(grpcSessionsConn)
+
+	grpcUserConn, err := grpc.Dial(
+		":8081",
+		grpc.WithUnaryInterceptor(GetInterceptor(log)),
+		grpc.WithInsecure(),
+	)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	defer grpcSessionsConn.Close()
-	sessionService := sessionService.NewAuthorizationServiceClient(grpcSessionsConn)
+
+	userService := userService.NewUserServiceClient(grpcUserConn)
 
 	r := NewRouter()
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
@@ -123,7 +134,7 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 	uHot := hotelUsecase.NewHotelUsecase(&repHot)
 	uCom := commentUsecase.NewCommentUsecase(&repCom)
 
-	sessMidleware := middlewareApi.NewSessionMiddleware(sessionService, u, log)
+	sessMidleware := middlewareApi.NewSessionMiddleware(sessionService, userService, log)
 	csrfMidleware := middlewareApi.NewCsrfMiddleware(sessionService, log)
 	r.Use(sessMidleware.SessionMiddleware())
 	r.Use(csrfMidleware.CSRFCheck())
