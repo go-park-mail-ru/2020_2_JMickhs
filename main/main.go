@@ -58,8 +58,6 @@ func main() {
 		crawler.StartCrawler(db, s3, log)
 	}
 	if serverVar {
-		store := server.NewSessStore()
-		defer store.Close()
-		server.StartServer(store, db, s3, log)
+		server.StartServer(db, log)
 	}
 }

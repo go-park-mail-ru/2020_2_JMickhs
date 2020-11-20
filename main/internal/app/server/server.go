@@ -17,8 +17,6 @@ import (
 	commentRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/repository"
 	hotelRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/repository"
 
-	"github.com/go-redis/redis/v8"
-
 	"github.com/go-openapi/runtime/middleware"
 	commentDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/delivery/http"
 	commentUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/usecase"
@@ -100,7 +98,7 @@ func GetInterceptor(log *logger.CustomLogger) func(
 	}
 }
 
-func StartServer(store *redis.Client, db *sqlx.DB, s3 *s3.S3, log *logger.CustomLogger) {
+func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 
 	grpcSessionsConn, err := grpc.Dial(
 		":8079",

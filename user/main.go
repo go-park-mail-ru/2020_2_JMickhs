@@ -10,8 +10,7 @@ import (
 	"runtime"
 	"time"
 
-	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/package/middleware"
-
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/middlewareApi"
 	sessionService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/configs"
