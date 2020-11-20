@@ -6,13 +6,14 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/models"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/clientError"
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/error"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/serverError"
-	"github.com/go-playground/validator/v10"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/configs"
+	user "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/models"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
+	"github.com/go-playground/validator"
 )
 
 type userUseCase struct {

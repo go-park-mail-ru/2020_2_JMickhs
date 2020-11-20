@@ -4,18 +4,18 @@ import (
 	"mime/multipart"
 	"strconv"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/serverError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/models"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 
-	models "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/models"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/clientError"
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/error"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
 
 	uuid "github.com/satori/go.uuid"
 
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
 
 	"github.com/aws/aws-sdk-go/service/s3"
 
