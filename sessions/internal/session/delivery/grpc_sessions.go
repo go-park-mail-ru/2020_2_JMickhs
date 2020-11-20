@@ -3,7 +3,7 @@ package delivery
 import (
 	"context"
 
-	session "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/session"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -17,7 +17,7 @@ func NewSessionDelivery(useCase session.Usecase) *SessionDelivery {
 	return &SessionDelivery{useCase}
 }
 
-func (sessDel *SessionDelivery) CreateSession(ctx context.Context, in *session.UserID) (*session.SessionID, error) {
+func (sessDel *SessionDelivery) CreateSession(ctx context.Context, in *session_proto.UserID) (*session.SessionID, error) {
 	sessionID, err := sessDel.SessionUseCase.AddToken(in.UserID)
 	if err != nil {
 		return nil, status.Error(codes.Aborted, err.Error())

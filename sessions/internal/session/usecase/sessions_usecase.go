@@ -1,7 +1,7 @@
 package sessionsUseCase
 
 import (
-	session "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/session"
 	uuid "github.com/satori/go.uuid"
 )
 

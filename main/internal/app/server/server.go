@@ -3,6 +3,9 @@ package server
 import (
 	"context"
 	"fmt"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
+
 	"log"
 	"net/http"
 	"strconv"
@@ -12,7 +15,6 @@ import (
 
 	userDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/delivery/http"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
 
 	commentRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/repository"
 	hotelRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/repository"

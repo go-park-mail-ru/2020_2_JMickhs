@@ -10,9 +10,9 @@ import (
 	"io"
 	"time"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/configs"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/csrf"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/csrf"
 )
 
 type CsrfUsecase struct {

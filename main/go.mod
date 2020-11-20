@@ -4,14 +4,14 @@ go 1.15
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/PuerkitoBio/goquery v1.5.1
+	github.com/PuerkitoBio/goquery v1.6.0
 	github.com/alicebob/miniredis/v2 v2.13.3
-	github.com/aws/aws-sdk-go v1.15.77
+	github.com/aws/aws-sdk-go v1.35.31
 	github.com/bxcodec/faker/v3 v3.5.0
 	github.com/elliotchance/redismock v1.5.3 // indirect
-	github.com/go-openapi/runtime v0.19.22
+	github.com/go-openapi/runtime v0.19.24
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible // indirect
-	github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201119165849-6589f35bd8ba
+	github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201119174232-54843eb04f2a
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/go-redis/redis v6.15.9+incompatible // indirect
 	github.com/go-redis/redis/v8 v8.3.4
@@ -25,7 +25,7 @@ require (
 	github.com/jackc/pgx/v4 v4.9.2 // indirect
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
-	github.com/lib/pq v1.3.0
+	github.com/lib/pq v1.8.0
 	github.com/mailru/easyjson v0.7.6
 	github.com/microcosm-cc/bluemonday v1.0.4 // indirect
 	github.com/mitchellh/mapstructure v1.3.3
