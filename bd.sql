@@ -34,16 +34,18 @@ create table hotels (
     comm_count int DEFAULT 0 CHECK(comm_count >= 0)
 );
 
-
 create table wishlists (
     wishlist_id int not null,
     name text,
-    user_id int not null
+    user_id int not null,
+    FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 create table wishlistshotels (
     wishlist_id int not null,
-    hotel_id int
+    hotel_id int,
+    FOREIGN KEY (wishlist_id) REFERENCES wishlists (wishlist_id) ON DELETE CASCADE,
+    FOREIGN KEY (hotel_id) REFERENCES hotels (hotel_id) ON DELETE CASCADE
 );
 
 
