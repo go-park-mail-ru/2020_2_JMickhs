@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/package/middleware"
+
 	sessionService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
 
 	"log"
@@ -23,7 +25,6 @@ import (
 	commentUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/usecase"
 	hotelDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/delivery/http"
 	hotelUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/usecase"
-	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/middleware"
 
 	"google.golang.org/grpc"
 

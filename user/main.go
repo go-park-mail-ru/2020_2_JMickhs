@@ -10,6 +10,8 @@ import (
 	"runtime"
 	"time"
 
+	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/package/middleware"
+
 	sessionService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/configs"
@@ -108,11 +110,23 @@ func main() {
 	defer grpcSessionsConn.Close()
 	sessionService := sessionService.NewAuthorizationServiceClient(grpcSessionsConn)
 
+	r := NewRouter()
+	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
+	r.Use(middlewareApi.LoggerMiddleware(log))
+	r.Use(middlewareApi.NewPanicMiddleware())
+	r.Use(middlewareApi.MyCORSMethodMiddleware())
+
+	sessMidleware := middlewareApi.NewSessionMiddleware(sessionService, u, log)
+	csrfMidleware := middlewareApi.NewCsrfMiddleware(sessionService, log)
+
 	rep := userRepository.NewPostgresUserRepository(db, s3)
 	u := userUsecase.NewUserUsecase(&rep, validate)
 
 	server := grpc.NewServer()
 	userDelivery.NewUserHandler(r, sessionService, u, log)
+
+	r.Use(sessMidleware.SessionMiddleware())
+	r.Use(csrfMidleware.CSRFCheck())
 
 	listener, err := net.Listen("tcp", ":8079")
 	if err != nil {
