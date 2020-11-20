@@ -2,7 +2,7 @@ package hotelUsecase
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
@@ -57,13 +57,16 @@ func (p *HotelUseCase) GetHotelsPreview(pattern string) ([]hotelmodel.HotelPrevi
 }
 
 func (p *HotelUseCase) CheckRateExist(UserID int, HotelID int) (commModel.FullCommentInfo, error) {
-	fmt.Println("here")
 	comment, err := p.hotelRepo.CheckRateExist(UserID, HotelID)
-	fmt.Println(err)
 	if err != nil {
 		return comment, err
 	}
+
+	if comment.UserID != UserID {
+		return comment, errors.New("wrong  user id ")
+	}
 	user, err := p.userService.GetUserByID(context.Background(), &userService.UserID{UserID: int64(UserID)})
+
 	if err != nil {
 		return comment, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}

@@ -148,7 +148,7 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Info("Server started at port", ":8082")
-	//err := http.ListenAndServeTLS(configs.Port, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
+	//err = http.ListenAndServeTLS(configs.Port, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
 	err = http.ListenAndServe(":8082", r)
 	if err != nil {
 		log.Error(err)

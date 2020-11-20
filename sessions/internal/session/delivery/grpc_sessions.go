@@ -2,7 +2,6 @@ package delivery
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/csrf"
 
@@ -24,7 +23,7 @@ func NewSessionDelivery(SessionUseCase session.Usecase, CsrfUseCase csrf.Usecase
 }
 
 func (sessDel *SessionDelivery) CreateSession(ctx context.Context, in *sessionService.UserID) (*sessionService.SessionID, error) {
-	fmt.Println(in.UserID)
+
 	sessionID, err := sessDel.SessionUseCase.AddToken(in.UserID)
 	if err != nil {
 		return nil, status.Error(codes.Aborted, err.Error())
@@ -33,9 +32,7 @@ func (sessDel *SessionDelivery) CreateSession(ctx context.Context, in *sessionSe
 }
 
 func (sessDel *SessionDelivery) GetIDBySession(ctx context.Context, in *sessionService.SessionID) (*sessionService.UserID, error) {
-	fmt.Println(in.SessionID)
 	userID, err := sessDel.SessionUseCase.GetIDByToken(in.SessionID)
-	fmt.Println(userID)
 	if err != nil {
 		return nil, status.Error(codes.Aborted, err.Error())
 	}
