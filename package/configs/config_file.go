@@ -6,6 +6,8 @@ const RequestUser = "User"
 
 const SessionID = "SessionID"
 const CorrectToken = "CorrectToken"
+const Domen = "https://hostelscan.ru"
+const LocalOrigin = "http://127.0.0.1"
 
 var AllowedOrigins = map[string]bool{
 	Domen:                true,
