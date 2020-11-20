@@ -21,10 +21,11 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/pkg/crawler"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/server"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/pkg/crawler"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
 )

@@ -4,10 +4,11 @@ import (
 	"mime/multipart"
 	"strconv"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/models"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/models"
+
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/configs"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
 

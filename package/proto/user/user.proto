@@ -2,16 +2,19 @@ syntax = "proto3";
 
 //protoc --go_out=plugins=grpc:. *.proto
 
-package user;
+package userService;
 
 message UserID {
   int64 UserID = 1;
 }
 
 message User{
-
+  int64  UserID = 1;
+  string Username = 2;
+  string Email = 3;
+  string Avatar = 4;
 }
 
-service AuthorizationService{
+service UserService{
   rpc GetUserByID(UserID)     returns (User) {}
 }

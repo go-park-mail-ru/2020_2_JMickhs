@@ -4,7 +4,7 @@ package user
 import (
 	"mime/multipart"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/models"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/models"
 )
 
 type Repository interface {

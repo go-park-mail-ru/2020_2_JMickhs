@@ -4,33 +4,26 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
+	sessionService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
 
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
-
-	userDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/delivery/http"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
 
 	commentRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/repository"
 	hotelRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/repository"
-	userRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/repository"
 
 	"github.com/go-redis/redis/v8"
 
 	"github.com/go-openapi/runtime/middleware"
 	commentDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/delivery/http"
 	commentUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/usecase"
-	csrfRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/csrf/repository"
-	csrfUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/csrf/usecase"
 	hotelDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/delivery/http"
 	hotelUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/usecase"
 	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/middleware"
-	userUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/usecase"
 
 	"google.golang.org/grpc"
 
@@ -40,29 +33,10 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/s3"
 
-	"github.com/go-playground/validator/v10"
-
 	"github.com/jmoiron/sqlx"
 
 	"github.com/gorilla/mux"
 )
-
-func NewSessStore() *redis.Client {
-
-	bd, _ := strconv.Atoi(configs.RedisConfig.Bd)
-	sessStore := redis.NewClient(&redis.Options{
-		Addr:     configs.RedisConfig.Address,
-		Password: configs.RedisConfig.Password,
-		DB:       bd, // use default DB
-	})
-
-	pong, err := sessStore.Ping(context.Background()).Result()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	fmt.Println(pong)
-	return sessStore
-}
 
 func InitDB() *sqlx.DB {
 	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
@@ -127,7 +101,6 @@ func GetInterceptor(log *logger.CustomLogger) func(
 }
 
 func StartServer(store *redis.Client, db *sqlx.DB, s3 *s3.S3, log *logger.CustomLogger) {
-	validate := validator.New()
 
 	grpcSessionsConn, err := grpc.Dial(
 		":8079",
@@ -138,7 +111,7 @@ func StartServer(store *redis.Client, db *sqlx.DB, s3 *s3.S3, log *logger.Custom
 		log.Fatalln(err)
 	}
 	defer grpcSessionsConn.Close()
-	sessionService := sessions.NewAuthorizationServiceClient(grpcSessionsConn)
+	sessionService := sessionService.NewAuthorizationServiceClient(grpcSessionsConn)
 
 	r := NewRouter()
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
@@ -146,24 +119,18 @@ func StartServer(store *redis.Client, db *sqlx.DB, s3 *s3.S3, log *logger.Custom
 	r.Use(middlewareApi.NewPanicMiddleware())
 	r.Use(middlewareApi.MyCORSMethodMiddleware())
 
-	rep := userRepository.NewPostgresUserRepository(db, s3)
 	repHot := hotelRepository.NewPostgresHotelRepository(db)
-
 	repCom := commentRepository.NewCommentRepository(db)
-	repCsrf := csrfRepository.NewCsrfRepository(store)
 
-	u := userUsecase.NewUserUsecase(&rep, validate)
 	uHot := hotelUsecase.NewHotelUsecase(&repHot)
 	uCom := commentUsecase.NewCommentUsecase(&repCom)
-	uCsrf := csrfUsecase.NewCsrfUsecase(&repCsrf)
 
 	sessMidleware := middlewareApi.NewSessionMiddleware(sessionService, u, log)
-	csrfMidleware := middlewareApi.NewCsrfMiddleware(uCsrf, log)
+	csrfMidleware := middlewareApi.NewCsrfMiddleware(sessionService, log)
 	r.Use(sessMidleware.SessionMiddleware())
 	r.Use(csrfMidleware.CSRFCheck())
 
 	hotelDelivery.NewHotelHandler(r, uHot, log)
-	userDelivery.NewUserHandler(r, sessionService, u, uCsrf, log)
 	commentDelivery.NewCommentHandler(r, uCom, log)
 
 	log.Info("Server started at port", configs.Port)

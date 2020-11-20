@@ -7,13 +7,14 @@ import (
 	"net"
 	"strconv"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/session/delivery"
+	sessionsRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/session/repository"
+	sessionsUseCase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/session/usecase"
+
+	sessionService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
+
 	csrfRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/csrf/repository"
 	csrfUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/csrf/usecase"
-
-	session "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/delivery"
-	sessionsRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/repository"
-	sessionsUseCase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/usecase"
 
 	"google.golang.org/grpc"
 
@@ -49,7 +50,7 @@ func main() {
 	uCsrf := csrfUsecase.NewCsrfUsecase(&repCsrf)
 
 	server := grpc.NewServer()
-	session.RegisterAuthorizationServiceServer(server, delivery.NewSessionDelivery(uSes, uCsrf))
+	sessionService.RegisterAuthorizationServiceServer(server, delivery.NewSessionDelivery(uSes, uCsrf))
 
 	listener, err := net.Listen("tcp", ":8079")
 	if err != nil {

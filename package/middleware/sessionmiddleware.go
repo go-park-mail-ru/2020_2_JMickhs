@@ -4,10 +4,12 @@ import (
 	"context"
 	http "net/http"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/proto/sessions"
+	userService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/user"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user"
+	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
+
+	sessionService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
@@ -15,15 +17,15 @@ import (
 )
 
 type SessionMidleware struct {
-	SessionDelivery sessions.AuthorizationServiceClient
-	UserUseCase     user.Usecase
+	SessionDelivery sessionService.AuthorizationServiceClient
+	UserDelivery    userService.UserServiceClient
 	log             *logger.CustomLogger
 }
 
-func NewSessionMiddleware(su sessions.AuthorizationServiceClient, uuc user.Usecase, log *logger.CustomLogger) SessionMidleware {
+func NewSessionMiddleware(sessionDelivery sessionService.AuthorizationServiceClient, userDelivery userService.UserServiceClient, log *logger.CustomLogger) SessionMidleware {
 	return SessionMidleware{
-		SessionDelivery: su,
-		UserUseCase:     uuc,
+		SessionDelivery: sessionDelivery,
+		UserDelivery:    userDelivery,
 		log:             log,
 	}
 }
@@ -41,20 +43,20 @@ func (u *SessionMidleware) SessionMiddleware() mux.MiddlewareFunc {
 			}
 			if c != nil {
 				sessionToken := c.Value
-				id, err := u.SessionDelivery.GetIDBySession(r.Context(), &sessions.SessionID{SessionID: sessionToken})
+				id, err := u.SessionDelivery.GetIDBySession(r.Context(), &sessionService.SessionID{SessionID: sessionToken})
 				if err != nil {
 					u.log.LogError(r.Context(), err)
 					next.ServeHTTP(w, r)
 					return
 				}
-				user, err := u.UserUseCase.GetUserByID(int(id.UserID))
+				user, err := u.UserDelivery.GetUserByID(r.Context(), &userService.UserID{UserID: id.UserID})
 				if err != nil {
 					u.log.LogError(r.Context(), err)
 					next.ServeHTTP(w, r)
 					return
 				}
-				ctx := context.WithValue(r.Context(), configs.RequestUser, user)
-				ctx = context.WithValue(ctx, configs.SessionID, sessionToken)
+				ctx := context.WithValue(r.Context(), packageConfig.RequestUser, user)
+				ctx = context.WithValue(ctx, packageConfig.SessionID, sessionToken)
 				r = r.WithContext(ctx)
 			}
 			next.ServeHTTP(w, r)

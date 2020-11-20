@@ -10,6 +10,7 @@ import (
 	"time"
 
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+	sessionService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
 
 	models "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/models"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
@@ -20,9 +21,6 @@ import (
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
 	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/middleware"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/proto/sessions"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/csrf"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user"
 
 	"github.com/gorilla/mux"
@@ -30,17 +28,15 @@ import (
 
 type UserHandler struct {
 	UserUseCase      user.Usecase
-	SessionsDelivery sessions.AuthorizationServiceClient
-	csrfUseCase      csrf.Usecase
+	SessionsDelivery sessionService.AuthorizationServiceClient
 	log              *logger.CustomLogger
 }
 
-func NewUserHandler(r *mux.Router, su sessions.AuthorizationServiceClient, us user.Usecase, csrf csrf.Usecase, lg *logger.CustomLogger) {
+func NewUserHandler(r *mux.Router, su sessionService.AuthorizationServiceClient, us user.Usecase, lg *logger.CustomLogger) {
 	handler := UserHandler{
 		UserUseCase:      us,
 		SessionsDelivery: su,
 		log:              lg,
-		csrfUseCase:      csrf,
 	}
 
 	r.HandleFunc("/api/v1/users", handler.Registration).Methods("POST")
@@ -212,7 +208,7 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionID, err := u.SessionsDelivery.CreateSession(context.Background(), &sessions.UserID{UserID: int64(usr.ID)})
+	sessionID, err := u.SessionsDelivery.CreateSession(context.Background(), &sessionService.UserID{UserID: int64(usr.ID)})
 	if err != nil {
 		customerror.PostError(w, r, u.log, err, serverError.ServerInternalError)
 		return
@@ -258,7 +254,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionID, err := u.SessionsDelivery.CreateSession(r.Context(), &sessions.UserID{UserID: int64(user.ID)})
+	sessionID, err := u.SessionsDelivery.CreateSession(r.Context(), &sessionService.UserID{UserID: int64(user.ID)})
 	fmt.Println("fd")
 	if err != nil {
 		customerror.PostError(w, r, u.log, err, nil)
@@ -302,7 +298,7 @@ func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 
 	c, _ := r.Cookie("session_token")
 	if c != nil {
-		_, err := u.SessionsDelivery.DeleteSession(r.Context(), &sessions.SessionID{SessionID: c.Value})
+		_, err := u.SessionsDelivery.DeleteSession(r.Context(), &sessionService.SessionID{SessionID: c.Value})
 		if err != nil {
 			customerror.PostError(w, r, u.log, err, serverError.ServerInternalError)
 			return
@@ -324,11 +320,11 @@ func (u *UserHandler) GetCsrf(w http.ResponseWriter, r *http.Request) {
 		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
 		return
 	}
-	token, err := u.csrfUseCase.CreateToken(sId, time.Now().Unix())
+	token, err := u.SessionsDelivery.CreateCsrfToken(r.Context(), &sessionService.CsrfTokenInput{SessionID: sId, TimeStamp: time.Now().Unix()})
 	if err != nil {
 		customerror.PostError(w, r, u.log, err, serverError.ServerInternalError)
 		return
 	}
-	w.Header().Set("Csrf", token)
+	w.Header().Set("Csrf", token.Token)
 	responses.SendOkResponse(w)
 }

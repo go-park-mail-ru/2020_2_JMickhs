@@ -59,9 +59,9 @@ var AllowedOrigins = map[string]bool{
 func Init() {
 
 	BdConfig = postgresConfig{
-		User:     os.Getenv("PostgresUser"),
-		Password: os.Getenv("PostgresPassword"),
-		DBName:   os.Getenv("PostgresDBName"),
+		User:     os.Getenv("UserPostgresUser"),
+		Password: os.Getenv("UserPostgresPassword"),
+		DBName:   os.Getenv("UserPostgresDBName"),
 	}
 
 	RedisConfig = redisConfig{

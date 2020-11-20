@@ -5,3 +5,5 @@ cover.out
 cover.html
 log.txt
 /sessions/package/*/*
+/*.txt
+/*.out
