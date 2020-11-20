@@ -13,11 +13,8 @@ type postgresConfig struct {
 var BdConfig postgresConfig
 var PrefixPath string
 
-const Domen = "https://hostelscan.ru"
-const LocalOrigin = "http://127.0.0.1"
 const StaticPathForHotels = "static/img/"
 const Port = ":8080"
-const RequestUser = "User"
 const BasePageCount = 30
 const PreviewItemLimit = 6
 const BucketName = "hostelscan"

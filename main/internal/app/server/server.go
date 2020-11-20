@@ -68,7 +68,7 @@ func NewRouter() *mux.Router {
 	sh := middleware.Redoc(opts, nil)
 
 	router.Handle("/docs", sh)
-	router.Handle("/swagger.yaml", http.FileServer(http.Dir("./api/swagger")))
+	router.Handle("/swagger.yaml", http.FileServer(http.Dir("../api/swagger")))
 
 	return router
 }
@@ -143,8 +143,8 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 	commentDelivery.NewCommentHandler(r, uCom, log)
 
 	log.Info("Server started at port", configs.Port)
-	//err = http.ListenAndServeTLS(configs.Port, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
-	err = http.ListenAndServe(configs.Port, r)
+	err = http.ListenAndServeTLS(configs.Port, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
+	//err = http.ListenAndServe(configs.Port, r)
 	if err != nil {
 		log.Error(err)
 	}
