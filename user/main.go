@@ -11,6 +11,11 @@ import (
 	"runtime"
 	"time"
 
+	userGrpcDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/delivery/grpc"
+	userHttpDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/delivery/http"
+
+	userService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/user"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/middlewareUser"
 
 	"github.com/gorilla/mux"
@@ -19,7 +24,6 @@ import (
 	sessionService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/configs"
-	userDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/delivery/http"
 	userRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/repository"
 	userUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/usecase"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
@@ -124,7 +128,7 @@ func main() {
 	u := userUsecase.NewUserUsecase(&rep, validate)
 
 	server := grpc.NewServer()
-	userDelivery.NewUserHandler(r, sessionService, u, log)
+	userHttpDelivery.NewUserHandler(r, sessionService, u, log)
 
 	sessMidleware := middlewareUser.NewSessionMiddleware(sessionService, u, log)
 	csrfMidleware := middlewareApi.NewCsrfMiddleware(sessionService, log)
@@ -132,11 +136,14 @@ func main() {
 	r.Use(sessMidleware.SessionMiddleware())
 	r.Use(csrfMidleware.CSRFCheck())
 
+	userService.RegisterUserServiceServer(server, userGrpcDelivery.NewUserDelivery(u))
+
 	listener, err := net.Listen("tcp", ":8081")
 	if err != nil {
 		log.Fatalf("can't listen port", err)
 	}
 	go server.Serve(listener)
+
 	if err != nil {
 		log.Fatal(err)
 	}

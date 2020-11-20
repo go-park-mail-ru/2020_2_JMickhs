@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/middlewareApi"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
@@ -15,10 +16,7 @@ import (
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/responses"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/models"
-
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment"
-	middlewareApi "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/middleware"
 
 	"github.com/gorilla/mux"
 )

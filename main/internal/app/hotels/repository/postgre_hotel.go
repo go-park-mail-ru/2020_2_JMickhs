@@ -150,7 +150,7 @@ func (p *PostgreHotelRepository) CheckRateExist(UserID int, HotelID int) (commMo
 	comment := commModel.FullCommentInfo{}
 
 	err := p.conn.QueryRow(CheckRateIfExistPostgreRequest, UserID, HotelID).Scan(&comment.Message, &comment.Time, &comment.HotelID,
-		&comment.Avatar, &comment.UserID, &comment.CommID, &comment.Username, &comment.Rating)
+		&comment.UserID, &comment.CommID, &comment.Rating)
 	if err != nil {
 		return comment, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
