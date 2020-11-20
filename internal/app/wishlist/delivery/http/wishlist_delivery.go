@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	hotelModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist"
 	wishlistModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/models"
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/error"
@@ -35,20 +36,24 @@ func NewWishlistHandler(r *mux.Router, useCase wishlist.Usecase, lg *logger.Cust
 //  200: hotels
 //  400: badrequest
 func (wh *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
-
 	defer r.Body.Close()
 	decoder := json.NewDecoder(r.Body)
-	WishlistID := wishlistModel.WishlistByIdRequest{}
+	WishlistID := new(wishlistModel.WishlistByIdRequest)
 	err := decoder.Decode(WishlistID)
 	if err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
 		return
 	}
-
-	hotels, err := wh.useCase.GetWishlist(WishlistID.ID)
+	hotelsMeta, err := wh.useCase.GetWishlistMeta(WishlistID.ID)
 	if err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
 		return
+	}
+	hotels := []hotelModel.MiniHotel{}
+	for _, hotel := range hotelsMeta {
+		tmpMiniHotel := hotelModel.MiniHotel{}
+		tmpMiniHotel, _ = wh.useCase.GetMiniHotelByID(hotel.HotelID)
+		hotels = append(hotels, tmpMiniHotel)
 	}
 	responses.SendDataResponse(w, hotels)
 }
@@ -62,7 +67,7 @@ func (wh *WishlistHandler) AddHotelToWishlist(w http.ResponseWriter, r *http.Req
 
 	defer r.Body.Close()
 	decoder := json.NewDecoder(r.Body)
-	Data := wishlistModel.AddHotelToWishlistRequest{}
+	Data := new(wishlistModel.AddHotelToWishlistRequest)
 	err := decoder.Decode(Data)
 	if err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
@@ -85,7 +90,7 @@ func (wh *WishlistHandler) DeleteHotelFromWishlist(w http.ResponseWriter, r *htt
 
 	defer r.Body.Close()
 	decoder := json.NewDecoder(r.Body)
-	Data := wishlistModel.DeleteHotelFromWishlistRequest{}
+	Data := new(wishlistModel.DeleteHotelFromWishlistRequest)
 	err := decoder.Decode(Data)
 	if err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
@@ -107,7 +112,7 @@ func (wh *WishlistHandler) DeleteWishlist(w http.ResponseWriter, r *http.Request
 
 	defer r.Body.Close()
 	decoder := json.NewDecoder(r.Body)
-	WishlistID := wishlistModel.DeleteWishlistRequest{}
+	WishlistID := new(wishlistModel.DeleteWishlistRequest)
 	err := decoder.Decode(WishlistID)
 	if err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
@@ -129,14 +134,14 @@ func (wh *WishlistHandler) DeleteWishlist(w http.ResponseWriter, r *http.Request
 func (wh *WishlistHandler) CreateWishlist(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	decoder := json.NewDecoder(r.Body)
-	newWishlist := wishlistModel.Wishlist{}
+	newWishlist := new(wishlistModel.Wishlist)
 	err := decoder.Decode(newWishlist)
 	if err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
 		return
 	}
 
-	if err := wh.useCase.CreateWishlist(newWishlist); err != nil {
+	if err := wh.useCase.CreateWishlist(*newWishlist); err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
 		return
 	}

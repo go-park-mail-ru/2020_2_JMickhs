@@ -7,9 +7,10 @@ import (
 
 type Repository interface {
 	GetWishlist(wishlistID int) ([]hotelmodel.MiniHotel, error)
+	GetWishlistMeta(wishlistID int) ([]wishlistModel.WishlisstHotel, error)
 	CreateWishlist(wishlist wishlistModel.Wishlist) error
 	DeleteWishlist(wishlistID int) error
 	AddHotel(hotelID int, wishlistID int) error
 	DeleteHotel(hotelID int, wishlistID int) error
-	GetTable() ([]wishlistModel.WishlisstHotel, error)
+	GetMiniHotelByID(ID int) (hotelmodel.MiniHotel, error)
 }
