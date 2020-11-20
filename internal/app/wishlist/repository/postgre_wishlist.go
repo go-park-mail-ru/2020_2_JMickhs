@@ -1,8 +1,6 @@
 package wishlistrepository
 
 import (
-	"fmt"
-
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/sqlrequests"
 	wishlistModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/models"
@@ -31,33 +29,33 @@ func (s *PostgreWishlistRepository) GetWishlist(wishlistID int) ([]hotelmodel.Mi
 }
 
 func (s *PostgreWishlistRepository) CreateWishlist(wishlist wishlistModel.Wishlist) error {
-	err := s.conn.MustExec(sqlrequests.CreateWishlistPostgreRequest, wishlist.WishistID, wishlist.Name, wishlist.UserID)
+	_, err := s.conn.Query(sqlrequests.CreateWishlistPostgreRequest, wishlist.WishistID, wishlist.Name, wishlist.UserID)
 	if err != nil {
-		fmt.Errorf("Error while creating wishlist, %w", err)
+		return customerror.NewCustomError(err, serverError.ServerInternalError, nil)
 	}
 	return nil
 }
 
 func (s *PostgreWishlistRepository) DeleteWishlist(wishlistID int) error {
-	err := s.conn.MustExec(sqlrequests.DeleteWishlistPostgreRequest, wishlistID)
+	_, err := s.conn.Query(sqlrequests.DeleteWishlistPostgreRequest, wishlistID)
 	if err != nil {
-		fmt.Errorf("Error while deleting wishlist, %w", err)
+		return customerror.NewCustomError(err, serverError.ServerInternalError, nil)
 	}
 	return nil
 }
 
 func (s *PostgreWishlistRepository) AddHotel(hotelID int, wishlistID int) error {
-	err := s.conn.MustExec(sqlrequests.AddHotelToWishlistPostgreRequest, wishlistID, hotelID)
+	_, err := s.conn.Query(sqlrequests.AddHotelToWishlistPostgreRequest, wishlistID, hotelID)
 	if err != nil {
-		fmt.Errorf("Error while adding hotel to wishlist, %w", err)
+		return customerror.NewCustomError(err, serverError.ServerInternalError, nil)
 	}
 	return nil
 }
 
 func (s *PostgreWishlistRepository) DeleteHotel(hotelID int, wishlistID int) error {
-	err := s.conn.MustExec(sqlrequests.DeleteHotelFromWishlistPostgreRequest, wishlistID, hotelID)
+	_, err := s.conn.Query(sqlrequests.DeleteHotelFromWishlistPostgreRequest, wishlistID, hotelID)
 	if err != nil {
-		fmt.Errorf("Error while deleting hotel from wishlist, %w", err)
+		return customerror.NewCustomError(err, serverError.ServerInternalError, nil)
 	}
 	return nil
 }
