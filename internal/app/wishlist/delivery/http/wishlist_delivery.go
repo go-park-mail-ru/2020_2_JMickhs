@@ -26,8 +26,7 @@ func NewWishlistHandler(r *mux.Router, useCase wishlist.Usecase, lg *logger.Cust
 	r.HandleFunc("/api/v1/wishlist", handler.GetWishlist).Methods("GET")
 	r.HandleFunc("/api/v1/wishlist", handler.DeleteWishlist).Methods("DELETE")
 	r.HandleFunc("/api/v1/addhotel", handler.AddHotelToWishlist).Methods("POST")
-	r.HandleFunc("/api/v1/deletehotel", handler.DeleteHotelFromWishlist)
-
+	r.HandleFunc("/api/v1/deletehotel", handler.DeleteHotelFromWishlist).Methods("DELETE")
 }
 
 // swagger:route GET /api/v1/wishlist Wishlist getWishlist
@@ -56,7 +55,7 @@ func (wh *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 	responses.SendDataResponse(w, hotels)
 }
 
-// swagger:route GET /api/v1/addhotel Wishlist addHotelToWishlist
+// swagger:route POST /api/v1/addhotel Wishlist addHotelToWishlist
 // Add hotel to wishlist
 // responses:
 //  200:
@@ -82,7 +81,7 @@ func (wh *WishlistHandler) AddHotelToWishlist(w http.ResponseWriter, r *http.Req
 	responses.SendOkResponse(w)
 }
 
-// swagger:route GET /api/v1/deletehotel Wishlist deleteHotelFromWishlist
+// swagger:route DELETE /api/v1/deletehotel Wishlist deleteHotelFromWishlist
 // Delete hotel from wishlist
 // responses:
 //  200:
