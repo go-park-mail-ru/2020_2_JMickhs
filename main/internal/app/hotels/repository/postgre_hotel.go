@@ -149,7 +149,7 @@ func (p *PostgreHotelRepository) FetchHotels(filter hotelmodel.HotelFiltering, p
 func (p *PostgreHotelRepository) CheckRateExist(UserID int, HotelID int) (commModel.FullCommentInfo, error) {
 	comment := commModel.FullCommentInfo{}
 
-	err := p.conn.QueryRow(CheckRateIfExistPostgreRequest, UserID, HotelID).Scan(&comment.Message, &comment.Time, &comment.HotelID,
+	err := p.conn.QueryRow(CheckRateIfExistPostgreRequest, HotelID).Scan(&comment.Message, &comment.Time, &comment.HotelID,
 		&comment.UserID, &comment.CommID, &comment.Rating)
 	if err != nil {
 		return comment, customerror.NewCustomError(err, serverError.ServerInternalError, 1)

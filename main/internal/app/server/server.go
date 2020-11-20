@@ -131,8 +131,8 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 	repHot := hotelRepository.NewPostgresHotelRepository(db)
 	repCom := commentRepository.NewCommentRepository(db)
 
-	uHot := hotelUsecase.NewHotelUsecase(&repHot)
-	uCom := commentUsecase.NewCommentUsecase(&repCom)
+	uHot := hotelUsecase.NewHotelUsecase(&repHot, userService)
+	uCom := commentUsecase.NewCommentUsecase(&repCom, userService)
 
 	sessMidleware := middlewareApi.NewSessionMiddleware(sessionService, userService, log)
 	csrfMidleware := middlewareApi.NewCsrfMiddleware(sessionService, log)
@@ -143,8 +143,8 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 	commentDelivery.NewCommentHandler(r, uCom, log)
 
 	log.Info("Server started at port", configs.Port)
-	//err := http.ListenAndServeTLS(configs.Port, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
-	err = http.ListenAndServe(configs.Port, r)
+	err = http.ListenAndServeTLS(configs.Port, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
+	//err = http.ListenAndServe(configs.Port, r)
 	if err != nil {
 		log.Error(err)
 	}

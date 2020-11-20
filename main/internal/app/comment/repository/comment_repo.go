@@ -7,7 +7,6 @@ import (
 
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
 
@@ -26,7 +25,7 @@ func NewCommentRepository(conn *sqlx.DB) CommentRepository {
 
 func (r *CommentRepository) GetComments(hotelID string, limit int, offset string, user_id int) ([]commModel.FullCommentInfo, error) {
 	comments := []commModel.FullCommentInfo{}
-	err := r.conn.Select(&comments, GetCommentsPostgreRequest, offset, limit, hotelID, user_id, configs.S3Url)
+	err := r.conn.Select(&comments, GetCommentsPostgreRequest, offset, limit, hotelID, user_id)
 	if err != nil {
 		return comments, customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}

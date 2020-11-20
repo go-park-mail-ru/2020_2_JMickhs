@@ -13,7 +13,6 @@ import (
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/user/models"
 
 	"github.com/gorilla/mux"
 )
@@ -111,13 +110,13 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 	}
 	data := hotelmodel.HotelData{Hotel: hotel}
 
-	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
+	userID, ok := r.Context().Value(configs.RequestUserID).(int)
 	if !ok {
 		responses.SendDataResponse(w, data)
 		return
 	}
 
-	comment, err := hh.HotelUseCase.CheckRateExist(usr.ID, hotel.HotelID)
+	comment, err := hh.HotelUseCase.CheckRateExist(userID, hotel.HotelID)
 	if err != nil {
 		responses.SendDataResponse(w, data)
 		return

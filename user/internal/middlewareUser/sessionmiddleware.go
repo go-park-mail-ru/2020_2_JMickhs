@@ -2,6 +2,7 @@ package middlewareUser
 
 import (
 	"context"
+	"fmt"
 	http "net/http"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user"
@@ -34,7 +35,6 @@ func (u *SessionMidleware) SessionMiddleware() mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			c, err := r.Cookie("session_token")
-
 			if err != nil {
 				err = customerror.NewCustomError(err, clientError.BadRequest, 1)
 				u.log.Info(err.Error())
@@ -43,12 +43,14 @@ func (u *SessionMidleware) SessionMiddleware() mux.MiddlewareFunc {
 			}
 			if c != nil {
 				sessionToken := c.Value
+				fmt.Println(sessionToken)
 				id, err := u.SessionDelivery.GetIDBySession(r.Context(), &sessionService.SessionID{SessionID: sessionToken})
 				if err != nil {
 					u.log.LogError(r.Context(), err)
 					next.ServeHTTP(w, r)
 					return
 				}
+				fmt.Println(id.UserID)
 				user, err := u.UserUseCase.GetUserByID(int(id.UserID))
 				if err != nil {
 					u.log.LogError(r.Context(), err)

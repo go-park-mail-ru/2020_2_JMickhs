@@ -8,7 +8,7 @@ const GetHotelByIDPostgreRequest = "SELECT hotel_id,name,description,concat($2::
 const GetHotelsPhotosPostgreRequest = "SELECT concat($2::varchar,unnest(photos)) FROM hotels WHERE hotel_id=$1"
 
 const CheckRateIfExistPostgreRequest = "SELECT message,time,c.hotel_id,c.user_id,comm_id,rating " +
-	"FROM comments as c  WHERE c.hotel_id=$2"
+	"FROM comments as c  WHERE c.hotel_id=$1"
 
 const AddHotelPostgreRequest = "INSERT INTO hotels VALUES(default,$1,$2,$3,$4,$5)"
 

@@ -33,6 +33,7 @@ func NewSessionMiddleware(sessionDelivery sessionService.AuthorizationServiceCli
 func (u *SessionMidleware) SessionMiddleware() mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
 			c, err := r.Cookie("session_token")
 
 			if err != nil {

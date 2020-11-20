@@ -52,11 +52,11 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 
 	var user_id int
 
-	user, ok := r.Context().Value(configs.RequestUser).(models.User)
+	userID, ok := r.Context().Value(configs.RequestUserID).(int)
 	if !ok {
 		user_id = -1
 	} else {
-		user_id = user.ID
+		user_id = userID
 	}
 
 	count, comments, err := ch.CommentUseCase.GetComments(hotelID, limit, offsetVar, user_id)
@@ -85,12 +85,12 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 		return
 	}
-	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
+	userID, ok := r.Context().Value(configs.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
 	}
-	comment.UserID = usr.ID
+	comment.UserID = userID
 	comm, err := ch.CommentUseCase.AddComment(comment)
 
 	if err != nil {
@@ -116,12 +116,12 @@ func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
+	userID, ok := r.Context().Value(configs.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
 	}
-	comment.UserID = usr.ID
+	comment.UserID = userID
 
 	upComm, err := ch.CommentUseCase.UpdateComment(comment)
 
@@ -146,7 +146,7 @@ func (ch *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	_, ok := r.Context().Value(configs.RequestUser).(models.User)
+	_, ok := r.Context().Value(configs.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
@@ -176,6 +176,13 @@ func (ch *CommentHandler) NextPrevUrl(count int, limit string, offsetVar string,
 	lim, _ := strconv.Atoi(limit)
 	offset, _ := strconv.Atoi(offsetVar)
 
+	if lim == count && offset == 0 {
+		query.Set("offset", "0")
+		url.RawQuery = query.Encode()
+		comments.Info.NextLink = url.Path + "?" + url.RawQuery
+		comments.Info.PrevLink = url.Path + "?" + url.RawQuery
+		return
+	}
 	if offset+lim >= count {
 		query.Set("offset", strconv.Itoa(offset-lim))
 		url.RawQuery = query.Encode()

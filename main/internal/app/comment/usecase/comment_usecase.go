@@ -1,9 +1,14 @@
 package commentUsecase
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"strconv"
+
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+	userService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/user"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
@@ -11,11 +16,13 @@ import (
 
 type CommentUseCase struct {
 	commentRepo comment.Repository
+	userService userService.UserServiceClient
 }
 
-func NewCommentUsecase(r comment.Repository) *CommentUseCase {
+func NewCommentUsecase(r comment.Repository, userService userService.UserServiceClient) *CommentUseCase {
 	return &CommentUseCase{
 		commentRepo: r,
+		userService: userService,
 	}
 }
 
@@ -41,16 +48,24 @@ func (u *CommentUseCase) GetComments(hotelID string, limit string, offsets strin
 			count--
 		}
 	}
-	fmt.Println(count)
 	if offset > count {
 		return 0, pag, nil
 	}
 
-	data, err := u.commentRepo.GetComments(hotelID, lim, offsets, user_id)
+	comments, err := u.commentRepo.GetComments(hotelID, lim, offsets, user_id)
 	if err != nil {
 		return 0, pag, err
 	}
-	pag.Comments = data
+	for pos, comm := range comments {
+		user, err := u.userService.GetUserByID(context.Background(), &userService.UserID{UserID: int64(comm.UserID)})
+		if err != nil {
+			return count, pag, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+		}
+		comments[pos].Username = user.Username
+		comments[pos].Avatar = user.Avatar
+	}
+
+	pag.Comments = comments
 
 	pag.Info.ItemsCount = count
 	return count, pag, nil

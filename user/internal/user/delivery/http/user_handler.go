@@ -254,7 +254,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionID, err := u.SessionsDelivery.CreateSession(r.Context(), &sessionService.UserID{UserID: int64(user.ID)})
+	sessionID, err := u.SessionsDelivery.CreateSession(r.Context(), &sessionService.UserID{UserID: int64(usr.ID)})
 	fmt.Println("fd")
 	if err != nil {
 		customerror.PostError(w, r, u.log, err, nil)
