@@ -20,6 +20,7 @@ const CookieLifeTime = time.Hour * 24 * 30
 const CsrfExpire = time.Minute * 15
 const BucketName = "hostelscan"
 const SessionID = "SessionID"
+const SessionGrpcServicePort = ":8079"
 
 func Init() {
 

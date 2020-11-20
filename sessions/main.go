@@ -52,7 +52,7 @@ func main() {
 	server := grpc.NewServer()
 	sessionService.RegisterAuthorizationServiceServer(server, delivery.NewSessionDelivery(uSes, uCsrf))
 
-	listener, err := net.Listen("tcp", ":8079")
+	listener, err := net.Listen("tcp", configs.SessionGrpcServicePort)
 	if err != nil {
 		log.Fatalf("can't listen port", err)
 	}

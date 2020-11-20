@@ -103,7 +103,7 @@ func GetInterceptor(log *logger.CustomLogger) func(
 func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 
 	grpcSessionsConn, err := grpc.Dial(
-		":8079",
+		configs.SessionGrpcServicePort,
 		grpc.WithUnaryInterceptor(GetInterceptor(log)),
 		grpc.WithInsecure(),
 	)
@@ -112,7 +112,7 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 	sessionService := sessionService.NewAuthorizationServiceClient(grpcSessionsConn)
 
 	grpcUserConn, err := grpc.Dial(
-		":8081",
+		configs.UserGrpcServicePort,
 		grpc.WithUnaryInterceptor(GetInterceptor(log)),
 		grpc.WithInsecure(),
 	)
@@ -142,9 +142,9 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 	hotelDelivery.NewHotelHandler(r, uHot, log)
 	commentDelivery.NewCommentHandler(r, uCom, log)
 
-	log.Info("Server started at port", configs.Port)
-	err = http.ListenAndServeTLS(configs.Port, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
-	//err = http.ListenAndServe(configs.Port, r)
+	log.Info("Server started at port", configs.MainHttpServicePort)
+	err = http.ListenAndServeTLS(configs.MainHttpServicePort, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
+	//err = http.ListenAndServe(configs.MainHttpServicePort, r)
 	if err != nil {
 		log.Error(err)
 	}

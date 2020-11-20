@@ -23,6 +23,9 @@ const S3Url = "https://hostelscan.hb.bizmrg.com/"
 const SessionID = "SessionID"
 const S3Region = "ru-msk"
 const S3EndPoint = "https://hb.bizmrg.com"
+const SessionGrpcServicePort = ":8079"
+const UserGrpcServicePort = ":8081"
+const UserHttpServicePort = ":8082"
 const (
 	MB = 1 << 20
 )

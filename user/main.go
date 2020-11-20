@@ -108,7 +108,7 @@ func main() {
 	log := logger.NewLogger(logOutput)
 
 	grpcSessionsConn, err := grpc.Dial(
-		":8079",
+		configs.SessionGrpcServicePort,
 		grpc.WithUnaryInterceptor(GetInterceptor(log)),
 		grpc.WithInsecure(),
 	)
@@ -138,7 +138,7 @@ func main() {
 
 	userService.RegisterUserServiceServer(server, userGrpcDelivery.NewUserDelivery(u))
 
-	listener, err := net.Listen("tcp", ":8081")
+	listener, err := net.Listen("tcp", configs.UserGrpcServicePort)
 	if err != nil {
 		log.Fatalf("can't listen port", err)
 	}
@@ -147,9 +147,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Info("Server started at port", ":8082")
-	//err = http.ListenAndServeTLS(configs.Port, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
-	err = http.ListenAndServe(":8082", r)
+	log.Info("Server started at port", configs.UserHttpServicePort)
+	//err = http.ListenAndServeTLS(configs.UserHttpServicePort, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
+	err = http.ListenAndServe(configs.UserHttpServicePort, r)
 	if err != nil {
 		log.Error(err)
 	}

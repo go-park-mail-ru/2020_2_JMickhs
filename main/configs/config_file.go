@@ -24,6 +24,9 @@ const SessionID = "SessionID"
 const S3Region = "ru-msk"
 const S3EndPoint = "https://hb.bizmrg.com"
 const RequestUserID = "UserID"
+const SessionGrpcServicePort = ":8079"
+const UserGrpcServicePort = ":8081"
+const MainHttpServicePort = ":8080"
 
 func Init() {
 
