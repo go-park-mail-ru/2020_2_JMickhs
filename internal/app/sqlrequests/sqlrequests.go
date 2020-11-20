@@ -41,6 +41,10 @@ const CheckRateIfExistPostgreRequest = "SELECT rating FROM comments WHERE user_i
 
 const GetWishlistPostgreRequest = "SELECT h.hotel_id,h.name,h.description,h.img,h.location,h.curr_rating FROM hotels AS h LEFT JOIN wishlistshotels AS wh ON h.hotel_id = wh.hotel_id LEFT JOIN wishlists AS w ON w.wishlist_id = wh.wishlist_id WHERE wh.wishlist_id = $1"
 
+const GetMiniHotelPostgreRequest = "SELECT h.hotel_id,h.name,h.description,h.img,h.location,h.curr_rating FROM hotels AS h WHERE hotel_id = $1"
+
+const GetWishlistMeta = "SELECT wishlist_id, hotel_id from wishlistshotels where wishlist_id =$1"
+
 const CreateWishlistPostgreRequest = "INSERT INTO wishlists (wishlist_id, name, user_id) VALUES ($1, $2, $3)"
 
 const DeleteWishlistPostgreRequest = "DELETE FROM wishlists WHERE wishlist_id = $1"
