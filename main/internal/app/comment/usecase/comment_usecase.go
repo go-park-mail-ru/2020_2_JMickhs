@@ -2,7 +2,6 @@ package commentUsecase
 
 import (
 	"context"
-	"fmt"
 	"math"
 	"strconv"
 
@@ -81,7 +80,7 @@ func (u *CommentUseCase) AddComment(comment commModel.Comment) (commModel.NewRat
 	if err != nil {
 		return newRate, err
 	}
-	fmt.Println(hotelRate)
+
 	newRate.Rate = hotelRate
 	return newRate, nil
 

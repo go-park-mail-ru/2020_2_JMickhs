@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -255,7 +254,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionID, err := u.SessionsDelivery.CreateSession(r.Context(), &sessionService.UserID{UserID: int64(usr.ID)})
-	fmt.Println("fd")
+
 	if err != nil {
 		customerror.PostError(w, r, u.log, err, nil)
 		return

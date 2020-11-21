@@ -108,7 +108,7 @@ func (p *PostgreHotelRepository) BuildQueryToFetchHotel(filter *hotelmodel.Hotel
 
 func (p *PostgreHotelRepository) FetchHotels(filter hotelmodel.HotelFiltering, pattern string, offset int) ([]hotelmodel.Hotel, error) {
 	query := p.BuildQueryToFetchHotel(&filter)
-	fmt.Println(query)
+
 	point := p.GeneratePointToGeo(filter.Latitude, filter.Longitude)
 	hotels := []hotelmodel.Hotel{}
 	p.conn.Exec("Select set_limit(0.18)")

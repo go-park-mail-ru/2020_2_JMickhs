@@ -2,7 +2,6 @@ package commentRepository
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
@@ -71,7 +70,7 @@ func (p *CommentRepository) UpdateHotelRating(hotelID int, NewRate float64) erro
 func (p *CommentRepository) GetCommentsCount(hotelID int) (int, error) {
 	count := -1
 	err := p.conn.QueryRow(GetCommentsCountPostgreRequest, hotelID).Scan(&count)
-	fmt.Println(count)
+
 	if err != nil {
 		return count, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
