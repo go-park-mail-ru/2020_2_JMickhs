@@ -1,6 +1,6 @@
 .PHONY:
 server-redis: 
-	redis-server --port 6402 & go run main.go --server
+	redis-server --port 6402 & go run main/main.go --server
 
 gen: 
 	swagger generate spec -o ./api/swagger/swagger.yaml --scan-models
