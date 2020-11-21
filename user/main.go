@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net"
@@ -9,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"time"
 
 	userGrpcDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/delivery/grpc"
 	userHttpDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/delivery/http"
@@ -58,33 +56,6 @@ func InitS3Session() *s3.S3 {
 		Endpoint: aws.String(configs.S3EndPoint),
 	})))
 
-}
-
-func GetInterceptor(log *logger.CustomLogger) func(
-	ctx context.Context,
-	method string,
-	req interface{},
-	reply interface{},
-	cc *grpc.ClientConn,
-	invoker grpc.UnaryInvoker,
-	opts ...grpc.CallOption,
-) error {
-	return func(
-		ctx context.Context,
-		method string,
-		req interface{},
-		reply interface{},
-		cc *grpc.ClientConn,
-		invoker grpc.UnaryInvoker,
-		opts ...grpc.CallOption,
-	) error {
-
-		start := time.Now()
-		err := invoker(ctx, method, req, reply, cc, opts...)
-		log.Tracef("call=%v req=%#v reply=%#v time=%v err=%v",
-			method, req, reply, time.Since(start), err)
-		return err
-	}
 }
 
 func initRelativePath() string {
