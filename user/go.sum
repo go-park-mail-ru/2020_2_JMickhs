@@ -95,6 +95,8 @@ github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201120095733-a1d36e1c6c0e h1:
 github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201120095733-a1d36e1c6c0e/go.mod h1:44vFYlaEZ+YHTTIOxNPOXUC9+89Uq/wW4FmH0oHkfag=
 github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201120124024-ccec9abfff58 h1:JhD+xiwY1xU+NLrahYyFZjoCeAA2dC/n2MjNTEcDX1A=
 github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201120124024-ccec9abfff58/go.mod h1:KW7pDK+Nx6bx6414TrU9Z7oyHm9Pyye+GAkbPgiTtcM=
+github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201121123449-e0e4aac9c5b0 h1:Wq+tmbjUYkK//uuURuYHD0gYSel9+KBZrapMVZBcRV0=
+github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201121123449-e0e4aac9c5b0/go.mod h1:m1Gnm7en9bKXQ0XeuS76k7L1aon5gv6VKWBRcmBMhO0=
 github.com/go-playground/assert/v2 v2.0.1/go.mod h1:VDjEfimB/XKnb+ZQfWdccd7VUvScMdVu0Titje2rxJ4=
 github.com/go-playground/locales v0.13.0 h1:HyWk6mgj5qFqCT5fjGBuRArbVDfE4hi8+e8ceBS/t7Q=
 github.com/go-playground/locales v0.13.0/go.mod h1:taPMhCMXrRLJO55olJkUXHZBHCxTMfnGwq/HNwmWNS8=

@@ -1,8 +1,9 @@
 package server
 
 import (
-	"context"
 	"fmt"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/grpcPackage"
 
 	userService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/user"
 
@@ -11,7 +12,6 @@ import (
 
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
@@ -73,38 +73,11 @@ func NewRouter() *mux.Router {
 	return router
 }
 
-func GetInterceptor(log *logger.CustomLogger) func(
-	ctx context.Context,
-	method string,
-	req interface{},
-	reply interface{},
-	cc *grpc.ClientConn,
-	invoker grpc.UnaryInvoker,
-	opts ...grpc.CallOption,
-) error {
-	return func(
-		ctx context.Context,
-		method string,
-		req interface{},
-		reply interface{},
-		cc *grpc.ClientConn,
-		invoker grpc.UnaryInvoker,
-		opts ...grpc.CallOption,
-	) error {
-
-		start := time.Now()
-		err := invoker(ctx, method, req, reply, cc, opts...)
-		log.Tracef("call=%v req=%#v reply=%#v time=%v err=%v",
-			method, req, reply, time.Since(start), err)
-		return err
-	}
-}
-
 func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 
 	grpcSessionsConn, err := grpc.Dial(
 		configs.SessionGrpcServicePort,
-		grpc.WithUnaryInterceptor(GetInterceptor(log)),
+		grpc.WithUnaryInterceptor(grpcPackage.GetInterceptor(log)),
 		grpc.WithInsecure(),
 	)
 	defer grpcSessionsConn.Close()
@@ -113,7 +86,7 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 
 	grpcUserConn, err := grpc.Dial(
 		configs.UserGrpcServicePort,
-		grpc.WithUnaryInterceptor(GetInterceptor(log)),
+		grpc.WithUnaryInterceptor(grpcPackage.GetInterceptor(log)),
 		grpc.WithInsecure(),
 	)
 	if err != nil {

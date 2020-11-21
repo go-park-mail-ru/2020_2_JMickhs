@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/grpcPackage"
+
 	userGrpcDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/delivery/grpc"
 	userHttpDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/delivery/http"
 
@@ -80,7 +82,7 @@ func main() {
 
 	grpcSessionsConn, err := grpc.Dial(
 		configs.SessionGrpcServicePort,
-		grpc.WithUnaryInterceptor(GetInterceptor(log)),
+		grpc.WithUnaryInterceptor(grpcPackage.GetInterceptor(log)),
 		grpc.WithInsecure(),
 	)
 	if err != nil {
