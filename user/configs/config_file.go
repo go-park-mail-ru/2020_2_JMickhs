@@ -9,6 +9,7 @@ type postgresConfig struct {
 	User     string
 	Password string
 	DBName   string
+	Port     string
 }
 
 var BdConfig postgresConfig
@@ -35,5 +36,6 @@ func Init() {
 		User:     os.Getenv("PostgresUser"),
 		Password: os.Getenv("PostgresPassword"),
 		DBName:   os.Getenv("UserPostgresDBName"),
+		Port:     os.Getenv("UserPostgresHost"),
 	}
 }

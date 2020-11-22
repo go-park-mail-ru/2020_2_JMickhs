@@ -9,6 +9,7 @@ require (
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/gorilla/mux v1.8.0
 	github.com/jmoiron/sqlx v1.2.0
+	github.com/lib/pq v1.8.0
 	github.com/mailru/easyjson v0.7.6
 	github.com/satori/go.uuid v1.2.0
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9

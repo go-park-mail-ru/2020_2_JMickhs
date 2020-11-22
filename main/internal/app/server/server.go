@@ -116,8 +116,8 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 	commentDelivery.NewCommentHandler(r, uCom, log)
 
 	log.Info("Server started at port", configs.MainHttpServicePort)
-	err = http.ListenAndServeTLS(configs.MainHttpServicePort, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
-	//err = http.ListenAndServe(configs.MainHttpServicePort, r)
+	//err = http.ListenAndServeTLS(configs.MainHttpServicePort, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
+	err = http.ListenAndServe(configs.MainHttpServicePort, r)
 	if err != nil {
 		log.Error(err)
 	}

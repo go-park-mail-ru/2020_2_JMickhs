@@ -1,0 +1,79 @@
+version: "3"
+
+volumes:
+  user-data:
+  main-data:
+  redis-data:
+
+services:
+  main_service:
+    image: kostikan/main_service:${APP_VERSION}
+    ports:
+      - "8080:8080"
+    network_mode: host
+    depends_on:
+      - redis
+      - postgresMain
+    env_file:
+      - envs/postgresMain.env
+
+    restart: always
+    volumes:
+      - main-data:/var/lib/postgresql/data
+  session_service:
+    image: kostikan/session_service:${APP_VERSION}
+    network_mode: host
+    env_file:
+      - envs/redisSession.env
+    depends_on:
+      - redis
+    restart: always
+    volumes:
+      - redis-data:/data
+  user_service:
+    image: kostikan/user_service:${APP_VERSION}
+    network_mode: host
+    ports:
+      - "8082:8082"
+    env_file:
+      - envs/postgresUser.env
+    depends_on:
+      - postgresUser
+    restart: always
+    volumes:
+      - user-data:/var/lib/postgresql/data
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  postgresMain:
+      image: kartoza/postgis:13.0
+      expose:
+        - "5432"
+      volumes:
+        - main-data:/var/lib/postgresql
+        - ./bdMain.sql:/docker-entrypoint-initdb.d/init.sql
+      env_file:
+        - envs/postgresMain.env
+
+      ports:
+        - "5432:5432"
+      restart: on-failure
+
+  postgresUser:
+    image: kartoza/postgis:13.0
+    volumes:
+      - user-data:/var/lib/postgresql
+      - ./bdUser.sql:/docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - envs/postgresUser.env
+    expose:
+      - "5433"
+    ports:
+      - "5433:5432"
+    command: -p 5433
+    restart: on-failure
+

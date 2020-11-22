@@ -39,10 +39,11 @@ import (
 )
 
 func InitDB() *sqlx.DB {
-	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
+	connStr := fmt.Sprintf("user=%s password=%s dbname=%s port=%s sslmode=disable",
 		configs.BdConfig.User,
 		configs.BdConfig.Password,
-		configs.BdConfig.DBName)
+		configs.BdConfig.DBName,
+		configs.BdConfig.Port)
 
 	fmt.Println(connStr)
 	db, err := sqlx.Connect("postgres", connStr)
