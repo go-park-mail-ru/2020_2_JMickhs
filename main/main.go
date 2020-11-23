@@ -17,9 +17,13 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime"
+
+	"github.com/joho/godotenv"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/pkg/crawler"
 
@@ -41,7 +45,14 @@ func main() {
 	flag.BoolVar(&crawlerVar, "fill", false, "crawl a sites with hotels to fill bd")
 	flag.BoolVar(&serverVar, "server", false, "start server")
 	flag.Parse()
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file")
+	}
 	configs.Init()
+	if err := configs.ExportConfig(); err != nil {
+		log.Fatalln(err)
+	}
 	db := server.InitDB()
 	s3 := server.InitS3Session()
 

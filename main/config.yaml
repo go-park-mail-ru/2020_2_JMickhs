@@ -1,0 +1,24 @@
+context:
+  RequestUser: "User"
+  SessionID: "SessionID"
+  RequestUserID: "UserID"
+paths:
+  BaseAfatarPath: "static/avatars/defaultAvatar.png"
+  StaticPathForAvatars: "static/avatars/"
+  StaticPathForHotels: "static/img/"
+cookie:
+  LifeTime: 44640
+s3:
+  S3Url: "https://hostelscan.hb.bizmrg.com/"
+  S3Region: "ru-msk"
+  S3EndPoint: "https://hb.bizmrg.com"
+  BucketName: "hostelscan"
+grpc:
+  SessionGrpcServicePort: ":8079"
+  UserGrpcServicePort: ":8081"
+http:
+  MainHttpServicePort: ":8080"
+constants:
+  BasePageCount: 30
+  PreviewItemLimit: 6
+  BaseItemPerPage: 28

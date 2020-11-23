@@ -2,8 +2,37 @@ package configs
 
 import (
 	"os"
-	"time"
+
+	"github.com/spf13/viper"
 )
+
+var ConfigFields = struct {
+	StaticPathForAvatars   string
+	CookieLifeTime         string
+	BaseAvatarPath         string
+	RequestUser            string
+	BucketName             string
+	S3Url                  string
+	SessionID              string
+	S3Region               string
+	S3EndPoint             string
+	SessionGrpcServicePort string
+	UserGrpcServicePort    string
+	UserHttpServicePort    string
+}{
+	StaticPathForAvatars:   "paths.StaticPathForAvatars",
+	CookieLifeTime:         "cookie.LifeTime",
+	BaseAvatarPath:         "paths.BaseAvatarPath",
+	RequestUser:            "context.RequestUser",
+	BucketName:             "s3.BucketName",
+	S3Url:                  "s3.S3Url",
+	SessionID:              "context.SessionID",
+	S3Region:               "s3.S3Region",
+	S3EndPoint:             "s3.S3EndPoint",
+	SessionGrpcServicePort: "grpc.SessionGrpcServicePort",
+	UserGrpcServicePort:    "grpc.UserGrpcServicePort",
+	UserHttpServicePort:    "http.UserHttpServicePort",
+}
 
 type postgresConfig struct {
 	User     string
@@ -15,18 +44,6 @@ type postgresConfig struct {
 var BdConfig postgresConfig
 var PrefixPath string
 
-const StaticPathForAvatars = "static/avatars/"
-const CookieLifeTime = time.Hour * 24 * 30
-const BaseAvatarPath = "static/avatars/defaultAvatar.png"
-const RequestUser = "User"
-const BucketName = "hostelscan"
-const S3Url = "https://hostelscan.hb.bizmrg.com/"
-const SessionID = "SessionID"
-const S3Region = "ru-msk"
-const S3EndPoint = "https://hb.bizmrg.com"
-const SessionGrpcServicePort = ":8079"
-const UserGrpcServicePort = ":8081"
-const UserHttpServicePort = ":8082"
 const (
 	MB = 1 << 20
 )
@@ -38,4 +55,14 @@ func Init() {
 		DBName:   os.Getenv("UserPostgresDBName"),
 		Port:     os.Getenv("UserPostgresHost"),
 	}
+}
+
+func ExportConfig() error {
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+	viper.SetConfigName("config.yaml")
+	if err := viper.ReadInConfig(); err != nil {
+		return err
+	}
+	return nil
 }

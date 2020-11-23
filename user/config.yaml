@@ -1,0 +1,21 @@
+context:
+  RequestUser: "User"
+  SessionID: "SessionID"
+paths:
+  BaseAvatarPath: "static/avatars/defaultAvatar.png"
+  StaticPathForAvatars: "static/avatars/"
+cookie:
+  LifeTime: 44640
+s3:
+  S3Url: "https://hostelscan.hb.bizmrg.com/"
+  S3Region: "ru-msk"
+  S3EndPoint: "https://hb.bizmrg.com"
+  BucketName: "hostelscan"
+grpc:
+  SessionGrpcServicePort: ":8079"
+  UserGrpcServicePort: ":8081"
+http:
+  UserHttpServicePort: ":8082"
+
+
+

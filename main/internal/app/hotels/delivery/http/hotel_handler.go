@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/spf13/viper"
+
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/models"
@@ -110,7 +112,7 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 	}
 	data := hotelmodel.HotelData{Hotel: hotel}
 
-	userID, ok := r.Context().Value(configs.RequestUserID).(int)
+	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
 	if !ok {
 		responses.SendDataResponse(w, data)
 		return

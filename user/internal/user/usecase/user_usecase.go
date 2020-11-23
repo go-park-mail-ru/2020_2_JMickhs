@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/spf13/viper"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/configs"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user"
@@ -54,7 +56,7 @@ func (u *userUseCase) GetUserByID(ID int) (models.User, error) {
 }
 
 func (u *userUseCase) SetDefaultAvatar(user *models.User) error {
-	user.Avatar = configs.BaseAvatarPath
+	user.Avatar = viper.GetString(configs.ConfigFields.BaseAvatarPath)
 	return nil
 }
 

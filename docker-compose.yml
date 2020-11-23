@@ -15,7 +15,7 @@ services:
       - redis
       - postgresMain
     env_file:
-      - envs/postgresMain.env
+      - main/postgresMain.env
 
     restart: always
     volumes:
@@ -24,7 +24,7 @@ services:
     image: kostikan/session_service:${APP_VERSION}
     network_mode: host
     env_file:
-      - envs/redisSession.env
+      - sessions/redisSession.env
     depends_on:
       - redis
     restart: always
@@ -36,7 +36,7 @@ services:
     ports:
       - "8082:8082"
     env_file:
-      - envs/postgresUser.env
+      - user/postgresUser.env
     depends_on:
       - postgresUser
     restart: always
@@ -57,7 +57,7 @@ services:
         - main-data:/var/lib/postgresql
         - ./bdMain.sql:/docker-entrypoint-initdb.d/init.sql
       env_file:
-        - envs/postgresMain.env
+        - main/postgresMain.env
 
       ports:
         - "5432:5432"
@@ -69,7 +69,7 @@ services:
       - user-data:/var/lib/postgresql
       - ./bdUser.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
-      - envs/postgresUser.env
+      - user/postgresUser.env
     expose:
       - "5433"
     ports:

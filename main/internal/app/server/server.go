@@ -3,6 +3,8 @@ package server
 import (
 	"fmt"
 
+	"github.com/spf13/viper"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/grpcPackage"
 
 	userService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/user"
@@ -54,8 +56,8 @@ func InitDB() *sqlx.DB {
 
 func InitS3Session() *s3.S3 {
 	return s3.New(session.Must(session.NewSession(&aws.Config{
-		Region:   aws.String(configs.S3Region),
-		Endpoint: aws.String(configs.S3EndPoint),
+		Region:   aws.String(viper.GetString(configs.ConfigFields.S3Region)),
+		Endpoint: aws.String(viper.GetString(configs.ConfigFields.S3EndPoint)),
 	})))
 
 }
@@ -76,7 +78,7 @@ func NewRouter() *mux.Router {
 func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 
 	grpcSessionsConn, err := grpc.Dial(
-		configs.SessionGrpcServicePort,
+		viper.GetString(configs.ConfigFields.SessionGrpcServicePort),
 		grpc.WithUnaryInterceptor(grpcPackage.GetInterceptor(log)),
 		grpc.WithInsecure(),
 	)
@@ -85,7 +87,7 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 	sessionService := sessionService.NewAuthorizationServiceClient(grpcSessionsConn)
 
 	grpcUserConn, err := grpc.Dial(
-		configs.UserGrpcServicePort,
+		viper.GetString(configs.ConfigFields.UserGrpcServicePort),
 		grpc.WithUnaryInterceptor(grpcPackage.GetInterceptor(log)),
 		grpc.WithInsecure(),
 	)
@@ -115,9 +117,9 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 	hotelDelivery.NewHotelHandler(r, uHot, log)
 	commentDelivery.NewCommentHandler(r, uCom, log)
 
-	log.Info("Server started at port", configs.MainHttpServicePort)
-	//err = http.ListenAndServeTLS(configs.MainHttpServicePort, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
-	err = http.ListenAndServe(configs.MainHttpServicePort, r)
+	log.Info("Server started at port", viper.GetString(configs.ConfigFields.MainHttpServicePort))
+	//err = http.ListenAndServeTLS(viper.GetString(configs.ConfigFields.MainHttpServicePort), "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
+	err = http.ListenAndServe(viper.GetString(configs.ConfigFields.MainHttpServicePort), r)
 	if err != nil {
 		log.Error(err)
 	}

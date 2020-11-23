@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/spf13/viper"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels"
@@ -35,17 +37,17 @@ func (p *HotelUseCase) GetHotelByID(ID int) (hotelmodel.Hotel, error) {
 func (p *HotelUseCase) FetchHotels(filter hotelmodel.HotelFiltering, pattern string, page int) (hotelmodel.SearchData, error) {
 	pag := hotelmodel.SearchData{}
 
-	offset := page * configs.BaseItemPerPage
+	offset := page * viper.GetInt(configs.ConfigFields.BaseItemPerPage)
 	data, err := p.hotelRepo.FetchHotels(filter, pattern, offset)
 	if err != nil {
 		return pag, err
 	}
 	pag.Hotels = data
 
-	if page > 0 && page <= configs.BasePageCount {
+	if page > 0 && page <= viper.GetInt(configs.ConfigFields.BasePageCount) {
 		pag.PagInfo.PrevLink = ""
 	}
-	if page >= 0 && page < configs.BasePageCount {
+	if page >= 0 && page < viper.GetInt(configs.ConfigFields.BasePageCount) {
 		pag.PagInfo.NextLink = ""
 	}
 

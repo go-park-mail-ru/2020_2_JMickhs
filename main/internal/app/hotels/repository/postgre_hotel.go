@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/spf13/viper"
+
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
@@ -27,7 +29,7 @@ func NewPostgresHotelRepository(conn *sqlx.DB) PostgreHotelRepository {
 
 func (p *PostgreHotelRepository) GetHotels(StartID int) ([]hotelmodel.Hotel, error) {
 	hotels := []hotelmodel.Hotel{}
-	err := p.conn.Select(&hotels, GetHotelsPostgreRequest, strconv.Itoa(StartID), configs.S3Url)
+	err := p.conn.Select(&hotels, GetHotelsPostgreRequest, strconv.Itoa(StartID), viper.GetString(configs.ConfigFields.S3Url))
 
 	if err != nil {
 		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
@@ -37,14 +39,14 @@ func (p *PostgreHotelRepository) GetHotels(StartID int) ([]hotelmodel.Hotel, err
 
 func (p *PostgreHotelRepository) GetHotelByID(ID int) (hotelmodel.Hotel, error) {
 	hotel := hotelmodel.Hotel{}
-	err := p.conn.QueryRow(GetHotelByIDPostgreRequest, strconv.Itoa(ID), configs.S3Url).
+	err := p.conn.QueryRow(GetHotelByIDPostgreRequest, strconv.Itoa(ID), viper.GetString(configs.ConfigFields.S3Url)).
 		Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location,
 			&hotel.Rating, &hotel.CommCount, &hotel.Latitude, &hotel.Longitude)
 	if err != nil {
 		return hotel, customerror.NewCustomError(err, clientError.Gone, 1)
 	}
 
-	err = p.conn.Select(&hotel.Photos, GetHotelsPhotosPostgreRequest, strconv.Itoa(ID), configs.S3Url)
+	err = p.conn.Select(&hotel.Photos, GetHotelsPhotosPostgreRequest, strconv.Itoa(ID), viper.GetString(configs.ConfigFields.S3Url))
 	if err != nil {
 		return hotel, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
@@ -119,22 +121,22 @@ func (p *PostgreHotelRepository) FetchHotels(filter hotelmodel.HotelFiltering, p
 	if filter.Radius == "" {
 		if filter.CommCountPercent == "" {
 			err = udb.Select(&hotels, query, pattern, offset,
-				configs.BaseItemPerPage, configs.S3Url, filter.RatingFilterStartNumber,
+				viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url), filter.RatingFilterStartNumber,
 				filter.CommentsFilterStartNumber)
 		} else {
 			err = udb.Select(&hotels, query, pattern, offset,
-				configs.BaseItemPerPage, configs.S3Url, filter.RatingFilterStartNumber,
+				viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url), filter.RatingFilterStartNumber,
 				filter.CommentsFilterStartNumber, filter.CommCountPercent)
 		}
 
 	} else {
 		if filter.CommCountPercent == "" {
 			err = udb.Select(&hotels, query, pattern, offset,
-				configs.BaseItemPerPage, configs.S3Url, filter.RatingFilterStartNumber, filter.CommentsFilterStartNumber,
+				viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url), filter.RatingFilterStartNumber, filter.CommentsFilterStartNumber,
 				point, filter.Radius)
 		} else {
 			err = udb.Select(&hotels, query, pattern, offset,
-				configs.BaseItemPerPage, configs.S3Url, filter.RatingFilterStartNumber, filter.CommentsFilterStartNumber,
+				viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url), filter.RatingFilterStartNumber, filter.CommentsFilterStartNumber,
 				point, filter.Radius, filter.CommCountPercent)
 		}
 	}
@@ -163,7 +165,7 @@ func (p *PostgreHotelRepository) GetHotelsPreview(pattern string) ([]hotelmodel.
 
 	hotels := []hotelmodel.HotelPreview{}
 
-	err := p.conn.Select(&hotels, query, pattern, configs.PreviewItemLimit, configs.S3Url)
+	err := p.conn.Select(&hotels, query, pattern, viper.GetInt(configs.ConfigFields.PreviewItemLimit), viper.GetString(configs.ConfigFields.S3Url))
 	if err != nil {
 		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
@@ -178,7 +180,7 @@ func (p *PostgreHotelRepository) GetHotelsByRadius(latitude string, longitude st
 	point := p.GeneratePointToGeo(latitude, longitude)
 	hotels := []hotelmodel.Hotel{}
 
-	err := p.conn.Select(&hotels, GetHotelsByRadiusPostgreRequest, point, radius, configs.BaseItemPerPage, configs.S3Url)
+	err := p.conn.Select(&hotels, GetHotelsByRadiusPostgreRequest, point, radius, viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url))
 	if err != nil {
 		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}

@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/spf13/viper"
+
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
@@ -146,7 +148,7 @@ func UploadImage(filemanager *s3.S3, url string) (string, error) {
 
 	filename := uuid.NewV4().String()
 	fileType := "jpg"
-	relPath := configs.StaticPathForHotels + filename + "." + fileType
+	relPath := viper.GetString(configs.ConfigFields.StaticPathForHotels) + filename + "." + fileType
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -156,7 +158,7 @@ func UploadImage(filemanager *s3.S3, url string) (string, error) {
 
 	_, err = filemanager.PutObject(&s3.PutObjectInput{
 		Body:   file,
-		Bucket: aws.String(configs.BucketName),
+		Bucket: aws.String(viper.GetString(configs.ConfigFields.BucketName)),
 		Key:    aws.String(relPath),
 		ACL:    aws.String(s3.BucketCannedACLPublicRead),
 	})
