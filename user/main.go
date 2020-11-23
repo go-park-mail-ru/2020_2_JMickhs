@@ -9,6 +9,10 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/joho/godotenv"
+
+	"github.com/spf13/viper"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/grpcPackage"
 
 	userGrpcDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/delivery/grpc"
@@ -39,10 +43,11 @@ import (
 )
 
 func InitDB() *sqlx.DB {
-	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
+	connStr := fmt.Sprintf("user=%s password=%s dbname=%s port=%s sslmode=disable",
 		configs.BdConfig.User,
 		configs.BdConfig.Password,
-		configs.BdConfig.DBName)
+		configs.BdConfig.DBName,
+		configs.BdConfig.Port)
 
 	fmt.Println(connStr)
 	db, err := sqlx.Connect("postgres", connStr)
@@ -54,8 +59,8 @@ func InitDB() *sqlx.DB {
 
 func InitS3Session() *s3.S3 {
 	return s3.New(session.Must(session.NewSession(&aws.Config{
-		Region:   aws.String(configs.S3Region),
-		Endpoint: aws.String(configs.S3EndPoint),
+		Region:   aws.String(viper.GetString(configs.ConfigFields.S3Region)),
+		Endpoint: aws.String(viper.GetString(configs.ConfigFields.S3EndPoint)),
 	})))
 
 }
@@ -67,11 +72,17 @@ func initRelativePath() string {
 
 func main() {
 	validate := validator.New()
-
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file")
+	}
 	configs.Init()
+
+	if err := configs.ExportConfig(); err != nil {
+		log.Fatalln(err)
+	}
 	db := InitDB()
 	s3 := InitS3Session()
-
 	configs.PrefixPath = initRelativePath()
 	logOutput, err := os.Create("log.txt")
 	if err != nil {
@@ -81,7 +92,7 @@ func main() {
 	log := logger.NewLogger(logOutput)
 
 	grpcSessionsConn, err := grpc.Dial(
-		configs.SessionGrpcServicePort,
+		viper.GetString(configs.ConfigFields.SessionGrpcServicePort),
 		grpc.WithUnaryInterceptor(grpcPackage.GetInterceptor(log)),
 		grpc.WithInsecure(),
 	)
@@ -111,7 +122,7 @@ func main() {
 
 	userService.RegisterUserServiceServer(server, userGrpcDelivery.NewUserDelivery(u))
 
-	listener, err := net.Listen("tcp", configs.UserGrpcServicePort)
+	listener, err := net.Listen("tcp", viper.GetString(configs.ConfigFields.UserGrpcServicePort))
 	if err != nil {
 		log.Fatalf("can't listen port", err)
 	}
@@ -120,9 +131,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Info("Server started at port", configs.UserHttpServicePort)
+	log.Info("Server started at port", viper.GetString(configs.ConfigFields.UserHttpServicePort))
 	//err = http.ListenAndServeTLS(configs.UserHttpServicePort, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
-	err = http.ListenAndServe(configs.UserHttpServicePort, r)
+	err = http.ListenAndServe(viper.GetString(configs.ConfigFields.UserHttpServicePort), r)
 	if err != nil {
 		log.Error(err)
 	}

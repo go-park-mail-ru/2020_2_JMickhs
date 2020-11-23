@@ -7,6 +7,10 @@ import (
 	"net"
 	"strconv"
 
+	"github.com/joho/godotenv"
+
+	"github.com/spf13/viper"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/session/delivery"
 	sessionsRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/session/repository"
 	sessionsUseCase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/session/usecase"
@@ -39,7 +43,14 @@ func NewSessStore() *redis.Client {
 }
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file")
+	}
 	configs.Init()
+	if err := configs.ExportConfig(); err != nil {
+		log.Fatalln(err)
+	}
 	store := NewSessStore()
 	defer store.Close()
 
@@ -52,7 +63,7 @@ func main() {
 	server := grpc.NewServer()
 	sessionService.RegisterAuthorizationServiceServer(server, delivery.NewSessionDelivery(uSes, uCsrf))
 
-	listener, err := net.Listen("tcp", configs.SessionGrpcServicePort)
+	listener, err := net.Listen("tcp", viper.GetString(configs.ConfigFields.SessionGrpcServicePort))
 	if err != nil {
 		log.Fatalf("can't listen port", err)
 	}

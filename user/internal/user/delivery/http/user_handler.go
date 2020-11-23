@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/spf13/viper"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/configs"
@@ -97,7 +99,7 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
+	usr, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUser)).(models.User)
 	if !ok {
 		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
 		return
@@ -115,7 +117,7 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses.SendDataResponse(w, configs.S3Url+path)
+	responses.SendDataResponse(w, viper.GetString(configs.ConfigFields.S3Url)+path)
 }
 
 // swagger:route PUT /api/v1/users/password Users password
@@ -134,7 +136,7 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
+	usr, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUser)).(models.User)
 	if !ok {
 		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
 		return
@@ -170,7 +172,7 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
+	usr, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUser)).(models.User)
 	if !ok {
 		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
 		return
@@ -220,7 +222,7 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 		Value:    sessionID.SessionID,
 		Path:     "/",
 		HttpOnly: true,
-		Expires:  time.Now().Add(configs.CookieLifeTime),
+		Expires:  time.Now().Add(time.Duration(viper.GetInt(configs.ConfigFields.CookieLifeTime)) * time.Minute),
 	})
 	responses.SendDataResponse(w, safeUser)
 }
@@ -266,7 +268,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 		Value:    sessionID.SessionID,
 		Path:     "/",
 		HttpOnly: true,
-		Expires:  time.Now().Add(configs.CookieLifeTime),
+		Expires:  time.Now().Add(time.Duration(viper.GetInt(configs.ConfigFields.CookieLifeTime)) * time.Minute),
 	})
 	responses.SendDataResponse(w, safeUser)
 }
@@ -277,7 +279,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 //  200: safeUser
 //  401: unauthorizied
 func (u *UserHandler) UserHandler(w http.ResponseWriter, r *http.Request) {
-	usr, ok := r.Context().Value(configs.RequestUser).(models.User)
+	usr, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUser)).(models.User)
 	if !ok {
 		customerror.PostError(w, r, u.log, errors.New("user unothorizied"), clientError.Unauthorizied)
 		return
@@ -314,7 +316,7 @@ func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 // swagger:route GET /api/v1/csrf Csrf Csrf
 // get csrf token, token expire = 15 min
 func (u *UserHandler) GetCsrf(w http.ResponseWriter, r *http.Request) {
-	sId, ok := r.Context().Value(configs.SessionID).(string)
+	sId, ok := r.Context().Value(viper.GetString(configs.ConfigFields.SessionID)).(string)
 	if !ok {
 		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
 		return

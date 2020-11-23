@@ -49,11 +49,6 @@ create table comments (
          ON DELETE CASCADE
 );
 
-CREATE TRIGGER tr_comments_on_change
-    BEFORE UPDATE
-    ON comments FOR EACH ROW
-EXECUTE PROCEDURE public.trproc_upd_comments();
-
 CREATE OR REPLACE FUNCTION public.trproc_upd_comments()
     RETURNS trigger AS
     $body$
@@ -64,10 +59,10 @@ CREATE OR REPLACE FUNCTION public.trproc_upd_comments()
     $body$
 LANGUAGE 'plpgsql';
 
-CREATE TRIGGER tr_comments_on_add
-    AFTER INSERT OR DELETE OR UPDATE
+CREATE TRIGGER tr_comments_on_change
+    BEFORE UPDATE
     ON comments FOR EACH ROW
-EXECUTE PROCEDURE public.trproc_upd_hotels();
+EXECUTE PROCEDURE public.trproc_upd_comments();
 
 CREATE OR REPLACE FUNCTION public.trproc_upd_hotels()
     RETURNS trigger AS
@@ -94,3 +89,8 @@ BEGIN
 END;
 $body$
     LANGUAGE 'plpgsql';
+
+CREATE TRIGGER tr_comments_on_add
+    AFTER INSERT OR DELETE OR UPDATE
+    ON comments FOR EACH ROW
+EXECUTE PROCEDURE public.trproc_upd_hotels();

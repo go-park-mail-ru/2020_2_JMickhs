@@ -6,4 +6,8 @@ cover.html
 log.txt
 /sessions/package/*/*
 /*.txt
-/*.out
+/*.outs
+/env
+coverage1.out
+docker.yml
+*.env

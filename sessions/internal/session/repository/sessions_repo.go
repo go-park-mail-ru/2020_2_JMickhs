@@ -3,6 +3,9 @@ package sessionsRepository
 import (
 	"context"
 	"strconv"
+	"time"
+
+	"github.com/spf13/viper"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
@@ -22,7 +25,7 @@ func NewSessionsUserRepository(sessStore *redis.Client) sessionsRepository {
 }
 
 func (p *sessionsRepository) AddToken(token string, ID int64) (string, error) {
-	err := p.sessStore.Set(context.Background(), token, ID, configs.CookieLifeTime).Err()
+	err := p.sessStore.Set(context.Background(), token, ID, time.Duration(viper.GetInt(configs.ConfigFields.CookieLifeTime))*time.Minute).Err()
 
 	if err != nil {
 		return token, customerror.NewCustomError(err, clientError.BadRequest, 1)

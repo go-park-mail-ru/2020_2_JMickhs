@@ -60,7 +60,6 @@ func CheckCSRFOnHandler(next http.HandlerFunc) http.HandlerFunc {
 		func(w http.ResponseWriter, r *http.Request) {
 			token, ok := r.Context().Value(packageConfig.CorrectToken).(bool)
 			if !token || !ok {
-
 				responses.SendErrorResponse(w, clientError.Forbidden)
 				return
 			}

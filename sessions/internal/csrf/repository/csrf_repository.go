@@ -3,6 +3,9 @@ package csrfRepository
 import (
 	"context"
 	"errors"
+	"time"
+
+	"github.com/spf13/viper"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/configs"
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
@@ -20,7 +23,7 @@ func NewCsrfRepository(sessStore *redis.Client) csrfRepository {
 }
 
 func (r *csrfRepository) Add(token string) error {
-	err := r.csrfStore.Set(context.Background(), token, 1, configs.CsrfExpire).Err()
+	err := r.csrfStore.Set(context.Background(), token, 1, time.Duration(viper.GetInt(configs.ConfigFields.CsrfExpire))*time.Minute).Err()
 	if err != nil {
 		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}

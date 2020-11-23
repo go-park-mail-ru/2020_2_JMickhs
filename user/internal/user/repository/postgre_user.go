@@ -4,6 +4,8 @@ import (
 	"mime/multipart"
 	"strconv"
 
+	"github.com/spf13/viper"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/configs"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/models"
 
@@ -40,14 +42,14 @@ func (p *PostgresUserRepository) Add(user models.User) (models.User, error) {
 		return user, customerror.NewCustomError(err, clientError.Conflict, 1)
 	}
 	user.ID = id
-	user.Avatar = configs.S3Url + user.Avatar
+	user.Avatar = viper.GetString(configs.ConfigFields.S3Url) + user.Avatar
 	return user, nil
 }
 func (p *PostgresUserRepository) DeleteAvatarInStore(user models.User, filename string) error {
-	if user.Avatar != configs.S3Url+configs.BaseAvatarPath {
+	if user.Avatar != viper.GetString(configs.ConfigFields.S3Url)+viper.GetString(configs.ConfigFields.BaseAvatarPath) {
 		var _, err = p.s3.DeleteObject(&s3.DeleteObjectInput{
-			Bucket: aws.String(configs.BucketName),
-			Key:    aws.String(configs.StaticPathForAvatars + filename),
+			Bucket: aws.String(viper.GetString(configs.ConfigFields.BucketName)),
+			Key:    aws.String(viper.GetString(configs.ConfigFields.StaticPathForAvatars) + filename),
 		})
 		return err
 	}
@@ -57,11 +59,11 @@ func (p *PostgresUserRepository) DeleteAvatarInStore(user models.User, filename 
 func (p *PostgresUserRepository) UpdateAvatarInStore(file multipart.File, user *models.User, fileType string) error {
 
 	newFilename := uuid.NewV4().String()
-	relativePath := configs.StaticPathForAvatars + newFilename + "." + fileType
+	relativePath := viper.GetString(configs.ConfigFields.StaticPathForAvatars) + newFilename + "." + fileType
 
 	_, err := p.s3.PutObject(&s3.PutObjectInput{
 		Body:   file,
-		Bucket: aws.String(configs.BucketName),
+		Bucket: aws.String(viper.GetString(configs.ConfigFields.BucketName)),
 		Key:    aws.String(relativePath),
 		ACL:    aws.String(s3.BucketCannedACLPublicRead),
 	})
@@ -81,7 +83,7 @@ func (u *PostgresUserRepository) CompareHashAndPassword(hashedPassword string, p
 
 func (p *PostgresUserRepository) GetByUserName(name string) (models.User, error) {
 	user := models.User{}
-	err := p.conn.QueryRow(GetUserByNamePostgreRequest, name, configs.S3Url).Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Avatar)
+	err := p.conn.QueryRow(GetUserByNamePostgreRequest, name, viper.GetString(configs.ConfigFields.S3Url)).Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Avatar)
 	if err != nil {
 		return user, customerror.NewCustomError(err, clientError.Unauthorizied, 1)
 	}
@@ -89,7 +91,7 @@ func (p *PostgresUserRepository) GetByUserName(name string) (models.User, error)
 }
 
 func (p *PostgresUserRepository) GetUserByID(ID int) (models.User, error) {
-	row := p.conn.QueryRow(GetUserByIDPostgreRequest, strconv.Itoa(ID), configs.S3Url)
+	row := p.conn.QueryRow(GetUserByIDPostgreRequest, strconv.Itoa(ID), viper.GetString(configs.ConfigFields.S3Url))
 	user := models.User{}
 
 	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Avatar)

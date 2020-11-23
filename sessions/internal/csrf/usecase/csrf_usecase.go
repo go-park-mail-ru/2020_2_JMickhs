@@ -10,6 +10,8 @@ import (
 	"io"
 	"time"
 
+	"github.com/spf13/viper"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/configs"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/csrf"
@@ -90,7 +92,7 @@ func (u *CsrfUsecase) CheckToken(sesID string, token string) (bool, error) {
 		return false, err
 	}
 
-	if time.Now().Unix()-CsrfTok.Timestamp > int64(configs.CsrfExpire) {
+	if time.Now().Unix()-CsrfTok.Timestamp > int64(viper.GetInt(configs.ConfigFields.CsrfExpire)) {
 		return false, errors.New("token expired")
 	}
 

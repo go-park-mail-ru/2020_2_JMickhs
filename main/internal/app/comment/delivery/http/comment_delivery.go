@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/spf13/viper"
+
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/middlewareApi"
 
@@ -52,7 +54,7 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 
 	var user_id int
 
-	userID, ok := r.Context().Value(configs.RequestUserID).(int)
+	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
 	if !ok {
 		user_id = -1
 	} else {
@@ -85,7 +87,7 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 		return
 	}
-	userID, ok := r.Context().Value(configs.RequestUserID).(int)
+	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
 	if !ok {
 		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
@@ -116,7 +118,7 @@ func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	userID, ok := r.Context().Value(configs.RequestUserID).(int)
+	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
 	if !ok {
 		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
@@ -146,7 +148,7 @@ func (ch *CommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	_, ok := r.Context().Value(configs.RequestUserID).(int)
+	_, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
 	if !ok {
 		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
