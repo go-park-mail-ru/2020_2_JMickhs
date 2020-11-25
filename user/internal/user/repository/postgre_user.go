@@ -4,10 +4,10 @@ import (
 	"mime/multipart"
 	"strconv"
 
-	"github.com/spf13/viper"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/user/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/models"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/configs"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/models"
+	"github.com/spf13/viper"
 
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 

@@ -1,4 +1,4 @@
-module github.com/go-park-mail-ru/2020_2_JMickhs
+module github.com/go-park-mail-ru/2020_2_JMickhs/main
 
 go 1.15
 

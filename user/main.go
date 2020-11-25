@@ -72,7 +72,7 @@ func initRelativePath() string {
 
 func main() {
 	validate := validator.New()
-	err := godotenv.Load()
+	err := godotenv.Load("postgresUser.env")
 	if err != nil {
 		fmt.Println("Error loading .env file")
 	}

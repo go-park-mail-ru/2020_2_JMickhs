@@ -43,7 +43,7 @@ func NewSessStore() *redis.Client {
 }
 
 func main() {
-	err := godotenv.Load()
+	err := godotenv.Load("redisSession.env")
 	if err != nil {
 		fmt.Println("Error loading .env file")
 	}

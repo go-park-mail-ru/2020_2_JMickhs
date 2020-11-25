@@ -53,6 +53,10 @@ var ConfigFields = struct {
 var BdConfig postgresConfig
 var PrefixPath string
 
+const (
+	MB = 1 << 20
+)
+
 func Init() {
 	BdConfig = postgresConfig{
 		User:     os.Getenv("PostgresUser"),

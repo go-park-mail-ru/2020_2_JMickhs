@@ -3,7 +3,8 @@ package userGrpcDelivery
 import (
 	"context"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user"
+
 	userService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/user"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

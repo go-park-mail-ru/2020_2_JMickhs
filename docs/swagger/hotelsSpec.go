@@ -2,7 +2,6 @@ package swagger
 
 import (
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
-	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
 	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/paginator/model"
 )
 
@@ -24,6 +23,8 @@ type SearchStringRequest struct {
 	Longitude string `json:"longitude"`
 	//in:query
 	RateStart int `json:"rateStart"`
+	//in:query
+	RateEnd int `json:"rateEnd"`
 	//in:query
 	CommentCountStart int `json:"commentStart"`
 	// какие оценки выбираем через запятую пример "3,4,5"

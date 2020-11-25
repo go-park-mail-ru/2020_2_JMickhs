@@ -5,12 +5,12 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/sessions/configs"
+
 	"github.com/spf13/viper"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/configs"
 
 	"github.com/go-redis/redis/v8"
 )

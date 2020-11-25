@@ -2,29 +2,63 @@ package hotelRepository
 
 import (
 	"fmt"
+	"mime/multipart"
 	"strconv"
 	"strings"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
+	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
+
+	"github.com/aws/aws-sdk-go/aws"
+	uuid "github.com/satori/go.uuid"
+
+	"github.com/aws/aws-sdk-go/service/s3"
+
+	"github.com/lib/pq"
 
 	"github.com/spf13/viper"
 
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 
-	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
-	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/models"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type PostgreHotelRepository struct {
 	conn *sqlx.DB
+	s3   *s3.S3
 }
 
-func NewPostgresHotelRepository(conn *sqlx.DB) PostgreHotelRepository {
-	return PostgreHotelRepository{conn}
+func NewPostgresHotelRepository(conn *sqlx.DB, s3 *s3.S3) PostgreHotelRepository {
+	return PostgreHotelRepository{conn, s3}
+}
+
+func (p *PostgreHotelRepository) UploadPhoto(file multipart.File, contentType string) (string, error) {
+	newFilename := uuid.NewV4().String()
+	relativePath := viper.GetString(configs.ConfigFields.StaticPathForHotels) + newFilename + "." + contentType
+
+	_, err := p.s3.PutObject(&s3.PutObjectInput{
+		Body:   file,
+		Bucket: aws.String(viper.GetString(configs.ConfigFields.BucketName)),
+		Key:    aws.String(relativePath),
+		ACL:    aws.String(s3.BucketCannedACLPublicRead),
+	})
+	if err != nil {
+		return "", customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	return relativePath, err
+}
+
+func (p *PostgreHotelRepository) AddHotel(hotel hotelmodel.Hotel, userID int, userEmail string) error {
+	err := p.conn.QueryRow(AddHotelByOwner, hotel.Name, hotel.Description, userEmail, hotel.City,
+		hotel.Country, hotel.Location, hotel.Image, pq.Array(hotel.Photos)).Err()
+	if err != nil {
+		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	return nil
 }
 
 func (p *PostgreHotelRepository) GetHotels(StartID int) ([]hotelmodel.Hotel, error) {
@@ -79,7 +113,7 @@ func (p *PostgreHotelRepository) BuildQueryToFetchHotel(filter *hotelmodel.Hotel
 
 	NearestFilterQuery := ""
 	if filter.Radius != "" {
-		NearestFilterQuery = fmt.Sprint(" AND ST_Distance(coordinates::geography, $7::geography)<$8")
+		NearestFilterQuery = fmt.Sprint(" AND ST_Distance(coordinates::geography, $8::geography)<$9")
 
 		baseQuery += p.BuildQueryForCommentsPercent(filter, "$9")
 
@@ -88,13 +122,13 @@ func (p *PostgreHotelRepository) BuildQueryToFetchHotel(filter *hotelmodel.Hotel
 	}
 	baseQuery += NearestFilterQuery
 
-	RatingFilterQuery := fmt.Sprint(" AND curr_rating >= $5 ")
+	RatingFilterQuery := fmt.Sprint(" AND curr_rating >= $5 AND curr_rating <= $6")
 	if filter.RatingFilterStartNumber == "" {
 		filter.RatingFilterStartNumber = "0"
 	}
 	baseQuery += RatingFilterQuery
 
-	CommentFilterQuery := fmt.Sprint(" AND comm_count >= $6")
+	CommentFilterQuery := fmt.Sprint(" AND comm_count >= $7")
 	if filter.CommentsFilterStartNumber == "" {
 		filter.CommentsFilterStartNumber = "0"
 	}

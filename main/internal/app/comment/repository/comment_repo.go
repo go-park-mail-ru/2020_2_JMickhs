@@ -4,12 +4,12 @@ import (
 	"errors"
 	"strconv"
 
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
+
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
-
-	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
 
 	"github.com/jmoiron/sqlx"
 )

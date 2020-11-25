@@ -1,7 +1,7 @@
 //go:generate mockgen -source repository.go -destination mocks/comment_repository_mock.go -package comment_mock
 package comment
 
-import commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
+import commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 
 type Repository interface {
 	GetComments(hotelID string, limit int, offset string, user_id int) ([]commModel.FullCommentInfo, error)

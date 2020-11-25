@@ -25,12 +25,9 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/pkg/crawler"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/server"
-
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/server"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/crawler"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
 )
 
@@ -45,7 +42,7 @@ func main() {
 	flag.BoolVar(&crawlerVar, "fill", false, "crawl a sites with hotels to fill bd")
 	flag.BoolVar(&serverVar, "server", false, "start server")
 	flag.Parse()
-	err := godotenv.Load()
+	err := godotenv.Load("postgresMain.env")
 	if err != nil {
 		fmt.Println("Error loading .env file")
 	}
@@ -69,6 +66,6 @@ func main() {
 		crawler.StartCrawler(db, s3, log)
 	}
 	if serverVar {
-		server.StartServer(db, log)
+		server.StartServer(db, log, s3)
 	}
 }

@@ -5,12 +5,12 @@ import (
 	"math"
 	"strconv"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment"
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
+
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 	userService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/user"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment"
-	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
 )
 
 type CommentUseCase struct {
