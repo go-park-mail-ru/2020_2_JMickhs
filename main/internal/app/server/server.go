@@ -117,7 +117,6 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	commentDelivery.NewCommentHandler(r, uCom, log)
 
 	log.Info("Server started at port", viper.GetString(configs.ConfigFields.MainHttpServicePort))
-	//err = http.ListenAndServeTLS(viper.GetString(configs.ConfigFields.MainHttpServicePort), "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
 	err = http.ListenAndServe(viper.GetString(configs.ConfigFields.MainHttpServicePort), r)
 	if err != nil {
 		log.Error(err)

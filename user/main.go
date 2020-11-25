@@ -132,7 +132,6 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Info("Server started at port", viper.GetString(configs.ConfigFields.UserHttpServicePort))
-	//err = http.ListenAndServeTLS(configs.UserHttpServicePort, "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
 	err = http.ListenAndServe(viper.GetString(configs.ConfigFields.UserHttpServicePort), r)
 	if err != nil {
 		log.Error(err)

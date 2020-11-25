@@ -93,14 +93,21 @@ func (p *PostgreHotelRepository) BuildQueryForCommentsPercent(filter *hotelmodel
 		return ""
 	}
 	query := ""
+	query += " AND ("
 	numbers := strings.Split(filter.CommCountConstraint, ",")
-	for _, numberStr := range numbers {
+	for pos, numberStr := range numbers {
 		number, err := strconv.Atoi(numberStr)
 		if err != nil {
 			continue
 		}
-		query += fmt.Sprintf(" AND  comm_count_for_each[%d]::real/(case comm_count when 0 then 1 else comm_count end)::real >= %s::real/100::real  ",
-			number+1, param)
+		if pos != len(numbers)-1 {
+			query += fmt.Sprintf(" comm_count_for_each[%d]::real/(case comm_count when 0 then 1 else comm_count end)::real >= %s::real/100::real  OR ",
+				number+1, param)
+		} else {
+			query += fmt.Sprintf(" comm_count_for_each[%d]::real/(case comm_count when 0 then 1 else comm_count end)::real >= %s::real/100::real  )",
+				number+1, param)
+		}
+
 	}
 	return query
 }
@@ -114,7 +121,6 @@ func (p *PostgreHotelRepository) BuildQueryToFetchHotel(filter *hotelmodel.Hotel
 	NearestFilterQuery := ""
 	if filter.Radius != "" {
 		NearestFilterQuery = fmt.Sprint(" AND ST_Distance(coordinates::geography, $8::geography)<$9")
-
 		baseQuery += p.BuildQueryForCommentsPercent(filter, "$10")
 
 	} else {
@@ -122,7 +128,7 @@ func (p *PostgreHotelRepository) BuildQueryToFetchHotel(filter *hotelmodel.Hotel
 	}
 	baseQuery += NearestFilterQuery
 
-	RatingFilterQuery := fmt.Sprint(" AND curr_rating >= $5 AND curr_rating <= $6")
+	RatingFilterQuery := fmt.Sprint(" AND curr_rating BETWEEN $5 AND $6 OR curr_rating BETWEEN $6 AND $5")
 	if filter.RatingFilterStartNumber == "" {
 		filter.RatingFilterStartNumber = "0"
 	}
