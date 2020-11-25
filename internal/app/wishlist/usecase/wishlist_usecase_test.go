@@ -4,53 +4,48 @@ import (
 	"errors"
 	"testing"
 
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/error"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/bxcodec/faker/v3"
-	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
-	wishlist_mock "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/mocks"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/error"
+
+	mock_wishlist "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/mocks"
+	wishlistModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/models"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/serverError"
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
 )
 
-func TestwishlistUseCase_GetWishlist(t *testing.T) {
-	testHotels := make([]hotelmodel.MiniHotel, 4)
-	err := faker.FakeData(&testHotels)
+func TestwishlistUseCase_GetWishlistMeta(t *testing.T) {
+	wishlistFakeMeta := make([]wishlistModel.WishlisstHotel, 2)
+	err := faker.FakeData(&wishlistFakeMeta)
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when create fake data", err)
 	}
-	t.Run("WishlistGetWishlist", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
 
-		mockWishlistRepo := wishlist_mock.NewMockRepository(ctrl)
-
-		mockWishlistRepo.EXPECT().GetWishlist(42).
-			Return(testHotels, nil)
-
-		u := NewWishlistUseCase(mockWishlistRepo)
-
-		hotels, err := u.GetWishlist(42)
-
+	t.Run("GetWishlistMeta", func(t *testing.T) {
+		controller := gomock.NewController(t)
+		defer controller.Finish()
+		mockWishlistRepository := mock_wishlist.NewMockRepository(controller)
+		mockWishlistRepository.EXPECT().GetWishlistMeta(42).Return(wishlistFakeMeta, nil)
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository)
+		wishlistMeta, err := wishlistUsecase.GetWishlistMeta(42)
 		assert.NoError(t, err)
-		assert.Equal(t, hotels, testHotels)
+		assert.Equal(t, wishlistFakeMeta, wishlistMeta)
 	})
-	t.Run("WishlistGetWishlistErr", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
 
-		mockWishlistRepo := wishlist_mock.NewMockRepository(ctrl)
-
-		mockWishlistRepo.EXPECT().
-			GetWishlist(42).
-			Return(testHotels, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
-
-		u := NewWishlistUseCase(mockWishlistRepo)
-
-		_, err := u.GetWishlist(42)
-
+	t.Run("GetWishlistMetaError", func(t *testing.T) {
+		controller := gomock.NewController(t)
+		defer controller.Finish()
+		mockWishlistRepository := mock_wishlist.NewMockRepository(controller)
+		mockWishlistRepository.EXPECT().GetWishlistMeta(42).Return(wishlistFakeMeta, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository)
+		_, err := wishlistUsecase.GetWishlistMeta(42)
 		assert.Error(t, err)
 		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
 	})
+
 }
+func TestwishlistUseCase_CreateWishlist(t *testing.T) {}
+func TestwishlistUseCase_DeleteWishlist(t *testing.T) {}
+func TestwishlistUseCase_AddHotel(t *testing.T)       {}
+func TestwishlistUseCase_DeleteHotel(t *testing.T)    {}
