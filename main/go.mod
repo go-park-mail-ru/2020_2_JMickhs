@@ -24,6 +24,7 @@ require (
 	github.com/gorilla/sessions v1.2.1 // indirect
 	github.com/jackc/pgx/v4 v4.9.2 // indirect
 	github.com/jmoiron/sqlx v1.2.0
+	github.com/joho/godotenv v1.3.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 	github.com/lib/pq v1.8.0
 	github.com/mailru/easyjson v0.7.6

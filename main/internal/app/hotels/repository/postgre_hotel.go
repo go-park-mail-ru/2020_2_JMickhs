@@ -115,10 +115,10 @@ func (p *PostgreHotelRepository) BuildQueryToFetchHotel(filter *hotelmodel.Hotel
 	if filter.Radius != "" {
 		NearestFilterQuery = fmt.Sprint(" AND ST_Distance(coordinates::geography, $8::geography)<$9")
 
-		baseQuery += p.BuildQueryForCommentsPercent(filter, "$9")
+		baseQuery += p.BuildQueryForCommentsPercent(filter, "$10")
 
 	} else {
-		baseQuery += p.BuildQueryForCommentsPercent(filter, "$7")
+		baseQuery += p.BuildQueryForCommentsPercent(filter, "$8")
 	}
 	baseQuery += NearestFilterQuery
 
@@ -156,21 +156,23 @@ func (p *PostgreHotelRepository) FetchHotels(filter hotelmodel.HotelFiltering, p
 		if filter.CommCountPercent == "" {
 			err = udb.Select(&hotels, query, pattern, offset,
 				viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url), filter.RatingFilterStartNumber,
-				filter.CommentsFilterStartNumber)
+				filter.RatingFilterEndNumber, filter.CommentsFilterStartNumber)
 		} else {
 			err = udb.Select(&hotels, query, pattern, offset,
 				viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url), filter.RatingFilterStartNumber,
-				filter.CommentsFilterStartNumber, filter.CommCountPercent)
+				filter.RatingFilterEndNumber, filter.CommentsFilterStartNumber, filter.CommCountPercent)
 		}
 
 	} else {
 		if filter.CommCountPercent == "" {
 			err = udb.Select(&hotels, query, pattern, offset,
-				viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url), filter.RatingFilterStartNumber, filter.CommentsFilterStartNumber,
+				viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url),
+				filter.RatingFilterStartNumber, filter.RatingFilterEndNumber, filter.CommentsFilterStartNumber,
 				point, filter.Radius)
 		} else {
 			err = udb.Select(&hotels, query, pattern, offset,
-				viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url), filter.RatingFilterStartNumber, filter.CommentsFilterStartNumber,
+				viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url),
+				filter.RatingFilterStartNumber, filter.RatingFilterEndNumber, filter.CommentsFilterStartNumber,
 				point, filter.Radius, filter.CommCountPercent)
 		}
 	}

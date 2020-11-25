@@ -17,16 +17,15 @@ definitions:
         type: integer
         x-go-name: Rating
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   Avatar:
     properties:
       avatar:
         type: string
         x-go-name: Avatar
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   Comment:
-    description: easyjson:json
     properties:
       comm_id:
         format: int64
@@ -51,7 +50,7 @@ definitions:
         type: integer
         x-go-name: UserID
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   File:
     allOf:
     - properties:
@@ -68,7 +67,6 @@ definitions:
     type: object
     x-go-package: mime/multipart
   FullCommentInfo:
-    description: easyjson:json
     properties:
       avatar:
         type: string
@@ -99,7 +97,7 @@ definitions:
         type: string
         x-go-name: Username
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   GetCommentsRequest:
     properties:
       comments:
@@ -110,9 +108,8 @@ definitions:
       pag_info:
         $ref: '#/definitions/PaginationInfo'
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   Hotel:
-    description: easyjson:json
     properties:
       city:
         type: string
@@ -161,7 +158,7 @@ definitions:
         type: number
         x-go-name: Rating
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   HotelData:
     properties:
       comment:
@@ -169,9 +166,8 @@ definitions:
       hotel:
         $ref: '#/definitions/Hotel'
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   HotelPreview:
-    description: easyjson:json
     properties:
       hotel_id:
         format: int64
@@ -187,9 +183,8 @@ definitions:
         type: string
         x-go-name: Name
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   Hotels:
-    description: easyjson:json
     properties:
       hotels:
         items:
@@ -197,9 +192,8 @@ definitions:
         type: array
         x-go-name: Hotels
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   HotelsPreview:
-    description: easyjson:json
     properties:
       hotels_preview:
         items:
@@ -207,9 +201,8 @@ definitions:
         type: array
         x-go-name: Hotels
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   NewRate:
-    description: easyjson:json
     properties:
       comment:
         $ref: '#/definitions/Comment'
@@ -218,9 +211,8 @@ definitions:
         type: number
         x-go-name: Rate
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   PaginationInfo:
-    description: easyjson:json
     properties:
       items_count:
         format: int64
@@ -233,9 +225,8 @@ definitions:
         type: string
         x-go-name: PrevLink
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   SafeUser:
-    description: easyjson:json
     properties:
       avatar:
         type: string
@@ -251,7 +242,7 @@ definitions:
         type: string
         x-go-name: Username
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/models
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   SearchDataResponse:
     properties:
       Pag_info:
@@ -262,13 +253,13 @@ definitions:
         type: array
         x-go-name: Hotels
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   UpdateAvatar:
     properties:
       avatar:
         $ref: '#/definitions/File'
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   UpdateCommentRequest:
     properties:
       comm_id:
@@ -283,16 +274,15 @@ definitions:
         type: integer
         x-go-name: Rate
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   UpdateEmail:
     properties:
       email:
         type: string
         x-go-name: Email
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   UpdatePassword:
-    description: easyjson:json
     properties:
       newpassword:
         type: string
@@ -301,14 +291,14 @@ definitions:
         type: string
         x-go-name: OldPassword
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/user/models
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   UpdateUser:
     properties:
       username:
         type: string
         x-go-name: Username
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   UserAuth:
     properties:
       password:
@@ -318,7 +308,7 @@ definitions:
         type: string
         x-go-name: Username
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   UserRegistation:
     properties:
       email:
@@ -331,7 +321,7 @@ definitions:
         type: string
         x-go-name: Username
     type: object
-    x-go-package: github.com/go-park-mail-ru/2020_2_JMickhs/docs/swagger
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
 info:
   description: Swagger spec.
   title: Golang service API for HotelScanner
@@ -573,6 +563,11 @@ paths:
         name: rateStart
         type: integer
         x-go-name: RateStart
+      - format: int64
+        in: query
+        name: rateEnd
+        type: integer
+        x-go-name: RateEnd
       - format: int64
         in: query
         name: commentStart

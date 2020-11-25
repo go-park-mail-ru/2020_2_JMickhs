@@ -1,9 +1,35 @@
 package swagger
 
-import (
-	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
-	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/paginator/model"
-)
+type Hotel struct {
+	HotelID     int      `json:"hotel_id" db:"hotel_id" mapstructure:"hotel_id"`
+	Name        string   `json:"name" db:"name"`
+	Description string   `json:"description" db:"description"`
+	Image       string   `json:"image" db:"concat"`
+	Location    string   `json:"location" db:"location"`
+	Email       string   `json:"email" db:"email"`
+	Country     string   `json:"country" db:"country"`
+	City        string   `json:"city"   db:"city"`
+	Rating      float64  `json:"rating" db:"curr_rating"`
+	Photos      []string `json:"photos,omitempty" db:"photos" faker:"len=50"`
+	CommCount   int      `json:"comm_count" db:"comm_count" mapstructure:"comm_count"`
+	Latitude    float64  `json:"latitude,omitempty" db:"x"`
+	Longitude   float64  `json:"longitude,omitempty" db:"y"`
+}
+
+type HotelPreview struct {
+	HotelID  int    `json:"hotel_id" db:"hotel_id" mapstructure:"hotel_id"`
+	Name     string `json:"name" db:"name"`
+	Image    string `json:"image" db:"concat"`
+	Location string `json:"location" db:"location"`
+}
+
+type Hotels struct {
+	Hotels []Hotel `json:"hotels"`
+}
+
+type HotelsPreview struct {
+	Hotels []HotelPreview `json:"hotels_preview"`
+}
 
 // swagger:parameters searchHotel
 type SearchStringRequest struct {
@@ -57,13 +83,13 @@ type RateRequest struct {
 }
 
 type SearchDataResponse struct {
-	Hotels  []hotelmodel.Hotel             `json:"hotels"`
-	PagInfo paginationModel.PaginationInfo `json:"Pag_info"`
+	Hotels  []Hotel        `json:"hotels"`
+	PagInfo PaginationInfo `json:"Pag_info"`
 }
 
 type HotelData struct {
-	Hotel   hotelmodel.Hotel          `json:"hotel"`
-	Comment commModel.FullCommentInfo `json:"comment,omitempty"`
+	Hotel   Hotel           `json:"hotel"`
+	Comment FullCommentInfo `json:"comment,omitempty"`
 }
 
 // swagger:parameters hotel hotelsByRadius
@@ -114,13 +140,13 @@ type hotelsIDParameterWrapper struct {
 // swagger:response hotels
 type hotelListWrapper struct {
 	//in: body
-	Body hotelmodel.Hotels
+	Body Hotels
 }
 
 // swagger:response hotelsPreview
 type hotelsPreviewResponse struct {
 	//in: body
-	Body hotelmodel.HotelsPreview
+	Body HotelsPreview
 }
 
 // swagger:response searchHotel
