@@ -1,12 +1,8 @@
 package wishlistrepository
 
 import (
-	"strconv"
-
-	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/sqlrequests"
 	wishlistModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/models"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/clientError"
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/error"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/serverError"
 	"github.com/jmoiron/sqlx"
@@ -23,27 +19,6 @@ func NewPostgreWishlistRepository(conn *sqlx.DB) PostgreWishlistRepository {
 func (s *PostgreWishlistRepository) GetWishlistMeta(wishlistID int) ([]wishlistModel.WishlisstHotel, error) {
 	bb := []wishlistModel.WishlisstHotel{}
 	err := s.conn.Select(&bb, sqlrequests.GetWishlistMeta, wishlistID)
-	if err != nil {
-		return bb, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
-	}
-	return bb, nil
-}
-
-func (s *PostgreWishlistRepository) GetMiniHotelByID(ID int) (hotelmodel.MiniHotel, error) {
-	rows := s.conn.QueryRow(sqlrequests.GetMiniHotelPostgreRequest, strconv.Itoa(ID))
-	hotel := hotelmodel.MiniHotel{}
-	err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location, &hotel.Rating)
-	if err != nil {
-		return hotel, customerror.NewCustomError(err, clientError.Gone, nil)
-	}
-	return hotel, nil
-}
-
-func (s *PostgreWishlistRepository) GetWishlist(wishlistID int) ([]hotelmodel.MiniHotel, error) {
-	bb := []hotelmodel.MiniHotel{}
-
-	err := s.conn.Select(&bb, sqlrequests.GetWishlistPostgreRequest, wishlistID)
-
 	if err != nil {
 		return bb, customerror.NewCustomError(err, serverError.ServerInternalError, nil)
 	}

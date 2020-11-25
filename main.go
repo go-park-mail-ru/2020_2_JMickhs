@@ -155,7 +155,7 @@ func main() {
 	hotelDelivery.NewHotelHandler(r, uHot, log)
 	delivery.NewUserHandler(r, uSes, u, log)
 	commentDelivery.NewCommentHandler(r, uCom, log)
-	wishlistDelivery.NewWishlistHandler(r, uWish, log)
+	wishlistDelivery.NewWishlistHandler(r, uWish, uHot, log)
 	log.Info("Server started at port", configs.Port)
 	http.ListenAndServe(configs.Port, r)
 }

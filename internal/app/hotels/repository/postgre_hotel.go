@@ -87,3 +87,13 @@ func (p *PostgreHotelRepository) CheckRateExist(UserID int, HotelID int) (int, e
 	}
 	return rate, nil
 }
+
+func (p *PostgreHotelRepository) GetMiniHotelByID(HotelID int) (hotelmodel.MiniHotel, error) {
+	rows := p.conn.QueryRow(sqlrequests.GetMiniHotelPostgreRequest, strconv.Itoa(HotelID))
+	hotel := hotelmodel.MiniHotel{}
+	err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location, &hotel.Rating)
+	if err != nil {
+		return hotel, customerror.NewCustomError(err, clientError.Gone, nil)
+	}
+	return hotel, nil
+}

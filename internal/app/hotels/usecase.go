@@ -11,4 +11,5 @@ type Usecase interface {
 	GetHotelByID(ID int) (hotelmodel.Hotel, error)
 	FetchHotels(pattern string, page int) (paginationModel.PaginationModel, error)
 	CheckRateExist(UserID int, HotelID int) (int, error)
+	GetMiniHotelByID(HotelID int) (hotelmodel.MiniHotel, error)
 }

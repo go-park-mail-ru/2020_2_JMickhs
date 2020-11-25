@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels"
 	hotelModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist"
 	wishlistModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/models"
@@ -14,20 +15,22 @@ import (
 )
 
 type WishlistHandler struct {
-	useCase wishlist.Usecase
-	log     *logger.CustomLogger
+	useCase      wishlist.Usecase
+	hotelUseCase hotels.Usecase
+	log          *logger.CustomLogger
 }
 
-func NewWishlistHandler(r *mux.Router, useCase wishlist.Usecase, lg *logger.CustomLogger) {
+func NewWishlistHandler(r *mux.Router, useCase wishlist.Usecase, hotelUseCase hotels.Usecase, lg *logger.CustomLogger) {
 	handler := WishlistHandler{
-		useCase: useCase,
-		log:     lg,
+		useCase:      useCase,
+		hotelUseCase: hotelUseCase,
+		log:          lg,
 	}
 	r.HandleFunc("/api/v1/wishlist", handler.CreateWishlist).Methods("POST")
 	r.HandleFunc("/api/v1/wishlist", handler.GetWishlist).Methods("GET")
 	r.HandleFunc("/api/v1/wishlist", handler.DeleteWishlist).Methods("DELETE")
 	r.HandleFunc("/api/v1/wishlist", handler.AddHotelToWishlist).Methods("PUT")
-	r.HandleFunc("/api/v1/deletehotel", handler.DeleteHotelFromWishlist).Methods("DELETE")
+	r.HandleFunc("/api/v1/wishlistshotel", handler.DeleteHotelFromWishlist).Methods("DELETE")
 }
 
 // swagger:route GET /api/v1/wishlist Wishlist getWishlist
@@ -52,9 +55,14 @@ func (wh *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 	hotels := []hotelModel.MiniHotel{}
 	for _, hotel := range hotelsMeta {
 		tmpMiniHotel := hotelModel.MiniHotel{}
-		tmpMiniHotel, _ = wh.useCase.GetMiniHotelByID(hotel.HotelID)
+		tmpMiniHotel, err = wh.hotelUseCase.GetMiniHotelByID(hotel.HotelID)
+		if err != nil {
+			customerror.PostError(w, r, wh.log, err, nil)
+			return
+		}
 		hotels = append(hotels, tmpMiniHotel)
 	}
+
 	responses.SendDataResponse(w, hotels)
 }
 
@@ -67,7 +75,7 @@ func (wh *WishlistHandler) AddHotelToWishlist(w http.ResponseWriter, r *http.Req
 
 	defer r.Body.Close()
 	decoder := json.NewDecoder(r.Body)
-	Data := wishlistModel.AddHotelToWishlistRequest{}
+	Data := wishlistModel.HotelWishlistRequest{}
 	err := decoder.Decode(&Data)
 	if err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)
@@ -90,7 +98,7 @@ func (wh *WishlistHandler) DeleteHotelFromWishlist(w http.ResponseWriter, r *htt
 
 	defer r.Body.Close()
 	decoder := json.NewDecoder(r.Body)
-	Data := wishlistModel.DeleteHotelFromWishlistRequest{}
+	Data := wishlistModel.HotelWishlistRequest{}
 	err := decoder.Decode(&Data)
 	if err != nil {
 		customerror.PostError(w, r, wh.log, err, nil)

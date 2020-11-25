@@ -51,3 +51,7 @@ func (p *HotelUseCase) FetchHotels(pattern string, page int) (paginationModel.Pa
 func (p *HotelUseCase) CheckRateExist(UserID int, HotelID int) (int, error) {
 	return p.hotelRepo.CheckRateExist(UserID, HotelID)
 }
+
+func (p *HotelUseCase) GetMiniHotelByID(HotelID int) (hotelmodel.MiniHotel, error) {
+	return p.hotelRepo.GetMiniHotelByID(HotelID)
+}

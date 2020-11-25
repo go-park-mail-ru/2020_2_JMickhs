@@ -8,4 +8,5 @@ type Repository interface {
 	GetHotelByID(ID int) (hotelmodel.Hotel, error)
 	FetchHotels(pattern string, offset int) ([]hotelmodel.Hotel, error)
 	CheckRateExist(UserID int, HotelID int) (int, error)
+	GetMiniHotelByID(HotelID int) (hotelmodel.MiniHotel, error)
 }
