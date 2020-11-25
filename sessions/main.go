@@ -7,22 +7,21 @@ import (
 	"net"
 	"strconv"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/sessions/configs"
+	csrfRepository "github.com/go-park-mail-ru/2020_2_JMickhs/sessions/internal/csrf/repository"
+	csrfUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/sessions/internal/csrf/usecase"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/sessions/internal/session/delivery"
+	sessionsRepository "github.com/go-park-mail-ru/2020_2_JMickhs/sessions/internal/session/repository"
+	sessionsUseCase "github.com/go-park-mail-ru/2020_2_JMickhs/sessions/internal/session/usecase"
+
 	"github.com/joho/godotenv"
 
 	"github.com/spf13/viper"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/session/delivery"
-	sessionsRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/session/repository"
-	sessionsUseCase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/session/usecase"
-
 	sessionService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
-
-	csrfRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/csrf/repository"
-	csrfUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/csrf/usecase"
 
 	"google.golang.org/grpc"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/configs"
 	"github.com/go-redis/redis/v8"
 )
 

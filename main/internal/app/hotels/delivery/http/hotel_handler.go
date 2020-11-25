@@ -237,6 +237,7 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rateStart := r.FormValue("rateStart")
+	rateEnd := r.FormValue("rateEnd")
 	commStart := r.FormValue("commentStart")
 
 	radius := r.FormValue("radius")
@@ -246,7 +247,7 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 	commCountConstraint := r.FormValue("commCount")
 	commCountPercent := r.FormValue("commPercent")
 
-	orderData := hotelmodel.HotelFiltering{rateStart, commStart,
+	orderData := hotelmodel.HotelFiltering{rateStart, rateEnd, commStart,
 		longitude, latitude, radius, commCountConstraint, commCountPercent}
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, clientError.BadRequest)

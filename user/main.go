@@ -9,27 +9,26 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/user/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/middlewareUser"
+	userGrpcDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/delivery/grpc"
+	userHttpDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/delivery/http"
+	userRepository "github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/repository"
+	userUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/usecase"
+
 	"github.com/joho/godotenv"
 
 	"github.com/spf13/viper"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/grpcPackage"
 
-	userGrpcDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/delivery/grpc"
-	userHttpDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/delivery/http"
-
 	userService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/user"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/middlewareUser"
 
 	"github.com/gorilla/mux"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/middlewareApi"
 	sessionService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/configs"
-	userRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/repository"
-	userUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/usecase"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
 	"github.com/go-playground/validator/v10"
 	"github.com/jmoiron/sqlx"
@@ -76,6 +75,7 @@ func main() {
 	if err != nil {
 		fmt.Println("Error loading .env file")
 	}
+
 	configs.Init()
 
 	if err := configs.ExportConfig(); err != nil {
