@@ -112,6 +112,7 @@ func (hh *HotelHandler) AddHotelByOwner(w http.ResponseWriter, r *http.Request) 
 			customerror.PostError(w, r, hh.log, err, clientError.BadRequest)
 			return
 		}
+		defer file.Close()
 		fileType, err := hh.DetectFileContentType(file)
 		if err != nil {
 			customerror.PostError(w, r, hh.log, err, nil)
