@@ -212,7 +212,7 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 
 	sessionID, err := u.SessionsDelivery.CreateSession(context.Background(), &sessionService.UserID{UserID: int64(usr.ID)})
 	if err != nil {
-		customerror.PostError(w, r, u.log, err, serverError.ServerInternalError)
+		customerror.PostError(w, r, u.log, err, nil)
 		return
 	}
 

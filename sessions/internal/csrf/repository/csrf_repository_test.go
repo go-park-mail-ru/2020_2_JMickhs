@@ -1,13 +1,13 @@
 package csrfRepository
 
 import (
-	"errors"
+	"testing"
+	"time"
+
 	"github.com/alicebob/miniredis/v2"
 	"github.com/go-redis/redis/v8"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"testing"
-	"time"
 )
 
 type Suite struct {
@@ -56,7 +56,7 @@ func (s *Suite) TestAdd() {
 	s.redisServer.FastForward(time.Second * 4000)
 
 	_, err = s.redisServer.Get(token)
-	require.Equal(s.T(), err, errors.New("ERR no such key"))
+	require.Equal(s.T(), err, nil)
 
 	s.redisServer.Close()
 

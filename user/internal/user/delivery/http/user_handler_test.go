@@ -12,7 +12,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/user/configs"
+	"github.com/spf13/viper"
+
+	sessionService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
+
 	user_mock "github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/mocks"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
@@ -38,10 +43,10 @@ func TestUserHandler_Auth(t *testing.T) {
 		getUser := testUser
 		getUser.ID = 3
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 		mockSCase.EXPECT().
-			AddToken(3).
-			Return("123dscv432", nil)
+			CreateSession(gomock.Any(), &sessionService.UserID{UserID: int64(getUser.ID)}, gomock.Any()).
+			Return(&sessionService.SessionID{SessionID: "123dscv432"}, nil)
 		mockUCase.EXPECT().
 			GetByUserName(testUser.Username).
 			Return(getUser, nil)
@@ -55,8 +60,8 @@ func TestUserHandler_Auth(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
 		}
 
 		handler.Auth(rec, req)
@@ -73,7 +78,7 @@ func TestUserHandler_Auth(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 		mockUCaseErr := user_mock.NewMockUsecase(ctrl)
 		kek := "fdsfsd"
 		body, _ := json.Marshal(&kek)
@@ -82,9 +87,9 @@ func TestUserHandler_Auth(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCaseErr,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCaseErr,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.Auth(rec, req)
@@ -99,7 +104,7 @@ func TestUserHandler_Auth(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 		mockUCaseErr := user_mock.NewMockUsecase(ctrl)
 
 		mockUCaseErr.EXPECT().
@@ -112,9 +117,9 @@ func TestUserHandler_Auth(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCaseErr,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCaseErr,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.Auth(rec, req)
@@ -129,7 +134,7 @@ func TestUserHandler_Auth(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 		mockUCaseErr := user_mock.NewMockUsecase(ctrl)
 		errorUser := testUser
 		errorUser.Password = "1234"
@@ -147,9 +152,9 @@ func TestUserHandler_Auth(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCaseErr,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCaseErr,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.Auth(rec, req)
@@ -164,7 +169,7 @@ func TestUserHandler_Auth(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 		mockUCaseErr := user_mock.NewMockUsecase(ctrl)
 
 		errorUser := testUser
@@ -178,8 +183,9 @@ func TestUserHandler_Auth(t *testing.T) {
 			Return(nil)
 
 		mockSCase.EXPECT().
-			AddToken(3).
-			Return("123dscv432", customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
+			CreateSession(gomock.Any(), &sessionService.UserID{UserID: int64(3)}, gomock.Any()).
+			Return(&sessionService.SessionID{SessionID: "123dscv432"},
+				customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
 		body, _ := json.Marshal(testUser)
 		req, err := http.NewRequest("POST", "/api/v1/sessions", bytes.NewBuffer(body))
@@ -187,9 +193,9 @@ func TestUserHandler_Auth(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCaseErr,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCaseErr,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.Auth(rec, req)
@@ -210,16 +216,17 @@ func TestUserHandler_Registration(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 
 		retUser := testUser
 		retUser.ID = 4
 		mockUCase.EXPECT().
 			Add(testUser).
 			Return(retUser, nil)
+
 		mockSCase.EXPECT().
-			AddToken(4).
-			Return("123dscv432", nil)
+			CreateSession(gomock.Any(), &sessionService.UserID{UserID: int64(retUser.ID)}, gomock.Any()).
+			Return(&sessionService.SessionID{SessionID: "123dscv432"}, nil)
 
 		body, _ := json.Marshal(testUser)
 		req, err := http.NewRequest("POST", "/api/v1/signup", bytes.NewBuffer(body))
@@ -227,8 +234,8 @@ func TestUserHandler_Registration(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
 		}
 
 		handler.Registration(rec, req)
@@ -245,7 +252,7 @@ func TestUserHandler_Registration(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 
 		kek := "fdsfs"
 		body, _ := json.Marshal(kek)
@@ -254,9 +261,9 @@ func TestUserHandler_Registration(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.Registration(rec, req)
@@ -272,7 +279,7 @@ func TestUserHandler_Registration(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 
 		retUser := testUser
 		retUser.ID = 4
@@ -286,9 +293,9 @@ func TestUserHandler_Registration(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.Registration(rec, req)
@@ -304,7 +311,7 @@ func TestUserHandler_Registration(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 
 		retUser := testUser
 		retUser.ID = 4
@@ -313,8 +320,8 @@ func TestUserHandler_Registration(t *testing.T) {
 			Return(retUser, nil)
 
 		mockSCase.EXPECT().
-			AddToken(4).
-			Return("123dscv432", customerror.NewCustomError(errors.New(""), clientError.BadRequest, 1))
+			CreateSession(gomock.Any(), &sessionService.UserID{UserID: int64(retUser.ID)}, gomock.Any()).
+			Return(&sessionService.SessionID{SessionID: "123dscv432"}, customerror.NewCustomError(errors.New(""), clientError.BadRequest, 1))
 
 		body, _ := json.Marshal(testUser)
 		req, err := http.NewRequest("POST", "/api/v1/signup", bytes.NewBuffer(body))
@@ -322,9 +329,9 @@ func TestUserHandler_Registration(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.Registration(rec, req)
@@ -345,7 +352,7 @@ func TestUserHandler_GetAccInfo(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 		mockUCase.EXPECT().
 			GetUserByID(1).
 			Return(testUser, nil)
@@ -358,8 +365,8 @@ func TestUserHandler_GetAccInfo(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
 		}
 
 		handler.getAccInfo(rec, req)
@@ -377,7 +384,7 @@ func TestUserHandler_GetAccInfo(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 		mockUCase.EXPECT().
 			GetUserByID(1).
 			Return(testUser, customerror.NewCustomError(errors.New(""), clientError.Gone, 1))
@@ -390,9 +397,9 @@ func TestUserHandler_GetAccInfo(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.getAccInfo(rec, req)
@@ -411,7 +418,7 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 		retUser := testUser
 		retUser.Password = "12345567"
 
@@ -429,10 +436,10 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUser), testUser))
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
 		}
 
 		handler.updatePassword(rec, req)
@@ -448,7 +455,7 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 
 		kek := "fdsfs"
 		body, _ := json.Marshal(kek)
@@ -457,9 +464,9 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.updatePassword(rec, req)
@@ -476,7 +483,7 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 		retUser := testUser
 		retUser.Password = "12345567"
 		testPassword := models.UpdatePassword{OldPassword: "1234", NewPassword: "12345567"}
@@ -490,11 +497,11 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUser), testUser))
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.updatePassword(rec, req)
@@ -510,7 +517,7 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 		retUser := testUser
 		retUser.Password = "12345567"
 		testPassword := models.UpdatePassword{OldPassword: "12345", NewPassword: "12345567"}
@@ -527,11 +534,11 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUser), testUser))
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.updatePassword(rec, req)
@@ -547,7 +554,7 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 		retUser := testUser
 		retUser.Password = "12345567"
 		testPassword := models.UpdatePassword{OldPassword: "12345", NewPassword: "12345567"}
@@ -559,9 +566,9 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.updatePassword(rec, req)
@@ -581,7 +588,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 
 		mockUCase.EXPECT().
 			UpdateUser(testUser).
@@ -593,11 +600,11 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUser), testUser))
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.UpdateUser(rec, req)
@@ -613,20 +620,20 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 
-		hotel := []hotelmodel.Hotel{{Name: "fds"}, {Name: "lel"}}
+		hotel := "fdsfsd"
 		body, _ := json.Marshal(hotel)
 		req, err := http.NewRequest("PUT", "/api/v1/users/credentials", bytes.NewBuffer(body))
 
 		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUser), testUser))
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.UpdateUser(rec, req)
@@ -642,7 +649,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 
 		body, _ := json.Marshal(testUser)
 		req, err := http.NewRequest("PUT", "/api/v1/users/credentials", bytes.NewBuffer(body))
@@ -651,9 +658,9 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.UpdateUser(rec, req)
@@ -669,7 +676,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 
 		mockUCase.EXPECT().
 			UpdateUser(testUser).
@@ -679,12 +686,12 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		req, err := http.NewRequest("PUT", "/api/v1/users/credentials", bytes.NewBuffer(body))
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUser), testUser))
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.UpdateUser(rec, req)
@@ -703,22 +710,21 @@ func TestUserHandler_GetCsrf(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
-		mockCsrfCase := csrf_mock.NewMockUsecase(ctrl)
-		mockCsrfCase.EXPECT().
-			CreateToken(sId, time.Now().Unix()).
-			Return("21fds", nil)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
+
+		mockSCase.EXPECT().
+			CreateCsrfToken(gomock.Any(), &sessionService.CsrfTokenInput{SessionID: sId, TimeStamp: time.Now().Unix()}).
+			Return(&sessionService.CsrfToken{Token: "21fds"}, nil)
 
 		req, err := http.NewRequest("GET", "/api/v1/csrf", nil)
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), configs.SessionID, sId))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.SessionID), sId))
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			csrfUseCase:     mockCsrfCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.GetCsrf(rec, req)
@@ -734,7 +740,7 @@ func TestUserHandler_GetCsrf(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 
 		req, err := http.NewRequest("GET", "/api/v1/csrf", nil)
 
@@ -742,9 +748,9 @@ func TestUserHandler_GetCsrf(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.GetCsrf(rec, req)
@@ -761,22 +767,20 @@ func TestUserHandler_GetCsrf(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
-		mockCsrfCase := csrf_mock.NewMockUsecase(ctrl)
-		mockCsrfCase.EXPECT().
-			CreateToken(sId, time.Now().Unix()).
-			Return("21fds", customerror.NewCustomError(errors.New("fds"), serverError.ServerInternalError, 1))
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
+		mockSCase.EXPECT().
+			CreateCsrfToken(gomock.Any(), &sessionService.CsrfTokenInput{SessionID: sId, TimeStamp: time.Now().Unix()}).
+			Return(&sessionService.CsrfToken{Token: "21fds"}, customerror.NewCustomError(errors.New("fds"), serverError.ServerInternalError, 1))
 
 		req, err := http.NewRequest("GET", "/api/v1/csrf", nil)
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), configs.SessionID, sId))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.SessionID), sId))
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			csrfUseCase:     mockCsrfCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.GetCsrf(rec, req)
@@ -796,11 +800,10 @@ func TestUserHandler_SignOut(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
-		mockCsrfCase := csrf_mock.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 		mockSCase.EXPECT().
-			DeleteSession(token).
-			Return(nil)
+			DeleteSession(gomock.Any(), &sessionService.SessionID{SessionID: token}).
+			Return(&sessionService.Empty{}, nil)
 
 		req, err := http.NewRequest("DELETE", "/api/v1/sessions", nil)
 
@@ -810,15 +813,14 @@ func TestUserHandler_SignOut(t *testing.T) {
 			Value:    token,
 			Path:     "/",
 			HttpOnly: true,
-			Expires:  time.Now().Add(configs.CookieLifeTime),
+			Expires:  time.Now().Add(time.Duration(viper.GetInt64(configs.ConfigFields.CookieLifeTime)) * time.Minute),
 		}
 		req.AddCookie(cookie)
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			csrfUseCase:     mockCsrfCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.SignOut(rec, req)
@@ -835,18 +837,16 @@ func TestUserHandler_SignOut(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
-		mockCsrfCase := csrf_mock.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 
 		req, err := http.NewRequest("DELETE", "/api/v1/sessions", nil)
 
 		assert.NoError(t, err)
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			csrfUseCase:     mockCsrfCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.SignOut(rec, req)
@@ -863,11 +863,10 @@ func TestUserHandler_SignOut(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockUCase := user_mock.NewMockUsecase(ctrl)
-		mockSCase := SessionMocks.NewMockUsecase(ctrl)
-		mockCsrfCase := csrf_mock.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
 		mockSCase.EXPECT().
-			DeleteSession(token).
-			Return(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
+			DeleteSession(gomock.Any(), &sessionService.SessionID{SessionID: token}).
+			Return(&sessionService.Empty{}, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
 		req, err := http.NewRequest("DELETE", "/api/v1/sessions", nil)
 
@@ -877,15 +876,14 @@ func TestUserHandler_SignOut(t *testing.T) {
 			Value:    token,
 			Path:     "/",
 			HttpOnly: true,
-			Expires:  time.Now().Add(configs.CookieLifeTime),
+			Expires:  time.Now().Add(time.Duration(viper.GetInt64(configs.ConfigFields.CookieLifeTime)) * time.Minute),
 		}
 		req.AddCookie(cookie)
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
-			UserUseCase:     mockUCase,
-			SessionsUseCase: mockSCase,
-			csrfUseCase:     mockCsrfCase,
-			log:             logger.NewLogger(os.Stdout),
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
 		}
 
 		handler.SignOut(rec, req)
@@ -894,5 +892,107 @@ func TestUserHandler_SignOut(t *testing.T) {
 		json.NewDecoder(resp.Body).Decode(&response)
 
 		assert.Equal(t, serverError.ServerInternalError, response.Code)
+	})
+}
+
+func TestUserHandler_UserHandler(t *testing.T) {
+	testUser := models.User{ID: 1, Username: "kostik", Email: "sdfs@mail.ru", Password: "12345", Avatar: "kek/img.jpeg"}
+	t.Run("UserHandler", func(t *testing.T) {
+
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUCase := user_mock.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
+
+		retUser := testUser
+		retUser.ID = 4
+		mockUCase.EXPECT().
+			CheckEmpty(retUser).
+			Return(false)
+
+		body, _ := json.Marshal(testUser)
+		req, err := http.NewRequest("GET", "/api/v1/users", bytes.NewBuffer(body))
+		assert.NoError(t, err)
+
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUser), retUser))
+		rec := httptest.NewRecorder()
+		handler := UserHandler{
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
+		}
+
+		handler.UserHandler(rec, req)
+		resp := rec.Result()
+		body, err = ioutil.ReadAll(resp.Body)
+		response := responses.HttpResponse{}
+		err = json.Unmarshal(body, &response)
+
+		assert.Equal(t, http.StatusOK, response.Code)
+	})
+	t.Run("UserHandlerError1", func(t *testing.T) {
+
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUCase := user_mock.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
+
+		retUser := testUser
+		retUser.ID = 4
+		mockUCase.EXPECT().
+			CheckEmpty(retUser).
+			Return(true)
+
+		body, _ := json.Marshal(testUser)
+		req, err := http.NewRequest("GET", "/api/v1/users", bytes.NewBuffer(body))
+		assert.NoError(t, err)
+
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUser), retUser))
+		rec := httptest.NewRecorder()
+		handler := UserHandler{
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
+		}
+
+		handler.UserHandler(rec, req)
+		resp := rec.Result()
+		body, err = ioutil.ReadAll(resp.Body)
+		response := responses.HttpResponse{}
+		err = json.Unmarshal(body, &response)
+
+		assert.Equal(t, clientError.Unauthorizied, response.Code)
+	})
+	t.Run("UserHandlerError2", func(t *testing.T) {
+
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockUCase := user_mock.NewMockUsecase(ctrl)
+		mockSCase := sessionService.NewMockAuthorizationServiceClient(ctrl)
+
+		retUser := testUser
+		retUser.ID = 4
+
+		body, _ := json.Marshal(testUser)
+		req, err := http.NewRequest("GET", "/api/v1/users", bytes.NewBuffer(body))
+		assert.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		handler := UserHandler{
+			UserUseCase:      mockUCase,
+			SessionsDelivery: mockSCase,
+			log:              logger.NewLogger(os.Stdout),
+		}
+
+		handler.UserHandler(rec, req)
+		resp := rec.Result()
+		body, err = ioutil.ReadAll(resp.Body)
+		response := responses.HttpResponse{}
+		err = json.Unmarshal(body, &response)
+
+		assert.Equal(t, clientError.Unauthorizied, response.Code)
 	})
 }

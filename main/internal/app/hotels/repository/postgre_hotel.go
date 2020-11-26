@@ -128,7 +128,7 @@ func (p *PostgreHotelRepository) BuildQueryToFetchHotel(filter *hotelmodel.Hotel
 	}
 	baseQuery += NearestFilterQuery
 
-	RatingFilterQuery := fmt.Sprint(" AND curr_rating BETWEEN $5 AND $6 OR curr_rating BETWEEN $6 AND $5")
+	RatingFilterQuery := fmt.Sprint(" AND (curr_rating BETWEEN $5 AND $6 OR curr_rating BETWEEN $6 AND $5) ")
 	if filter.RatingFilterStartNumber == "" {
 		filter.RatingFilterStartNumber = "0"
 	}
@@ -182,7 +182,7 @@ func (p *PostgreHotelRepository) FetchHotels(filter hotelmodel.HotelFiltering, p
 				point, filter.Radius, filter.CommCountPercent)
 		}
 	}
-
+	fmt.Println(query, "fdsfsd", filter.CommentsFilterStartNumber)
 	if err != nil {
 		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}

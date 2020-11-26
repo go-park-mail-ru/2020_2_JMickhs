@@ -64,7 +64,7 @@ func main() {
 
 	listener, err := net.Listen("tcp", viper.GetString(configs.ConfigFields.SessionGrpcServicePort))
 	if err != nil {
-		log.Fatalf("can't listen port", err)
+		log.Fatal("can't listen port", err)
 	}
 	err = server.Serve(listener)
 	if err != nil {

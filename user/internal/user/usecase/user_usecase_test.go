@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
+
 	"github.com/stretchr/testify/assert"
 
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
@@ -269,4 +271,58 @@ func TestUserUseCase_SetDefaultAvatar(t *testing.T) {
 
 	assert.NoError(t, err)
 
+}
+func TestUserUseCase_UploadAvatar(t *testing.T) {
+	mockUser := models.User{Username: "kotik", Email: "kek@mail.ru", Avatar: "/kek.jpg"}
+	t.Run("UploadAvatar", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		mockUserRepo := user_mock.NewMockRepository(ctrl)
+
+		mockUserRepo.EXPECT().
+			DeleteAvatarInStore(mockUser, "kek.jpg").
+			Return(nil).Times(1)
+
+		mockUserRepo.EXPECT().
+			UpdateAvatarInStore(nil, &mockUser, "jpg").
+			Return(nil).Times(1)
+
+		u := NewUserUsecase(mockUserRepo, validator.New())
+		_, err := u.UploadAvatar(nil, "kek/jpg", &mockUser)
+
+		assert.NoError(t, err)
+	})
+	t.Run("UploadAvatar-err1", func(t *testing.T) {
+
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		mockUserRepo := user_mock.NewMockRepository(ctrl)
+
+		mockUserRepo.EXPECT().
+			DeleteAvatarInStore(mockUser, "kek.jpg").
+			Return(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1)).Times(1)
+
+		u := NewUserUsecase(mockUserRepo, validator.New())
+		_, err := u.UploadAvatar(nil, "kek/jpg", &mockUser)
+
+		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
+	})
+	t.Run("UploadAvatar-err2", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		mockUserRepo := user_mock.NewMockRepository(ctrl)
+
+		mockUserRepo.EXPECT().
+			DeleteAvatarInStore(mockUser, "kek.jpg").
+			Return(nil).Times(1)
+
+		mockUserRepo.EXPECT().
+			UpdateAvatarInStore(nil, &mockUser, "jpg").
+			Return(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1)).Times(1)
+
+		u := NewUserUsecase(mockUserRepo, validator.New())
+		_, err := u.UploadAvatar(nil, "kek/jpg", &mockUser)
+
+		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
+	})
 }

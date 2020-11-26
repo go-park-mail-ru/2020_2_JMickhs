@@ -33,7 +33,7 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // AddToken mocks base method
-func (m *MockRepository) AddToken(token string, ID int) (string, error) {
+func (m *MockRepository) AddToken(token string, ID int64) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddToken", token, ID)
 	ret0, _ := ret[0].(string)
@@ -48,10 +48,10 @@ func (mr *MockRepositoryMockRecorder) AddToken(token, ID interface{}) *gomock.Ca
 }
 
 // GetIDByToken mocks base method
-func (m *MockRepository) GetIDByToken(token string) (int, error) {
+func (m *MockRepository) GetIDByToken(token string) (int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetIDByToken", token)
-	ret0, _ := ret[0].(int)
+	ret0, _ := ret[0].(int64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
