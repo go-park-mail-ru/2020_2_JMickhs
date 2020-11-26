@@ -5,18 +5,17 @@ import (
 	"net/http"
 	"testing"
 
-	user_mock "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/user/mocks"
+	"github.com/stretchr/testify/assert"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/clientError"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 
+	user_mock "github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/mocks"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/models"
 	"github.com/go-playground/validator/v10"
 
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/error"
-
 	"github.com/golang/mock/gomock"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/user/models"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestUserUseCase_GetUserByID(t *testing.T) {

@@ -12,29 +12,20 @@ import (
 	"testing"
 	"time"
 
-	csrf_mock "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/csrf/mocks"
-	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
-
 	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
+	user_mock "github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/mocks"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/responses"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/models"
 	"github.com/mitchellh/mapstructure"
 
 	"github.com/gorilla/mux"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/clientError"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/responses"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/logger"
-
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/error"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/serverError"
-
 	"github.com/golang/mock/gomock"
 
-	user_mock "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/user/mocks"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/user/models"
-	SessionMocks "github.com/go-park-mail-ru/2020_2_JMickhs/sessions/internal/sessions/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

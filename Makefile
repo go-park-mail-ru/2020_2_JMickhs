@@ -11,6 +11,10 @@ gen:
 mocks:
 	go generate -v ./...
 
+user_service_mocks: go generate mockgen -source user.pb.go -destination user_service_mock.go -package userService
+
+sessions_service_mocks: go generate mockgen -source session.pb.go -destination session_service_mock.go -package sessionService
+
 fillbd:
 	go run main.go --fill
 

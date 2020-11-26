@@ -4,13 +4,12 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/serverError"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/clientError"
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/error"
-
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/user/models"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/models"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 )
