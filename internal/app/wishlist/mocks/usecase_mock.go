@@ -5,11 +5,9 @@
 package mock_wishlist
 
 import (
-	reflect "reflect"
-
-	models "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
-	models0 "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/models"
+	models "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/models"
 	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
 // MockUsecase is a mock of Usecase interface
@@ -35,23 +33,23 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
-// GetWishlist mocks base method
-func (m *MockUsecase) GetWishlist(wishlistID int) ([]models.MiniHotel, error) {
+// GetWishlistMeta mocks base method
+func (m *MockUsecase) GetWishlistMeta(wishlistID int) ([]models.WishlisstHotel, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetWishlist", wishlistID)
-	ret0, _ := ret[0].([]models.MiniHotel)
+	ret := m.ctrl.Call(m, "GetWishlistMeta", wishlistID)
+	ret0, _ := ret[0].([]models.WishlisstHotel)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetWishlist indicates an expected call of GetWishlist
-func (mr *MockUsecaseMockRecorder) GetWishlist(wishlistID interface{}) *gomock.Call {
+// GetWishlistMeta indicates an expected call of GetWishlistMeta
+func (mr *MockUsecaseMockRecorder) GetWishlistMeta(wishlistID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWishlist", reflect.TypeOf((*MockUsecase)(nil).GetWishlist), wishlistID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWishlistMeta", reflect.TypeOf((*MockUsecase)(nil).GetWishlistMeta), wishlistID)
 }
 
 // CreateWishlist mocks base method
-func (m *MockUsecase) CreateWishlist(wishlist models0.Wishlist) error {
+func (m *MockUsecase) CreateWishlist(wishlist models.Wishlist) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateWishlist", wishlist)
 	ret0, _ := ret[0].(error)
@@ -104,19 +102,4 @@ func (m *MockUsecase) DeleteHotel(hotelID, wishlistID int) error {
 func (mr *MockUsecaseMockRecorder) DeleteHotel(hotelID, wishlistID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteHotel", reflect.TypeOf((*MockUsecase)(nil).DeleteHotel), hotelID, wishlistID)
-}
-
-// GetTable mocks base method
-func (m *MockUsecase) GetTable() ([]models0.WishlisstHotel, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTable")
-	ret0, _ := ret[0].([]models0.WishlisstHotel)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetTable indicates an expected call of GetTable
-func (mr *MockUsecaseMockRecorder) GetTable() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTable", reflect.TypeOf((*MockUsecase)(nil).GetTable))
 }

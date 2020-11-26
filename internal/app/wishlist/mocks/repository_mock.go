@@ -5,11 +5,9 @@
 package mock_wishlist
 
 import (
-	reflect "reflect"
-
-	models "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/hotels/models"
-	models0 "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/models"
+	models "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/models"
 	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
 // MockRepository is a mock of Repository interface
@@ -35,23 +33,23 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// GetWishlist mocks base method
-func (m *MockRepository) GetWishlist(wishlistID int) ([]models.MiniHotel, error) {
+// GetWishlistMeta mocks base method
+func (m *MockRepository) GetWishlistMeta(wishlistID int) ([]models.WishlisstHotel, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetWishlist", wishlistID)
-	ret0, _ := ret[0].([]models.MiniHotel)
+	ret := m.ctrl.Call(m, "GetWishlistMeta", wishlistID)
+	ret0, _ := ret[0].([]models.WishlisstHotel)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetWishlist indicates an expected call of GetWishlist
-func (mr *MockRepositoryMockRecorder) GetWishlist(wishlistID interface{}) *gomock.Call {
+// GetWishlistMeta indicates an expected call of GetWishlistMeta
+func (mr *MockRepositoryMockRecorder) GetWishlistMeta(wishlistID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWishlist", reflect.TypeOf((*MockRepository)(nil).GetWishlist), wishlistID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWishlistMeta", reflect.TypeOf((*MockRepository)(nil).GetWishlistMeta), wishlistID)
 }
 
 // CreateWishlist mocks base method
-func (m *MockRepository) CreateWishlist(wishlist models0.Wishlist) error {
+func (m *MockRepository) CreateWishlist(wishlist models.Wishlist) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateWishlist", wishlist)
 	ret0, _ := ret[0].(error)
@@ -104,19 +102,4 @@ func (m *MockRepository) DeleteHotel(hotelID, wishlistID int) error {
 func (mr *MockRepositoryMockRecorder) DeleteHotel(hotelID, wishlistID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteHotel", reflect.TypeOf((*MockRepository)(nil).DeleteHotel), hotelID, wishlistID)
-}
-
-// GetTable mocks base method
-func (m *MockRepository) GetTable() ([]models0.WishlisstHotel, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTable")
-	ret0, _ := ret[0].([]models0.WishlisstHotel)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetTable indicates an expected call of GetTable
-func (mr *MockRepositoryMockRecorder) GetTable() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTable", reflect.TypeOf((*MockRepository)(nil).GetTable))
 }

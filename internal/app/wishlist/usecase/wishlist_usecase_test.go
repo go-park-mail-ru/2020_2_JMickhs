@@ -45,7 +45,21 @@ func TestwishlistUseCase_GetWishlistMeta(t *testing.T) {
 	})
 
 }
-func TestwishlistUseCase_CreateWishlist(t *testing.T) {}
+func TestwishlistUseCase_CreateWishlist(t *testing.T) {
+	wishlistFakeMeta := make([]wishlistModel.WishlisstHotel, 2)
+	err := faker.FakeData(&wishlistFakeMeta)
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when create fake data", err)
+	}
+
+	t.Run("CreateWishlist", func(t *testing.T) {
+
+	})
+
+	t.Run("CreateWishlistError", func(t *testing.T) {
+
+	})
+}
 func TestwishlistUseCase_DeleteWishlist(t *testing.T) {}
 func TestwishlistUseCase_AddHotel(t *testing.T)       {}
 func TestwishlistUseCase_DeleteHotel(t *testing.T)    {}

@@ -62,7 +62,6 @@ func (wh *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 		}
 		hotels = append(hotels, tmpMiniHotel)
 	}
-
 	responses.SendDataResponse(w, hotels)
 }
 
@@ -89,7 +88,7 @@ func (wh *WishlistHandler) AddHotelToWishlist(w http.ResponseWriter, r *http.Req
 	responses.SendOkResponse(w)
 }
 
-// swagger:route DELETE /api/v1/deletehotel Wishlist deleteHotelFromWishlist
+// swagger:route DELETE /api/v1/wishlistshotel Wishlist deleteHotelFromWishlist
 // Delete hotel from wishlist
 // responses:
 //  200:
