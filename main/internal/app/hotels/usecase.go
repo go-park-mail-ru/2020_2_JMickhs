@@ -17,4 +17,6 @@ type Usecase interface {
 	CheckRateExist(UserID int, HotelID int) (commModel.FullCommentInfo, error)
 	GetHotelsPreview(pattern string) ([]hotelmodel.HotelPreview, error)
 	GetHotelsByRadius(latitude string, longitude string, radius string) ([]hotelmodel.Hotel, error)
+	GetMiniHotelByID(HotelID int) (hotelmodel.MiniHotel, error)
+
 }
