@@ -6,7 +6,7 @@ sessions-server:
 	redis-server --port 6402 & go run main.go
 
 gen: 
-	swagger generate spec -o ./api/swagger/swagger.yaml --scan-models
+	 GO111MODULE=off  swagger generate spec -o ./api/swagger/swagger.yaml --scan-models
 
 mocks:
 	go generate -v ./...
@@ -25,8 +25,6 @@ upload:
      sudo docker push kostikan/session_service:latest &&
      sudo docker push kostikan/user_service:latest &&
      sudo APP_VERSION=latest docker-compose up
-
-
 
 tests:
 	go test -coverprofile=coverage1.out -coverpkg=./... -cover ./... && cat coverage1.out | grep -v  easyjson | grep -v mocks | grep -v server > cover.out &&go tool cover -func=cover.out

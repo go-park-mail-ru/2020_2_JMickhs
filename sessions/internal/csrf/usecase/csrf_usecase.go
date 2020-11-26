@@ -12,9 +12,9 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/sessions/configs"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/csrf"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/sessions/internal/csrf"
 )
 
 type CsrfUsecase struct {

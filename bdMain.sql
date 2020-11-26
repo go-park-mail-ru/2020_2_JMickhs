@@ -25,7 +25,8 @@ create table hotels (
     photos text[],
     curr_rating float DEFAULT 0 CHECK (curr_rating >= 0  AND curr_rating <=5),
     comm_count int DEFAULT 0 CHECK(comm_count >= 0),
-    comm_count_for_each  int[5] DEFAULT '{0,0,0,0,0,0}'
+    comm_count_for_each  int[5] DEFAULT '{0,0,0,0,0,0}',
+    ownerID int
 );
 
 CREATE INDEX if not exists hotels_gist_idx ON hotels USING gist (coordinates);

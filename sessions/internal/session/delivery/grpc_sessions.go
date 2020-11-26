@@ -3,11 +3,11 @@ package delivery
 import (
 	"context"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/csrf"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/sessions/internal/session"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/sessions/internal/csrf"
 
 	sessionService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/sessions"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions/internal/session"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

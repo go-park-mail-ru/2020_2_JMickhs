@@ -14,6 +14,8 @@ var AllowedOrigins = map[string]bool{
 	Domen:                true,
 	LocalOrigin:          true,
 	Domen + ":511":       true,
+	Domen + ":322":       true,
+	Domen + ":228":       true,
 	Domen + ":72":        true,
 	LocalOrigin + ":511": true,
 	LocalOrigin + ":72":  true,

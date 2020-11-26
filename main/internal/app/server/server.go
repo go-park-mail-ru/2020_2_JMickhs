@@ -3,6 +3,15 @@ package server
 import (
 	"fmt"
 
+	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
+	commentDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/delivery/http"
+	commentRepository "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/repository"
+	commentUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/usecase"
+	hotelDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/delivery/http"
+	hotelRepository "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/repository"
+	hotelUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/usecase"
+
 	"github.com/spf13/viper"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/grpcPackage"
@@ -15,17 +24,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
-
-	commentRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/repository"
-	hotelRepository "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/repository"
-
-	"github.com/go-openapi/runtime/middleware"
-	commentDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/delivery/http"
-	commentUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/usecase"
-	hotelDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/delivery/http"
-	hotelUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/usecase"
 
 	"google.golang.org/grpc"
 
@@ -75,7 +74,7 @@ func NewRouter() *mux.Router {
 	return router
 }
 
-func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
+func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 
 	grpcSessionsConn, err := grpc.Dial(
 		viper.GetString(configs.ConfigFields.SessionGrpcServicePort),
@@ -103,7 +102,7 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 	r.Use(middlewareApi.NewPanicMiddleware())
 	r.Use(middlewareApi.MyCORSMethodMiddleware())
 
-	repHot := hotelRepository.NewPostgresHotelRepository(db)
+	repHot := hotelRepository.NewPostgresHotelRepository(db, s3)
 	repCom := commentRepository.NewCommentRepository(db)
 
 	uHot := hotelUsecase.NewHotelUsecase(&repHot, userService)
@@ -118,7 +117,6 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger) {
 	commentDelivery.NewCommentHandler(r, uCom, log)
 
 	log.Info("Server started at port", viper.GetString(configs.ConfigFields.MainHttpServicePort))
-	//err = http.ListenAndServeTLS(viper.GetString(configs.ConfigFields.MainHttpServicePort), "/etc/ssl/hostelscan.ru.crt", "/etc/ssl/hostelscan.ru.key", r)
 	err = http.ListenAndServe(viper.GetString(configs.ConfigFields.MainHttpServicePort), r)
 	if err != nil {
 		log.Error(err)

@@ -3,5 +3,7 @@ create table users (
     username VARCHAR (50) UNIQUE,
     email VARCHAR (50) UNIQUE,
     password text,
-    avatar text
+    avatar text,
+    owner boolean,
+    owner_hotels_id integer[]
 );

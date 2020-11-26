@@ -1,4 +1,4 @@
-module github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_sessions
+module github.com/go-park-mail-ru/2020_2_JMickhs/sessions
 
 go 1.15
 

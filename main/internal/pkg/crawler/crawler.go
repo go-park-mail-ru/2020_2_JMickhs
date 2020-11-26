@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"fmt"
 
+	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
+
 	"github.com/spf13/viper"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
-
-	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/models"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/aws/aws-sdk-go/aws"

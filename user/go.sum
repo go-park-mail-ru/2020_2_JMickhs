@@ -127,14 +127,9 @@ github.com/go-openapi/validate v0.18.0/go.mod h1:Uh4HdOzKt19xGIGm1qHf/ofbX1YQ4Y+
 github.com/go-openapi/validate v0.19.2/go.mod h1:1tRCw7m3jtI8eNWEEliiAqUIcBztB2KDnRCRMUi7GTA=
 github.com/go-openapi/validate v0.19.3/go.mod h1:90Vh6jjkTn+OT1Eefm0ZixWNFjhtOH7vS9k0lo6zwJo=
 github.com/go-openapi/validate v0.19.10/go.mod h1:RKEZTUWDkxKQxN2jDT7ZnZi2bhZlbNMAuKvKB+IaGx8=
-github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201119174232-54843eb04f2a h1:Qjt5ch1TONlSl2khAAv0rbjrZSrkYvh7kyEizElgy+0=
-github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201119174232-54843eb04f2a/go.mod h1:9sW3pav99syr2KlW76N4/xsAWJzKBpbGc5XZRFbzAho=
-github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201120095733-a1d36e1c6c0e h1:ahYY1M+9+G8P6XQPwxFoGC6bxAU0PmcYot2pVAKM3vY=
-github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201120095733-a1d36e1c6c0e/go.mod h1:44vFYlaEZ+YHTTIOxNPOXUC9+89Uq/wW4FmH0oHkfag=
-github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201120124024-ccec9abfff58 h1:JhD+xiwY1xU+NLrahYyFZjoCeAA2dC/n2MjNTEcDX1A=
-github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201120124024-ccec9abfff58/go.mod h1:KW7pDK+Nx6bx6414TrU9Z7oyHm9Pyye+GAkbPgiTtcM=
-github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201121123449-e0e4aac9c5b0 h1:Wq+tmbjUYkK//uuURuYHD0gYSel9+KBZrapMVZBcRV0=
-github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201121123449-e0e4aac9c5b0/go.mod h1:m1Gnm7en9bKXQ0XeuS76k7L1aon5gv6VKWBRcmBMhO0=
+github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201113122733-6f9ceb43c98e h1:YjpuzwjZpWVA6fHBfPADk+T7/fa/X4txMRuk5xouhAc=
+github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201123200900-98084a8558e2 h1:aShRyj4v8Quol3u60uuSgo7Svi+MB3+kxiX9TnAQqTs=
+github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201123200900-98084a8558e2/go.mod h1:xUS6hQjBQXvpAWsSW4zRrdpPux88aP5vJW+lyDc7iPY=
 github.com/go-playground/assert/v2 v2.0.1/go.mod h1:VDjEfimB/XKnb+ZQfWdccd7VUvScMdVu0Titje2rxJ4=
 github.com/go-playground/locales v0.13.0 h1:HyWk6mgj5qFqCT5fjGBuRArbVDfE4hi8+e8ceBS/t7Q=
 github.com/go-playground/locales v0.13.0/go.mod h1:taPMhCMXrRLJO55olJkUXHZBHCxTMfnGwq/HNwmWNS8=

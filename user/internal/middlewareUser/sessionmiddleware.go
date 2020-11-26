@@ -4,7 +4,7 @@ import (
 	"context"
 	http "net/http"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user"
 
 	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
 

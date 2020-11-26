@@ -2,9 +2,31 @@ package swagger
 
 import (
 	"mime/multipart"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/user/models"
 )
+
+type User struct {
+	ID       int    `json:"id" db:"id"`
+	Username string `json:"username" db:"username" validate:"required,min=3,max=15"`
+	Email    string `json:"email" db:"email" validate:"required,email"`
+	Password string `json:"password" db:"password" validate:"required,min=5,max=30"`
+	Avatar   string `json:"avatar" db:"avatar"`
+}
+
+type SafeUser struct {
+	ID       int    `json:"id" db:"id"`
+	Username string `json:"username" db:"username"`
+	Email    string `json:"email" db:"email"`
+	Avatar   string `json:"avatar" db:"avatar"`
+}
+
+type UserName struct {
+	Username string `json:"username"`
+}
+
+type UpdatePassword struct {
+	OldPassword string `json:"oldpassword" db:"password" validate:"required"`
+	NewPassword string `json:"newpassword" db:"password" validate:"required,min=5,max=30"`
+}
 
 type UpdateAvatar struct {
 	Avatar multipart.File `json:"avatar"`
@@ -48,13 +70,13 @@ type userRegistrationRequestWrapper struct {
 // swagger:response signup
 type userRegistrationResponseWrapper struct {
 	// in: body
-	Body models.SafeUser
+	Body SafeUser
 }
 
 // swagger:parameters password
 type userUpPasswordRequestWrapper struct {
 	// in: body
-	Body models.UpdatePassword
+	Body UpdatePassword
 }
 
 // swagger:parameters credentials
@@ -73,7 +95,7 @@ type userUpAvatarRequestWrapper struct {
 // swagger:response safeUser
 type SafeUserResponse struct {
 	//in:body
-	Body models.SafeUser
+	Body SafeUser
 }
 
 // swagger:parameters userById

@@ -8,12 +8,13 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/user/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/models"
+
+	"github.com/mailru/easyjson"
+
 	"github.com/spf13/viper"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/configs"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_user/internal/user/models"
 
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/middlewareApi"
@@ -166,7 +167,7 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
+	err := easyjson.UnmarshalFromReader(r.Body, &user)
 	if err != nil {
 		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return
@@ -196,7 +197,7 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
+	err := easyjson.UnmarshalFromReader(r.Body, &user)
 
 	if err != nil {
 		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
@@ -236,7 +237,7 @@ func (u *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 
-	err := json.NewDecoder(r.Body).Decode(&user)
+	err := easyjson.UnmarshalFromReader(r.Body, &user)
 
 	if err != nil {
 		customerror.PostError(w, r, u.log, err, clientError.BadRequest)

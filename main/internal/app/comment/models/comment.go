@@ -1,7 +1,7 @@
 //go:generate  easyjson -all comment.go
 package commModel
 
-import paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/paginator/model"
+import paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/paginator/model"
 
 // easyjson:json
 type Comment struct {

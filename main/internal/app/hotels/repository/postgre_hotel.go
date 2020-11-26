@@ -2,29 +2,63 @@ package hotelRepository
 
 import (
 	"fmt"
+	"mime/multipart"
 	"strconv"
 	"strings"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
+	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
+
+	"github.com/aws/aws-sdk-go/aws"
+	uuid "github.com/satori/go.uuid"
+
+	"github.com/aws/aws-sdk-go/service/s3"
+
+	"github.com/lib/pq"
 
 	"github.com/spf13/viper"
 
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 
-	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
-	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/hotels/models"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type PostgreHotelRepository struct {
 	conn *sqlx.DB
+	s3   *s3.S3
 }
 
-func NewPostgresHotelRepository(conn *sqlx.DB) PostgreHotelRepository {
-	return PostgreHotelRepository{conn}
+func NewPostgresHotelRepository(conn *sqlx.DB, s3 *s3.S3) PostgreHotelRepository {
+	return PostgreHotelRepository{conn, s3}
+}
+
+func (p *PostgreHotelRepository) UploadPhoto(file multipart.File, contentType string) (string, error) {
+	newFilename := uuid.NewV4().String()
+	relativePath := viper.GetString(configs.ConfigFields.StaticPathForHotels) + newFilename + "." + contentType
+
+	_, err := p.s3.PutObject(&s3.PutObjectInput{
+		Body:   file,
+		Bucket: aws.String(viper.GetString(configs.ConfigFields.BucketName)),
+		Key:    aws.String(relativePath),
+		ACL:    aws.String(s3.BucketCannedACLPublicRead),
+	})
+	if err != nil {
+		return "", customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	return relativePath, err
+}
+
+func (p *PostgreHotelRepository) AddHotel(hotel hotelmodel.Hotel, userID int, userEmail string) error {
+	err := p.conn.QueryRow(AddHotelByOwner, hotel.Name, hotel.Description, userEmail, hotel.City,
+		hotel.Country, hotel.Location, hotel.Image, pq.Array(hotel.Photos)).Err()
+	if err != nil {
+		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	return nil
 }
 
 func (p *PostgreHotelRepository) GetHotels(StartID int) ([]hotelmodel.Hotel, error) {
@@ -59,14 +93,21 @@ func (p *PostgreHotelRepository) BuildQueryForCommentsPercent(filter *hotelmodel
 		return ""
 	}
 	query := ""
+	query += " AND ("
 	numbers := strings.Split(filter.CommCountConstraint, ",")
-	for _, numberStr := range numbers {
+	for pos, numberStr := range numbers {
 		number, err := strconv.Atoi(numberStr)
 		if err != nil {
 			continue
 		}
-		query += fmt.Sprintf(" AND  comm_count_for_each[%d]::real/(case comm_count when 0 then 1 else comm_count end)::real >= %s::real/100::real  ",
-			number+1, param)
+		if pos != len(numbers)-1 {
+			query += fmt.Sprintf(" comm_count_for_each[%d]::real/(case comm_count when 0 then 1 else comm_count end)::real >= %s::real/100::real  OR ",
+				number+1, param)
+		} else {
+			query += fmt.Sprintf(" comm_count_for_each[%d]::real/(case comm_count when 0 then 1 else comm_count end)::real >= %s::real/100::real  )",
+				number+1, param)
+		}
+
 	}
 	return query
 }
@@ -79,22 +120,21 @@ func (p *PostgreHotelRepository) BuildQueryToFetchHotel(filter *hotelmodel.Hotel
 
 	NearestFilterQuery := ""
 	if filter.Radius != "" {
-		NearestFilterQuery = fmt.Sprint(" AND ST_Distance(coordinates::geography, $7::geography)<$8")
-
-		baseQuery += p.BuildQueryForCommentsPercent(filter, "$9")
+		NearestFilterQuery = fmt.Sprint(" AND ST_Distance(coordinates::geography, $8::geography)<$9")
+		baseQuery += p.BuildQueryForCommentsPercent(filter, "$10")
 
 	} else {
-		baseQuery += p.BuildQueryForCommentsPercent(filter, "$7")
+		baseQuery += p.BuildQueryForCommentsPercent(filter, "$8")
 	}
 	baseQuery += NearestFilterQuery
 
-	RatingFilterQuery := fmt.Sprint(" AND curr_rating >= $5 ")
+	RatingFilterQuery := fmt.Sprint(" AND curr_rating BETWEEN $5 AND $6 OR curr_rating BETWEEN $6 AND $5")
 	if filter.RatingFilterStartNumber == "" {
 		filter.RatingFilterStartNumber = "0"
 	}
 	baseQuery += RatingFilterQuery
 
-	CommentFilterQuery := fmt.Sprint(" AND comm_count >= $6")
+	CommentFilterQuery := fmt.Sprint(" AND comm_count >= $7")
 	if filter.CommentsFilterStartNumber == "" {
 		filter.CommentsFilterStartNumber = "0"
 	}
@@ -122,21 +162,23 @@ func (p *PostgreHotelRepository) FetchHotels(filter hotelmodel.HotelFiltering, p
 		if filter.CommCountPercent == "" {
 			err = udb.Select(&hotels, query, pattern, offset,
 				viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url), filter.RatingFilterStartNumber,
-				filter.CommentsFilterStartNumber)
+				filter.RatingFilterEndNumber, filter.CommentsFilterStartNumber)
 		} else {
 			err = udb.Select(&hotels, query, pattern, offset,
 				viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url), filter.RatingFilterStartNumber,
-				filter.CommentsFilterStartNumber, filter.CommCountPercent)
+				filter.RatingFilterEndNumber, filter.CommentsFilterStartNumber, filter.CommCountPercent)
 		}
 
 	} else {
 		if filter.CommCountPercent == "" {
 			err = udb.Select(&hotels, query, pattern, offset,
-				viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url), filter.RatingFilterStartNumber, filter.CommentsFilterStartNumber,
+				viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url),
+				filter.RatingFilterStartNumber, filter.RatingFilterEndNumber, filter.CommentsFilterStartNumber,
 				point, filter.Radius)
 		} else {
 			err = udb.Select(&hotels, query, pattern, offset,
-				viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url), filter.RatingFilterStartNumber, filter.CommentsFilterStartNumber,
+				viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url),
+				filter.RatingFilterStartNumber, filter.RatingFilterEndNumber, filter.CommentsFilterStartNumber,
 				point, filter.Radius, filter.CommCountPercent)
 		}
 	}

@@ -1,24 +1,24 @@
 package commentDelivery
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
 
+	"github.com/mailru/easyjson"
+
 	"github.com/spf13/viper"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment"
+	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/middlewareApi"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/configs"
-	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment/models"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/responses"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/JMickhs_main/internal/app/comment"
 
 	"github.com/gorilla/mux"
 )
@@ -81,7 +81,7 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 	comment := commModel.Comment{}
 
-	err := json.NewDecoder(r.Body).Decode(&comment)
+	err := easyjson.UnmarshalFromReader(r.Body, &comment)
 
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
@@ -111,7 +111,7 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 // 423: locked
 func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 	comment := commModel.Comment{}
-	err := json.NewDecoder(r.Body).Decode(&comment)
+	err := easyjson.UnmarshalFromReader(r.Body, &comment)
 
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
