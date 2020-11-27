@@ -20,7 +20,7 @@ func (s *PostgreWishlistRepository) GetWishlistMeta(wishlistID int) ([]wishlistM
 	bb := []wishlistModel.WishlistHotel{}
 	err := s.conn.Select(&bb, GetWishlistMeta, wishlistID)
 	if err != nil {
-		return bb, customerror.NewCustomError(err, clientError.Gone, 1)
+		return bb, customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}
 	return bb, nil
 }
@@ -28,7 +28,7 @@ func (s *PostgreWishlistRepository) GetWishlistMeta(wishlistID int) ([]wishlistM
 func (s *PostgreWishlistRepository) CreateWishlist(wishlist wishlistModel.Wishlist) (wishlistModel.Wishlist, error) {
 	err := s.conn.QueryRow(CreateWishlistPostgreRequest, wishlist.Name, wishlist.UserID).Scan(&wishlist.WishlistID)
 	if err != nil {
-		return wishlist, customerror.NewCustomError(err, clientError.Gone, 1)
+		return wishlist, customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}
 	return wishlist, nil
 }
@@ -36,7 +36,7 @@ func (s *PostgreWishlistRepository) CreateWishlist(wishlist wishlistModel.Wishli
 func (s *PostgreWishlistRepository) DeleteWishlist(wishlistID int) error {
 	_, err := s.conn.Query(DeleteWishlistPostgreRequest, wishlistID)
 	if err != nil {
-		return customerror.NewCustomError(err, clientError.Gone, 1)
+		return customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}
 	return nil
 }
@@ -44,7 +44,7 @@ func (s *PostgreWishlistRepository) DeleteWishlist(wishlistID int) error {
 func (s *PostgreWishlistRepository) AddHotel(hotelID int, wishlistID int) error {
 	_, err := s.conn.Query(AddHotelToWishlistPostgreRequest, wishlistID, hotelID)
 	if err != nil {
-		return customerror.NewCustomError(err, clientError.Gone, 1)
+		return customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}
 	return nil
 }
@@ -52,7 +52,7 @@ func (s *PostgreWishlistRepository) AddHotel(hotelID int, wishlistID int) error 
 func (s *PostgreWishlistRepository) DeleteHotel(hotelID int, wishlistID int) error {
 	_, err := s.conn.Query(DeleteHotelFromWishlistPostgreRequest, wishlistID, hotelID)
 	if err != nil {
-		return customerror.NewCustomError(err, clientError.Gone, 1)
+		return customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}
 	return nil
 }
@@ -61,7 +61,7 @@ func (s *PostgreWishlistRepository) CheckWishListOwner(wishListID int, UserID in
 	checkUserID := -1
 	err := s.conn.QueryRow(CheckWishListOwnerPostgreRequest, wishListID).Scan(&checkUserID)
 	if err != nil {
-		return false, customerror.NewCustomError(err, clientError.Gone, 1)
+		return false, customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}
 	if checkUserID == UserID {
 		return true, nil

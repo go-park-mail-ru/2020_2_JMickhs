@@ -810,13 +810,6 @@ paths:
       description: Creates a new Wishlist
       operationId: createWishlist
       parameters:
-      - description: the id of wishlist
-        format: int64
-        in: path
-        name: wishlist_id
-        required: true
-        type: integer
-        x-go-name: ID
       - in: body
         name: Body
         schema:
@@ -850,8 +843,6 @@ paths:
           $ref: '#/responses/badrequest'
         "403":
           $ref: '#/responses/Forbidden'
-        "410":
-          $ref: '#/responses/gone'
         "423":
           $ref: '#/responses/locked'
       tags:
@@ -859,13 +850,19 @@ paths:
     get:
       description: Get list of hotels in wishlist
       operationId: getWishlist
+      parameters:
+      - description: the id of wishlist
+        format: int64
+        in: path
+        name: wishlist_id
+        required: true
+        type: integer
+        x-go-name: ID
       responses:
         "200":
           $ref: '#/responses/wishlisthotels'
         "400":
           $ref: '#/responses/badrequest'
-        "410":
-          $ref: '#/responses/gone'
       tags:
       - Wishlist
   /api/v1/wishlists/{wishlist_id}/hotels:
@@ -890,8 +887,6 @@ paths:
           $ref: '#/responses/badrequest'
         "403":
           $ref: '#/responses/Forbidden'
-        "410":
-          $ref: '#/responses/gone'
         "423":
           $ref: '#/responses/locked'
       tags:

@@ -67,16 +67,20 @@ type GetWishListsHotelResponse struct {
 
 // swagger:parameters createWishlist
 type createWishlistRequest struct {
-	// the id of wishlist
-	// in: path
-	// required:true
-	ID int `json:"wishlist_id"`
 	//in: body
 	Body CreateWishlistRequest
 }
 
 // swagger:parameters deleteWishlist
 type deleteWishlistRequest struct {
+	// the id of wishlist
+	// in: path
+	// required:true
+	ID int `json:"wishlist_id"`
+}
+
+// swagger:parameters getWishlist
+type getWishlistRequest struct {
 	// the id of wishlist
 	// in: path
 	// required:true

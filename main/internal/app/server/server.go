@@ -2,6 +2,9 @@ package server
 
 import (
 	"fmt"
+	"os"
+
+	googleGeocoder "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/google_geocoder"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
@@ -105,7 +108,8 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	r.Use(middlewareApi.NewPanicMiddleware())
 	r.Use(middlewareApi.MyCORSMethodMiddleware())
 
-	repHot := hotelRepository.NewPostgresHotelRepository(db, s3)
+	geoCoder := googleGeocoder.NewGoogleGeoCoder(os.Getenv("GoggleMapKey"), "ru", "ru")
+	repHot := hotelRepository.NewPostgresHotelRepository(db, s3, geoCoder)
 	repCom := commentRepository.NewCommentRepository(db)
 	repWish := wishlistRepository.NewPostgreWishlistRepository(db)
 

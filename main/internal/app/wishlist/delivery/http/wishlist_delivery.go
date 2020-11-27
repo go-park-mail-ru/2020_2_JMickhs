@@ -70,7 +70,6 @@ func (wh *WishlistHandler) GetUserWishlists(w http.ResponseWriter, r *http.Reque
 // responses:
 //  200: wishlisthotels
 //  400: badrequest
-//  410: gone
 func (wh *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	WishlistID, err := strconv.Atoi(vars["wishList_id"])
@@ -146,7 +145,6 @@ func (wh *WishlistHandler) AddHotelToWishlist(w http.ResponseWriter, r *http.Req
 // responses:
 //  200:
 //  400: badrequest
-//  410: gone
 //  423: locked
 //  403: Forbidden
 func (wh *WishlistHandler) DeleteHotelFromWishlist(w http.ResponseWriter, r *http.Request) {
@@ -183,7 +181,6 @@ func (wh *WishlistHandler) DeleteHotelFromWishlist(w http.ResponseWriter, r *htt
 // responses:
 //  200:
 //  400: badrequest
-//  410: gone
 //  423: locked
 //  403: Forbidden
 func (wh *WishlistHandler) DeleteWishlist(w http.ResponseWriter, r *http.Request) {
