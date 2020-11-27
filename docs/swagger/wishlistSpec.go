@@ -1,7 +1,5 @@
 package swagger
 
-import wishlistModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/wishlist/models"
-
 type CreateWishlistRequest struct {
 	WishlistID int    `json:"wishlist_id"`
 	Name       string `json:"name"`
@@ -67,4 +65,3 @@ type deleteHotelFromWishlist struct {
 	//in: body
 	Body DeleteHotelFromWishlistRequest
 }
-

@@ -35,7 +35,7 @@ type unsupport struct {
 type credentials struct {
 }
 
-// two times rate one hotel
+// two times rate one hotel or want to get not your wishlists
 // swagger:response locked
 type locked struct {
 }

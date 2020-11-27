@@ -230,12 +230,11 @@ func (p *PostgreHotelRepository) GetHotelsByRadius(latitude string, longitude st
 }
 
 func (p *PostgreHotelRepository) GetMiniHotelByID(HotelID int) (hotelmodel.MiniHotel, error) {
-	rows := p.conn.QueryRow(GetMiniHotelPostgreRequest, strconv.Itoa(HotelID))
+	rows := p.conn.QueryRow(GetMiniHotelPostgreRequest, strconv.Itoa(HotelID), viper.GetString(configs.ConfigFields.S3Url))
 	hotel := hotelmodel.MiniHotel{}
-	err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location, &hotel.Rating)
+	err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Image, &hotel.Location, &hotel.Rating)
 	if err != nil {
 		return hotel, customerror.NewCustomError(err, clientError.Gone, 1)
 	}
 	return hotel, nil
 }
-

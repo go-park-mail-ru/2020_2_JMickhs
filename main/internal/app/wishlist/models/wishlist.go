@@ -1,22 +1,24 @@
+//go:generate easyjson -all wishlist.go
 package wishlistmodel
 
+// easyjson:json
 type Wishlist struct {
-	WishistID string `json:"wishlist_id" db:"wishlist_id"`
-	Name      string `json:"name" db:"name"`
-	UserID    string `json:"user_id" db:"user_id"`
+	WishlistID int    `json:"wishlist_id" db:"wishlist_id"`
+	Name       string `json:"name" db:"name"`
+	UserID     int    `json:"user_id" db:"user_id"`
 }
 
-type WishlisstHotel struct {
-	WishistID string `json:"wishlist_id" db:"wishlist_id"`
-	HotelID   int    `json:"hotel_id" db:"hotel_id"`
+type UserWishLists struct {
+	Wishlists []Wishlist `json:"wishlists,omitempty"`
 }
+
+// easyjson:json
+type WishlistHotel struct {
+	WishlistID int `json:"wishlist_id" db:"wishlist_id"`
+	HotelID    int `json:"hotel_id" db:"hotel_id"`
+}
+
+// easyjson:json
 type HotelWishlistRequest struct {
-	HotelID    int `json:"hotel_id"`
-	WishlistID int `json:"wishlist_id"`
-}
-type DeleteWishlistRequest struct {
-	ID int `json:"id"`
-}
-type WishlistByIdRequest struct {
-	ID int `json:"id"`
+	HotelID int `json:"hotel_id"`
 }

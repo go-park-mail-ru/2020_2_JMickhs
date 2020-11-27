@@ -5,9 +5,10 @@ import (
 )
 
 type Usecase interface {
-	GetWishlistMeta(wishlistID int) ([]wishlistModel.WishlisstHotel, error)
-	CreateWishlist(wishlist wishlistModel.Wishlist) error
-	DeleteWishlist(wishlistID int) error
-	AddHotel(hotelID int, wishlistID int) error
-	DeleteHotel(hotelID int, wishlistID int) error
+	GetWishlistMeta(userID int, wishlistID int) ([]wishlistModel.WishlistHotel, error)
+	CreateWishlist(wishlist wishlistModel.Wishlist) (wishlistModel.Wishlist, error)
+	DeleteWishlist(userID int, wishlistID int) error
+	AddHotel(userID int, hotelID int, wishlistID int) error
+	DeleteHotel(userID int, hotelID int, wishlistID int) error
+	GetUserWishlists(userID int) (wishlistModel.UserWishLists, error)
 }

@@ -30,5 +30,8 @@ upload:
      sudo docker push kostikan/user_service:latest &&
      sudo APP_VERSION=latest docker-compose up
 
+dockerClean:
+     sudo docker rm -vf $(sudo docker ps -a -q)
+
 tests:
 	go test -coverprofile=coverage1.out -coverpkg=./... -cover ./... && cat coverage1.out | grep -v  easyjson | grep -v mocks | grep -v server > cover.out &&go tool cover -func=cover.out

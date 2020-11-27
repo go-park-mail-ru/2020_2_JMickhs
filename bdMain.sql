@@ -29,6 +29,21 @@ create table hotels (
     ownerID int
 );
 
+CREATE TABLE wishlists(
+    wishlist_id serial PRIMARY KEY NOT NULL,
+    name citext,
+    user_id int
+);
+
+CREATE TABLE wishlistshotels(
+    wishlist_id int,
+    CONSTRAINT fk_wishlists
+        FOREIGN KEY(wishlist_id)
+            REFERENCES wishlists(wishlist_id)
+                ON DELETE CASCADE,
+    hotel_id int
+);
+
 CREATE INDEX if not exists hotels_gist_idx ON hotels USING gist (coordinates);
 CREATE INDEX hotels_trgm_idx ON hotels
     USING gist (name);
