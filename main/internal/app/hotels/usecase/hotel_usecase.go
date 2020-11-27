@@ -118,3 +118,8 @@ func (p *HotelUseCase) CheckRateExist(UserID int, HotelID int) (commModel.FullCo
 func (p *HotelUseCase) GetHotelsByRadius(latitude string, longitude string, radius string) ([]hotelmodel.Hotel, error) {
 	return p.hotelRepo.GetHotelsByRadius(latitude, longitude, radius)
 }
+
+func (p *HotelUseCase) GetMiniHotelByID(HotelID int) (hotelmodel.MiniHotel, error) {
+	return p.hotelRepo.GetMiniHotelByID(HotelID)
+}
+

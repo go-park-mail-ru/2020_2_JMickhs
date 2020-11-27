@@ -221,7 +221,6 @@ func (p *PostgreHotelRepository) GeneratePointToGeo(latitude string, longitude s
 func (p *PostgreHotelRepository) GetHotelsByRadius(latitude string, longitude string, radius string) ([]hotelmodel.Hotel, error) {
 	point := p.GeneratePointToGeo(latitude, longitude)
 	hotels := []hotelmodel.Hotel{}
-
 	err := p.conn.Select(&hotels, GetHotelsByRadiusPostgreRequest, point, radius, viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url))
 	if err != nil {
 		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
@@ -229,3 +228,14 @@ func (p *PostgreHotelRepository) GetHotelsByRadius(latitude string, longitude st
 
 	return hotels, nil
 }
+
+func (p *PostgreHotelRepository) GetMiniHotelByID(HotelID int) (hotelmodel.MiniHotel, error) {
+	rows := p.conn.QueryRow(GetMiniHotelPostgreRequest, strconv.Itoa(HotelID))
+	hotel := hotelmodel.MiniHotel{}
+	err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Description, &hotel.Image, &hotel.Location, &hotel.Rating)
+	if err != nil {
+		return hotel, customerror.NewCustomError(err, clientError.Gone, 1)
+	}
+	return hotel, nil
+}
+
