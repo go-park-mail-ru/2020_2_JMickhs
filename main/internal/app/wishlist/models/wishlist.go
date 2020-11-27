@@ -8,6 +8,7 @@ type Wishlist struct {
 	UserID     int    `json:"user_id" db:"user_id"`
 }
 
+// easyjson:json
 type UserWishLists struct {
 	Wishlists []Wishlist `json:"wishlists,omitempty"`
 }

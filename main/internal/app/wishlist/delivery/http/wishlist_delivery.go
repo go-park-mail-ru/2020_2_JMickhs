@@ -45,10 +45,10 @@ func NewWishlistHandler(r *mux.Router, useCase wishlist.Usecase, hotelUseCase ho
 	r.HandleFunc("/api/v1/wishlists/{wishList_id:[0-9]+}/hotels", middlewareApi.CheckCSRFOnHandler(handler.DeleteHotelFromWishlist)).Methods("DELETE")
 }
 
-// swagger:route GET /api/v1/wishlists/{wishList_id:[0-9]+} Wishlist getWishlist
+// swagger:route GET /api/v1/wishlists Wishlist getUserWishlist
 // Get list of hotels in wishlist
 // responses:
-//  200: hotels
+//  200: wishlists
 //  400: badrequest
 func (wh *WishlistHandler) GetUserWishlists(w http.ResponseWriter, r *http.Request) {
 	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
@@ -65,10 +65,10 @@ func (wh *WishlistHandler) GetUserWishlists(w http.ResponseWriter, r *http.Reque
 	responses.SendDataResponse(w, wishlists)
 }
 
-// swagger:route GET /api/v1/wishlists/{wishList_id:[0-9]+} Wishlist getWishlist
+// swagger:route GET /api/v1/wishlists/{wishlist_id} Wishlist getWishlist
 // Get list of hotels in wishlist
 // responses:
-//  200: hotels
+//  200: wishlisthotels
 //  400: badrequest
 //  410: gone
 func (wh *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
@@ -105,11 +105,12 @@ func (wh *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 	responses.SendDataResponse(w, hotels)
 }
 
-// swagger:route POST /api/v1/wishlists/{wishList_id:[0-9]+}/hotels Wishlist addHotelToWishlist
+// swagger:route POST /api/v1/wishlists/{wishlist_id}/hotels Wishlist addHotelToWishlist
 // Add hotel to wishlist
 // responses:
 //  200:
 //  400: badrequest
+//  423: locked
 //  403: Forbidden
 func (wh *WishlistHandler) AddHotelToWishlist(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -140,12 +141,13 @@ func (wh *WishlistHandler) AddHotelToWishlist(w http.ResponseWriter, r *http.Req
 	responses.SendOkResponse(w)
 }
 
-// swagger:route DELETE /api/v1/wishlistshotel Wishlist deleteHotelFromWishlist
+// swagger:route DELETE /api/v1/wishlists/{wishlist_id}/hotels Wishlist deleteHotelFromWishlist
 // Delete hotel from wishlist
 // responses:
 //  200:
 //  400: badrequest
 //  410: gone
+//  423: locked
 //  403: Forbidden
 func (wh *WishlistHandler) DeleteHotelFromWishlist(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -176,12 +178,13 @@ func (wh *WishlistHandler) DeleteHotelFromWishlist(w http.ResponseWriter, r *htt
 	responses.SendOkResponse(w)
 }
 
-// swagger:route DELETE /api/v1/wishlists/{wishList_id:[0-9]+} Wishlist deleteWishlist
+// swagger:route DELETE /api/v1/wishlists/{wishlist_id} Wishlist deleteWishlist
 // Delete wishlist
 // responses:
 //  200:
 //  400: badrequest
 //  410: gone
+//  423: locked
 //  403: Forbidden
 func (wh *WishlistHandler) DeleteWishlist(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -208,9 +211,9 @@ func (wh *WishlistHandler) DeleteWishlist(w http.ResponseWriter, r *http.Request
 // swagger:route POST /api/v1/wishlists Wishlist createWishlist
 // Creates a new Wishlist
 // responses:
-//  200: saveWishlist
+//  200: wishlist
 //  400: badrequest
-//  409: conflict
+//  423: locked
 //  403: Forbidden
 func (wh *WishlistHandler) CreateWishlist(w http.ResponseWriter, r *http.Request) {
 
