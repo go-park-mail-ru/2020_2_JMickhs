@@ -23,5 +23,6 @@ require (
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/viper v1.7.1 // indirect
 	github.com/stretchr/testify v1.6.1 // indirect
+	go.uber.org/ratelimit v0.1.0 // indirect
 	google.golang.org/grpc v1.33.2
 )

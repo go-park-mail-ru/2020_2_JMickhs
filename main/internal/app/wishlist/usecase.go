@@ -11,4 +11,5 @@ type Usecase interface {
 	AddHotel(userID int, hotelID int, wishlistID int) error
 	DeleteHotel(userID int, hotelID int, wishlistID int) error
 	GetUserWishlists(userID int) (wishlistModel.UserWishLists, error)
+	CheckHotelInWishlists(userID int, hotelID int) (string, error)
 }

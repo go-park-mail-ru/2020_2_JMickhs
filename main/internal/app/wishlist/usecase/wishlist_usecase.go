@@ -72,3 +72,7 @@ func (w *WishlistUseCase) DeleteHotel(userID int, hotelID int, wishlistID int) e
 func (w *WishlistUseCase) GetUserWishlists(userID int) (wishlistModel.UserWishLists, error) {
 	return w.wishlistRepo.GetUserWishlists(userID)
 }
+
+func (w *WishlistUseCase) CheckHotelInWishlists(userID int, hotelID int) (string, error) {
+	return w.wishlistRepo.CheckHotelInWishlists(userID, hotelID)
+}

@@ -13,3 +13,6 @@ const DeleteHotelFromWishlistPostgreRequest = "DELETE FROM wishlistshotels WHERE
 const CheckWishListOwnerPostgreRequest = "SELECT user_id from wishlists where wishlist_id = $1"
 
 const GetUserWithListsPostgreRequest = "SELECT wishlist_id,name from wishlists where user_id=$1"
+
+const CheckHotelInWishlistsPostgreRequest = "SELECT DISTINCT hotel_id from wishlists as wl inner join wishlistshotels as wh on wl.wishlist_id = wh.wishlist_id" +
+	" where wl.user_id = $1 and wh.hotel_id = $2"

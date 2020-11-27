@@ -30,6 +30,8 @@ var ConfigFields = struct {
 	PreviewItemLimit       string
 	BaseItemPerPage        string
 	RequestUserID          string
+	WishListIn             string
+	WishListOut            string
 }{
 	StaticPathForAvatars:   "paths.StaticPathForAvatars",
 	CookieLifeTime:         "cookie.LifeTime",
@@ -48,6 +50,8 @@ var ConfigFields = struct {
 	BaseItemPerPage:        "constants.BaseItemPerPage",
 	PreviewItemLimit:       "constants.PreviewItemLimit",
 	BasePageCount:          "constants.BasePageCount",
+	WishListIn:             "constants.WishListIn",
+	WishListOut:            "constants.WishListOut",
 }
 
 var BdConfig postgresConfig

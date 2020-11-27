@@ -12,4 +12,5 @@ type Repository interface {
 	AddHotel(hotelID int, wishlistID int) error
 	DeleteHotel(hotelID int, wishlistID int) error
 	GetUserWishlists(userID int) (wishlistModel.UserWishLists, error)
+	CheckHotelInWishlists(userID int, hotelID int) (string, error)
 }

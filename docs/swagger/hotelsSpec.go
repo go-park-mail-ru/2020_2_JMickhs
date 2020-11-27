@@ -1,5 +1,9 @@
 package swagger
 
+import (
+	"os"
+)
+
 type Hotel struct {
 	HotelID     int      `json:"hotel_id" db:"hotel_id" mapstructure:"hotel_id"`
 	Name        string   `json:"name" db:"name"`
@@ -14,6 +18,8 @@ type Hotel struct {
 	CommCount   int      `json:"comm_count" db:"comm_count" mapstructure:"comm_count"`
 	Latitude    float64  `json:"latitude,omitempty" db:"x"`
 	Longitude   float64  `json:"longitude,omitempty" db:"y"`
+	//enum "wishListIn" "wishListOut"
+	WishListExist string `json:"wishlist_exist"`
 }
 
 type HotelPreview struct {
@@ -106,6 +112,26 @@ type hotelByRadiusParameterWrapper struct {
 	// in: query
 	// required:true
 	Longitude string `json:"longitude"`
+}
+
+type AddHotelStruct struct {
+	JsonData  HotelStructToAdd `json:"jsonData"`
+	MainImage os.File          `json:"mainImage"`
+	Photos    []os.File        `json:"photos"`
+}
+
+type HotelStructToAdd struct {
+	Name        string `json:"name"`
+	County      string `json:"country"`
+	City        string `json:"city"`
+	Description string `json:"description"`
+	Location    string `json:"location"`
+}
+
+// swagger:parameters AddHotel
+type AddHotelResponse struct {
+	//in: body
+	Body AddHotelStruct
 }
 
 // swagger:parameters hotel
