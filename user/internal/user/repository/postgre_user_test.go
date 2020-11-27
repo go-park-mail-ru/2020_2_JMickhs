@@ -4,13 +4,12 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/serverError"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/clientError"
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/error"
-
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/user/models"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/models"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 )
@@ -30,7 +29,7 @@ func TestPostgresUserRepository_GetUserByID(t *testing.T) {
 		query := GetUserByIDPostgreRequest
 
 		mock.ExpectQuery(query).
-			WithArgs("1").
+			WithArgs("1", "").
 			WillReturnRows(rows)
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
@@ -47,7 +46,7 @@ func TestPostgresUserRepository_GetUserByID(t *testing.T) {
 		query := GetUserByIDPostgreRequest
 
 		mock.ExpectQuery(query).
-			WithArgs("1").
+			WithArgs("1", "").
 			WillReturnError(customerror.NewCustomError(errors.New(""), clientError.Gone, 1))
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
@@ -76,7 +75,7 @@ func TestPostgresUserRepository_GetByUserName(t *testing.T) {
 		query := GetUserByNamePostgreRequest
 
 		mock.ExpectQuery(query).
-			WithArgs("kotik").
+			WithArgs("kotik", "").
 			WillReturnRows(rows)
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
@@ -93,7 +92,7 @@ func TestPostgresUserRepository_GetByUserName(t *testing.T) {
 		query := GetUserByNamePostgreRequest
 
 		mock.ExpectQuery(query).
-			WithArgs("kotik").
+			WithArgs("kotik", "").
 			WillReturnError(customerror.NewCustomError(errors.New(""), clientError.Unauthorizied, 1))
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
@@ -262,5 +261,35 @@ func TestPostgresUserRepository_Add(t *testing.T) {
 
 		_, err = rep.Add(user)
 		assert.Equal(t, customerror.ParseCode(err), clientError.Conflict)
+	})
+}
+
+func TestPostgresUserRepository_CompareHashAndPassword(t *testing.T) {
+	db, _, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+	t.Run("CompareHashAndPassword", func(t *testing.T) {
+		sqlxDb := sqlx.NewDb(db, "sqlmock")
+		defer sqlxDb.Close()
+
+		destinationPassword := "scxzsdfsdxcfewdsfcx"
+		inputPassword := "kek123"
+
+		rep := NewPostgresUserRepository(sqlxDb, nil)
+		err := rep.CompareHashAndPassword(destinationPassword, inputPassword)
+		assert.Error(t, err)
+	})
+	t.Run("CompareHashAndPasswordNoError", func(t *testing.T) {
+		sqlxDb := sqlx.NewDb(db, "sqlmock")
+		defer sqlxDb.Close()
+
+		inputPassword := "keks123456"
+
+		rep := NewPostgresUserRepository(sqlxDb, nil)
+		hash, _ := rep.GenerateHashFromPassword(inputPassword)
+		err := rep.CompareHashAndPassword(string(hash), inputPassword)
+		assert.NoError(t, err)
 	})
 }

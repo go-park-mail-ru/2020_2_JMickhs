@@ -3,7 +3,6 @@ package hotelUsecase
 import (
 	"context"
 	"errors"
-	"fmt"
 	"mime/multipart"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
@@ -32,10 +31,6 @@ func NewHotelUsecase(r hotels.Repository, userService userService.UserServiceCli
 	}
 }
 
-func GeneratePointToGeo(latitude string, longitude string) string {
-	return fmt.Sprintf("SRID=4326;POINT(%s %s)", latitude, longitude)
-}
-
 func (p *HotelUseCase) UploadPhoto(hotel *hotelmodel.Hotel, file multipart.File, contentType string, mainImage bool, iterator int) error {
 	filePath, err := p.hotelRepo.UploadPhoto(file, contentType)
 	if err != nil {
@@ -56,6 +51,12 @@ func (p *HotelUseCase) AddHotel(hotel hotelmodel.Hotel, userID int) error {
 		return customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}
 
+	geo, err := p.hotelRepo.GetLatitudeLongitudeByLocation(hotel.Location)
+	if err != nil {
+		return customerror.NewCustomError(err, clientError.BadRequest, 1)
+	}
+	hotel.Latitude = geo.Lat
+	hotel.Longitude = geo.Lon
 	err = p.hotelRepo.AddHotel(hotel, userID, user.Email)
 	if err != nil {
 		return err
@@ -117,4 +118,8 @@ func (p *HotelUseCase) CheckRateExist(UserID int, HotelID int) (commModel.FullCo
 
 func (p *HotelUseCase) GetHotelsByRadius(latitude string, longitude string, radius string) ([]hotelmodel.Hotel, error) {
 	return p.hotelRepo.GetHotelsByRadius(latitude, longitude, radius)
+}
+
+func (p *HotelUseCase) GetMiniHotelByID(HotelID int) (hotelmodel.MiniHotel, error) {
+	return p.hotelRepo.GetMiniHotelByID(HotelID)
 }

@@ -5,18 +5,19 @@ import (
 	"net/http"
 	"testing"
 
-	user_mock "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/user/mocks"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/clientError"
+	"github.com/stretchr/testify/assert"
 
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+
+	user_mock "github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/mocks"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/models"
 	"github.com/go-playground/validator/v10"
 
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/error"
-
 	"github.com/golang/mock/gomock"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/user/models"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestUserUseCase_GetUserByID(t *testing.T) {
@@ -270,4 +271,58 @@ func TestUserUseCase_SetDefaultAvatar(t *testing.T) {
 
 	assert.NoError(t, err)
 
+}
+func TestUserUseCase_UploadAvatar(t *testing.T) {
+	mockUser := models.User{Username: "kotik", Email: "kek@mail.ru", Avatar: "/kek.jpg"}
+	t.Run("UploadAvatar", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		mockUserRepo := user_mock.NewMockRepository(ctrl)
+
+		mockUserRepo.EXPECT().
+			DeleteAvatarInStore(mockUser, "kek.jpg").
+			Return(nil).Times(1)
+
+		mockUserRepo.EXPECT().
+			UpdateAvatarInStore(nil, &mockUser, "jpg").
+			Return(nil).Times(1)
+
+		u := NewUserUsecase(mockUserRepo, validator.New())
+		_, err := u.UploadAvatar(nil, "kek/jpg", &mockUser)
+
+		assert.NoError(t, err)
+	})
+	t.Run("UploadAvatar-err1", func(t *testing.T) {
+
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		mockUserRepo := user_mock.NewMockRepository(ctrl)
+
+		mockUserRepo.EXPECT().
+			DeleteAvatarInStore(mockUser, "kek.jpg").
+			Return(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1)).Times(1)
+
+		u := NewUserUsecase(mockUserRepo, validator.New())
+		_, err := u.UploadAvatar(nil, "kek/jpg", &mockUser)
+
+		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
+	})
+	t.Run("UploadAvatar-err2", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		mockUserRepo := user_mock.NewMockRepository(ctrl)
+
+		mockUserRepo.EXPECT().
+			DeleteAvatarInStore(mockUser, "kek.jpg").
+			Return(nil).Times(1)
+
+		mockUserRepo.EXPECT().
+			UpdateAvatarInStore(nil, &mockUser, "jpg").
+			Return(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1)).Times(1)
+
+		u := NewUserUsecase(mockUserRepo, validator.New())
+		_, err := u.UploadAvatar(nil, "kek/jpg", &mockUser)
+
+		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
+	})
 }

@@ -2,6 +2,9 @@ package server
 
 import (
 	"fmt"
+	"os"
+
+	googleGeocoder "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/google_geocoder"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
@@ -11,6 +14,9 @@ import (
 	hotelDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/delivery/http"
 	hotelRepository "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/repository"
 	hotelUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/usecase"
+	wishlistDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/wishlist/delivery/http"
+	wishlistRepository "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/wishlist/repository"
+	wishlistUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/wishlist/usecase"
 
 	"github.com/spf13/viper"
 
@@ -102,11 +108,14 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	r.Use(middlewareApi.NewPanicMiddleware())
 	r.Use(middlewareApi.MyCORSMethodMiddleware())
 
-	repHot := hotelRepository.NewPostgresHotelRepository(db, s3)
+	geoCoder := googleGeocoder.NewGoogleGeoCoder(os.Getenv("GoggleMapKey"), "ru", "ru")
+	repHot := hotelRepository.NewPostgresHotelRepository(db, s3, geoCoder)
 	repCom := commentRepository.NewCommentRepository(db)
+	repWish := wishlistRepository.NewPostgreWishlistRepository(db)
 
 	uHot := hotelUsecase.NewHotelUsecase(&repHot, userService)
 	uCom := commentUsecase.NewCommentUsecase(&repCom, userService)
+	uWish := wishlistUsecase.NewWishlistUseCase(&repWish)
 
 	sessMidleware := middlewareApi.NewSessionMiddleware(sessionService, userService, log)
 	csrfMidleware := middlewareApi.NewCsrfMiddleware(sessionService, log)
@@ -115,6 +124,7 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 
 	hotelDelivery.NewHotelHandler(r, uHot, log)
 	commentDelivery.NewCommentHandler(r, uCom, log)
+	wishlistDelivery.NewWishlistHandler(r, uWish, uHot, log)
 
 	log.Info("Server started at port", viper.GetString(configs.ConfigFields.MainHttpServicePort))
 	err = http.ListenAndServe(viper.GetString(configs.ConfigFields.MainHttpServicePort), r)

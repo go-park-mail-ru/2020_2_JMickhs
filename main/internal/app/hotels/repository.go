@@ -4,6 +4,8 @@ package hotels
 import (
 	"mime/multipart"
 
+	googleGeocoder "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/google_geocoder"
+
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
 )
@@ -19,4 +21,6 @@ type Repository interface {
 	CheckRateExist(UserID int, HotelID int) (commModel.FullCommentInfo, error)
 	GetHotelsPreview(pattern string) ([]hotelmodel.HotelPreview, error)
 	GetHotelsByRadius(latitude string, longitude string, radius string) ([]hotelmodel.Hotel, error)
+	GetMiniHotelByID(HotelID int) (hotelmodel.MiniHotel, error)
+	GetLatitudeLongitudeByLocation(location string) (googleGeocoder.GeoCoordinates, error)
 }

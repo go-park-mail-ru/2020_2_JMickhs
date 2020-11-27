@@ -163,6 +163,11 @@ github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201113122733-6f9ceb43c98e h1:
 github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201120095733-a1d36e1c6c0e/go.mod h1:44vFYlaEZ+YHTTIOxNPOXUC9+89Uq/wW4FmH0oHkfag=
 github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201123200900-98084a8558e2 h1:aShRyj4v8Quol3u60uuSgo7Svi+MB3+kxiX9TnAQqTs=
 github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201123200900-98084a8558e2/go.mod h1:xUS6hQjBQXvpAWsSW4zRrdpPux88aP5vJW+lyDc7iPY=
+github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201126183430-6b48084356a3 h1:KCpROWa9UHxUijQr5z77smtZUEiHSkHqKit31ORWIVs=
+github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201126183430-6b48084356a3/go.mod h1:1NYedDEZGPSuUgPSSXzHub+RP0EcwU3StVPCrGYnV2c=
+github.com/go-park-mail-ru/2020_2_JMickhs/main v0.0.0-20201125094419-70525516ff6f/go.mod h1:ViRvSfCMyh5h/kzoa7sOU2TfawI8jXhDaEHjnmX2ZYo=
+github.com/go-park-mail-ru/2020_2_JMickhs/sessions v0.0.0-20201125094419-70525516ff6f/go.mod h1:jri7uA7Koy4/JkMFCanNIX4GgPDF9JBWrKh2Bek4W8M=
+github.com/go-park-mail-ru/2020_2_JMickhs/user v0.0.0-20201125094419-70525516ff6f/go.mod h1:3Q7+wsDKV1gUn0ofLW9ggA1hxqYrTE8ONB2VGerFn9c=
 github.com/go-playground/assert/v2 v2.0.1/go.mod h1:VDjEfimB/XKnb+ZQfWdccd7VUvScMdVu0Titje2rxJ4=
 github.com/go-playground/locales v0.13.0/go.mod h1:taPMhCMXrRLJO55olJkUXHZBHCxTMfnGwq/HNwmWNS8=
 github.com/go-playground/universal-translator v0.17.0/go.mod h1:UkSxE5sNxxRwHyU+Scu5vgOQjsIJAF8j9muTVoKLVtA=

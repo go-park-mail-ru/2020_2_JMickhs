@@ -18,6 +18,14 @@ definitions:
         x-go-name: Rating
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  AddHotelToWishlistRequest:
+    properties:
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   Avatar:
     properties:
       avatar:
@@ -49,6 +57,21 @@ definitions:
         format: int64
         type: integer
         x-go-name: UserID
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  CreateWishlistRequest:
+    properties:
+      name:
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  DeleteHotelFromWishlistRequest:
+    properties:
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   File:
@@ -202,6 +225,28 @@ definitions:
         x-go-name: Hotels
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  MiniHotel:
+    description: easyjson:json
+    properties:
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
+      image:
+        type: string
+        x-go-name: Image
+      location:
+        type: string
+        x-go-name: Location
+      name:
+        type: string
+        x-go-name: Name
+      rating:
+        format: double
+        type: number
+        x-go-name: Rating
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   NewRate:
     properties:
       comment:
@@ -320,6 +365,30 @@ definitions:
       username:
         type: string
         x-go-name: Username
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  UserWishLists:
+    properties:
+      wishlists:
+        items:
+          $ref: '#/definitions/Wishlist'
+        type: array
+        x-go-name: Wishlists
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  Wishlist:
+    properties:
+      name:
+        type: string
+        x-go-name: Name
+      user_id:
+        format: int64
+        type: integer
+        x-go-name: UserID
+      wishlist_id:
+        format: int64
+        type: integer
+        x-go-name: WishlistID
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
 info:
@@ -726,6 +795,127 @@ paths:
           $ref: '#/responses/unauthorizied'
       tags:
       - Sessions
+  /api/v1/wishlists:
+    get:
+      description: Get list of hotels in wishlist
+      operationId: getUserWishlist
+      responses:
+        "200":
+          $ref: '#/responses/wishlists'
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - Wishlist
+    post:
+      description: Creates a new Wishlist
+      operationId: createWishlist
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/CreateWishlistRequest'
+      responses:
+        "200":
+          $ref: '#/responses/wishlist'
+        "400":
+          $ref: '#/responses/badrequest'
+        "403":
+          $ref: '#/responses/Forbidden'
+        "423":
+          $ref: '#/responses/locked'
+      tags:
+      - Wishlist
+  /api/v1/wishlists/{wishlist_id}:
+    delete:
+      description: Delete wishlist
+      operationId: deleteWishlist
+      parameters:
+      - description: the id of wishlist
+        format: int64
+        in: path
+        name: wishlist_id
+        required: true
+        type: integer
+        x-go-name: ID
+      responses:
+        "200": {}
+        "400":
+          $ref: '#/responses/badrequest'
+        "403":
+          $ref: '#/responses/Forbidden'
+        "423":
+          $ref: '#/responses/locked'
+      tags:
+      - Wishlist
+    get:
+      description: Get list of hotels in wishlist
+      operationId: getWishlist
+      parameters:
+      - description: the id of wishlist
+        format: int64
+        in: path
+        name: wishlist_id
+        required: true
+        type: integer
+        x-go-name: ID
+      responses:
+        "200":
+          $ref: '#/responses/wishlisthotels'
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - Wishlist
+  /api/v1/wishlists/{wishlist_id}/hotels:
+    delete:
+      description: Delete hotel from wishlist
+      operationId: deleteHotelFromWishlist
+      parameters:
+      - description: the id of wishlist
+        format: int64
+        in: path
+        name: wishlist_id
+        required: true
+        type: integer
+        x-go-name: ID
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/DeleteHotelFromWishlistRequest'
+      responses:
+        "200": {}
+        "400":
+          $ref: '#/responses/badrequest'
+        "403":
+          $ref: '#/responses/Forbidden'
+        "423":
+          $ref: '#/responses/locked'
+      tags:
+      - Wishlist
+    post:
+      description: Add hotel to wishlist
+      operationId: addHotelToWishlist
+      parameters:
+      - description: the id of wishlist
+        format: int64
+        in: path
+        name: wishlist_id
+        required: true
+        type: integer
+        x-go-name: ID
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/AddHotelToWishlistRequest'
+      responses:
+        "200": {}
+        "400":
+          $ref: '#/responses/badrequest'
+        "403":
+          $ref: '#/responses/Forbidden'
+        "423":
+          $ref: '#/responses/locked'
+      tags:
+      - Wishlist
 produces:
 - application/json
 responses:
@@ -786,7 +976,7 @@ responses:
     schema:
       $ref: '#/definitions/HotelsPreview'
   locked:
-    description: two times rate one hotel
+    description: two times rate one hotel or want to get not your wishlists
   safeUser:
     schema:
       $ref: '#/definitions/SafeUser'
@@ -814,6 +1004,17 @@ responses:
         type: string
       username:
         type: string
+  wishlist:
+    schema:
+      $ref: '#/definitions/Wishlist'
+  wishlisthotels:
+    schema:
+      items:
+        $ref: '#/definitions/MiniHotel'
+      type: array
+  wishlists:
+    schema:
+      $ref: '#/definitions/UserWishLists'
 schemes:
 - http
 swagger: "2.0"

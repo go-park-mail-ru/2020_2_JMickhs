@@ -7,8 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
-	csrf_mock "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/csrf/mocks"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/sessions/configs"
+	csrf_mock "github.com/go-park-mail-ru/2020_2_JMickhs/sessions/internal/csrf/mocks"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )

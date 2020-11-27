@@ -11,6 +11,10 @@ gen:
 mocks:
 	go generate -v ./...
 
+user_service_mocks: go generate mockgen -source user.pb.go -destination user_service_mock.go -package userService
+
+sessions_service_mocks: go generate mockgen -source session.pb.go -destination session_service_mock.go -package sessionService
+
 fillbd:
 	go run main.go --fill
 
@@ -25,6 +29,9 @@ upload:
      sudo docker push kostikan/session_service:latest &&
      sudo docker push kostikan/user_service:latest &&
      sudo APP_VERSION=latest docker-compose up
+
+dockerClean:
+     sudo docker rm -vf $(sudo docker ps -a -q)
 
 tests:
 	go test -coverprofile=coverage1.out -coverpkg=./... -cover ./... && cat coverage1.out | grep -v  easyjson | grep -v mocks | grep -v server > cover.out &&go tool cover -func=cover.out

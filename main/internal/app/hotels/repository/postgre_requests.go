@@ -17,3 +17,5 @@ const SearchHotelsPostgreRequest = "WHERE (lower(name) % lower($1) or lower(loca
 
 const GetHotelsByRadiusPostgreRequest = "SELECT hotel_id,name,description,concat($4::varchar,img)," +
 	"location,curr_rating,comm_count,(coordinates::POINT)[0] as x, (coordinates::POINT)[1] as y  FROM hotels WHERE ST_Distance(coordinates::geography, $1::geography)<$2 ORDER BY coordinates <-> $1 LIMIT $3"
+
+const GetMiniHotelPostgreRequest = "SELECT h.hotel_id,h.name,concat($2::varchar,h.img),h.location,h.curr_rating FROM hotels AS h WHERE hotel_id = $1"

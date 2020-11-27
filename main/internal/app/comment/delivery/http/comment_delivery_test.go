@@ -15,16 +15,13 @@ import (
 	comment_mock "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/mocks"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/paginator/model"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/user/models"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/clientError"
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/error"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/logger"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/responses"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/serverError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/logger"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/responses"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	"github.com/mitchellh/mapstructure"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestCommentHandler_ListComments(t *testing.T) {

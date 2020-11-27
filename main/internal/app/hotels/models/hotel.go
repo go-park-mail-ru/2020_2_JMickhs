@@ -80,3 +80,12 @@ type FilterData struct {
 	Rating float64
 	ID     string
 }
+
+// easyjson:json
+type MiniHotel struct {
+	HotelID  int     `json:"hotel_id" db:"hotel_id"`
+	Name     string  `json:"name" db:"name"`
+	Image    string  `json:"image" db:"img"`
+	Location string  `json:"location" db:"location"`
+	Rating   float64 `json:"rating" db:"curr_rating"`
+}

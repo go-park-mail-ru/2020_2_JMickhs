@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	googleGeocoder "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/google_geocoder"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
@@ -28,12 +30,22 @@ import (
 )
 
 type PostgreHotelRepository struct {
-	conn *sqlx.DB
-	s3   *s3.S3
+	conn     *sqlx.DB
+	s3       *s3.S3
+	geoCoder googleGeocoder.GoogleGeoCoder
 }
 
-func NewPostgresHotelRepository(conn *sqlx.DB, s3 *s3.S3) PostgreHotelRepository {
-	return PostgreHotelRepository{conn, s3}
+func NewPostgresHotelRepository(conn *sqlx.DB, s3 *s3.S3, geo googleGeocoder.GoogleGeoCoder) PostgreHotelRepository {
+	return PostgreHotelRepository{conn, s3, geo}
+}
+
+func (p *PostgreHotelRepository) GetLatitudeLongitudeByLocation(location string) (googleGeocoder.GeoCoordinates, error) {
+	coordinates := googleGeocoder.GeoCoordinates{}
+	geo, err := p.geoCoder.GetGeoByAddress(location)
+	if err != nil {
+		return coordinates, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	return geo.Geometry.Location, nil
 }
 
 func (p *PostgreHotelRepository) UploadPhoto(file multipart.File, contentType string) (string, error) {
@@ -52,9 +64,13 @@ func (p *PostgreHotelRepository) UploadPhoto(file multipart.File, contentType st
 	return relativePath, err
 }
 
+func GeneratePointToGeo(latitude float64, longitude float64) string {
+	return fmt.Sprintf("SRID=4326;POINT(%f %f)", latitude, longitude)
+}
+
 func (p *PostgreHotelRepository) AddHotel(hotel hotelmodel.Hotel, userID int, userEmail string) error {
 	err := p.conn.QueryRow(AddHotelByOwner, hotel.Name, hotel.Description, userEmail, hotel.City,
-		hotel.Country, hotel.Location, hotel.Image, pq.Array(hotel.Photos)).Err()
+		hotel.Country, hotel.Location, hotel.Image, pq.Array(hotel.Photos), GeneratePointToGeo(hotel.Latitude, hotel.Longitude)).Err()
 	if err != nil {
 		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
@@ -128,7 +144,7 @@ func (p *PostgreHotelRepository) BuildQueryToFetchHotel(filter *hotelmodel.Hotel
 	}
 	baseQuery += NearestFilterQuery
 
-	RatingFilterQuery := fmt.Sprint(" AND curr_rating BETWEEN $5 AND $6 OR curr_rating BETWEEN $6 AND $5")
+	RatingFilterQuery := fmt.Sprint(" AND (curr_rating BETWEEN $5 AND $6 OR curr_rating BETWEEN $6 AND $5) ")
 	if filter.RatingFilterStartNumber == "" {
 		filter.RatingFilterStartNumber = "0"
 	}
@@ -182,7 +198,7 @@ func (p *PostgreHotelRepository) FetchHotels(filter hotelmodel.HotelFiltering, p
 				point, filter.Radius, filter.CommCountPercent)
 		}
 	}
-
+	fmt.Println(query, "fdsfsd", filter.CommentsFilterStartNumber)
 	if err != nil {
 		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
@@ -221,11 +237,20 @@ func (p *PostgreHotelRepository) GeneratePointToGeo(latitude string, longitude s
 func (p *PostgreHotelRepository) GetHotelsByRadius(latitude string, longitude string, radius string) ([]hotelmodel.Hotel, error) {
 	point := p.GeneratePointToGeo(latitude, longitude)
 	hotels := []hotelmodel.Hotel{}
-
 	err := p.conn.Select(&hotels, GetHotelsByRadiusPostgreRequest, point, radius, viper.GetInt(configs.ConfigFields.BaseItemPerPage), viper.GetString(configs.ConfigFields.S3Url))
 	if err != nil {
 		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
 
 	return hotels, nil
+}
+
+func (p *PostgreHotelRepository) GetMiniHotelByID(HotelID int) (hotelmodel.MiniHotel, error) {
+	rows := p.conn.QueryRow(GetMiniHotelPostgreRequest, strconv.Itoa(HotelID), viper.GetString(configs.ConfigFields.S3Url))
+	hotel := hotelmodel.MiniHotel{}
+	err := rows.Scan(&hotel.HotelID, &hotel.Name, &hotel.Image, &hotel.Location, &hotel.Rating)
+	if err != nil {
+		return hotel, customerror.NewCustomError(err, clientError.Gone, 1)
+	}
+	return hotel, nil
 }

@@ -5,11 +5,10 @@
 package user_mock
 
 import (
+	models "github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/models"
+	gomock "github.com/golang/mock/gomock"
 	multipart "mime/multipart"
 	reflect "reflect"
-
-	models "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/user/models"
-	gomock "github.com/golang/mock/gomock"
 )
 
 // MockRepository is a mock of Repository interface

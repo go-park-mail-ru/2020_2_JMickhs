@@ -13,7 +13,7 @@ require (
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/go-redis/redis/v8 v8.3.4 // indirect
 	github.com/gocolly/colly/v2 v2.1.0 // indirect
-	github.com/golang/mock v1.4.4 // indirect
+	github.com/golang/mock v1.4.4
 	github.com/golang/protobuf v1.4.3
 	github.com/gorilla/mux v1.8.0
 	github.com/jmoiron/sqlx v1.2.0 // indirect
