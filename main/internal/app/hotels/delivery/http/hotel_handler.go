@@ -238,6 +238,7 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 
 	pattern := r.FormValue("pattern")
 	pageNum := r.FormValue("page")
+
 	page, err := strconv.Atoi(pageNum)
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, clientError.BadRequest)

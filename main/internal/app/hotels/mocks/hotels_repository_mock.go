@@ -5,11 +5,12 @@
 package hotels_mock
 
 import (
-	reflect "reflect"
-
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
+	googleGeocoder "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/google_geocoder"
 	gomock "github.com/golang/mock/gomock"
+	multipart "mime/multipart"
+	reflect "reflect"
 )
 
 // MockRepository is a mock of Repository interface
@@ -33,6 +34,35 @@ func NewMockRepository(ctrl *gomock.Controller) *MockRepository {
 // EXPECT returns an object that allows the caller to indicate expected use
 func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
+}
+
+// UploadPhoto mocks base method
+func (m *MockRepository) UploadPhoto(file multipart.File, contentType string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadPhoto", file, contentType)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UploadPhoto indicates an expected call of UploadPhoto
+func (mr *MockRepositoryMockRecorder) UploadPhoto(file, contentType interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadPhoto", reflect.TypeOf((*MockRepository)(nil).UploadPhoto), file, contentType)
+}
+
+// AddHotel mocks base method
+func (m *MockRepository) AddHotel(hotel hotelmodel.Hotel, userID int, userEmail string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddHotel", hotel, userID, userEmail)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddHotel indicates an expected call of AddHotel
+func (mr *MockRepositoryMockRecorder) AddHotel(hotel, userID, userEmail interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddHotel", reflect.TypeOf((*MockRepository)(nil).AddHotel), hotel, userID, userEmail)
 }
 
 // GetHotels mocks base method
@@ -78,6 +108,20 @@ func (m *MockRepository) FetchHotels(filter hotelmodel.HotelFiltering, pattern s
 func (mr *MockRepositoryMockRecorder) FetchHotels(filter, pattern, offset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchHotels", reflect.TypeOf((*MockRepository)(nil).FetchHotels), filter, pattern, offset)
+}
+
+// BuildQueryForCommentsPercent mocks base method
+func (m *MockRepository) BuildQueryForCommentsPercent(filter *hotelmodel.HotelFiltering, param string) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BuildQueryForCommentsPercent", filter, param)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// BuildQueryForCommentsPercent indicates an expected call of BuildQueryForCommentsPercent
+func (mr *MockRepositoryMockRecorder) BuildQueryForCommentsPercent(filter, param interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildQueryForCommentsPercent", reflect.TypeOf((*MockRepository)(nil).BuildQueryForCommentsPercent), filter, param)
 }
 
 // BuildQueryToFetchHotel mocks base method
@@ -137,4 +181,34 @@ func (m *MockRepository) GetHotelsByRadius(latitude, longitude, radius string) (
 func (mr *MockRepositoryMockRecorder) GetHotelsByRadius(latitude, longitude, radius interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHotelsByRadius", reflect.TypeOf((*MockRepository)(nil).GetHotelsByRadius), latitude, longitude, radius)
+}
+
+// GetMiniHotelByID mocks base method
+func (m *MockRepository) GetMiniHotelByID(HotelID int) (hotelmodel.MiniHotel, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMiniHotelByID", HotelID)
+	ret0, _ := ret[0].(hotelmodel.MiniHotel)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMiniHotelByID indicates an expected call of GetMiniHotelByID
+func (mr *MockRepositoryMockRecorder) GetMiniHotelByID(HotelID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMiniHotelByID", reflect.TypeOf((*MockRepository)(nil).GetMiniHotelByID), HotelID)
+}
+
+// GetLatitudeLongitudeByLocation mocks base method
+func (m *MockRepository) GetLatitudeLongitudeByLocation(location string) (googleGeocoder.GeoCoordinates, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLatitudeLongitudeByLocation", location)
+	ret0, _ := ret[0].(googleGeocoder.GeoCoordinates)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLatitudeLongitudeByLocation indicates an expected call of GetLatitudeLongitudeByLocation
+func (mr *MockRepositoryMockRecorder) GetLatitudeLongitudeByLocation(location interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLatitudeLongitudeByLocation", reflect.TypeOf((*MockRepository)(nil).GetLatitudeLongitudeByLocation), location)
 }
