@@ -40,7 +40,7 @@ tests:
 	cd ..
 	cd user && go test -coverprofile=./coverage1.out -coverpkg=./... -cover ./... && cat coverage1.out | grep -v  easyjson | grep -v mocks | grep -v main > cover.out &&go tool cover -func=cover.out
 	cd ..
-	cd sessions go test -coverprofile=./coverage1.out -coverpkg=./... -cover ./... && cat coverage1.out | grep -v  easyjson | grep -v mocks | grep -v main > cover.out &&go tool cover -func=cover.out
+	cd sessions && go test -coverprofile=./coverage1.out -coverpkg=./... -cover ./... && cat coverage1.out | grep -v  easyjson | grep -v mocks | grep -v main > cover.out &&go tool cover -func=cover.out
 	cd ..
 
 
