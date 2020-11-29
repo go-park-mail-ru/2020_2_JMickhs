@@ -1,8 +1,6 @@
 package wishlistrepository
 
 import (
-	"fmt"
-
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
 	"github.com/spf13/viper"
 
@@ -90,7 +88,6 @@ func (s *PostgreWishlistRepository) CheckHotelInWishlists(userID int, hotelID in
 		return "", customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
 	count, _ := res.RowsAffected()
-	fmt.Println(count, userID, hotelID)
 	if count > 0 {
 		return viper.GetString(configs.ConfigFields.WishListIn), nil
 	}
