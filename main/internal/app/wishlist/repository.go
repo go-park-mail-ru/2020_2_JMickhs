@@ -1,3 +1,4 @@
+//go:generate mockgen -source repository.go -destination mocks/wishlists_repository_mock.go -package wishlists_mock
 package wishlist
 
 import (

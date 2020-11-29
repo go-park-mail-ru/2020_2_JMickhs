@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/serverError"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/clientError"
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/error"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+	"github.com/spf13/viper"
 
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
@@ -30,16 +29,16 @@ func TestGetHoteBytIDErr(t *testing.T) {
 			1, "hotel", "top hotel in the world", "src/kek.jpg", "Moscow", "3.5", "4")
 
 		query := GetHotelByIDPostgreRequest
-		mock.ExpectQuery(query).WithArgs("1", configs.S3Url).WillReturnRows(rowsHotel)
+		mock.ExpectQuery(query).WithArgs("1", viper.GetString(configs.ConfigFields.S3Url)).WillReturnRows(rowsHotel)
 
 		query = GetHotelsPhotosPostgreRequest
-		mock.ExpectQuery(query).WithArgs("1", configs.S3Url).
+		mock.ExpectQuery(query).WithArgs("1", viper.GetString(configs.ConfigFields.S3Url)).
 			WillReturnError(errors.New(""))
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb)
+		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
 
 		_, err := rep.GetHotelByID(1)
 		assert.Error(t, err)
@@ -51,17 +50,17 @@ func TestGetHoteBytIDErr(t *testing.T) {
 
 		query := GetHotelByIDPostgreRequest
 
-		mock.ExpectQuery(query).WithArgs("2", configs.S3Url).
+		mock.ExpectQuery(query).WithArgs("2", viper.GetString(configs.ConfigFields.S3Url)).
 			WillReturnError(errors.New(""))
 
 		query = GetHotelsPhotosPostgreRequest
 
-		mock.ExpectQuery(query).WithArgs("2", configs.S3Url).WillReturnRows(rowsImages)
+		mock.ExpectQuery(query).WithArgs("2", viper.GetString(configs.ConfigFields.S3Url)).WillReturnRows(rowsImages)
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb)
+		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
 
 		_, err := rep.GetHotelByID(2)
 		assert.Error(t, err)
@@ -83,20 +82,21 @@ func TestGetHoteBytID(t *testing.T) {
 			"kek.jpeg")
 
 		hotelTest := hotelmodel.Hotel{3, "hotel", "top hotel in the world",
-			"src/kek.jpg", "Moscow", 3.5, []string{"kek.jpeg"}, 4, ""}
+			"src/kek.jpg", "Moscow Russia", "kek@mail.ru", "Russia", "Moscow",
+			4, []string{"kek.jpeg"}, 4, 55.6, 34.5, ""}
 
 		query := GetHotelByIDPostgreRequest
 
-		mock.ExpectQuery(query).WithArgs("3", configs.S3Url).WillReturnRows(rowsHotel)
+		mock.ExpectQuery(query).WithArgs("3", viper.GetString(configs.ConfigFields.S3Url)).WillReturnRows(rowsHotel)
 
 		query = GetHotelsPhotosPostgreRequest
 
-		mock.ExpectQuery(query).WithArgs("3", configs.S3Url).WillReturnRows(rowsImages)
+		mock.ExpectQuery(query).WithArgs("3", viper.GetString(configs.ConfigFields.S3Url)).WillReturnRows(rowsImages)
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb)
+		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
 
 		hotel, err := rep.GetHotelByID(3)
 		assert.NoError(t, err)
@@ -115,20 +115,23 @@ func TestFetchHotels(t *testing.T) {
 			1, "Villa", "top hotel in the world", "src/kek.jpg", "Moscow", "3.5", "4").AddRow(
 			2, "Hostel", "top hotel in the world", "src/kek.jpg", "China", "7", "3")
 
-		hotelTest := hotelmodel.Hotel{1, "Villa", "top hotel in the world",
-			"src/kek.jpg", "Moscow", 3.5, nil, 4, ""}
+		hotelTest := hotelmodel.Hotel{3, "hotel", "top hotel in the world",
+			"src/kek.jpg", "Moscow Russia", "kek@mail.ru", "Russia", "Moscow",
+			4, []string{"kek.jpeg"}, 4, 55.6, 34.5, ""}
 
 		query := fmt.Sprint("SELECT hotel_id, name, description, location, concat($4::varchar,img), curr_rating , comm_count FROM hotels ",
 			SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $3 OFFSET $2")
 
-		mock.ExpectQuery(query).WithArgs("top", 0, configs.BaseItemPerPage, configs.S3Url).WillReturnRows(rowsHotel)
+		filter := hotelmodel.HotelFiltering{}
+		mock.ExpectQuery(query).WithArgs("top", 0, viper.GetString(configs.ConfigFields.BaseItemPerPage),
+			viper.GetString(configs.ConfigFields.S3Url)).WillReturnRows(rowsHotel)
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb)
+		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
 
-		hotels, err := rep.FetchHotels("top", 0)
+		hotels, err := rep.FetchHotels(filter, "top", 0)
 		assert.NoError(t, err)
 		assert.Equal(t, hotels[0], hotelTest)
 	})
@@ -136,15 +139,17 @@ func TestFetchHotels(t *testing.T) {
 		query := fmt.Sprint("SELECT hotel_id, name, description, location, concat($4::varchar,img), curr_rating , comm_count FROM hotels ",
 			SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $3 OFFSET $2")
 
-		mock.ExpectQuery(query).WithArgs("top", 0, configs.BaseItemsPerPage, configs.S3Url).
+		filter := hotelmodel.HotelFiltering{}
+		mock.ExpectQuery(query).WithArgs("top", 0, viper.GetString(configs.ConfigFields.BaseItemPerPage),
+			viper.GetString(configs.ConfigFields.S3Url)).
 			WillReturnError(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb)
+		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
 
-		_, err := rep.FetchHotels("top", 0)
+		_, err := rep.FetchHotels(filter, "top", 0)
 		assert.Error(t, err)
 		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
 	})
@@ -170,7 +175,7 @@ func TestCheckRateExist(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb)
+		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
 
 		rating, err := rep.CheckRateExist(3, 5)
 		assert.NoError(t, err)
@@ -185,7 +190,7 @@ func TestCheckRateExist(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb)
+		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
 
 		_, err := rep.CheckRateExist(3, 5)
 		assert.Error(t, err)
@@ -209,12 +214,13 @@ func TestGetHotelsPreview(t *testing.T) {
 
 		hotelTest := hotelmodel.HotelPreview{1, "Villa", "src/kek.jpg", "Moscow"}
 
-		mock.ExpectQuery(query).WithArgs("top", configs.PreviewItemLimit, configs.S3Url).WillReturnRows(rows)
+		mock.ExpectQuery(query).WithArgs("top", viper.GetString(configs.ConfigFields.PreviewItemLimit),
+			viper.GetString(configs.ConfigFields.S3Url)).WillReturnRows(rows)
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb)
+		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
 
 		hotels, err := rep.GetHotelsPreview("top")
 		assert.NoError(t, err)
@@ -224,13 +230,13 @@ func TestGetHotelsPreview(t *testing.T) {
 		query := fmt.Sprint("SELECT hotel_id, name, location, concat($3::varchar,img) FROM hotels ",
 			SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $2")
 
-		mock.ExpectQuery(query).WithArgs("top", configs.PreviewItemLimit, configs.S3Url).
+		mock.ExpectQuery(query).WithArgs("top", viper.GetString(configs.ConfigFields.PreviewItemLimit), viper.GetString(configs.ConfigFields.S3Url)).
 			WillReturnError(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb)
+		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
 
 		_, err := rep.GetHotelsPreview("top")
 		assert.Error(t, err)
@@ -251,15 +257,16 @@ func TestGetHotels(t *testing.T) {
 
 		query := GetHotelsPostgreRequest
 
-		hotelTest := hotelmodel.Hotel{1, "Villa", "top hotel in the world", "src/kek.jpg", "Moscow", 3.5,
-			nil, 4, ""}
+		hotelTest := hotelmodel.Hotel{3, "hotel", "top hotel in the world",
+			"src/kek.jpg", "Moscow Russia", "kek@mail.ru", "Russia", "Moscow",
+			4, []string{"kek.jpeg"}, 4, 55.6, 34.5, ""}
 
-		mock.ExpectQuery(query).WithArgs("4", configs.S3Url).WillReturnRows(rowsHotel)
+		mock.ExpectQuery(query).WithArgs("4", viper.GetString(configs.ConfigFields.S3Url)).WillReturnRows(rowsHotel)
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb)
+		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
 
 		hotels, err := rep.GetHotels(4)
 		assert.NoError(t, err)
@@ -269,13 +276,13 @@ func TestGetHotels(t *testing.T) {
 
 		query := GetHotelsPostgreRequest
 
-		mock.ExpectQuery(query).WithArgs("4", configs.S3Url).
+		mock.ExpectQuery(query).WithArgs("4", viper.GetString(configs.ConfigFields.S3Url)).
 			WillReturnError(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb)
+		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
 
 		_, err := rep.GetHotels(4)
 		assert.Error(t, err)
