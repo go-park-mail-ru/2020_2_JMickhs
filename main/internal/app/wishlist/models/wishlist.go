@@ -3,9 +3,9 @@ package wishlistmodel
 
 // easyjson:json
 type Wishlist struct {
-	WishlistID int    `json:"wishlist_id" db:"wishlist_id"`
+	WishlistID int    `json:"wishlist_id" db:"wishlist_id" mapstructure:"wishlist_id"`
 	Name       string `json:"name" db:"name"`
-	UserID     int    `json:"user_id" db:"user_id"`
+	UserID     int    `json:"user_id" db:"user_id" mapstructure:"user_id"`
 }
 
 // easyjson:json

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -184,112 +183,6 @@ func TestHotelHandler_Hotel(t *testing.T) {
 		err = mapstructure.Decode(response.Data.(map[string]interface{}), &hotel)
 		assert.Equal(t, hotel.Hotel, testHotel)
 		assert.Equal(t, response.Code, http.StatusOK)
-	})
-}
-
-func TestHotelHandler_ListHotels(t *testing.T) {
-	testHotels := []hotelmodel.Hotel{
-		{3, "kek", "kekw hotel", "src/image.png", "moscow", "ewrsd@mail.u",
-			"russia", "moscow", 3.4, []string{"fds", "fsd"},
-			3, 54.33, 43.4, viper.GetString(configs.ConfigFields.WishListOut)},
-		{4, "kek", "kekw hotel", "src/image.png", "moscow", "dsaxcds@mail.ru",
-			"russia", "moscow", 3.4, []string{"fds", "fsd"},
-			3, 54.33, 43.4, viper.GetString(configs.ConfigFields.WishListOut)},
-	}
-
-	t.Run("GetHotels", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockHUseCase := hotels_mock.NewMockUsecase(ctrl)
-
-		mockHUseCase.EXPECT().
-			GetHotels(0).
-			Return(testHotels, nil)
-
-		req, err := http.NewRequest("GET", "/api/v1/hotels", nil)
-		assert.NoError(t, err)
-
-		req.URL.RawQuery = fmt.Sprintf("from=%d", 0)
-
-		rec := httptest.NewRecorder()
-		handler := HotelHandler{
-			HotelUseCase: mockHUseCase,
-			log:          logger.NewLogger(os.Stdout),
-		}
-
-		handler.ListHotels(rec, req)
-		resp := rec.Result()
-		hotels := []hotelmodel.Hotel{}
-		body, err := ioutil.ReadAll(resp.Body)
-		response := responses.HttpResponse{}
-
-		err = json.Unmarshal(body, &response)
-		assert.NoError(t, err)
-		err = mapstructure.Decode(response.Data.(map[string]interface{})["hotels"], &hotels)
-		assert.NoError(t, err)
-
-		assert.Equal(t, hotels, testHotels)
-		assert.Equal(t, http.StatusOK, response.Code)
-	})
-	t.Run("GetHotelsErr1", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockHUseCase := hotels_mock.NewMockUsecase(ctrl)
-
-		mockHUseCase.EXPECT().
-			GetHotels(0).
-			Return(testHotels, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
-
-		req, err := http.NewRequest("GET", "/api/v1/hotels", nil)
-		assert.NoError(t, err)
-
-		req.URL.RawQuery = fmt.Sprintf("from=%d", 0)
-
-		rec := httptest.NewRecorder()
-		handler := HotelHandler{
-			HotelUseCase: mockHUseCase,
-			log:          logger.NewLogger(os.Stdout),
-		}
-
-		handler.ListHotels(rec, req)
-		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
-		response := responses.HttpResponse{}
-
-		err = json.Unmarshal(body, &response)
-		assert.NoError(t, err)
-
-		assert.Equal(t, serverError.ServerInternalError, response.Code)
-	})
-
-	t.Run("GetHotelsErr2", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockHUseCase := hotels_mock.NewMockUsecase(ctrl)
-
-		req, err := http.NewRequest("GET", "/api/v1/hotels", nil)
-		assert.NoError(t, err)
-
-		req.URL.RawQuery = fmt.Sprintf("fdrom=%d", 0)
-
-		rec := httptest.NewRecorder()
-		handler := HotelHandler{
-			HotelUseCase: mockHUseCase,
-			log:          logger.NewLogger(os.Stdout),
-		}
-
-		handler.ListHotels(rec, req)
-		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
-		response := responses.HttpResponse{}
-
-		err = json.Unmarshal(body, &response)
-		assert.NoError(t, err)
-
-		assert.Equal(t, clientError.BadRequest, response.Code)
 	})
 }
 
@@ -484,7 +377,7 @@ func TestHotelHandler_FetchHotelsByRadius(t *testing.T) {
 		mockHUseCase := hotels_mock.NewMockUsecase(ctrl)
 
 		mockHUseCase.EXPECT().
-			GetHotelsByRadius(54.33, 43.4, 5000).
+			GetHotelsByRadius("54.33", "43.4", "5000").
 			Return(testHotels, nil)
 
 		req, err := http.NewRequest("GET", "/api/v1/hotels/search?radius=5000&longitude=43.4&latitude=54.33", nil)
@@ -498,13 +391,13 @@ func TestHotelHandler_FetchHotelsByRadius(t *testing.T) {
 
 		handler.FetchHotelsByRadius(rec, req)
 		resp := rec.Result()
-		hotels := []hotelmodel.HotelPreview{}
+		hotels := []hotelmodel.Hotel{}
 		body, err := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
 		assert.NoError(t, err)
-		err = mapstructure.Decode(response.Data.(map[string]interface{})["hotels_preview"], &hotels)
+		err = mapstructure.Decode(response.Data.(map[string]interface{})["hotels"], &hotels)
 		assert.NoError(t, err)
 
 		assert.Equal(t, hotels, testHotels)
@@ -518,7 +411,7 @@ func TestHotelHandler_FetchHotelsByRadius(t *testing.T) {
 		mockHUseCase := hotels_mock.NewMockUsecase(ctrl)
 
 		mockHUseCase.EXPECT().
-			GetHotelsByRadius(54.33, 43.4, 5000).
+			GetHotelsByRadius("54.33", "43.4", "5000").
 			Return(testHotels, customerror.NewCustomError(errors.New("f"), serverError.ServerInternalError, 1))
 
 		req, err := http.NewRequest("GET", "/api/v1/hotels/search?radius=5000&longitude=43.4&latitude=54.33", nil)

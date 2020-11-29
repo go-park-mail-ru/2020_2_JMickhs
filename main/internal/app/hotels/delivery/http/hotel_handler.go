@@ -37,7 +37,6 @@ func NewHotelHandler(r *mux.Router, hs hotels.Usecase, lg *logger.CustomLogger) 
 	r.HandleFunc("/api/v1/hotels/{id:[0-9]+}", handler.Hotel).Methods("GET")
 	r.Path("/api/v1/hotels/search").Queries("pattern", "{pattern}", "page", "{page:[0-9]+}").
 		HandlerFunc(handler.FetchHotels).Methods("GET")
-	r.Path("/api/v1/hotels").Queries("from", "{from:[0-9]+}").HandlerFunc(handler.ListHotels).Methods("GET")
 	r.Path("/api/v1/hotels/previewSearch").Queries("pattern", "{pattern}").
 		HandlerFunc(handler.FetchHotelsPreview).Methods("GET")
 
@@ -157,32 +156,6 @@ func (hh *HotelHandler) FetchHotelsByRadius(w http.ResponseWriter, r *http.Reque
 	responses.SendDataResponse(w, hotelmodel.Hotels{hotels})
 }
 
-// swagger:route GET /api/v1/hotels hotel hotels
-// GetList of hotels
-// responses:
-//  200: hotels
-//  400: badrequest
-func (hh *HotelHandler) ListHotels(w http.ResponseWriter, r *http.Request) {
-
-	from := r.FormValue("from")
-	startId, err := strconv.Atoi(from)
-
-	if err != nil {
-
-		customerror.PostError(w, r, hh.log, err, clientError.BadRequest)
-		return
-	}
-
-	hotel, err := hh.HotelUseCase.GetHotels(startId)
-
-	if err != nil {
-		customerror.PostError(w, r, hh.log, err, nil)
-		return
-	}
-	hotels := hotelmodel.Hotels{Hotels: hotel}
-	responses.SendDataResponse(w, hotels)
-}
-
 // swagger:route GET /api/v1/hotels/{id} hotel hotel
 // Get Single hotel by id,
 // if don't rate by curr user, field "rate" should be empty
@@ -225,7 +198,6 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data.Comment = &comment
-
 	responses.SendDataResponse(w, data)
 }
 

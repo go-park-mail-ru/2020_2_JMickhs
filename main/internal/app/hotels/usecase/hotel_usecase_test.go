@@ -70,53 +70,6 @@ func TestHotelUseCase_GetHotelByID(t *testing.T) {
 	})
 }
 
-func TestHotelUseCase_GetHotels(t *testing.T) {
-
-	testHotels := make([]hotelmodel.Hotel, 4)
-	err := faker.FakeData(&testHotels)
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when create fake data", err)
-	}
-	t.Run("HotelGetHotels", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockHotelRepo := hotels_mock.NewMockRepository(ctrl)
-		mockUserService := userService.NewMockUserServiceClient(ctrl)
-		mockWishListRepo := wishlists_mock.NewMockRepository(ctrl)
-
-		mockHotelRepo.EXPECT().
-			GetHotels(0).
-			Return(testHotels, nil)
-
-		u := NewHotelUsecase(mockHotelRepo, mockUserService, mockWishListRepo)
-
-		hotels, err := u.GetHotels(0)
-
-		assert.NoError(t, err)
-		assert.Equal(t, hotels, testHotels)
-	})
-	t.Run("HotelGetHotelsErr", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mockHotelRepo := hotels_mock.NewMockRepository(ctrl)
-		mockUserService := userService.NewMockUserServiceClient(ctrl)
-		mockWishListRepo := wishlists_mock.NewMockRepository(ctrl)
-
-		mockHotelRepo.EXPECT().
-			GetHotels(0).
-			Return(testHotels, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
-
-		u := NewHotelUsecase(mockHotelRepo, mockUserService, mockWishListRepo)
-
-		_, err := u.GetHotels(0)
-
-		assert.Error(t, err)
-		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
-	})
-}
-
 func TestHotelUseCase_GetHotelsPreview(t *testing.T) {
 
 	testHotels := []hotelmodel.HotelPreview{}

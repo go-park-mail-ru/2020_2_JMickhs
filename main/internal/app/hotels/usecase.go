@@ -11,7 +11,6 @@ import (
 type Usecase interface {
 	UploadPhoto(hotel *hotelmodel.Hotel, file multipart.File, contentType string, mainImage bool, iterator int) error
 	AddHotel(hotel hotelmodel.Hotel, userID int) error
-	GetHotels(StartID int) ([]hotelmodel.Hotel, error)
 	GetHotelByID(ID int, userID int) (hotelmodel.Hotel, error)
 	FetchHotels(filter hotelmodel.HotelFiltering, pattern string, page int, userID int) (hotelmodel.SearchData, error)
 	CheckRateExist(UserID int, HotelID int) (commModel.FullCommentInfo, error)

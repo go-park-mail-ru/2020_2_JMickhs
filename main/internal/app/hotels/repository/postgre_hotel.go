@@ -77,16 +77,6 @@ func (p *PostgreHotelRepository) AddHotel(hotel hotelmodel.Hotel, userID int, us
 	return nil
 }
 
-func (p *PostgreHotelRepository) GetHotels(StartID int) ([]hotelmodel.Hotel, error) {
-	hotels := []hotelmodel.Hotel{}
-	err := p.conn.Select(&hotels, GetHotelsPostgreRequest, strconv.Itoa(StartID), viper.GetString(configs.ConfigFields.S3Url))
-
-	if err != nil {
-		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
-	}
-	return hotels, nil
-}
-
 func (p *PostgreHotelRepository) GetHotelByID(ID int) (hotelmodel.Hotel, error) {
 	hotel := hotelmodel.Hotel{}
 	err := p.conn.QueryRow(GetHotelByIDPostgreRequest, strconv.Itoa(ID), viper.GetString(configs.ConfigFields.S3Url)).
@@ -138,7 +128,6 @@ func (p *PostgreHotelRepository) BuildQueryToFetchHotel(filter *hotelmodel.Hotel
 	if filter.Radius != "" {
 		NearestFilterQuery = fmt.Sprint(" AND ST_Distance(coordinates::geography, $8::geography)<$9")
 		baseQuery += p.BuildQueryForCommentsPercent(filter, "$10")
-
 	} else {
 		baseQuery += p.BuildQueryForCommentsPercent(filter, "$8")
 	}
@@ -198,7 +187,7 @@ func (p *PostgreHotelRepository) FetchHotels(filter hotelmodel.HotelFiltering, p
 				point, filter.Radius, filter.CommCountPercent)
 		}
 	}
-	fmt.Println(query, "fdsfsd", filter.CommentsFilterStartNumber)
+
 	if err != nil {
 		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
@@ -209,7 +198,7 @@ func (p *PostgreHotelRepository) FetchHotels(filter hotelmodel.HotelFiltering, p
 func (p *PostgreHotelRepository) CheckRateExist(UserID int, HotelID int) (commModel.FullCommentInfo, error) {
 	comment := commModel.FullCommentInfo{}
 
-	err := p.conn.QueryRow(CheckRateIfExistPostgreRequest, HotelID).Scan(&comment.Message, &comment.Time, &comment.HotelID,
+	err := p.conn.QueryRow(CheckRateIfExistPostgreRequest, HotelID, UserID).Scan(&comment.Message, &comment.Time, &comment.HotelID,
 		&comment.UserID, &comment.CommID, &comment.Rating)
 	if err != nil {
 		return comment, customerror.NewCustomError(err, serverError.ServerInternalError, 1)

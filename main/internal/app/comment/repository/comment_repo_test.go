@@ -4,11 +4,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/serverError"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/clientError"
-
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/error"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
 
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 
@@ -24,7 +22,7 @@ func TestCommentRepository_GetComments(t *testing.T) {
 	}
 	defer db.Close()
 	t.Run("GetComments", func(t *testing.T) {
-		rowsComments := sqlmock.NewRows([]string{"user_id", "comm_id", "message", "rating", "avatar", "username", "hotel_id", "time"}).AddRow(
+		rowsComments := sqlmock.NewRows([]string{"user_id", "comm_id", "message", "rating", "concat", "username", "hotel_id", "time"}).AddRow(
 			1, 1, "hello", 3, "src/kek.jpg", "kotik", 1, "22-02-2000").AddRow(
 			3, 2, "hello", 3, "src/kek.jpg", "kotik", 1, "22-02-2000")
 

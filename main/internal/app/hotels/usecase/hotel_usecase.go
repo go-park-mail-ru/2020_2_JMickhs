@@ -68,10 +68,6 @@ func (p *HotelUseCase) AddHotel(hotel hotelmodel.Hotel, userID int) error {
 	return nil
 }
 
-func (p *HotelUseCase) GetHotels(StartID int) ([]hotelmodel.Hotel, error) {
-	return p.hotelRepo.GetHotels(StartID)
-}
-
 func (p *HotelUseCase) GetHotelByID(ID int, userID int) (hotelmodel.Hotel, error) {
 	hotel, err := p.hotelRepo.GetHotelByID(ID)
 	if err != nil {
@@ -132,7 +128,7 @@ func (p *HotelUseCase) CheckRateExist(UserID int, HotelID int) (commModel.FullCo
 	}
 
 	if comment.UserID != UserID {
-		return comment, errors.New("wrong  user id ")
+		return comment, customerror.NewCustomError(errors.New("wrong user id"), serverError.ServerInternalError, 1)
 	}
 	user, err := p.userService.GetUserByID(context.Background(), &userService.UserID{UserID: int64(UserID)})
 
