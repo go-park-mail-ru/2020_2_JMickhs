@@ -4,62 +4,342 @@ import (
 	"errors"
 	"testing"
 
+	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
+
+	hotels_mock "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/mocks"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+
+	wishlists_mock "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/wishlist/mocks"
+	wishlistmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/wishlist/models"
+
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bxcodec/faker/v3"
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/error"
-
-	mock_wishlist "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/mocks"
-	wishlistModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/wishlist/models"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/internal/pkg/serverError"
 	"github.com/golang/mock/gomock"
 )
 
-func TestwishlistUseCase_GetWishlistMeta(t *testing.T) {
-	wishlistFakeMeta := make([]wishlistModel.WishlisstHotel, 2)
-	err := faker.FakeData(&wishlistFakeMeta)
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when create fake data", err)
+func TestWishlistUseCase_GetWishlistMeta(t *testing.T) {
+	wishlist := []wishlistmodel.WishlistHotel{
+		{1, 2},
+		{1, 3},
 	}
-
 	t.Run("GetWishlistMeta", func(t *testing.T) {
-		controller := gomock.NewController(t)
-		defer controller.Finish()
-		mockWishlistRepository := mock_wishlist.NewMockRepository(controller)
-		mockWishlistRepository.EXPECT().GetWishlistMeta(42).Return(wishlistFakeMeta, nil)
-		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository)
-		wishlistMeta, err := wishlistUsecase.GetWishlistMeta(42)
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockWishlistRepository := wishlists_mock.NewMockRepository(ctrl)
+		mockHotelsRepository := hotels_mock.NewMockRepository(ctrl)
+		mockWishlistRepository.EXPECT().
+			GetWishlistMeta(1).
+			Return(wishlist, nil)
+
+		mockWishlistRepository.EXPECT().
+			CheckWishListOwner(1, 3).
+			Return(true, nil)
+
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository, mockHotelsRepository)
+
+		wishlistMeta, err := wishlistUsecase.GetWishlistMeta(3, 1)
 		assert.NoError(t, err)
-		assert.Equal(t, wishlistFakeMeta, wishlistMeta)
+		assert.Equal(t, wishlist, wishlistMeta)
 	})
 
-	t.Run("GetWishlistMetaError", func(t *testing.T) {
-		controller := gomock.NewController(t)
-		defer controller.Finish()
-		mockWishlistRepository := mock_wishlist.NewMockRepository(controller)
-		mockWishlistRepository.EXPECT().GetWishlistMeta(42).Return(wishlistFakeMeta, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
-		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository)
-		_, err := wishlistUsecase.GetWishlistMeta(42)
+	t.Run("GetWishlistMetaErr", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockWishlistRepository := wishlists_mock.NewMockRepository(ctrl)
+		mockHotelsRepository := hotels_mock.NewMockRepository(ctrl)
+
+		mockWishlistRepository.EXPECT().
+			CheckWishListOwner(1, 3).
+			Return(false, nil)
+
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository, mockHotelsRepository)
+
+		_, err := wishlistUsecase.GetWishlistMeta(3, 1)
 		assert.Error(t, err)
-		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
+		assert.Equal(t, customerror.ParseCode(err), clientError.Locked)
 	})
 
+	t.Run("GetWishlistMetaErr", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockWishlistRepository := wishlists_mock.NewMockRepository(ctrl)
+		mockHotelsRepository := hotels_mock.NewMockRepository(ctrl)
+
+		mockWishlistRepository.EXPECT().
+			CheckWishListOwner(1, 3).
+			Return(true, nil)
+
+		mockWishlistRepository.EXPECT().
+			GetWishlistMeta(1).
+			Return(wishlist, customerror.NewCustomError(errors.New(""), clientError.BadRequest, 1))
+
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository, mockHotelsRepository)
+
+		_, err := wishlistUsecase.GetWishlistMeta(3, 1)
+		assert.Error(t, err)
+		assert.Equal(t, customerror.ParseCode(err), clientError.BadRequest)
+	})
 }
-func TestwishlistUseCase_CreateWishlist(t *testing.T) {
-	wishlistFakeMeta := make([]wishlistModel.WishlisstHotel, 2)
-	err := faker.FakeData(&wishlistFakeMeta)
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when create fake data", err)
-	}
 
-	t.Run("CreateWishlist", func(t *testing.T) {
+func TestWishlistUseCase_DeleteWishlist(t *testing.T) {
+	t.Run("DeleteWishlist", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
+		mockWishlistRepository := wishlists_mock.NewMockRepository(ctrl)
+		mockHotelsRepository := hotels_mock.NewMockRepository(ctrl)
+
+		mockWishlistRepository.EXPECT().
+			DeleteWishlist(1).
+			Return(nil)
+
+		mockWishlistRepository.EXPECT().
+			CheckWishListOwner(1, 3).
+			Return(true, nil)
+
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository, mockHotelsRepository)
+
+		err := wishlistUsecase.DeleteWishlist(3, 1)
+		assert.NoError(t, err)
 	})
 
-	t.Run("CreateWishlistError", func(t *testing.T) {
+	t.Run("DeleteWishlistErr", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
+		mockWishlistRepository := wishlists_mock.NewMockRepository(ctrl)
+		mockHotelsRepository := hotels_mock.NewMockRepository(ctrl)
+
+		mockWishlistRepository.EXPECT().
+			CheckWishListOwner(1, 3).
+			Return(false, nil)
+
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository, mockHotelsRepository)
+
+		err := wishlistUsecase.DeleteWishlist(3, 1)
+		assert.Error(t, err)
+		assert.Equal(t, customerror.ParseCode(err), clientError.Locked)
+	})
+
+	t.Run("DeleteWishlistErr1", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockWishlistRepository := wishlists_mock.NewMockRepository(ctrl)
+		mockHotelsRepository := hotels_mock.NewMockRepository(ctrl)
+
+		mockWishlistRepository.EXPECT().
+			CheckWishListOwner(1, 3).
+			Return(true, nil)
+
+		mockWishlistRepository.EXPECT().
+			DeleteWishlist(1).
+			Return(customerror.NewCustomError(errors.New(""), clientError.BadRequest, 1))
+
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository, mockHotelsRepository)
+
+		err := wishlistUsecase.DeleteWishlist(3, 1)
+		assert.Error(t, err)
+		assert.Equal(t, customerror.ParseCode(err), clientError.BadRequest)
 	})
 }
-func TestwishlistUseCase_DeleteWishlist(t *testing.T) {}
-func TestwishlistUseCase_AddHotel(t *testing.T)       {}
-func TestwishlistUseCase_DeleteHotel(t *testing.T)    {}
+func TestWishlistUseCase_DeleteHotel(t *testing.T) {
+	t.Run("DeleteHotel", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockWishlistRepository := wishlists_mock.NewMockRepository(ctrl)
+		mockHotelsRepository := hotels_mock.NewMockRepository(ctrl)
+
+		mockWishlistRepository.EXPECT().
+			DeleteHotel(3, 1).
+			Return(nil)
+
+		mockWishlistRepository.EXPECT().
+			CheckWishListOwner(1, 3).
+			Return(true, nil)
+
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository, mockHotelsRepository)
+
+		err := wishlistUsecase.DeleteHotel(3, 3, 1)
+		assert.NoError(t, err)
+	})
+
+	t.Run("DeleteHotelErr", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockWishlistRepository := wishlists_mock.NewMockRepository(ctrl)
+		mockHotelsRepository := hotels_mock.NewMockRepository(ctrl)
+
+		mockWishlistRepository.EXPECT().
+			CheckWishListOwner(1, 3).
+			Return(false, nil)
+
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository, mockHotelsRepository)
+
+		err := wishlistUsecase.DeleteHotel(3, 3, 1)
+		assert.Error(t, err)
+		assert.Equal(t, customerror.ParseCode(err), clientError.Locked)
+	})
+
+	t.Run("DeleteHotelErr2", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockWishlistRepository := wishlists_mock.NewMockRepository(ctrl)
+		mockHotelsRepository := hotels_mock.NewMockRepository(ctrl)
+
+		mockWishlistRepository.EXPECT().
+			CheckWishListOwner(1, 3).
+			Return(true, nil)
+
+		mockWishlistRepository.EXPECT().
+			DeleteHotel(3, 1).
+			Return(customerror.NewCustomError(errors.New(""), clientError.BadRequest, 1))
+
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository, mockHotelsRepository)
+
+		err := wishlistUsecase.DeleteHotel(3, 3, 1)
+		assert.Error(t, err)
+		assert.Equal(t, customerror.ParseCode(err), clientError.BadRequest)
+	})
+}
+func TestWishlistUseCase_AddHotel(t *testing.T) {
+	t.Run("AddHotel", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockWishlistRepository := wishlists_mock.NewMockRepository(ctrl)
+		mockHotelsRepository := hotels_mock.NewMockRepository(ctrl)
+
+		mockWishlistRepository.EXPECT().
+			AddHotel(1, 1).
+			Return(nil)
+
+		mockHotelsRepository.EXPECT().
+			GetMiniHotelByID(1).
+			Return(hotelmodel.MiniHotel{}, nil)
+		mockWishlistRepository.EXPECT().
+			CheckWishListOwner(1, 3).
+			Return(true, nil)
+
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository, mockHotelsRepository)
+
+		err := wishlistUsecase.AddHotel(3, 1, 1)
+		assert.NoError(t, err)
+	})
+
+	t.Run("AddHotelErr1", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockWishlistRepository := wishlists_mock.NewMockRepository(ctrl)
+		mockHotelsRepository := hotels_mock.NewMockRepository(ctrl)
+
+		mockWishlistRepository.EXPECT().
+			CheckWishListOwner(1, 3).
+			Return(false, nil)
+
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository, mockHotelsRepository)
+
+		err := wishlistUsecase.AddHotel(3, 1, 1)
+		assert.Error(t, err)
+		assert.Equal(t, customerror.ParseCode(err), clientError.Locked)
+	})
+
+	t.Run("AddHotelErr2", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockWishlistRepository := wishlists_mock.NewMockRepository(ctrl)
+		mockHotelsRepository := hotels_mock.NewMockRepository(ctrl)
+
+		mockWishlistRepository.EXPECT().
+			CheckWishListOwner(1, 3).
+			Return(true, nil)
+		mockHotelsRepository.EXPECT().
+			GetMiniHotelByID(1).
+			Return(hotelmodel.MiniHotel{}, nil)
+
+		mockWishlistRepository.EXPECT().
+			AddHotel(1, 1).
+			Return(customerror.NewCustomError(errors.New(""), clientError.BadRequest, 1))
+
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository, mockHotelsRepository)
+
+		err := wishlistUsecase.AddHotel(3, 1, 1)
+		assert.Error(t, err)
+		assert.Equal(t, customerror.ParseCode(err), clientError.BadRequest)
+	})
+}
+
+func TestWishlistUseCase_CheckHotelInWishlists(t *testing.T) {
+	t.Run("CheckHotelInWishlists", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockWishlistRepository := wishlists_mock.NewMockRepository(ctrl)
+		mockHotelsRepository := hotels_mock.NewMockRepository(ctrl)
+
+		mockWishlistRepository.EXPECT().
+			CheckHotelInWishlists(2, 1).
+			Return("In", nil)
+
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository, mockHotelsRepository)
+
+		res, err := wishlistUsecase.CheckHotelInWishlists(2, 1)
+		assert.NoError(t, err)
+		assert.Equal(t, res, "In")
+	})
+}
+
+func TestWishlistUseCase_GetUserWishlists(t *testing.T) {
+	wishList := wishlistmodel.UserWishLists{Wishlists: []wishlistmodel.Wishlist{
+		{2, "kekw", 3},
+		{3, "kekw2", 3},
+	}}
+	t.Run("GetUserWishlists", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockWishlistRepository := wishlists_mock.NewMockRepository(ctrl)
+		mockHotelsRepository := hotels_mock.NewMockRepository(ctrl)
+
+		mockWishlistRepository.EXPECT().
+			GetUserWishlists(2).
+			Return(wishList, nil)
+
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository, mockHotelsRepository)
+
+		res, err := wishlistUsecase.GetUserWishlists(2)
+		assert.NoError(t, err)
+		assert.Equal(t, wishList, res)
+	})
+}
+
+func TestWishlistUseCase_CreateWishlist(t *testing.T) {
+	wishList := wishlistmodel.Wishlist{2, "kekw", 3}
+	t.Run("GetUserWishlists", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockWishlistRepository := wishlists_mock.NewMockRepository(ctrl)
+		mockHotelsRepository := hotels_mock.NewMockRepository(ctrl)
+
+		mockWishlistRepository.EXPECT().
+			CreateWishlist(wishList).
+			Return(wishList, nil)
+
+		wishlistUsecase := NewWishlistUseCase(mockWishlistRepository, mockHotelsRepository)
+
+		res, err := wishlistUsecase.CreateWishlist(wishList)
+		assert.NoError(t, err)
+		assert.Equal(t, wishList, res)
+	})
+}

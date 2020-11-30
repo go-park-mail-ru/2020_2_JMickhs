@@ -111,6 +111,7 @@ func (wh *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 //  400: badrequest
 //  423: locked
 //  403: Forbidden
+//  409: conflict
 func (wh *WishlistHandler) AddHotelToWishlist(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	WishlistID, err := strconv.Atoi(vars["wishList_id"])

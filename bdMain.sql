@@ -41,7 +41,8 @@ CREATE TABLE wishlistshotels(
         FOREIGN KEY(wishlist_id)
             REFERENCES wishlists(wishlist_id)
                 ON DELETE CASCADE,
-    hotel_id int
+    hotel_id int,
+    UNIQUE (wishlist_id, hotel_id)
 );
 
 CREATE INDEX if not exists hotels_gist_idx ON hotels USING gist (coordinates);

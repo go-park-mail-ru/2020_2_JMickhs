@@ -37,7 +37,6 @@ func NewHotelHandler(r *mux.Router, hs hotels.Usecase, lg *logger.CustomLogger) 
 	r.HandleFunc("/api/v1/hotels/{id:[0-9]+}", handler.Hotel).Methods("GET")
 	r.Path("/api/v1/hotels/search").Queries("pattern", "{pattern}", "page", "{page:[0-9]+}").
 		HandlerFunc(handler.FetchHotels).Methods("GET")
-	r.Path("/api/v1/hotels").Queries("from", "{from:[0-9]+}").HandlerFunc(handler.ListHotels).Methods("GET")
 	r.Path("/api/v1/hotels/previewSearch").Queries("pattern", "{pattern}").
 		HandlerFunc(handler.FetchHotelsPreview).Methods("GET")
 
@@ -65,9 +64,10 @@ func (hh *HotelHandler) DetectFileContentType(file multipart.File) (string, erro
 	return contentType, nil
 }
 
-// swagger:route GET /api/v1/hotels hotel AddHotel
+// swagger:route POST /api/v1/hotels hotel AddHotel
 // AddHotel
 // responses:
+//  200:
 //  400: badrequest
 func (hh *HotelHandler) AddHotelByOwner(w http.ResponseWriter, r *http.Request) {
 	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
@@ -118,6 +118,7 @@ func (hh *HotelHandler) AddHotelByOwner(w http.ResponseWriter, r *http.Request) 
 			customerror.PostError(w, r, hh.log, err, nil)
 			return
 		}
+
 		err = hh.HotelUseCase.UploadPhoto(&hotel, mainImage, fileType, false, iterator)
 		if err != nil {
 			customerror.PostError(w, r, hh.log, err, nil)
@@ -155,32 +156,6 @@ func (hh *HotelHandler) FetchHotelsByRadius(w http.ResponseWriter, r *http.Reque
 	responses.SendDataResponse(w, hotelmodel.Hotels{hotels})
 }
 
-// swagger:route GET /api/v1/hotels hotel hotels
-// GetList of hotels
-// responses:
-//  200: hotels
-//  400: badrequest
-func (hh *HotelHandler) ListHotels(w http.ResponseWriter, r *http.Request) {
-
-	from := r.FormValue("from")
-	startId, err := strconv.Atoi(from)
-
-	if err != nil {
-
-		customerror.PostError(w, r, hh.log, err, clientError.BadRequest)
-		return
-	}
-
-	hotel, err := hh.HotelUseCase.GetHotels(startId)
-
-	if err != nil {
-		customerror.PostError(w, r, hh.log, err, nil)
-		return
-	}
-	hotels := hotelmodel.Hotels{Hotels: hotel}
-	responses.SendDataResponse(w, hotels)
-}
-
 // swagger:route GET /api/v1/hotels/{id} hotel hotel
 // Get Single hotel by id,
 // if don't rate by curr user, field "rate" should be empty
@@ -198,19 +173,18 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hotel, err := hh.HotelUseCase.GetHotelByID(id)
-
+	hotel := hotelmodel.Hotel{}
+	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
+	if !ok {
+		userID = -1
+	}
+	hotel, err = hh.HotelUseCase.GetHotelByID(id, userID)
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, nil)
 		return
 	}
-	data := hotelmodel.HotelData{Hotel: hotel}
 
-	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
-	if !ok {
-		responses.SendDataResponse(w, data)
-		return
-	}
+	data := hotelmodel.HotelData{Hotel: hotel}
 
 	comment, err := hh.HotelUseCase.CheckRateExist(userID, hotel.HotelID)
 	if err != nil {
@@ -218,7 +192,6 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data.Comment = &comment
-
 	responses.SendDataResponse(w, data)
 }
 
@@ -231,6 +204,7 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 
 	pattern := r.FormValue("pattern")
 	pageNum := r.FormValue("page")
+
 	page, err := strconv.Atoi(pageNum)
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, clientError.BadRequest)
@@ -250,12 +224,13 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 
 	orderData := hotelmodel.HotelFiltering{rateStart, rateEnd, commStart,
 		longitude, latitude, radius, commCountConstraint, commCountPercent}
-	if err != nil {
-		customerror.PostError(w, r, hh.log, err, clientError.BadRequest)
-		return
-	}
 
-	hotels, err := hh.HotelUseCase.FetchHotels(orderData, pattern, page)
+	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
+	hotels := hotelmodel.SearchData{}
+	if !ok {
+		userID = -1
+	}
+	hotels, err = hh.HotelUseCase.FetchHotels(orderData, pattern, page, userID)
 
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, nil)

@@ -113,9 +113,9 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	repCom := commentRepository.NewCommentRepository(db)
 	repWish := wishlistRepository.NewPostgreWishlistRepository(db)
 
-	uHot := hotelUsecase.NewHotelUsecase(&repHot, userService)
+	uHot := hotelUsecase.NewHotelUsecase(&repHot, userService, &repWish)
 	uCom := commentUsecase.NewCommentUsecase(&repCom, userService)
-	uWish := wishlistUsecase.NewWishlistUseCase(&repWish)
+	uWish := wishlistUsecase.NewWishlistUseCase(&repWish, &repHot)
 
 	sessMidleware := middlewareApi.NewSessionMiddleware(sessionService, userService, log)
 	csrfMidleware := middlewareApi.NewCsrfMiddleware(sessionService, log)

@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson47583779DecodeGithubComGoParkMailRu20202JMickhsInternalAppPaginatorModel(in *jlexer.Lexer, out *PaginationInfo) {
+func easyjson47583779DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppPaginatorModel(in *jlexer.Lexer, out *PaginationInfo) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -52,7 +52,7 @@ func easyjson47583779DecodeGithubComGoParkMailRu20202JMickhsInternalAppPaginator
 		in.Consumed()
 	}
 }
-func easyjson47583779EncodeGithubComGoParkMailRu20202JMickhsInternalAppPaginatorModel(out *jwriter.Writer, in PaginationInfo) {
+func easyjson47583779EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppPaginatorModel(out *jwriter.Writer, in PaginationInfo) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -88,23 +88,23 @@ func easyjson47583779EncodeGithubComGoParkMailRu20202JMickhsInternalAppPaginator
 // MarshalJSON supports json.Marshaler interface
 func (v PaginationInfo) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson47583779EncodeGithubComGoParkMailRu20202JMickhsInternalAppPaginatorModel(&w, v)
+	easyjson47583779EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppPaginatorModel(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v PaginationInfo) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson47583779EncodeGithubComGoParkMailRu20202JMickhsInternalAppPaginatorModel(w, v)
+	easyjson47583779EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppPaginatorModel(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *PaginationInfo) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson47583779DecodeGithubComGoParkMailRu20202JMickhsInternalAppPaginatorModel(&r, v)
+	easyjson47583779DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppPaginatorModel(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *PaginationInfo) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson47583779DecodeGithubComGoParkMailRu20202JMickhsInternalAppPaginatorModel(l, v)
+	easyjson47583779DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppPaginatorModel(l, v)
 }

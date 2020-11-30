@@ -189,7 +189,101 @@ func (v *SearchData) UnmarshalJSON(data []byte) error {
 func (v *SearchData) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels1(l, v)
 }
-func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels2(in *jlexer.Lexer, out *HotelsPreview) {
+func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels2(in *jlexer.Lexer, out *MiniHotel) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "hotel_id":
+			out.HotelID = int(in.Int())
+		case "name":
+			out.Name = string(in.String())
+		case "image":
+			out.Image = string(in.String())
+		case "location":
+			out.Location = string(in.String())
+		case "rating":
+			out.Rating = float64(in.Float64())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels2(out *jwriter.Writer, in MiniHotel) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"hotel_id\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.HotelID))
+	}
+	{
+		const prefix string = ",\"name\":"
+		out.RawString(prefix)
+		out.String(string(in.Name))
+	}
+	{
+		const prefix string = ",\"image\":"
+		out.RawString(prefix)
+		out.String(string(in.Image))
+	}
+	{
+		const prefix string = ",\"location\":"
+		out.RawString(prefix)
+		out.String(string(in.Location))
+	}
+	{
+		const prefix string = ",\"rating\":"
+		out.RawString(prefix)
+		out.Float64(float64(in.Rating))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v MiniHotel) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels2(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v MiniHotel) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels2(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *MiniHotel) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels2(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *MiniHotel) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels2(l, v)
+}
+func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels3(in *jlexer.Lexer, out *HotelsPreview) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -241,7 +335,7 @@ func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 		in.Consumed()
 	}
 }
-func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels2(out *jwriter.Writer, in HotelsPreview) {
+func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels3(out *jwriter.Writer, in HotelsPreview) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -267,27 +361,27 @@ func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 // MarshalJSON supports json.Marshaler interface
 func (v HotelsPreview) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels2(&w, v)
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels3(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v HotelsPreview) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels2(w, v)
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels3(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *HotelsPreview) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels2(&r, v)
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels3(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *HotelsPreview) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels2(l, v)
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels3(l, v)
 }
-func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels3(in *jlexer.Lexer, out *Hotels) {
+func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels4(in *jlexer.Lexer, out *Hotels) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -339,7 +433,7 @@ func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 		in.Consumed()
 	}
 }
-func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels3(out *jwriter.Writer, in Hotels) {
+func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels4(out *jwriter.Writer, in Hotels) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -365,27 +459,27 @@ func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 // MarshalJSON supports json.Marshaler interface
 func (v Hotels) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels3(&w, v)
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels4(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Hotels) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels3(w, v)
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels4(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Hotels) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels3(&r, v)
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels4(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Hotels) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels3(l, v)
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels4(l, v)
 }
-func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels4(in *jlexer.Lexer, out *HotelPreview) {
+func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels5(in *jlexer.Lexer, out *HotelPreview) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -422,7 +516,7 @@ func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 		in.Consumed()
 	}
 }
-func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels4(out *jwriter.Writer, in HotelPreview) {
+func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels5(out *jwriter.Writer, in HotelPreview) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -452,27 +546,27 @@ func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 // MarshalJSON supports json.Marshaler interface
 func (v HotelPreview) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels4(&w, v)
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels5(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v HotelPreview) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels4(w, v)
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels5(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *HotelPreview) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels4(&r, v)
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels5(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *HotelPreview) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels4(l, v)
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels5(l, v)
 }
-func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels5(in *jlexer.Lexer, out *HotelFiltering) {
+func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels6(in *jlexer.Lexer, out *HotelFiltering) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -517,7 +611,7 @@ func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 		in.Consumed()
 	}
 }
-func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels5(out *jwriter.Writer, in HotelFiltering) {
+func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels6(out *jwriter.Writer, in HotelFiltering) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -567,27 +661,27 @@ func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 // MarshalJSON supports json.Marshaler interface
 func (v HotelFiltering) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels5(&w, v)
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels6(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v HotelFiltering) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels5(w, v)
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels6(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *HotelFiltering) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels5(&r, v)
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels6(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *HotelFiltering) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels5(l, v)
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels6(l, v)
 }
-func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels6(in *jlexer.Lexer, out *HotelData) {
+func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels7(in *jlexer.Lexer, out *HotelData) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -628,7 +722,7 @@ func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 		in.Consumed()
 	}
 }
-func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels6(out *jwriter.Writer, in HotelData) {
+func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels7(out *jwriter.Writer, in HotelData) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -648,27 +742,27 @@ func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 // MarshalJSON supports json.Marshaler interface
 func (v HotelData) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels6(&w, v)
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels7(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v HotelData) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels6(w, v)
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels7(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *HotelData) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels6(&r, v)
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels7(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *HotelData) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels6(l, v)
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels7(l, v)
 }
-func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels7(in *jlexer.Lexer, out *Hotel) {
+func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels8(in *jlexer.Lexer, out *Hotel) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -734,6 +828,8 @@ func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 			out.Latitude = float64(in.Float64())
 		case "longitude":
 			out.Longitude = float64(in.Float64())
+		case "wishlist_exist":
+			out.WishListExist = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -744,7 +840,7 @@ func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 		in.Consumed()
 	}
 }
-func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels7(out *jwriter.Writer, in Hotel) {
+func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels8(out *jwriter.Writer, in Hotel) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -822,33 +918,38 @@ func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 		out.RawString(prefix)
 		out.Float64(float64(in.Longitude))
 	}
+	if in.WishListExist != "" {
+		const prefix string = ",\"wishlist_exist\":"
+		out.RawString(prefix)
+		out.String(string(in.WishListExist))
+	}
 	out.RawByte('}')
 }
 
 // MarshalJSON supports json.Marshaler interface
 func (v Hotel) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels7(&w, v)
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels8(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Hotel) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels7(w, v)
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels8(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Hotel) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels7(&r, v)
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels8(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Hotel) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels7(l, v)
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels8(l, v)
 }
-func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels8(in *jlexer.Lexer, out *FilterData) {
+func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels9(in *jlexer.Lexer, out *FilterData) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -881,7 +982,7 @@ func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 		in.Consumed()
 	}
 }
-func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels8(out *jwriter.Writer, in FilterData) {
+func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels9(out *jwriter.Writer, in FilterData) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -901,27 +1002,27 @@ func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 // MarshalJSON supports json.Marshaler interface
 func (v FilterData) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels8(&w, v)
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels9(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v FilterData) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels8(w, v)
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels9(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *FilterData) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels8(&r, v)
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels9(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *FilterData) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels8(l, v)
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels9(l, v)
 }
-func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels9(in *jlexer.Lexer, out *Cursor) {
+func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels10(in *jlexer.Lexer, out *Cursor) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -954,7 +1055,7 @@ func easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 		in.Consumed()
 	}
 }
-func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels9(out *jwriter.Writer, in Cursor) {
+func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels10(out *jwriter.Writer, in Cursor) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -974,23 +1075,23 @@ func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 // MarshalJSON supports json.Marshaler interface
 func (v Cursor) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels9(&w, v)
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels10(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Cursor) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels9(w, v)
+	easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels10(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Cursor) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels9(&r, v)
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels10(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Cursor) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels9(l, v)
+	easyjsonD750f830DecodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotelsModels10(l, v)
 }

@@ -5,6 +5,8 @@ import (
 	"errors"
 	"mime/multipart"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/wishlist"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels"
@@ -20,14 +22,16 @@ import (
 )
 
 type HotelUseCase struct {
-	hotelRepo   hotels.Repository
-	userService userService.UserServiceClient
+	hotelRepo    hotels.Repository
+	wishlistRepo wishlist.Repository
+	userService  userService.UserServiceClient
 }
 
-func NewHotelUsecase(r hotels.Repository, userService userService.UserServiceClient) *HotelUseCase {
+func NewHotelUsecase(r hotels.Repository, userService userService.UserServiceClient, wishlistRepo wishlist.Repository) *HotelUseCase {
 	return &HotelUseCase{
-		hotelRepo:   r,
-		userService: userService,
+		hotelRepo:    r,
+		userService:  userService,
+		wishlistRepo: wishlistRepo,
 	}
 }
 
@@ -64,15 +68,24 @@ func (p *HotelUseCase) AddHotel(hotel hotelmodel.Hotel, userID int) error {
 	return nil
 }
 
-func (p *HotelUseCase) GetHotels(StartID int) ([]hotelmodel.Hotel, error) {
-	return p.hotelRepo.GetHotels(StartID)
+func (p *HotelUseCase) GetHotelByID(ID int, userID int) (hotelmodel.Hotel, error) {
+	hotel, err := p.hotelRepo.GetHotelByID(ID)
+	if err != nil {
+		return hotel, err
+	}
+	if userID == -1 {
+		return hotel, nil
+	}
+	check, err := p.wishlistRepo.CheckHotelInWishlists(userID, hotel.HotelID)
+	if err != nil {
+		return hotel, err
+	}
+	hotel.WishListExist = check
+
+	return hotel, nil
 }
 
-func (p *HotelUseCase) GetHotelByID(ID int) (hotelmodel.Hotel, error) {
-	return p.hotelRepo.GetHotelByID(ID)
-}
-
-func (p *HotelUseCase) FetchHotels(filter hotelmodel.HotelFiltering, pattern string, page int) (hotelmodel.SearchData, error) {
+func (p *HotelUseCase) FetchHotels(filter hotelmodel.HotelFiltering, pattern string, page int, userID int) (hotelmodel.SearchData, error) {
 	pag := hotelmodel.SearchData{}
 
 	offset := page * viper.GetInt(configs.ConfigFields.BaseItemPerPage)
@@ -80,7 +93,6 @@ func (p *HotelUseCase) FetchHotels(filter hotelmodel.HotelFiltering, pattern str
 	if err != nil {
 		return pag, err
 	}
-	pag.Hotels = data
 
 	if page > 0 && page <= viper.GetInt(configs.ConfigFields.BasePageCount) {
 		pag.PagInfo.PrevLink = ""
@@ -89,6 +101,19 @@ func (p *HotelUseCase) FetchHotels(filter hotelmodel.HotelFiltering, pattern str
 		pag.PagInfo.NextLink = ""
 	}
 
+	if userID == -1 {
+		pag.Hotels = data
+		return pag, nil
+	}
+
+	for pos, hotel := range data {
+		check, err := p.wishlistRepo.CheckHotelInWishlists(userID, hotel.HotelID)
+		if err != nil {
+			return pag, err
+		}
+		data[pos].WishListExist = check
+	}
+	pag.Hotels = data
 	return pag, nil
 }
 
@@ -103,7 +128,7 @@ func (p *HotelUseCase) CheckRateExist(UserID int, HotelID int) (commModel.FullCo
 	}
 
 	if comment.UserID != UserID {
-		return comment, errors.New("wrong  user id ")
+		return comment, customerror.NewCustomError(errors.New("wrong user id"), serverError.ServerInternalError, 1)
 	}
 	user, err := p.userService.GetUserByID(context.Background(), &userService.UserID{UserID: int64(UserID)})
 

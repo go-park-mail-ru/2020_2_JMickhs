@@ -5,10 +5,9 @@
 package comment_mock
 
 import (
-	reflect "reflect"
-
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
 // MockUsecase is a mock of Usecase interface

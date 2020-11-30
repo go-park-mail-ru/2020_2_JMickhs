@@ -18,6 +18,19 @@ definitions:
         x-go-name: Rating
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  AddHotelStruct:
+    properties:
+      jsonData:
+        $ref: '#/definitions/HotelStructToAdd'
+      mainImage:
+        $ref: '#/definitions/File'
+      photos:
+        items:
+          $ref: '#/definitions/File'
+        type: array
+        x-go-name: Photos
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   AddHotelToWishlistRequest:
     properties:
       hotel_id:
@@ -180,6 +193,10 @@ definitions:
         format: double
         type: number
         x-go-name: Rating
+      wishlist_exist:
+        description: enum "wishListIn" "wishListOut"
+        type: string
+        x-go-name: WishListExist
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   HotelData:
@@ -199,6 +216,25 @@ definitions:
       image:
         type: string
         x-go-name: Image
+      location:
+        type: string
+        x-go-name: Location
+      name:
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  HotelStructToAdd:
+    properties:
+      city:
+        type: string
+        x-go-name: City
+      country:
+        type: string
+        x-go-name: County
+      description:
+        type: string
+        x-go-name: Description
       location:
         type: string
         x-go-name: Location
@@ -504,6 +540,20 @@ paths:
       responses:
         "200":
           $ref: '#/responses/hotels'
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - hotel
+    post:
+      description: AddHotel
+      operationId: AddHotel
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/AddHotelStruct'
+      responses:
+        "200": {}
         "400":
           $ref: '#/responses/badrequest'
       tags:
@@ -912,6 +962,8 @@ paths:
           $ref: '#/responses/badrequest'
         "403":
           $ref: '#/responses/Forbidden'
+        "409":
+          $ref: '#/responses/conflict'
         "423":
           $ref: '#/responses/locked'
       tags:

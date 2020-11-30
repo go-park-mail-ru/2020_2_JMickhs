@@ -11,7 +11,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+	userService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/user"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
+
 	comment_mock "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/mocks"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/paginator/model"
@@ -30,10 +35,9 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		{2, 1, 2, "kek", 2, "src/kek.jpg", "kostik", "20-10-2000"},
 		{2, 2, 2, "kekw", 2, "src/kek.jpg", "kostik", "20-10-2000"},
 	}
-
-	testUser := models.User{ID: 2, Username: "kostik", Email: "sdfs@mail.ru", Password: "12345", Avatar: "kek/img.jpeg"}
-	paginfo := paginationModel.PaginationInfo{ItemsCount: 56, NextLink: "api/v1/comments/?id=3&limit=1&offset=57",
-		PrevLink: "api/v1/comments/?id=3&limit=1&offset=1"}
+	testUser := userService.User{UserID: 2, Username: "kostik", Email: "sdfs@mail.ru", Avatar: "kek/img.jpeg"}
+	paginfo := paginationModel.PaginationInfo{ItemsCount: 56, NextLink: "api/v1/comments/?id=2&limit=1&offset=57",
+		PrevLink: "api/v1/comments/?id=2&limit=1&offset=1"}
 	commentsTest := commModel.Comments{Comments: testComments, Info: paginfo}
 
 	t.Run("GetComments", func(t *testing.T) {
@@ -49,7 +53,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=0", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -84,7 +88,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=0", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -115,7 +119,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -146,7 +150,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=56", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -172,7 +176,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		2, 1, 2, "kek", 2, "20-10-2000",
 	}
 
-	testUser := models.User{ID: 2, Username: "kostik", Email: "sdfs@mail.ru", Password: "12345", Avatar: "kek/img.jpeg"}
+	testUser := userService.User{UserID: 2, Username: "kostik", Email: "sdfs@mail.ru", Avatar: "kek/img.jpeg"}
 	newRate := commModel.NewRate{Comment: testComment, Rate: 3}
 	t.Run("AddComment", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -188,7 +192,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -226,7 +230,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -289,7 +293,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -316,7 +320,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		2, 1, 2, "kek", 2, "20-10-2000",
 	}
 
-	testUser := models.User{ID: 2, Username: "kostik", Email: "sdfs@mail.ru", Password: "12345", Avatar: "kek/img.jpeg"}
+	testUser := userService.User{UserID: 2, Username: "kostik", Email: "sdfs@mail.ru", Avatar: "kek/img.jpeg"}
 	newRate := commModel.NewRate{Comment: testComment, Rate: 3}
 	t.Run("UpdateComment", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -332,7 +336,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -370,7 +374,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -433,7 +437,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -455,7 +459,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 }
 
 func TestCommentHandler_DeleteComment(t *testing.T) {
-	testUser := models.User{ID: 2, Username: "kostik", Email: "sdfs@mail.ru", Password: "12345", Avatar: "kek/img.jpeg"}
+	testUser := userService.User{UserID: 2, Username: "kostik", Email: "sdfs@mail.ru", Avatar: "kek/img.jpeg"}
 
 	t.Run("DeleteComment", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -470,7 +474,7 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		req, err := http.NewRequest("DELETE", "/api/v1/comments/1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
 		req = mux.SetURLVars(req, map[string]string{
 			"id": "1",
 		})
@@ -501,7 +505,7 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		req, err := http.NewRequest("DELETE", "/api/v1/comments/1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -563,7 +567,7 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		req, err := http.NewRequest("DELETE", "/api/v1/comments/1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
 		req = mux.SetURLVars(req, map[string]string{
 			"id": "1",
 		})

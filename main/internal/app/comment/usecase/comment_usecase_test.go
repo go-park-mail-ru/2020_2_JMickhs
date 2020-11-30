@@ -4,16 +4,15 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/clientError"
-
-	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/error"
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/serverError"
+	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+	userService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/user"
 
 	comment_mock "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/mocks"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
 
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 
-	"github.com/bxcodec/faker/v3"
 	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/paginator/model"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -21,20 +20,20 @@ import (
 
 func TestCommentUseCase_GetComments(t *testing.T) {
 
-	testComments := []commModel.FullCommentInfo{}
-	err := faker.FakeData(&testComments)
+	testComments := []commModel.FullCommentInfo{
+		{3, 1, 3, "kekw", 4, "avatar/kek.jpeg", "kostikan", "20.20.2010"},
+	}
 	paginfo := paginationModel.PaginationInfo{NextLink: "",
 		PrevLink: "", ItemsCount: 20}
 
 	searchTestData := commModel.Comments{Comments: testComments, Info: paginfo}
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when create fake data", err)
-	}
 	t.Run("GetComments", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
+
 		defer ctrl.Finish()
 
 		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
 
 		mockCommentRepo.EXPECT().
 			GetCommentsCount(3).
@@ -46,8 +45,11 @@ func TestCommentUseCase_GetComments(t *testing.T) {
 		mockCommentRepo.EXPECT().
 			CheckRateExistForComments(3, 3).
 			Return(false, nil)
+		mockUserService.EXPECT().
+			GetUserByID(gomock.Any(), &userService.UserID{UserID: 3}).
+			Return(&userService.User{UserID: 3, Username: "kostikan", Email: "email@mail.ru", Avatar: "avatar/kek.jpeg"}, nil)
 
-		u := NewCommentUsecase(mockCommentRepo)
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
 
 		_, comments, err := u.GetComments("3", "1", "2", 3)
 
@@ -62,6 +64,7 @@ func TestCommentUseCase_GetComments(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
 
 		mockCommentRepo.EXPECT().
 			GetCommentsCount(3).
@@ -74,7 +77,11 @@ func TestCommentUseCase_GetComments(t *testing.T) {
 			CheckRateExistForComments(3, 3).
 			Return(false, nil)
 
-		u := NewCommentUsecase(mockCommentRepo)
+		mockUserService.EXPECT().
+			GetUserByID(gomock.Any(), &userService.UserID{UserID: 3}).
+			Return(&userService.User{UserID: 3, Username: "kostikan", Email: "email@mail.ru", Avatar: "avatar/kek.jpeg"}, nil)
+
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
 
 		_, comments, err := u.GetComments("3", "1", "3", 3)
 
@@ -89,6 +96,7 @@ func TestCommentUseCase_GetComments(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
 
 		mockCommentRepo.EXPECT().
 			GetCommentsCount(3).
@@ -101,7 +109,11 @@ func TestCommentUseCase_GetComments(t *testing.T) {
 			CheckRateExistForComments(3, 3).
 			Return(false, nil)
 
-		u := NewCommentUsecase(mockCommentRepo)
+		mockUserService.EXPECT().
+			GetUserByID(gomock.Any(), &userService.UserID{UserID: 3}).
+			Return(&userService.User{UserID: 3, Username: "kostikan", Email: "email@mail.ru", Avatar: "avatar/kek.jpeg"}, nil)
+
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
 
 		_, comments, err := u.GetComments("3", "1", "0", 3)
 
@@ -113,12 +125,13 @@ func TestCommentUseCase_GetComments(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
 
 		mockCommentRepo.EXPECT().
 			GetCommentsCount(3).
 			Return(20, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
-		u := NewCommentUsecase(mockCommentRepo)
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
 
 		_, _, err := u.GetComments("3", "1", "2", 3)
 
@@ -130,6 +143,7 @@ func TestCommentUseCase_GetComments(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
 
 		mockCommentRepo.EXPECT().
 			GetCommentsCount(3).
@@ -142,7 +156,7 @@ func TestCommentUseCase_GetComments(t *testing.T) {
 			CheckRateExistForComments(3, 3).
 			Return(false, nil)
 
-		u := NewCommentUsecase(mockCommentRepo)
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
 
 		_, _, err := u.GetComments("3", "1", "2", 3)
 
@@ -159,6 +173,7 @@ func TestCommentUseCase_AddComment(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
 		GetComment := commModel.Comment{CommID: 3, HotelID: 2, UserID: 1, Message: "fsdfsdfsd", Rate: 3, Time: "22-02-2000"}
 		mockCommentRepo.EXPECT().
 			AddComment(testComment).
@@ -173,7 +188,7 @@ func TestCommentUseCase_AddComment(t *testing.T) {
 			UpdateHotelRating(2, 3.75).
 			Return(nil)
 
-		u := NewCommentUsecase(mockCommentRepo)
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
 
 		comment, err := u.AddComment(testComment)
 
@@ -187,12 +202,13 @@ func TestCommentUseCase_AddComment(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
 		GetComment := commModel.Comment{CommID: 3, HotelID: 2, UserID: 1, Message: "fsdfsdfsd", Rate: 3, Time: "22-02-2000"}
 		mockCommentRepo.EXPECT().
 			AddComment(testComment).
 			Return(GetComment, customerror.NewCustomError(errors.New(""), clientError.Locked, 1))
 
-		u := NewCommentUsecase(mockCommentRepo)
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
 
 		_, err := u.AddComment(testComment)
 
@@ -205,6 +221,8 @@ func TestCommentUseCase_AddComment(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
+
 		GetComment := commModel.Comment{CommID: 3, HotelID: 2, UserID: 1, Message: "fsdfsdfsd", Rate: 3, Time: "22-02-2000"}
 		mockCommentRepo.EXPECT().
 			AddComment(testComment).
@@ -215,7 +233,7 @@ func TestCommentUseCase_AddComment(t *testing.T) {
 			GetCurrentRating(2).
 			Return(rateInf, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
-		u := NewCommentUsecase(mockCommentRepo)
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
 
 		_, err := u.AddComment(testComment)
 
@@ -228,6 +246,7 @@ func TestCommentUseCase_AddComment(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
 		GetComment := commModel.Comment{CommID: 3, HotelID: 2, UserID: 1, Message: "fsdfsdfsd", Rate: 3, Time: "22-02-2000"}
 		mockCommentRepo.EXPECT().
 			AddComment(testComment).
@@ -242,7 +261,7 @@ func TestCommentUseCase_AddComment(t *testing.T) {
 			UpdateHotelRating(2, 3.75).
 			Return(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
-		u := NewCommentUsecase(mockCommentRepo)
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
 
 		_, err := u.AddComment(testComment)
 
@@ -259,6 +278,8 @@ func TestCommentUseCase_UpdateComment(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
+
 		mockCommentRepo.EXPECT().
 			CheckUser(&testComment).
 			Return(6, nil)
@@ -276,7 +297,7 @@ func TestCommentUseCase_UpdateComment(t *testing.T) {
 			UpdateHotelRating(2, 4.0).
 			Return(nil)
 
-		u := NewCommentUsecase(mockCommentRepo)
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
 
 		comment, err := u.UpdateComment(testComment)
 
@@ -289,11 +310,13 @@ func TestCommentUseCase_UpdateComment(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
+
 		mockCommentRepo.EXPECT().
 			CheckUser(&testComment).
 			Return(6, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
-		u := NewCommentUsecase(mockCommentRepo)
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
 
 		_, err := u.UpdateComment(testComment)
 
@@ -306,6 +329,8 @@ func TestCommentUseCase_UpdateComment(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
+
 		mockCommentRepo.EXPECT().
 			CheckUser(&testComment).
 			Return(6, nil)
@@ -314,7 +339,7 @@ func TestCommentUseCase_UpdateComment(t *testing.T) {
 			UpdateComment(&testComment).
 			Return(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
-		u := NewCommentUsecase(mockCommentRepo)
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
 
 		_, err := u.UpdateComment(testComment)
 
@@ -327,6 +352,8 @@ func TestCommentUseCase_UpdateComment(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
+
 		mockCommentRepo.EXPECT().
 			CheckUser(&testComment).
 			Return(6, nil)
@@ -340,7 +367,7 @@ func TestCommentUseCase_UpdateComment(t *testing.T) {
 			GetCurrentRating(2).
 			Return(rateInf, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
-		u := NewCommentUsecase(mockCommentRepo)
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
 
 		_, err := u.UpdateComment(testComment)
 
@@ -353,6 +380,8 @@ func TestCommentUseCase_UpdateComment(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
+
 		mockCommentRepo.EXPECT().
 			CheckUser(&testComment).
 			Return(6, nil)
@@ -370,7 +399,7 @@ func TestCommentUseCase_UpdateComment(t *testing.T) {
 			UpdateHotelRating(2, 4.0).
 			Return(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
-		u := NewCommentUsecase(mockCommentRepo)
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
 
 		_, err := u.UpdateComment(testComment)
 

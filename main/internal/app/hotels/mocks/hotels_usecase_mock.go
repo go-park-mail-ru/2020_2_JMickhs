@@ -5,11 +5,11 @@
 package hotels_mock
 
 import (
-	reflect "reflect"
-
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
 	gomock "github.com/golang/mock/gomock"
+	multipart "mime/multipart"
+	reflect "reflect"
 )
 
 // MockUsecase is a mock of Usecase interface
@@ -35,6 +35,34 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
+// UploadPhoto mocks base method
+func (m *MockUsecase) UploadPhoto(hotel *hotelmodel.Hotel, file multipart.File, contentType string, mainImage bool, iterator int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadPhoto", hotel, file, contentType, mainImage, iterator)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UploadPhoto indicates an expected call of UploadPhoto
+func (mr *MockUsecaseMockRecorder) UploadPhoto(hotel, file, contentType, mainImage, iterator interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadPhoto", reflect.TypeOf((*MockUsecase)(nil).UploadPhoto), hotel, file, contentType, mainImage, iterator)
+}
+
+// AddHotel mocks base method
+func (m *MockUsecase) AddHotel(hotel hotelmodel.Hotel, userID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddHotel", hotel, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddHotel indicates an expected call of AddHotel
+func (mr *MockUsecaseMockRecorder) AddHotel(hotel, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddHotel", reflect.TypeOf((*MockUsecase)(nil).AddHotel), hotel, userID)
+}
+
 // GetHotels mocks base method
 func (m *MockUsecase) GetHotels(StartID int) ([]hotelmodel.Hotel, error) {
 	m.ctrl.T.Helper()
@@ -51,33 +79,33 @@ func (mr *MockUsecaseMockRecorder) GetHotels(StartID interface{}) *gomock.Call {
 }
 
 // GetHotelByID mocks base method
-func (m *MockUsecase) GetHotelByID(ID int) (hotelmodel.Hotel, error) {
+func (m *MockUsecase) GetHotelByID(ID, userID int) (hotelmodel.Hotel, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetHotelByID", ID)
+	ret := m.ctrl.Call(m, "GetHotelByID", ID, userID)
 	ret0, _ := ret[0].(hotelmodel.Hotel)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetHotelByID indicates an expected call of GetHotelByID
-func (mr *MockUsecaseMockRecorder) GetHotelByID(ID interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) GetHotelByID(ID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHotelByID", reflect.TypeOf((*MockUsecase)(nil).GetHotelByID), ID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHotelByID", reflect.TypeOf((*MockUsecase)(nil).GetHotelByID), ID, userID)
 }
 
 // FetchHotels mocks base method
-func (m *MockUsecase) FetchHotels(filter hotelmodel.HotelFiltering, pattern string, page int) (hotelmodel.SearchData, error) {
+func (m *MockUsecase) FetchHotels(filter hotelmodel.HotelFiltering, pattern string, page, userID int) (hotelmodel.SearchData, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FetchHotels", filter, pattern, page)
+	ret := m.ctrl.Call(m, "FetchHotels", filter, pattern, page, userID)
 	ret0, _ := ret[0].(hotelmodel.SearchData)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FetchHotels indicates an expected call of FetchHotels
-func (mr *MockUsecaseMockRecorder) FetchHotels(filter, pattern, page interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) FetchHotels(filter, pattern, page, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchHotels", reflect.TypeOf((*MockUsecase)(nil).FetchHotels), filter, pattern, page)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchHotels", reflect.TypeOf((*MockUsecase)(nil).FetchHotels), filter, pattern, page, userID)
 }
 
 // CheckRateExist mocks base method
@@ -123,4 +151,19 @@ func (m *MockUsecase) GetHotelsByRadius(latitude, longitude, radius string) ([]h
 func (mr *MockUsecaseMockRecorder) GetHotelsByRadius(latitude, longitude, radius interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHotelsByRadius", reflect.TypeOf((*MockUsecase)(nil).GetHotelsByRadius), latitude, longitude, radius)
+}
+
+// GetMiniHotelByID mocks base method
+func (m *MockUsecase) GetMiniHotelByID(HotelID int) (hotelmodel.MiniHotel, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMiniHotelByID", HotelID)
+	ret0, _ := ret[0].(hotelmodel.MiniHotel)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMiniHotelByID indicates an expected call of GetMiniHotelByID
+func (mr *MockUsecaseMockRecorder) GetMiniHotelByID(HotelID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMiniHotelByID", reflect.TypeOf((*MockUsecase)(nil).GetMiniHotelByID), HotelID)
 }

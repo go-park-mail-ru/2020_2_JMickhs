@@ -22,3 +22,5 @@ constants:
   BasePageCount: 30
   PreviewItemLimit: 6
   BaseItemPerPage: 28
+  WishListIn: "WishListIn"
+  WishListOut: "WishListOut"

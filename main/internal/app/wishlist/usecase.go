@@ -1,3 +1,4 @@
+//go:generate mockgen -source usecase.go -destination mocks/wishlists_usecase_mock.go -package wishlists_mock
 package wishlist
 
 import (
@@ -11,4 +12,5 @@ type Usecase interface {
 	AddHotel(userID int, hotelID int, wishlistID int) error
 	DeleteHotel(userID int, hotelID int, wishlistID int) error
 	GetUserWishlists(userID int) (wishlistModel.UserWishLists, error)
+	CheckHotelInWishlists(userID int, hotelID int) (string, error)
 }

@@ -2,7 +2,6 @@ package userHttpDelivery
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
@@ -131,7 +130,7 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 
 	var twoPass models.UpdatePassword
-	err := json.NewDecoder(r.Body).Decode(&twoPass)
+	err := easyjson.UnmarshalFromReader(r.Body, &twoPass)
 	if err != nil {
 		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
 		return

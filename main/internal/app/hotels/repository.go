@@ -13,7 +13,6 @@ import (
 type Repository interface {
 	UploadPhoto(file multipart.File, contentType string) (string, error)
 	AddHotel(hotel hotelmodel.Hotel, userID int, userEmail string) error
-	GetHotels(StartID int) ([]hotelmodel.Hotel, error)
 	GetHotelByID(ID int) (hotelmodel.Hotel, error)
 	FetchHotels(filter hotelmodel.HotelFiltering, pattern string, offset int) ([]hotelmodel.Hotel, error)
 	BuildQueryForCommentsPercent(filter *hotelmodel.HotelFiltering, param string) string

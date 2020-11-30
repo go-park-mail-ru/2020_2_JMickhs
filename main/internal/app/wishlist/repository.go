@@ -1,3 +1,4 @@
+//go:generate mockgen -source repository.go -destination mocks/wishlists_repository_mock.go -package wishlists_mock
 package wishlist
 
 import (
@@ -12,4 +13,5 @@ type Repository interface {
 	AddHotel(hotelID int, wishlistID int) error
 	DeleteHotel(hotelID int, wishlistID int) error
 	GetUserWishlists(userID int) (wishlistModel.UserWishLists, error)
+	CheckHotelInWishlists(userID int, hotelID int) (string, error)
 }
