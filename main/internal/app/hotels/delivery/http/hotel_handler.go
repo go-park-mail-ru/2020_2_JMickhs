@@ -177,17 +177,11 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
 	if !ok {
 		userID = -1
-		hotel, err = hh.HotelUseCase.GetHotelByID(id, -1)
-		if err != nil {
-			customerror.PostError(w, r, hh.log, err, nil)
-			return
-		}
-	} else {
-		hotel, err = hh.HotelUseCase.GetHotelByID(id, userID)
-		if err != nil {
-			customerror.PostError(w, r, hh.log, err, nil)
-			return
-		}
+	}
+	hotel, err = hh.HotelUseCase.GetHotelByID(id, userID)
+	if err != nil {
+		customerror.PostError(w, r, hh.log, err, nil)
+		return
 	}
 
 	data := hotelmodel.HotelData{Hotel: hotel}
@@ -234,10 +228,9 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
 	hotels := hotelmodel.SearchData{}
 	if !ok {
-		hotels, err = hh.HotelUseCase.FetchHotels(orderData, pattern, page, -1)
-	} else {
-		hotels, err = hh.HotelUseCase.FetchHotels(orderData, pattern, page, userID)
+		userID = -1
 	}
+	hotels, err = hh.HotelUseCase.FetchHotels(orderData, pattern, page, userID)
 
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, nil)
