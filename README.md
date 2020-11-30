@@ -21,4 +21,4 @@
 [HostelScan](https://www.hostelscan.ru/)
 
 ## Ссылка на документацию
-[Swagger-doc](https://www.hostelscan.ru:8080/docs)
+[Swagger-doc](http://www.hostelscan.ru:8080/docs)
