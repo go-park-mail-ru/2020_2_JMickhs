@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	googleGeocoder "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/google_geocoder"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -104,6 +106,7 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 
 	r := NewRouter()
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
+	r.Handle("/api/v1/metrics", promhttp.Handler())
 	r.Use(middlewareApi.LoggerMiddleware(log))
 	r.Use(middlewareApi.NewPanicMiddleware())
 	r.Use(middlewareApi.MyCORSMethodMiddleware())

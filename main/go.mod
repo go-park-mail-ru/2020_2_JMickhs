@@ -30,6 +30,7 @@ require (
 	github.com/mailru/easyjson v0.7.6
 	github.com/microcosm-cc/bluemonday v1.0.4 // indirect
 	github.com/mitchellh/mapstructure v1.3.3
+	github.com/prometheus/client_golang v1.8.0
 	github.com/rs/cors v1.7.0 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.7.0

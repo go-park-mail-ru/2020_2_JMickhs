@@ -9,4 +9,4 @@ WORKDIR /app
 COPY --from=session_service  /go/src/session /app
 RUN chmod +x .
 EXPOSE 8079/tcp
-ENTRYPOINT [ "/app/JMickhs_sessions" ]
+ENTRYPOINT [ "/app/sessions" ]

@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/user/configs"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/middlewareUser"
 	userGrpcDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/delivery/grpc"
@@ -104,6 +106,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
+	r.Handle("/api/v1/metrics", promhttp.Handler())
 	r.Use(middlewareApi.LoggerMiddleware(log))
 	r.Use(middlewareApi.NewPanicMiddleware())
 	r.Use(middlewareApi.MyCORSMethodMiddleware())

@@ -9,5 +9,5 @@ WORKDIR /app
 COPY --from=main_service  /go/src/main /app
 RUN chmod +x  .
 EXPOSE 8080/tcp
-ENTRYPOINT [ "/app/JMickhs_main", "--server" ]
+ENTRYPOINT [ "/app/main", "--server" ]
 
