@@ -5,12 +5,21 @@ import (
 )
 
 type PromMetrics struct {
+	Total   prometheus.Counter
 	Hits    *prometheus.CounterVec
 	Timings *prometheus.HistogramVec
 }
 
 func RegisterMetrics() *PromMetrics {
 	var metrics PromMetrics
+
+	metrics.Total = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "foo_total",
+	})
+
+	metrics.Hits = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name: "hits",
+	}, []string{"status", "path", "method"})
 
 	metrics.Hits = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "hits",
