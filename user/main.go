@@ -23,6 +23,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/grpcPackage"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/metrics"
 
 	userService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/user"
 
@@ -105,9 +106,10 @@ func main() {
 	sessionService := sessionService.NewAuthorizationServiceClient(grpcSessionsConn)
 
 	r := mux.NewRouter()
+	metrics := metrics.RegisterMetrics(r)
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
 	r.Handle("/api/v1/metrics", promhttp.Handler())
-	r.Use(middlewareApi.LoggerMiddleware(log))
+	r.Use(middlewareApi.LoggerMiddleware(log, metrics))
 	r.Use(middlewareApi.NewPanicMiddleware())
 	r.Use(middlewareApi.MyCORSMethodMiddleware())
 

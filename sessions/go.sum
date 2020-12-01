@@ -159,6 +159,8 @@ github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201120095733-a1d36e1c6c0e/go.
 github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201123200900-98084a8558e2/go.mod h1:xUS6hQjBQXvpAWsSW4zRrdpPux88aP5vJW+lyDc7iPY=
 github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201126183430-6b48084356a3 h1:KCpROWa9UHxUijQr5z77smtZUEiHSkHqKit31ORWIVs=
 github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201126183430-6b48084356a3/go.mod h1:1NYedDEZGPSuUgPSSXzHub+RP0EcwU3StVPCrGYnV2c=
+github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201201080739-061b9ced3d11 h1:oiVB/+sRo99z2IcXX491N5S3DETtje8IjAiCu5RckBM=
+github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201201080739-061b9ced3d11/go.mod h1:RsMZvFNQDtfacf2fo2uKgfMLuKPPlDp5S6QyXTboX6I=
 github.com/go-park-mail-ru/2020_2_JMickhs/main v0.0.0-20201125094419-70525516ff6f/go.mod h1:ViRvSfCMyh5h/kzoa7sOU2TfawI8jXhDaEHjnmX2ZYo=
 github.com/go-park-mail-ru/2020_2_JMickhs/sessions v0.0.0-20201125094419-70525516ff6f/go.mod h1:jri7uA7Koy4/JkMFCanNIX4GgPDF9JBWrKh2Bek4W8M=
 github.com/go-park-mail-ru/2020_2_JMickhs/user v0.0.0-20201125094419-70525516ff6f/go.mod h1:3Q7+wsDKV1gUn0ofLW9ggA1hxqYrTE8ONB2VGerFn9c=
@@ -506,6 +508,7 @@ go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/atomic v1.6.0/go.mod h1:sABNBOSYdrvTF6hTgEIbc7YasKWGhgEQZyfxyTvoXHQ=
 go.uber.org/multierr v1.1.0/go.mod h1:wR5kodmAFQ0UK8QlbwjlSNy0Z68gJhDJUG5sjR94q/0=
 go.uber.org/multierr v1.5.0/go.mod h1:FeouvMocqHpRaaGuG9EjoKcStLC43Zu/fmqdUMPcKYU=
+go.uber.org/ratelimit v0.1.0/go.mod h1:2X8KaoNd1J0lZV+PxJk/5+DGbO/tpwLR1m++a7FnB/Y=
 go.uber.org/tools v0.0.0-20190618225709-2cfd321de3ee/go.mod h1:vJERXedbb3MVM5f9Ejo0C68/HhF8uaILCdgjnY+goOA=
 go.uber.org/zap v1.9.1/go.mod h1:vwi/ZaCAaUcBkycHslxD9B2zi4UTXhF60s6SWpuDF0Q=
 go.uber.org/zap v1.10.0/go.mod h1:vwi/ZaCAaUcBkycHslxD9B2zi4UTXhF60s6SWpuDF0Q=

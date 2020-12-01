@@ -8,7 +8,7 @@ require (
 	github.com/bxcodec/faker/v3 v3.5.0 // indirect
 	github.com/elliotchance/redismock v1.5.3 // indirect
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible // indirect
-	github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201126183430-6b48084356a3
+	github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201201080739-061b9ced3d11
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/go-redis/redis v6.15.9+incompatible // indirect
 	github.com/go-redis/redis/v8 v8.3.4

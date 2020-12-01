@@ -3,6 +3,8 @@ package server
 import (
 	"fmt"
 
+	metrics2 "github.com/go-park-mail-ru/2020_2_JMickhs/package/metrics"
+
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -102,9 +104,10 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	userService := userService.NewUserServiceClient(grpcUserConn)
 
 	r := NewRouter()
+	metrics := metrics2.RegisterMetrics(r)
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
 	r.Handle("/api/v1/metrics", promhttp.Handler())
-	r.Use(middlewareApi.LoggerMiddleware(log))
+	r.Use(middlewareApi.LoggerMiddleware(log, metrics))
 	r.Use(middlewareApi.NewPanicMiddleware())
 	r.Use(middlewareApi.MyCORSMethodMiddleware())
 
