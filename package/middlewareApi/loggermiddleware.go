@@ -26,7 +26,7 @@ func LoggerMiddleware(log *logger.CustomLogger, metrics *metrics.PromMetrics) mu
 
 			respTime := time.Since(start)
 			log.EndReq(respTime.Microseconds(), req.Context())
-			if req.URL.Path != "metrics" {
+			if req.URL.Path != "api/v1/metrics" {
 				metrics.Hits.WithLabelValues(strconv.Itoa(http.StatusOK), req.URL.String(), req.Method).Inc()
 				metrics.Timings.WithLabelValues(strconv.Itoa(http.StatusOK), req.URL.String(), req.Method).
 					Observe(respTime.Seconds())

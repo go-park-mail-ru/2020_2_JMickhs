@@ -108,7 +108,7 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
 	r.Handle("/api/v1/metrics", promhttp.Handler())
 	r.Use(middlewareApi.LoggerMiddleware(log, metrics))
-	r.Use(middlewareApi.NewPanicMiddleware())
+	r.Use(middlewareApi.NewPanicMiddleware(metrics))
 	r.Use(middlewareApi.MyCORSMethodMiddleware())
 
 	repHot := hotelRepository.NewPostgresHotelRepository(db, s3)
