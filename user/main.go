@@ -105,7 +105,7 @@ func main() {
 	sessionService := sessionService.NewAuthorizationServiceClient(grpcSessionsConn)
 
 	r := mux.NewRouter()
-	metrics := metrics.RegisterMetrics(r)
+	metrics := metrics.RegisterMetrics()
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
 	r.Handle("/api/v1/metrics", promhttp.Handler())
 	r.Use(middlewareApi.LoggerMiddleware(log, metrics))

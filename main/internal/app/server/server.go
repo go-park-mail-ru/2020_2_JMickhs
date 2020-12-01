@@ -104,7 +104,7 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	userService := userService.NewUserServiceClient(grpcUserConn)
 
 	r := NewRouter()
-	metrics := metrics2.RegisterMetrics(r)
+	metrics := metrics2.RegisterMetrics()
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
 	r.Handle("/api/v1/metrics", promhttp.Handler())
 	r.Use(middlewareApi.LoggerMiddleware(log, metrics))
