@@ -2,11 +2,8 @@ package server
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-
-	googleGeocoder "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/google_geocoder"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
@@ -111,8 +108,7 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	r.Use(middlewareApi.NewPanicMiddleware())
 	r.Use(middlewareApi.MyCORSMethodMiddleware())
 
-	geoCoder := googleGeocoder.NewGoogleGeoCoder(os.Getenv("GoggleMapKey"), "ru", "ru")
-	repHot := hotelRepository.NewPostgresHotelRepository(db, s3, geoCoder)
+	repHot := hotelRepository.NewPostgresHotelRepository(db, s3)
 	repCom := commentRepository.NewCommentRepository(db)
 	repWish := wishlistRepository.NewPostgreWishlistRepository(db)
 

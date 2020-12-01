@@ -38,7 +38,7 @@ func TestGetHoteBytIDErr(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
+		rep := NewPostgresHotelRepository(sqlxDb, nil)
 
 		_, err := rep.GetHotelByID(1)
 		assert.Error(t, err)
@@ -60,7 +60,7 @@ func TestGetHoteBytIDErr(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
+		rep := NewPostgresHotelRepository(sqlxDb, nil)
 
 		_, err := rep.GetHotelByID(2)
 		assert.Error(t, err)
@@ -96,7 +96,7 @@ func TestGetHoteBytID(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
+		rep := NewPostgresHotelRepository(sqlxDb, nil)
 
 		hotel, err := rep.GetHotelByID(3)
 		assert.NoError(t, err)
@@ -135,7 +135,7 @@ func TestFetchHotels(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
+		rep := NewPostgresHotelRepository(sqlxDb, nil)
 
 		hotels, err := rep.FetchHotels(filter, "top", 0)
 		assert.NoError(t, err)
@@ -153,7 +153,7 @@ func TestFetchHotels(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
+		rep := NewPostgresHotelRepository(sqlxDb, nil)
 
 		_, err := rep.FetchHotels(filter, "top", 0)
 		assert.Error(t, err)
@@ -181,7 +181,7 @@ func TestCheckRateExist(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
+		rep := NewPostgresHotelRepository(sqlxDb, nil)
 
 		rating, err := rep.CheckRateExist(3, 5)
 		assert.NoError(t, err)
@@ -196,7 +196,7 @@ func TestCheckRateExist(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
+		rep := NewPostgresHotelRepository(sqlxDb, nil)
 
 		_, err := rep.CheckRateExist(3, 5)
 		assert.Error(t, err)
@@ -226,7 +226,7 @@ func TestGetHotelsPreview(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
+		rep := NewPostgresHotelRepository(sqlxDb, nil)
 
 		hotels, err := rep.GetHotelsPreview("top")
 		assert.NoError(t, err)
@@ -242,7 +242,7 @@ func TestGetHotelsPreview(t *testing.T) {
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
 
-		rep := NewPostgresHotelRepository(sqlxDb, nil, nil)
+		rep := NewPostgresHotelRepository(sqlxDb, nil)
 
 		_, err := rep.GetHotelsPreview("top")
 		assert.Error(t, err)

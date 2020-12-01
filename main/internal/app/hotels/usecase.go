@@ -2,15 +2,11 @@
 package hotels
 
 import (
-	"mime/multipart"
-
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
 )
 
 type Usecase interface {
-	UploadPhoto(hotel *hotelmodel.Hotel, file multipart.File, contentType string, mainImage bool, iterator int) error
-	AddHotel(hotel hotelmodel.Hotel, userID int) error
 	GetHotelByID(ID int, userID int) (hotelmodel.Hotel, error)
 	FetchHotels(filter hotelmodel.HotelFiltering, pattern string, page int, userID int) (hotelmodel.SearchData, error)
 	CheckRateExist(UserID int, HotelID int) (commModel.FullCommentInfo, error)

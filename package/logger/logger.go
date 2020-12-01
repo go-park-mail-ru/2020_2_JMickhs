@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
 
@@ -47,9 +46,9 @@ func (l *CustomLogger) StartReq(r http.Request, rid string) {
 	}).Info("request started")
 }
 
-func (l *CustomLogger) EndReq(start time.Time, ctx context.Context) {
+func (l *CustomLogger) EndReq(since int64, ctx context.Context) {
 	l.WithFields(logrus.Fields{
-		"elapsed_time,μs": time.Since(start).Microseconds(),
+		"elapsed_time,μs": since,
 	}).Info("request ended")
 }
 

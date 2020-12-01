@@ -8,7 +8,6 @@ import (
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
 	gomock "github.com/golang/mock/gomock"
-	multipart "mime/multipart"
 	reflect "reflect"
 )
 
@@ -33,49 +32,6 @@ func NewMockUsecase(ctrl *gomock.Controller) *MockUsecase {
 // EXPECT returns an object that allows the caller to indicate expected use
 func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
-}
-
-// UploadPhoto mocks base method
-func (m *MockUsecase) UploadPhoto(hotel *hotelmodel.Hotel, file multipart.File, contentType string, mainImage bool, iterator int) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadPhoto", hotel, file, contentType, mainImage, iterator)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UploadPhoto indicates an expected call of UploadPhoto
-func (mr *MockUsecaseMockRecorder) UploadPhoto(hotel, file, contentType, mainImage, iterator interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadPhoto", reflect.TypeOf((*MockUsecase)(nil).UploadPhoto), hotel, file, contentType, mainImage, iterator)
-}
-
-// AddHotel mocks base method
-func (m *MockUsecase) AddHotel(hotel hotelmodel.Hotel, userID int) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddHotel", hotel, userID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// AddHotel indicates an expected call of AddHotel
-func (mr *MockUsecaseMockRecorder) AddHotel(hotel, userID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddHotel", reflect.TypeOf((*MockUsecase)(nil).AddHotel), hotel, userID)
-}
-
-// GetHotels mocks base method
-func (m *MockUsecase) GetHotels(StartID int) ([]hotelmodel.Hotel, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetHotels", StartID)
-	ret0, _ := ret[0].([]hotelmodel.Hotel)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetHotels indicates an expected call of GetHotels
-func (mr *MockUsecaseMockRecorder) GetHotels(StartID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHotels", reflect.TypeOf((*MockUsecase)(nil).GetHotels), StartID)
 }
 
 // GetHotelByID mocks base method
