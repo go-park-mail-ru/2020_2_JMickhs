@@ -15,6 +15,7 @@ import (
 	userHttpDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/delivery/http"
 	userRepository "github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/repository"
 	userUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/usecase"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/joho/godotenv"
 
@@ -106,6 +107,7 @@ func main() {
 	r := mux.NewRouter()
 	metrics := metrics.RegisterMetrics(r)
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
+	r.Handle("/api/v1/metrics", promhttp.Handler())
 	r.Use(middlewareApi.LoggerMiddleware(log, metrics))
 	r.Use(middlewareApi.NewPanicMiddleware(metrics))
 	r.Use(middlewareApi.MyCORSMethodMiddleware())

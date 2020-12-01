@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/aws/aws-sdk-go v1.35.31
-	github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201201091915-714c7c48d316
+	github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201201104550-86374934280d
 	github.com/go-playground/validator v9.31.0+incompatible // indirect
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/golang/mock v1.4.4
