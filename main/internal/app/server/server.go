@@ -76,7 +76,7 @@ func NewRouter() *mux.Router {
 	sh := middleware.Redoc(opts, nil)
 
 	router.Handle("/docs", sh)
-	router.Handle("/swagger.yaml", http.FileServer(http.Dir("../api/swagger")))
+	router.Handle("/swagger.yaml", http.FileServer(http.Dir("./api/swagger")))
 
 	return router
 }

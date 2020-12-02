@@ -26,10 +26,15 @@ func LoggerMiddleware(log *logger.CustomLogger, metrics *metrics.PromMetrics) mu
 
 			respTime := time.Since(start)
 			log.EndReq(respTime.Microseconds(), req.Context())
+			code, ok := req.Context().Value("code").(int)
+			if !ok {
+				code = 200
+			}
+			fmt.Println(code)
 			if req.RequestURI != "/api/v1/metrics" {
-				metrics.Hits.WithLabelValues(strconv.Itoa(http.StatusOK), req.URL.String(), req.Method).Inc()
+				metrics.Hits.WithLabelValues(strconv.Itoa(code), req.URL.String(), req.Method).Inc()
 				metrics.Total.Add(1)
-				metrics.Timings.WithLabelValues(strconv.Itoa(http.StatusOK), req.URL.String(), req.Method).
+				metrics.Timings.WithLabelValues(strconv.Itoa(code), req.URL.String(), req.Method).
 					Observe(respTime.Seconds())
 			}
 		})

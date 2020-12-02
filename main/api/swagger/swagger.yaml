@@ -525,39 +525,6 @@ paths:
       operationId: Csrf
       tags:
       - Csrf
-  /api/v1/hotels:
-    get:
-      description: GetList of hotels
-      operationId: hotels
-      parameters:
-      - description: the start ID to get hotels
-        format: int64
-        in: query
-        name: from
-        required: true
-        type: integer
-        x-go-name: ID
-      responses:
-        "200":
-          $ref: '#/responses/hotels'
-        "400":
-          $ref: '#/responses/badrequest'
-      tags:
-      - hotel
-    post:
-      description: AddHotel
-      operationId: AddHotel
-      parameters:
-      - in: body
-        name: Body
-        schema:
-          $ref: '#/definitions/AddHotelStruct'
-      responses:
-        "200": {}
-        "400":
-          $ref: '#/responses/badrequest'
-      tags:
-      - hotel
   /api/v1/hotels/{id}:
     get:
       description: if don't rate by curr user, field "rate" should be empty

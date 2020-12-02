@@ -115,7 +115,6 @@ func main() {
 	rep := userRepository.NewPostgresUserRepository(db, s3)
 	u := userUsecase.NewUserUsecase(&rep, validate)
 
-	server := grpc.NewServer()
 	userHttpDelivery.NewUserHandler(r, sessionService, u, log)
 
 	sessMidleware := middlewareUser.NewSessionMiddleware(sessionService, u, log)
@@ -124,6 +123,7 @@ func main() {
 	r.Use(sessMidleware.SessionMiddleware())
 	r.Use(csrfMidleware.CSRFCheck())
 
+	server := grpc.NewServer()
 	userService.RegisterUserServiceServer(server, userGrpcDelivery.NewUserDelivery(u))
 
 	listener, err := net.Listen("tcp", viper.GetString(configs.ConfigFields.UserGrpcServicePort))
