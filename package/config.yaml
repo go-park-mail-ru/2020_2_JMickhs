@@ -1,0 +1,9 @@
+context:
+  RequestUser: "User"
+  SessionID: "SessionID"
+  CorrectToken: "CorrectToken"
+  RequestUserID: "UserID"
+net:
+  Domen: "https://hostelscan.ru"
+  LocalOrigin: "http://127.0.0.1"
+

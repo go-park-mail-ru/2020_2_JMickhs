@@ -1,0 +1,1039 @@
+basePath: /
+consumes:
+- application/json
+- multipart/form-data
+definitions:
+  AddCommentRequest:
+    properties:
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
+      message:
+        type: string
+        x-go-name: Message
+      rating:
+        format: int64
+        type: integer
+        x-go-name: Rating
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  AddHotelStruct:
+    properties:
+      jsonData:
+        $ref: '#/definitions/HotelStructToAdd'
+      mainImage:
+        $ref: '#/definitions/File'
+      photos:
+        items:
+          $ref: '#/definitions/File'
+        type: array
+        x-go-name: Photos
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  AddHotelToWishlistRequest:
+    properties:
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  Avatar:
+    properties:
+      avatar:
+        type: string
+        x-go-name: Avatar
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  Comment:
+    properties:
+      comm_id:
+        format: int64
+        type: integer
+        x-go-name: CommID
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
+      message:
+        type: string
+        x-go-name: Message
+      rating:
+        format: double
+        type: number
+        x-go-name: Rate
+      time:
+        type: string
+        x-go-name: Time
+      user_id:
+        format: int64
+        type: integer
+        x-go-name: UserID
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  CreateWishlistRequest:
+    properties:
+      name:
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  DeleteHotelFromWishlistRequest:
+    properties:
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  File:
+    allOf:
+    - properties:
+        Close:
+          type: string
+      type: object
+    - type: object
+    - type: object
+    - type: object
+    description: |-
+      Its contents may be either stored in memory or on disk.
+      If stored on disk, the File's underlying concrete type will be an *os.File.
+    title: File is an interface to access the file part of a multipart message.
+    type: object
+    x-go-package: mime/multipart
+  FullCommentInfo:
+    properties:
+      avatar:
+        type: string
+        x-go-name: Avatar
+      comm_id:
+        format: int64
+        type: integer
+        x-go-name: CommID
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
+      message:
+        type: string
+        x-go-name: Message
+      rating:
+        format: double
+        type: number
+        x-go-name: Rating
+      time:
+        type: string
+        x-go-name: Time
+      user_id:
+        format: int64
+        type: integer
+        x-go-name: UserID
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  GetCommentsRequest:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/FullCommentInfo'
+        type: array
+        x-go-name: Comments
+      pag_info:
+        $ref: '#/definitions/PaginationInfo'
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  Hotel:
+    properties:
+      city:
+        type: string
+        x-go-name: City
+      comm_count:
+        format: int64
+        type: integer
+        x-go-name: CommCount
+      country:
+        type: string
+        x-go-name: Country
+      description:
+        type: string
+        x-go-name: Description
+      email:
+        type: string
+        x-go-name: Email
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
+      image:
+        type: string
+        x-go-name: Image
+      latitude:
+        format: double
+        type: number
+        x-go-name: Latitude
+      location:
+        type: string
+        x-go-name: Location
+      longitude:
+        format: double
+        type: number
+        x-go-name: Longitude
+      name:
+        type: string
+        x-go-name: Name
+      photos:
+        items:
+          type: string
+        type: array
+        x-go-name: Photos
+      rating:
+        format: double
+        type: number
+        x-go-name: Rating
+      wishlist_exist:
+        description: enum "wishListIn" "wishListOut"
+        type: string
+        x-go-name: WishListExist
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  HotelData:
+    properties:
+      comment:
+        $ref: '#/definitions/FullCommentInfo'
+      hotel:
+        $ref: '#/definitions/Hotel'
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  HotelPreview:
+    properties:
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
+      image:
+        type: string
+        x-go-name: Image
+      location:
+        type: string
+        x-go-name: Location
+      name:
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  HotelStructToAdd:
+    properties:
+      city:
+        type: string
+        x-go-name: City
+      country:
+        type: string
+        x-go-name: County
+      description:
+        type: string
+        x-go-name: Description
+      location:
+        type: string
+        x-go-name: Location
+      name:
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  Hotels:
+    properties:
+      hotels:
+        items:
+          $ref: '#/definitions/Hotel'
+        type: array
+        x-go-name: Hotels
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  HotelsPreview:
+    properties:
+      hotels_preview:
+        items:
+          $ref: '#/definitions/HotelPreview'
+        type: array
+        x-go-name: Hotels
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  MiniHotel:
+    description: easyjson:json
+    properties:
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
+      image:
+        type: string
+        x-go-name: Image
+      location:
+        type: string
+        x-go-name: Location
+      name:
+        type: string
+        x-go-name: Name
+      rating:
+        format: double
+        type: number
+        x-go-name: Rating
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  NewRate:
+    properties:
+      comment:
+        $ref: '#/definitions/Comment'
+      new_rate:
+        format: double
+        type: number
+        x-go-name: Rate
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  PaginationInfo:
+    properties:
+      items_count:
+        format: int64
+        type: integer
+        x-go-name: ItemsCount
+      next:
+        type: string
+        x-go-name: NextLink
+      prev:
+        type: string
+        x-go-name: PrevLink
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  SafeUser:
+    properties:
+      avatar:
+        type: string
+        x-go-name: Avatar
+      email:
+        type: string
+        x-go-name: Email
+      id:
+        format: int64
+        type: integer
+        x-go-name: ID
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  SearchDataResponse:
+    properties:
+      Pag_info:
+        $ref: '#/definitions/PaginationInfo'
+      hotels:
+        items:
+          $ref: '#/definitions/Hotel'
+        type: array
+        x-go-name: Hotels
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  UpdateAvatar:
+    properties:
+      avatar:
+        $ref: '#/definitions/File'
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  UpdateCommentRequest:
+    properties:
+      comm_id:
+        format: int64
+        type: integer
+        x-go-name: CommID
+      message:
+        type: string
+        x-go-name: Message
+      rating:
+        format: int64
+        type: integer
+        x-go-name: Rate
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  UpdateEmail:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  UpdatePassword:
+    properties:
+      newpassword:
+        type: string
+        x-go-name: NewPassword
+      oldpassword:
+        type: string
+        x-go-name: OldPassword
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  UpdateUser:
+    properties:
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  UserAuth:
+    properties:
+      password:
+        type: string
+        x-go-name: Password
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  UserRegistation:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+      password:
+        type: string
+        x-go-name: Password
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  UserWishLists:
+    properties:
+      wishlists:
+        items:
+          $ref: '#/definitions/Wishlist'
+        type: array
+        x-go-name: Wishlists
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  Wishlist:
+    properties:
+      name:
+        type: string
+        x-go-name: Name
+      user_id:
+        format: int64
+        type: integer
+        x-go-name: UserID
+      wishlist_id:
+        format: int64
+        type: integer
+        x-go-name: WishlistID
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+info:
+  description: Swagger spec.
+  title: Golang service API for HotelScanner
+  version: 1.0.0
+paths:
+  /api/v1/comments:
+    get:
+      description: GetList of comments
+      operationId: comments
+      parameters:
+      - description: offset  start from 0
+        format: int64
+        in: query
+        name: offset
+        required: true
+        type: integer
+        x-go-name: Offset
+      - description: number of comments to show
+        format: int64
+        in: query
+        name: limit
+        type: integer
+        x-go-name: Limit
+      - description: the ID of hotel which comments you get
+        format: int64
+        in: query
+        name: id
+        required: true
+        type: integer
+        x-go-name: ID
+      responses:
+        "200":
+          $ref: '#/responses/comments'
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - comment
+    post:
+      description: add comment and rate hotel
+      operationId: AddComment
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/AddCommentRequest'
+      responses:
+        "200":
+          $ref: '#/responses/AddComment'
+        "400":
+          $ref: '#/responses/badrequest'
+        "403":
+          $ref: '#/responses/Forbidden'
+        "423":
+          $ref: '#/responses/locked'
+      tags:
+      - comment
+    put:
+      operationId: UpdateComment
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UpdateCommentRequest'
+      responses:
+        "200":
+          $ref: '#/responses/AddComment'
+        "400":
+          $ref: '#/responses/badrequest'
+        "403":
+          $ref: '#/responses/Forbidden'
+        "423":
+          $ref: '#/responses/locked'
+      tags:
+      - comment
+  /api/v1/comments/{id}:
+    delete:
+      operationId: DeleteComment
+      parameters:
+      - description: the ID to delete comment
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+        x-go-name: ID
+      responses:
+        "400":
+          $ref: '#/responses/badrequest'
+        "403":
+          $ref: '#/responses/Forbidden'
+      tags:
+      - comment
+  /api/v1/csrf:
+    get:
+      description: get csrf token, token expire = 15 min
+      operationId: Csrf
+      tags:
+      - Csrf
+  /api/v1/hotels/{id}:
+    get:
+      description: if don't rate by curr user, field "rate" should be empty
+      operationId: hotel
+      parameters:
+      - description: в метрах
+        in: query
+        name: radius
+        required: true
+        type: string
+        x-go-name: Radius
+      - description: широта
+        in: query
+        name: latitude
+        required: true
+        type: string
+        x-go-name: Latitude
+      - description: долгота
+        in: query
+        name: longitude
+        required: true
+        type: string
+        x-go-name: Longitude
+      - description: the id of hotel to get from database
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+        x-go-name: ID
+      responses:
+        "200":
+          $ref: '#/responses/HotelData'
+        "400":
+          $ref: '#/responses/badrequest'
+        "410":
+          $ref: '#/responses/gone'
+      summary: Get Single hotel by id,
+      tags:
+      - hotel
+  /api/v1/hotels/previewSearch:
+    get:
+      description: Search hotels preview
+      operationId: hotelPreview
+      parameters:
+      - description: page num start from 0
+        in: query
+        name: pattern
+        required: true
+        type: string
+        x-go-name: Pattern
+      responses:
+        "200":
+          $ref: '#/responses/hotelsPreview'
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - hotel
+  /api/v1/hotels/radiusSearch:
+    get:
+      description: GetList of hotels by radius
+      operationId: hotelsByRadius
+      parameters:
+      - description: в метрах
+        in: query
+        name: radius
+        required: true
+        type: string
+        x-go-name: Radius
+      - description: широта
+        in: query
+        name: latitude
+        required: true
+        type: string
+        x-go-name: Latitude
+      - description: долгота
+        in: query
+        name: longitude
+        required: true
+        type: string
+        x-go-name: Longitude
+      responses:
+        "200":
+          $ref: '#/responses/hotels'
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - hotel
+  /api/v1/hotels/search:
+    get:
+      description: Search hotels
+      operationId: searchHotel
+      parameters:
+      - in: query
+        name: pattern
+        required: true
+        type: string
+        x-go-name: Pattern
+      - description: page num start from 0
+        in: query
+        name: page
+        required: true
+        type: string
+        x-go-name: Page
+      - description: в метрах
+        in: query
+        name: radius
+        type: string
+        x-go-name: Radius
+      - description: широта
+        in: query
+        name: latitude
+        type: string
+        x-go-name: Latitude
+      - description: долгота
+        in: query
+        name: longitude
+        type: string
+        x-go-name: Longitude
+      - format: int64
+        in: query
+        name: rateStart
+        type: integer
+        x-go-name: RateStart
+      - format: int64
+        in: query
+        name: rateEnd
+        type: integer
+        x-go-name: RateEnd
+      - format: int64
+        in: query
+        name: commentStart
+        type: integer
+        x-go-name: CommentCountStart
+      - description: какие оценки выбираем через запятую пример "3,4,5"
+        format: int64
+        in: query
+        name: commCount
+        type: integer
+        x-go-name: CommCountConstraint
+      - description: процент выбранных оценок от общего кол-ва
+        format: int64
+        in: query
+        name: commPercent
+        type: integer
+        x-go-name: CommCountPercent
+      responses:
+        "200":
+          $ref: '#/responses/searchHotel'
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - hotel
+  /api/v1/users:
+    get:
+      description: Get current safe user
+      operationId: user
+      responses:
+        "200":
+          $ref: '#/responses/safeUser'
+        "401":
+          $ref: '#/responses/unauthorizied'
+      tags:
+      - Users
+    post:
+      description: Creates a new User
+      operationId: signup
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UserRegistation'
+      responses:
+        "200":
+          $ref: '#/responses/safeUser'
+        "400":
+          $ref: '#/responses/badrequest'
+        "409":
+          $ref: '#/responses/conflict'
+      tags:
+      - Users
+  /api/v1/users/{id}:
+    get:
+      description: Get info abous user by his id
+      operationId: userById
+      parameters:
+      - format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+        x-go-name: ID
+      responses:
+        "200":
+          $ref: '#/responses/safeUser'
+        "400":
+          $ref: '#/responses/badrequest'
+        "410":
+          $ref: '#/responses/gone'
+      tags:
+      - Users
+  /api/v1/users/avatar:
+    put:
+      description: Update Avatar
+      operationId: avatar
+      parameters:
+      - description: avatar in *.jpg *.jpeg *.png format
+        in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UpdateAvatar'
+      responses:
+        "200":
+          $ref: '#/responses/avatar'
+        "400":
+          $ref: '#/responses/badrequest'
+        "401":
+          $ref: '#/responses/unauthorizied'
+        "403":
+          $ref: '#/responses/Forbidden'
+        "415":
+          $ref: '#/responses/unsupport'
+      tags:
+      - Users
+  /api/v1/users/credentials:
+    put:
+      description: Get data from form  which need to change and change user data
+      operationId: credentials
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UpdateUser'
+      responses:
+        "400":
+          $ref: '#/responses/badrequest'
+        "401":
+          $ref: '#/responses/unauthorizied'
+        "403":
+          $ref: '#/responses/Forbidden'
+        "409":
+          $ref: '#/responses/conflict'
+      tags:
+      - Users
+  /api/v1/users/password:
+    put:
+      description: update password
+      operationId: password
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UpdatePassword'
+      responses:
+        "400":
+          $ref: '#/responses/badrequest'
+        "401":
+          $ref: '#/responses/unauthorizied'
+        "402":
+          $ref: '#/responses/badCredentials'
+        "403":
+          $ref: '#/responses/Forbidden'
+      tags:
+      - Users
+  /api/v1/users/sessions:
+    delete:
+      description: sign out current user and delete cookie session
+      operationId: DelSessions
+      tags:
+      - Sessions
+    post:
+      description: user auth with coockie
+      operationId: AddSessions
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UserAuth'
+      responses:
+        "200":
+          $ref: '#/responses/safeUser'
+        "400":
+          $ref: '#/responses/badrequest'
+        "401":
+          $ref: '#/responses/unauthorizied'
+      tags:
+      - Sessions
+  /api/v1/wishlists:
+    get:
+      description: Get list of hotels in wishlist
+      operationId: getUserWishlist
+      responses:
+        "200":
+          $ref: '#/responses/wishlists'
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - Wishlist
+    post:
+      description: Creates a new Wishlist
+      operationId: createWishlist
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/CreateWishlistRequest'
+      responses:
+        "200":
+          $ref: '#/responses/wishlist'
+        "400":
+          $ref: '#/responses/badrequest'
+        "403":
+          $ref: '#/responses/Forbidden'
+        "423":
+          $ref: '#/responses/locked'
+      tags:
+      - Wishlist
+  /api/v1/wishlists/{wishlist_id}:
+    delete:
+      description: Delete wishlist
+      operationId: deleteWishlist
+      parameters:
+      - description: the id of wishlist
+        format: int64
+        in: path
+        name: wishlist_id
+        required: true
+        type: integer
+        x-go-name: ID
+      responses:
+        "200": {}
+        "400":
+          $ref: '#/responses/badrequest'
+        "403":
+          $ref: '#/responses/Forbidden'
+        "423":
+          $ref: '#/responses/locked'
+      tags:
+      - Wishlist
+    get:
+      description: Get list of hotels in wishlist
+      operationId: getWishlist
+      parameters:
+      - description: the id of wishlist
+        format: int64
+        in: path
+        name: wishlist_id
+        required: true
+        type: integer
+        x-go-name: ID
+      responses:
+        "200":
+          $ref: '#/responses/wishlisthotels'
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - Wishlist
+  /api/v1/wishlists/{wishlist_id}/hotels:
+    delete:
+      description: Delete hotel from wishlist
+      operationId: deleteHotelFromWishlist
+      parameters:
+      - description: the id of wishlist
+        format: int64
+        in: path
+        name: wishlist_id
+        required: true
+        type: integer
+        x-go-name: ID
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/DeleteHotelFromWishlistRequest'
+      responses:
+        "200": {}
+        "400":
+          $ref: '#/responses/badrequest'
+        "403":
+          $ref: '#/responses/Forbidden'
+        "423":
+          $ref: '#/responses/locked'
+      tags:
+      - Wishlist
+    post:
+      description: Add hotel to wishlist
+      operationId: addHotelToWishlist
+      parameters:
+      - description: the id of wishlist
+        format: int64
+        in: path
+        name: wishlist_id
+        required: true
+        type: integer
+        x-go-name: ID
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/AddHotelToWishlistRequest'
+      responses:
+        "200": {}
+        "400":
+          $ref: '#/responses/badrequest'
+        "403":
+          $ref: '#/responses/Forbidden'
+        "409":
+          $ref: '#/responses/conflict'
+        "423":
+          $ref: '#/responses/locked'
+      tags:
+      - Wishlist
+produces:
+- application/json
+responses:
+  AddComment:
+    schema:
+      $ref: '#/definitions/NewRate'
+  Forbidden:
+    description: wrong csrf token
+  HotelData:
+    schema:
+      $ref: '#/definitions/HotelData'
+  UpdateComment:
+    schema:
+      $ref: '#/definitions/NewRate'
+  WrongEmail:
+    description: wrong email
+  avatar:
+    schema:
+      $ref: '#/definitions/Avatar'
+  badCredentials:
+    description: wrong credentials
+  badrequest:
+    description: cannot parse data or undefined query or path parameters
+  commentInfo:
+    description: easyjson:json
+    headers:
+      avatar:
+        type: string
+      comm_id:
+        format: int64
+        type: integer
+      hotel_id:
+        format: int64
+        type: integer
+      message:
+        type: string
+      rating:
+        format: double
+        type: number
+      time:
+        type: string
+      user_id:
+        format: int64
+        type: integer
+      username:
+        type: string
+  comments:
+    schema:
+      $ref: '#/definitions/GetCommentsRequest'
+  conflict:
+    description: unique data already exists
+  gone:
+    description: This data does not exist
+  hotels:
+    schema:
+      $ref: '#/definitions/Hotels'
+  hotelsPreview:
+    schema:
+      $ref: '#/definitions/HotelsPreview'
+  locked:
+    description: two times rate one hotel or want to get not your wishlists
+  safeUser:
+    schema:
+      $ref: '#/definitions/SafeUser'
+  searchHotel:
+    schema:
+      $ref: '#/definitions/SearchDataResponse'
+  signup:
+    schema:
+      $ref: '#/definitions/SafeUser'
+  unauthorizied:
+    description: user unauthorizied
+  unsupport:
+    description: Unsupported Media Type
+  user:
+    description: easyjson:json
+    headers:
+      avatar:
+        type: string
+      email:
+        type: string
+      id:
+        format: int64
+        type: integer
+      password:
+        type: string
+      username:
+        type: string
+  wishlist:
+    schema:
+      $ref: '#/definitions/Wishlist'
+  wishlisthotels:
+    schema:
+      items:
+        $ref: '#/definitions/MiniHotel'
+      type: array
+  wishlists:
+    schema:
+      $ref: '#/definitions/UserWishLists'
+schemes:
+- http
+swagger: "2.0"

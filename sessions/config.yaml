@@ -1,0 +1,8 @@
+cookie:
+  LifeTime: 44640
+csrf:
+  CsrfExpire: 15
+context:
+  SessionID: "SessionID"
+grpc:
+  SessionGrpcServicePort: ":8079"

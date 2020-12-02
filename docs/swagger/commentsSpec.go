@@ -1,10 +1,40 @@
 package swagger
 
-import (
-	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/comment/models"
-	paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/internal/app/paginator/model"
-)
+type NewRate struct {
+	Rate    float64 `json:"new_rate" mapstructure:"new_rate"`
+	Comment Comment `json:"comment" mapstructure:"comment"`
+}
 
+type PrevRate struct {
+	Rate    int     `json:"prev_rate"`
+	Comment Comment `json:"comment"`
+}
+
+type PaginationInfo struct {
+	NextLink   string `json:"next,omitempty"`
+	PrevLink   string `json:"prev,omitempty"`
+	ItemsCount int    `json:"items_count,omitempty"`
+}
+
+type Comment struct {
+	UserID  int     `json:"user_id" db:"user_id" mapstructure:"user_id"`
+	HotelID int     `json:"hotel_id" mapstructure:"hotel_id"`
+	CommID  int     `json:"comm_id" mapstructure:"comm_id"`
+	Message string  `json:"message" mapstructure:"message"`
+	Rate    float64 `json:"rating" mapstructure:"rating"`
+	Time    string  `json:"time" mapstructure:"time"`
+}
+
+type FullCommentInfo struct {
+	UserID   int     `json:"user_id" db:"user_id" mapstructure:"user_id"`
+	CommID   int     `json:"comm_id" db:"comm_id" mapstructure:"comm_id"`
+	HotelID  int     `json:"hotel_id" db:"hotel_id" mapstructure:"hotel_id"`
+	Message  string  `json:"message" db:"message"`
+	Rating   float64 `json:"rating" db:"rating"`
+	Avatar   string  `json:"avatar" db:"concat"`
+	Username string  `json:"username" db:"username"`
+	Time     string  `json:"time" db:"time"`
+}
 type AddCommentRequest struct {
 	HotelID int    `json:"hotel_id"`
 	Message string `json:"message"`
@@ -18,8 +48,8 @@ type UpdateCommentRequest struct {
 }
 
 type GetCommentsRequest struct {
-	Comments []commModel.FullCommentInfo    `json:"comments"`
-	PagInfo  paginationModel.PaginationInfo `json:"pag_info"`
+	Comments []FullCommentInfo `json:"comments"`
+	PagInfo  PaginationInfo    `json:"pag_info"`
 }
 
 // swagger:parameters comments
@@ -52,7 +82,7 @@ type Comments struct {
 // swagger:response AddComment
 type newRateResponse struct {
 	//in:body
-	Body commModel.NewRate
+	Body NewRate
 }
 
 // swagger:parameters UpdateComment
@@ -64,7 +94,7 @@ type updateCommentRequest struct {
 // swagger:response UpdateComment
 type updateCommentResponse struct {
 	//in: body
-	Body commModel.NewRate
+	Body NewRate
 }
 
 // swagger:parameters AddComment
