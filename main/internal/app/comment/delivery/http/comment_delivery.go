@@ -63,7 +63,6 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 
 	count, comments, err := ch.CommentUseCase.GetComments(hotelID, limit, offsetVar, user_id)
 	if err != nil {
-
 		customerror.PostError(w, r, ch.log, err, nil)
 		return
 	}
@@ -168,7 +167,7 @@ func (ch *CommentHandler) NextPrevUrl(count int, limit string, offsetVar string,
 	url := url.URL{
 		Host:   "hostelscan.ru:8080",
 		Scheme: "https",
-		Path:   "/api/v1/comments/",
+		Path:   "/api/v1/comments",
 	}
 
 	query := url.Query()

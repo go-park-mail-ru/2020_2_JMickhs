@@ -23,6 +23,11 @@ fillbd:
 server:
 	go run main.go -server
 
+pull:
+	sudo docker pull kostikan/main_service:latest
+	sudo docker pull kostikan/session_service:latest
+	sudo docker pull kostikan/user_service:latest
+
 upload:
 	sudo docker build -t kostikan/main_service:latest -f ./main/Dockerfile .
 	sudo docker build -t kostikan/session_service:latest -f ./sessions/Dockerfile .
