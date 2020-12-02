@@ -5,9 +5,10 @@ import (
 )
 
 type PromMetrics struct {
-	Total   prometheus.Counter
-	Hits    *prometheus.CounterVec
-	Timings *prometheus.HistogramVec
+	Total     prometheus.Counter
+	Hits      *prometheus.CounterVec
+	HitsError *prometheus.CounterVec
+	Timings   *prometheus.HistogramVec
 }
 
 func RegisterMetrics() *PromMetrics {
@@ -21,8 +22,8 @@ func RegisterMetrics() *PromMetrics {
 		Name: "hits",
 	}, []string{"status", "path", "method"})
 
-	metrics.Hits = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name: "hits",
+	metrics.HitsError = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name: "hitsError",
 	}, []string{"status", "path", "method"})
 
 	metrics.Timings = prometheus.NewHistogramVec(
@@ -32,7 +33,7 @@ func RegisterMetrics() *PromMetrics {
 		[]string{"status", "path", "method"},
 	)
 
-	prometheus.MustRegister(metrics.Hits, metrics.Timings)
+	prometheus.MustRegister(metrics.Hits, metrics.Timings, metrics.Total, metrics.HitsError)
 
 	return &metrics
 }
