@@ -24,7 +24,6 @@ func NewStatusResponseWriter(w http.ResponseWriter) *statusResponseWriter {
 
 func (srw *statusResponseWriter) WriteHeader(code int) {
 	srw.statusCode = code
-	srw.ResponseWriter.WriteHeader(code)
 }
 
 func LoggerMiddleware(log *logger.CustomLogger, metrics *metrics.PromMetrics) mux.MiddlewareFunc {
@@ -47,7 +46,6 @@ func LoggerMiddleware(log *logger.CustomLogger, metrics *metrics.PromMetrics) mu
 				metrics.Timings.WithLabelValues(strconv.Itoa(srw.statusCode), req.URL.String(), req.Method).
 					Observe(respTime.Seconds())
 			}
-			w.WriteHeader(200)
 		})
 	}
 }
