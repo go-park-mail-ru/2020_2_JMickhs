@@ -35,7 +35,7 @@ func (m *CsrfMiddleware) CSRFCheck() mux.MiddlewareFunc {
 			ctx := r.Context()
 			sid, ok := ctx.Value(packageConfig.SessionID).(string)
 			if !ok {
-				m.Log.Error(customerror.NewCustomError(errors.New("can't get sessId"), 0, 1))
+				m.Log.Error(customerror.NewCustomError(errors.New("can't get sessId"), clientError.BadRequest, 1))
 				ctx = context.WithValue(ctx, packageConfig.CorrectToken, false)
 				next.ServeHTTP(w, r.WithContext(ctx))
 				return
