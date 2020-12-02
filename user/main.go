@@ -15,12 +15,14 @@ import (
 	userHttpDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/delivery/http"
 	userRepository "github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/repository"
 	userUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/usecase"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/joho/godotenv"
 
 	"github.com/spf13/viper"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/grpcPackage"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/metrics"
 
 	userService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/user"
 
@@ -103,15 +105,16 @@ func main() {
 	sessionService := sessionService.NewAuthorizationServiceClient(grpcSessionsConn)
 
 	r := mux.NewRouter()
+	metrics := metrics.RegisterMetrics()
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
-	r.Use(middlewareApi.LoggerMiddleware(log))
-	r.Use(middlewareApi.NewPanicMiddleware())
+	r.Handle("/api/v1/metrics", promhttp.Handler())
+	r.Use(middlewareApi.LoggerMiddleware(log, metrics))
+	r.Use(middlewareApi.NewPanicMiddleware(metrics))
 	r.Use(middlewareApi.MyCORSMethodMiddleware())
 
 	rep := userRepository.NewPostgresUserRepository(db, s3)
 	u := userUsecase.NewUserUsecase(&rep, validate)
 
-	server := grpc.NewServer()
 	userHttpDelivery.NewUserHandler(r, sessionService, u, log)
 
 	sessMidleware := middlewareUser.NewSessionMiddleware(sessionService, u, log)
@@ -120,6 +123,7 @@ func main() {
 	r.Use(sessMidleware.SessionMiddleware())
 	r.Use(csrfMidleware.CSRFCheck())
 
+	server := grpc.NewServer()
 	userService.RegisterUserServiceServer(server, userGrpcDelivery.NewUserDelivery(u))
 
 	listener, err := net.Listen("tcp", viper.GetString(configs.ConfigFields.UserGrpcServicePort))

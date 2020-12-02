@@ -13,9 +13,11 @@ func SendDataResponse(w http.ResponseWriter, data interface{}) {
 	if err != nil {
 		SendErrorResponse(w, http.StatusInternalServerError)
 	}
+	w.WriteHeader(200)
 }
 
 func SendOkResponse(w http.ResponseWriter) {
+	w.WriteHeader(200)
 	err := json.NewEncoder(w).Encode(HttpResponse{Code: 200})
 	if err != nil {
 		SendErrorResponse(w, http.StatusInternalServerError)

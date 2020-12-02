@@ -2,9 +2,10 @@ package server
 
 import (
 	"fmt"
-	"os"
 
-	googleGeocoder "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/google_geocoder"
+	metrics2 "github.com/go-park-mail-ru/2020_2_JMickhs/package/metrics"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
@@ -75,7 +76,7 @@ func NewRouter() *mux.Router {
 	sh := middleware.Redoc(opts, nil)
 
 	router.Handle("/docs", sh)
-	router.Handle("/swagger.yaml", http.FileServer(http.Dir("../api/swagger")))
+	router.Handle("/swagger.yaml", http.FileServer(http.Dir("./api/swagger")))
 
 	return router
 }
@@ -103,13 +104,14 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	userService := userService.NewUserServiceClient(grpcUserConn)
 
 	r := NewRouter()
+	metrics := metrics2.RegisterMetrics()
 	r.Methods("OPTIONS").Handler(middlewareApi.NewOptionsHandler())
-	r.Use(middlewareApi.LoggerMiddleware(log))
-	r.Use(middlewareApi.NewPanicMiddleware())
+	r.Handle("/api/v1/metrics", promhttp.Handler())
+	r.Use(middlewareApi.LoggerMiddleware(log, metrics))
+	r.Use(middlewareApi.NewPanicMiddleware(metrics))
 	r.Use(middlewareApi.MyCORSMethodMiddleware())
 
-	geoCoder := googleGeocoder.NewGoogleGeoCoder(os.Getenv("GoggleMapKey"), "ru", "ru")
-	repHot := hotelRepository.NewPostgresHotelRepository(db, s3, geoCoder)
+	repHot := hotelRepository.NewPostgresHotelRepository(db, s3)
 	repCom := commentRepository.NewCommentRepository(db)
 	repWish := wishlistRepository.NewPostgreWishlistRepository(db)
 

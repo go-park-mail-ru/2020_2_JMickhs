@@ -2,22 +2,14 @@ package hotelRepository
 
 import (
 	"fmt"
-	"mime/multipart"
 	"strconv"
 	"strings"
-
-	googleGeocoder "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/pkg/google_geocoder"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
 
-	"github.com/aws/aws-sdk-go/aws"
-	uuid "github.com/satori/go.uuid"
-
 	"github.com/aws/aws-sdk-go/service/s3"
-
-	"github.com/lib/pq"
 
 	"github.com/spf13/viper"
 
@@ -30,51 +22,12 @@ import (
 )
 
 type PostgreHotelRepository struct {
-	conn     *sqlx.DB
-	s3       *s3.S3
-	geoCoder googleGeocoder.GoogleGeoCoder
+	conn *sqlx.DB
+	s3   *s3.S3
 }
 
-func NewPostgresHotelRepository(conn *sqlx.DB, s3 *s3.S3, geo googleGeocoder.GoogleGeoCoder) PostgreHotelRepository {
-	return PostgreHotelRepository{conn, s3, geo}
-}
-
-func (p *PostgreHotelRepository) GetLatitudeLongitudeByLocation(location string) (googleGeocoder.GeoCoordinates, error) {
-	coordinates := googleGeocoder.GeoCoordinates{}
-	geo, err := p.geoCoder.GetGeoByAddress(location)
-	if err != nil {
-		return coordinates, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
-	}
-	return geo.Geometry.Location, nil
-}
-
-func (p *PostgreHotelRepository) UploadPhoto(file multipart.File, contentType string) (string, error) {
-	newFilename := uuid.NewV4().String()
-	relativePath := viper.GetString(configs.ConfigFields.StaticPathForHotels) + newFilename + "." + contentType
-
-	_, err := p.s3.PutObject(&s3.PutObjectInput{
-		Body:   file,
-		Bucket: aws.String(viper.GetString(configs.ConfigFields.BucketName)),
-		Key:    aws.String(relativePath),
-		ACL:    aws.String(s3.BucketCannedACLPublicRead),
-	})
-	if err != nil {
-		return "", customerror.NewCustomError(err, serverError.ServerInternalError, 1)
-	}
-	return relativePath, err
-}
-
-func GeneratePointToGeo(latitude float64, longitude float64) string {
-	return fmt.Sprintf("SRID=4326;POINT(%f %f)", latitude, longitude)
-}
-
-func (p *PostgreHotelRepository) AddHotel(hotel hotelmodel.Hotel, userID int, userEmail string) error {
-	err := p.conn.QueryRow(AddHotelByOwner, hotel.Name, hotel.Description, userEmail, hotel.City,
-		hotel.Country, hotel.Location, hotel.Image, pq.Array(hotel.Photos), GeneratePointToGeo(hotel.Latitude, hotel.Longitude)).Err()
-	if err != nil {
-		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
-	}
-	return nil
+func NewPostgresHotelRepository(conn *sqlx.DB, s3 *s3.S3) PostgreHotelRepository {
+	return PostgreHotelRepository{conn, s3}
 }
 
 func (p *PostgreHotelRepository) GetHotelByID(ID int) (hotelmodel.Hotel, error) {

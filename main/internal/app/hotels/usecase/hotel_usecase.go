@@ -3,7 +3,6 @@ package hotelUsecase
 import (
 	"context"
 	"errors"
-	"mime/multipart"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/wishlist"
 
@@ -11,8 +10,6 @@ import (
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
-
-	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
 
 	"github.com/spf13/viper"
 
@@ -33,39 +30,6 @@ func NewHotelUsecase(r hotels.Repository, userService userService.UserServiceCli
 		userService:  userService,
 		wishlistRepo: wishlistRepo,
 	}
-}
-
-func (p *HotelUseCase) UploadPhoto(hotel *hotelmodel.Hotel, file multipart.File, contentType string, mainImage bool, iterator int) error {
-	filePath, err := p.hotelRepo.UploadPhoto(file, contentType)
-	if err != nil {
-		return err
-	}
-	if mainImage {
-		hotel.Image = filePath
-	} else {
-		hotel.Photos = append(hotel.Photos, filePath)
-	}
-	return nil
-}
-
-func (p *HotelUseCase) AddHotel(hotel hotelmodel.Hotel, userID int) error {
-
-	user, err := p.userService.GetUserByID(context.Background(), &userService.UserID{UserID: int64(userID)})
-	if err != nil {
-		return customerror.NewCustomError(err, clientError.BadRequest, 1)
-	}
-
-	geo, err := p.hotelRepo.GetLatitudeLongitudeByLocation(hotel.Location)
-	if err != nil {
-		return customerror.NewCustomError(err, clientError.BadRequest, 1)
-	}
-	hotel.Latitude = geo.Lat
-	hotel.Longitude = geo.Lon
-	err = p.hotelRepo.AddHotel(hotel, userID, user.Email)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (p *HotelUseCase) GetHotelByID(ID int, userID int) (hotelmodel.Hotel, error) {
