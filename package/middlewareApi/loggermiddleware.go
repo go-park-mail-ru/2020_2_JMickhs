@@ -39,9 +39,6 @@ func LoggerMiddleware(log *logger.CustomLogger, metrics *metrics.PromMetrics) mu
 
 			respTime := time.Since(start)
 			log.EndReq(respTime.Microseconds(), req.Context())
-			fmt.Println(srw.statusCode)
-			fmt.Println("fdsf")
-			fmt.Println("pls work", srw.statusCode)
 			if req.RequestURI != "/api/v1/metrics" {
 				metrics.Hits.WithLabelValues(strconv.Itoa(srw.statusCode), req.URL.String(), req.Method).Inc()
 				metrics.Total.Add(1)
