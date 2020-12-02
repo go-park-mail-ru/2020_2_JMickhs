@@ -13,6 +13,20 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type statusResponseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func NewStatusResponseWriter(w http.ResponseWriter) *statusResponseWriter {
+	return &statusResponseWriter{w, http.StatusOK}
+}
+
+func (srw *statusResponseWriter) WriteHeader(code int) {
+	srw.statusCode = code
+	srw.ResponseWriter.WriteHeader(code)
+}
+
 func LoggerMiddleware(log *logger.CustomLogger, metrics *metrics.PromMetrics) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
@@ -21,22 +35,19 @@ func LoggerMiddleware(log *logger.CustomLogger, metrics *metrics.PromMetrics) mu
 
 			log.StartReq(*req, id)
 			start := time.Now()
-
-			next.ServeHTTP(w, req)
+			srw := NewStatusResponseWriter(w)
+			next.ServeHTTP(srw, req)
 
 			respTime := time.Since(start)
 			log.EndReq(respTime.Microseconds(), req.Context())
-			code, ok := req.Context().Value("code").(int)
-			if !ok {
-				code = 200
-			}
-			fmt.Println(code)
+
 			if req.RequestURI != "/api/v1/metrics" {
-				metrics.Hits.WithLabelValues(strconv.Itoa(code), req.URL.String(), req.Method).Inc()
+				metrics.Hits.WithLabelValues(strconv.Itoa(srw.statusCode), req.URL.String(), req.Method).Inc()
 				metrics.Total.Add(1)
-				metrics.Timings.WithLabelValues(strconv.Itoa(code), req.URL.String(), req.Method).
+				metrics.Timings.WithLabelValues(strconv.Itoa(srw.statusCode), req.URL.String(), req.Method).
 					Observe(respTime.Seconds())
 			}
+			w.WriteHeader(200)
 		})
 	}
 }
