@@ -32,8 +32,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: servicesLint
         uses: golangci/golangci-lint-action@v1
-          with:
-            version: v1.26
+        with:
+          version: v1.26
         run: make linter
   build:
     runs-on: ubuntu-latest
