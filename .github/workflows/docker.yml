@@ -50,13 +50,13 @@ jobs:
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Build Docker image
         run: sudo docker build -t kostikan/main_service:${GITHUB_SHA::8} -f ./main/Dockerfile . &&
-        sudo docker build -t kostikan/session_service:${GITHUB_SHA::8} -f ./sessions/Dockerfile . &&
-        sudo docker build -t kostikan/user_service:${GITHUB_SHA::8} -f ./user/Dockerfile .
+          sudo docker build -t kostikan/session_service:${GITHUB_SHA::8} -f ./sessions/Dockerfile . &&
+          sudo docker build -t kostikan/user_service:${GITHUB_SHA::8} -f ./user/Dockerfile .
 
       - name: Push the image
         run: sudo docker push kostikan/main_service:${GITHUB_SHA::8} &&
-        sudo docker push kostikan/session_service:${GITHUB_SHA::8} &&
-        sudo docker push kostikan/user_service:${GITHUB_SHA::8}
+          sudo docker push kostikan/session_service:${GITHUB_SHA::8} &&
+          sudo docker push kostikan/user_service:${GITHUB_SHA::8}
 
   deploy:
     runs-on: ubuntu-latest
@@ -70,8 +70,8 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PRIVATE_KEY }}
           script: cd backend/ && sudo docker pull kostikan/main_service:${GITHUB_SHA::8} &&
-          sudo docker pull kostikan/session_service:${GITHUB_SHA::8} &&
-          sudo docker pull kostikan/user_service:${GITHUB_SHA::8}
+            sudo docker pull kostikan/session_service:${GITHUB_SHA::8} &&
+            sudo docker pull kostikan/user_service:${GITHUB_SHA::8}
       - name: run project
         uses: appleboy/ssh-action@master
         with:
@@ -80,6 +80,6 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PRIVATE_KEY }}
           script: docker rm -vf $(docker ps -a -q) || true && cd backend/ &&
-          APP_VERSION=${GITHUB_SHA::8} docker-compose up -d --build --no-deps
+            APP_VERSION=${GITHUB_SHA::8} docker-compose up -d --build --no-deps
 
 
