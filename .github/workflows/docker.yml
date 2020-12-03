@@ -36,6 +36,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: servicesLint
         run:
+          export PATH=$PATH:$(go env GOPATH)/bin
           go get -u golang.org/x/lint/golint
           make linter
   build:
