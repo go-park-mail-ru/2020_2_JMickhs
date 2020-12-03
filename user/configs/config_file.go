@@ -37,12 +37,6 @@ type postgresConfig struct {
 	Port     string
 }
 
-type requestUser string
-type sessionsID string
-
-const RequestUser requestUser = "User"
-const SessionID sessionsID = "SessionsID"
-
 var BdConfig postgresConfig
 var PrefixPath string
 

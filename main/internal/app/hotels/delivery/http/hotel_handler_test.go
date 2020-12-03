@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"testing"
 
+	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
 	"github.com/spf13/viper"
 
@@ -63,7 +65,7 @@ func TestHotelHandler_Hotel(t *testing.T) {
 			"id": strconv.Itoa(testHotel.HotelID),
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := HotelHandler{
 			HotelUseCase: mockHUseCase,
@@ -163,7 +165,7 @@ func TestHotelHandler_Hotel(t *testing.T) {
 		req = mux.SetURLVars(req, map[string]string{
 			"id": strconv.Itoa(testHotel.HotelID),
 		})
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 
 		rec := httptest.NewRecorder()
 		handler := HotelHandler{

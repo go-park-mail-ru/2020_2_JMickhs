@@ -12,6 +12,8 @@ import (
 	"testing"
 	"time"
 
+	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
+
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/user/configs"
 	"github.com/spf13/viper"
@@ -443,7 +445,7 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUser, testUser))
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
 			SessionsDelivery: mockSCase,
@@ -506,7 +508,7 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUser, testUser))
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
 			SessionsDelivery: mockSCase,
@@ -544,7 +546,7 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUser, testUser))
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
 			SessionsDelivery: mockSCase,
@@ -611,7 +613,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUser, testUser))
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
 			SessionsDelivery: mockSCase,
@@ -640,7 +642,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUser, testUser))
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
 			SessionsDelivery: mockSCase,
@@ -697,7 +699,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		req, err := http.NewRequest("PUT", "/api/v1/users/credentials", bytes.NewBuffer(body))
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUser, testUser))
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
@@ -730,7 +732,7 @@ func TestUserHandler_GetCsrf(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/csrf", nil)
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), configs.SessionID, sId))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.SessionID, sId))
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
@@ -786,7 +788,7 @@ func TestUserHandler_GetCsrf(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/csrf", nil)
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), configs.SessionID, sId))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.SessionID, sId))
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
@@ -926,7 +928,7 @@ func TestUserHandler_UserHandler(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/users", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, retUser))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUser, retUser))
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
@@ -960,7 +962,7 @@ func TestUserHandler_UserHandler(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/users", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, retUser))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUser, retUser))
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
 			UserUseCase:      mockUCase,

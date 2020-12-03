@@ -11,7 +11,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
+	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
+
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 	userService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/user"
 	"github.com/stretchr/testify/assert"
@@ -52,7 +53,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=0", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -87,7 +88,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=0", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -118,7 +119,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -149,7 +150,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=56", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -191,7 +192,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -228,7 +229,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -291,7 +292,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -334,7 +335,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -372,7 +373,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -435,7 +436,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -472,7 +473,7 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		req, err := http.NewRequest("DELETE", "/api/v1/comments/1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		req = mux.SetURLVars(req, map[string]string{
 			"id": "1",
 		})
@@ -503,7 +504,7 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		req, err := http.NewRequest("DELETE", "/api/v1/comments/1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -565,7 +566,7 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		req, err := http.NewRequest("DELETE", "/api/v1/comments/1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		req = mux.SetURLVars(req, map[string]string{
 			"id": "1",
 		})

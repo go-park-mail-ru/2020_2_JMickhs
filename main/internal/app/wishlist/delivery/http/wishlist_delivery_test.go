@@ -11,6 +11,8 @@ import (
 	"os"
 	"testing"
 
+	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
+
 	hotels_mock "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/mocks"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
 
@@ -22,7 +24,6 @@ import (
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
 	wishlists_mock "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/wishlist/mocks"
 	wishlistModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/wishlist/models"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/responses"
@@ -54,7 +55,7 @@ func TestWishlistHandler_AddHotelToWishlist(t *testing.T) {
 			"wishList_id": "1",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -81,7 +82,7 @@ func TestWishlistHandler_AddHotelToWishlist(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -148,7 +149,7 @@ func TestWishlistHandler_AddHotelToWishlist(t *testing.T) {
 			"wishList_id": "1",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -189,7 +190,7 @@ func TestWishlistHandler_DeleteHotelFromWishlist(t *testing.T) {
 			"wishList_id": "1",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -216,7 +217,7 @@ func TestWishlistHandler_DeleteHotelFromWishlist(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -283,7 +284,7 @@ func TestWishlistHandler_DeleteHotelFromWishlist(t *testing.T) {
 			"wishList_id": "1",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -322,7 +323,7 @@ func TestWishlistHandler_DeleteWishlist(t *testing.T) {
 			"wishList_id": "1",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -377,7 +378,7 @@ func TestWishlistHandler_DeleteWishlist(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -411,7 +412,7 @@ func TestWishlistHandler_DeleteWishlist(t *testing.T) {
 			"wishList_id": "1",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -451,7 +452,7 @@ func TestWishlistHandler_CreateWishlist(t *testing.T) {
 			"wishList_id": "1",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -484,7 +485,7 @@ func TestWishlistHandler_CreateWishlist(t *testing.T) {
 			"wishList_id": "1",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -549,7 +550,7 @@ func TestWishlistHandler_CreateWishlist(t *testing.T) {
 		req = mux.SetURLVars(req, map[string]string{
 			"wishList_id": "1",
 		})
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -601,7 +602,7 @@ func TestWishlistHandler_GetWishlist(t *testing.T) {
 			"wishList_id": "3",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase:      mockWUseCase,
@@ -633,7 +634,7 @@ func TestWishlistHandler_GetWishlist(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase:      mockWUseCase,
@@ -698,7 +699,7 @@ func TestWishlistHandler_GetWishlist(t *testing.T) {
 			"wishList_id": "3",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase:      mockWUseCase,
@@ -737,7 +738,7 @@ func TestWishlistHandler_GetWishlist(t *testing.T) {
 			"wishList_id": "3",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase:      mockWUseCase,
@@ -777,7 +778,7 @@ func TestWishlistHandler_GetUserWishlists(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -833,7 +834,7 @@ func TestWishlistHandler_GetUserWishlists(t *testing.T) {
 
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", nil)
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{

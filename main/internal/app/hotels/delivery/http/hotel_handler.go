@@ -4,7 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
+	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
 
@@ -77,7 +78,7 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hotel := hotelmodel.Hotel{}
-	userID, ok := r.Context().Value(configs.RequestUserID).(int)
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		userID = -1
 	}
@@ -128,7 +129,7 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 	orderData := hotelmodel.HotelFiltering{RatingFilterStartNumber: rateStart, RatingFilterEndNumber: rateEnd, CommentsFilterStartNumber: commStart,
 		Longitude: longitude, Latitude: latitude, Radius: radius, CommCountConstraint: commCountConstraint, CommCountPercent: commCountPercent}
 
-	userID, ok := r.Context().Value(configs.RequestUserID).(int)
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		userID = -1
 	}

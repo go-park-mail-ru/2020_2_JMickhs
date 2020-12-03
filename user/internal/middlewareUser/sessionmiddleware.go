@@ -4,7 +4,7 @@ import (
 	"context"
 	http "net/http"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/user/configs"
+	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user"
 
@@ -56,8 +56,8 @@ func (u *SessionMidleware) SessionMiddleware() mux.MiddlewareFunc {
 					next.ServeHTTP(w, r)
 					return
 				}
-				ctx := context.WithValue(r.Context(), configs.RequestUser, user)
-				ctx = context.WithValue(ctx, configs.SessionID, sessionToken)
+				ctx := context.WithValue(r.Context(), packageConfig.RequestUser, user)
+				ctx = context.WithValue(ctx, packageConfig.SessionID, sessionToken)
 				r = r.WithContext(ctx)
 			}
 			next.ServeHTTP(w, r)

@@ -48,12 +48,6 @@ var ConfigFields = struct {
 	WishListOut:            "constants.WishListOut",
 }
 
-type sessionID string
-type requestUserID string
-
-const SessionID sessionID = "SessionsID"
-const RequestUserID requestUserID = "UserID"
-
 var BdConfig postgresConfig
 var PrefixPath string
 

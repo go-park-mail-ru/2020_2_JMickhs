@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/package/middlewareApi"
+	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/middlewareApi"
 
 	"github.com/mailru/easyjson"
 
@@ -50,7 +50,7 @@ func NewWishlistHandler(r *mux.Router, useCase wishlist.Usecase, hotelUseCase ho
 //  200: wishlists
 //  400: badrequest
 func (wh *WishlistHandler) GetUserWishlists(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(configs.RequestUserID).(int)
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, wh.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
@@ -78,7 +78,7 @@ func (wh *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, ok := r.Context().Value(configs.RequestUserID).(int)
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, wh.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
@@ -126,7 +126,7 @@ func (wh *WishlistHandler) AddHotelToWishlist(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	userID, ok := r.Context().Value(configs.RequestUserID).(int)
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, wh.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
@@ -162,7 +162,7 @@ func (wh *WishlistHandler) DeleteHotelFromWishlist(w http.ResponseWriter, r *htt
 		return
 	}
 
-	userID, ok := r.Context().Value(configs.RequestUserID).(int)
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, wh.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
@@ -191,7 +191,7 @@ func (wh *WishlistHandler) DeleteWishlist(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	userID, ok := r.Context().Value(configs.RequestUserID).(int)
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, wh.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
@@ -220,7 +220,7 @@ func (wh *WishlistHandler) CreateWishlist(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	userID, ok := r.Context().Value(configs.RequestUserID).(int)
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, wh.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
