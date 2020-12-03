@@ -9,12 +9,12 @@ type domen string
 type localOrigin string
 type requestUserID string
 
+const RequestUserID requestUserID = "UserID"
 const RequestUser requestUser = "User"
 const SessionID sessionsId = "SessionsID"
 const CorrectToken correctToken = "CorrectToken"
 const Domen domen = "https://hostelscan.ru"
 const LocalOrigin localOrigin = "http://127.0.0.1"
-const RequestUserID requestUserID = "UserID"
 
 var AllowedOrigins = map[string]bool{
 	string(Domen):                true,

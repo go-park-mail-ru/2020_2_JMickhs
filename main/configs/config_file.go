@@ -51,7 +51,7 @@ var ConfigFields = struct {
 type sessionID string
 type requestUserID string
 
-const SessionID sessionID = "SessionID"
+const SessionID sessionID = "SessionsID"
 const RequestUserID requestUserID = "UserID"
 
 var BdConfig postgresConfig
