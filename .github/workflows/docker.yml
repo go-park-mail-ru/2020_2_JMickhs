@@ -26,23 +26,21 @@ jobs:
       - name: servicesTest
         run: make tests
   linter:
-    lint:
-      name: Lint
-      runs-on: ubuntu-latest
-      steps:
-        - name: Set up Go
-          uses: actions/setup-go@v1
-          with:
-            go-version: 1.12
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go
+      uses: actions/setup-go@v1
+      with:
+      go-version: 1.12
+      - name: Check out code
+        uses: actions/checkout@v1
 
-        - name: Check out code
-          uses: actions/checkout@v1
-
-        - name: Lint Go Code
-          run: |
-            export PATH=$PATH:$(go env GOPATH)/bin
-            go get -u golang.org/x/lint/golint
-            make linter
+      - name: Lint Go Code
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          go get -u golang.org/x/lint/golint
+          make linter
   build:
     runs-on: ubuntu-latest
     steps:
