@@ -41,6 +41,7 @@ jobs:
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
           go get -u golang.org/x/lint/golint
+          GO111MODULE=off go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
           make linter
   build:
     runs-on: ubuntu-latest
