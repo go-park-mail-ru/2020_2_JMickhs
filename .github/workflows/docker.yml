@@ -68,7 +68,7 @@ jobs:
           envs: GITHUB_SHA
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PRIVATE_KEY   }}
+          key: ${{ secrets.PRIVATE_KEY   }}
           script: cd backend/ && sudo docker pull kostikan/main_service:${GITHUB_SHA::8} &&
             sudo docker pull kostikan/session_service:${GITHUB_SHA::8} &&
             sudo docker pull kostikan/user_service:${GITHUB_SHA::8}
@@ -78,7 +78,7 @@ jobs:
           envs: GITHUB_SHA
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PRIVATE_KEY }}
+          key: ${{ secrets.PRIVATE_KEY }}
           script: docker rm -vf $(docker ps -a -q) || true && cd backend/ &&
             APP_VERSION=${GITHUB_SHA::8} docker-compose up -d --build --no-deps
 
