@@ -24,7 +24,7 @@ func TestPostgresUserRepository_GetUserByID(t *testing.T) {
 		rows := sqlmock.NewRows([]string{"id", "username", "email", "password", "avatar"}).AddRow(
 			1, "kotik", "kek@mail.ru", "12345", "src/kek.jpg")
 
-		testUser := models.User{1, "kotik", "kek@mail.ru", "12345", "src/kek.jpg"}
+		testUser := models.User{ID: 1, Username: "kotik", Email: "kek@mail.ru", Password: "12345", Avatar: "src/kek.jpg"}
 
 		query := GetUserByIDPostgreRequest
 
@@ -70,7 +70,7 @@ func TestPostgresUserRepository_GetByUserName(t *testing.T) {
 		rows := sqlmock.NewRows([]string{"id", "username", "email", "password", "avatar"}).AddRow(
 			1, "kotik", "kek@mail.ru", "12345", "src/kek.jpg")
 
-		testUser := models.User{1, "kotik", "kek@mail.ru", "12345", "src/kek.jpg"}
+		testUser := models.User{ID: 1, Username: "kotik", Email: "kek@mail.ru", Password: "12345", Avatar: "src/kek.jpg"}
 
 		query := GetUserByNamePostgreRequest
 

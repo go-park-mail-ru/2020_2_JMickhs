@@ -2,7 +2,6 @@ package hotelRepository
 
 import (
 	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
@@ -118,15 +117,16 @@ func TestFetchHotels(t *testing.T) {
 		hotelTest := hotelmodel.Hotel{HotelID: 1, Name: "Villa",
 			Image: "src/kek.jpg", Location: "Moscow Russia", Rating: 3.5, CommCount: 4}
 
-		baseQuery := fmt.Sprint("SELECT hotel_id, name, description, location, concat($4::varchar,img),country,city,curr_rating , " +
-			"comm_count,strict_word_similarity($1,name) as t1,strict_word_similarity($1,location) as t2 ")
+		baseQuery := "SELECT hotel_id, name, description, location, concat($4::varchar,img),country,city,curr_rating , " +
+			"comm_count,strict_word_similarity($1,name) as t1,strict_word_similarity($1,location) as t2 "
 
-		baseQuery += fmt.Sprint(" FROM hotels ", SearchHotelsPostgreRequest)
-		baseQuery += fmt.Sprint(" AND (curr_rating BETWEEN $5 AND $6 OR curr_rating BETWEEN $6 AND $5) ")
-		baseQuery += fmt.Sprint(" AND comm_count >= $7")
-		baseQuery += fmt.Sprint(" ORDER BY curr_rating DESC,t1 DESC,t2 DESC ")
-		baseQuery += fmt.Sprint("LIMIT $3 OFFSET $2")
-
+		baseQuery += " FROM hotels " + SearchHotelsPostgreRequest
+		baseQuery += " AND (curr_rating BETWEEN $5 AND $6 OR curr_rating BETWEEN $6 AND $5) "
+		baseQuery += " AND comm_count >= $7"
+		baseQuery += " ORDER BY curr_rating DESC,t1 DESC,t2 DESC "
+		baseQuery += "LIMIT $3 OFFSET $2"
+		queryLimit := "Select set_limit(0.18)"
+		mock.ExpectExec(queryLimit).WillReturnResult(sqlmock.NewResult(0, 0))
 		filter := hotelmodel.HotelFiltering{RatingFilterStartNumber: "0", RatingFilterEndNumber: "3", CommentsFilterStartNumber: "0"}
 		mock.ExpectQuery(baseQuery).WithArgs("top", 0, viper.GetInt(configs.ConfigFields.BaseItemPerPage),
 			viper.GetString(configs.ConfigFields.S3Url), filter.RatingFilterStartNumber, filter.RatingFilterEndNumber,
@@ -141,11 +141,21 @@ func TestFetchHotels(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, hotels[0], hotelTest)
 	})
+}
+
+func TestFetchHotelsErr(t *testing.T) {
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
 	t.Run("FetchHotelsErr", func(t *testing.T) {
-		query := fmt.Sprint("SELECT hotel_id, name, description, location, concat($4::varchar,img), curr_rating , comm_count FROM hotels ",
-			SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $3 OFFSET $2")
+		query := "SELECT hotel_id, name, description, location, concat($4::varchar,img), curr_rating , comm_count FROM hotels " +
+			SearchHotelsPostgreRequest + " ORDER BY curr_rating DESC LIMIT $3 OFFSET $2"
 
 		filter := hotelmodel.HotelFiltering{}
+		queryLimit := "Select set_limit(0.18)"
+		mock.ExpectExec(queryLimit).WillReturnResult(sqlmock.NewResult(0, 0))
 		mock.ExpectQuery(query).WithArgs("top", 0, viper.GetString(configs.ConfigFields.BaseItemPerPage),
 			viper.GetString(configs.ConfigFields.S3Url)).
 			WillReturnError(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
@@ -160,7 +170,6 @@ func TestFetchHotels(t *testing.T) {
 		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
 	})
 }
-
 func TestCheckRateExist(t *testing.T) {
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	if err != nil {
@@ -215,10 +224,10 @@ func TestGetHotelsPreview(t *testing.T) {
 			1, "Villa", "src/kek.jpg", "Moscow").AddRow(
 			2, "Hostel", "src/kek.jpg", "China")
 
-		query := fmt.Sprint("SELECT hotel_id, name, location, concat($3::varchar,img) FROM hotels ",
-			SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $2")
+		query := "SELECT hotel_id, name, location, concat($3::varchar,img) FROM hotels " +
+			SearchHotelsPostgreRequest + " ORDER BY curr_rating DESC LIMIT $2"
 
-		hotelTest := hotelmodel.HotelPreview{1, "Villa", "src/kek.jpg", "Moscow"}
+		hotelTest := hotelmodel.HotelPreview{HotelID: 1, Name: "Villa", Image: "src/kek.jpg", Location: "Moscow"}
 
 		mock.ExpectQuery(query).WithArgs("top", viper.GetInt(configs.ConfigFields.PreviewItemLimit),
 			viper.GetString(configs.ConfigFields.S3Url)).WillReturnRows(rows)
@@ -233,8 +242,8 @@ func TestGetHotelsPreview(t *testing.T) {
 		assert.Equal(t, hotels[0], hotelTest)
 	})
 	t.Run("GetHotelsPreviewErr", func(t *testing.T) {
-		query := fmt.Sprint("SELECT hotel_id, name, location, concat($3::varchar,img) FROM hotels ",
-			SearchHotelsPostgreRequest, " ORDER BY curr_rating DESC LIMIT $2")
+		query := "SELECT hotel_id, name, location, concat($3::varchar,img) FROM hotels " +
+			SearchHotelsPostgreRequest + " ORDER BY curr_rating DESC LIMIT $2"
 
 		mock.ExpectQuery(query).WithArgs("top", viper.GetString(configs.ConfigFields.PreviewItemLimit), viper.GetString(configs.ConfigFields.S3Url)).
 			WillReturnError(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))

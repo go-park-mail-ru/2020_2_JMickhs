@@ -5,10 +5,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"path/filepath"
-	"strings"
-
-	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
 
 	"github.com/sirupsen/logrus"
 )
@@ -25,11 +21,6 @@ func NewLogger(writer io.Writer) *CustomLogger {
 	mw := io.MultiWriter(os.Stdout, writer)
 	Logger.SetOutput(mw)
 	return Logger
-}
-
-func (l *CustomLogger) relative(path string) string {
-
-	return strings.TrimPrefix(filepath.ToSlash(path), packageConfig.PrefixPath)
 }
 
 func (l *CustomLogger) LogError(ctx context.Context, err error) {

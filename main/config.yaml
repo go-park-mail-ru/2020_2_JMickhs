@@ -1,7 +1,3 @@
-context:
-  RequestUser: "User"
-  SessionID: "SessionID"
-  RequestUserID: "UserID"
 paths:
   BaseAfatarPath: "static/avatars/defaultAvatar.png"
   StaticPathForAvatars: "static/avatars/"

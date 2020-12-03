@@ -29,7 +29,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	"github.com/mailru/easyjson"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -47,7 +46,7 @@ func TestWishlistHandler_AddHotelToWishlist(t *testing.T) {
 			Return(nil)
 
 		request := wishlistModel.HotelWishlistRequest{HotelID: 1}
-		body, err := easyjson.Marshal(request)
+		body, _ := easyjson.Marshal(request)
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
@@ -55,7 +54,7 @@ func TestWishlistHandler_AddHotelToWishlist(t *testing.T) {
 			"wishList_id": "1",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -63,7 +62,7 @@ func TestWishlistHandler_AddHotelToWishlist(t *testing.T) {
 
 		handler.AddHotelToWishlist(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -78,11 +77,11 @@ func TestWishlistHandler_AddHotelToWishlist(t *testing.T) {
 		mockWUseCase := wishlists_mock.NewMockUsecase(ctrl)
 
 		request := wishlistModel.HotelWishlistRequest{HotelID: 1}
-		body, err := easyjson.Marshal(request)
+		body, _ := easyjson.Marshal(request)
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -91,7 +90,7 @@ func TestWishlistHandler_AddHotelToWishlist(t *testing.T) {
 
 		handler.AddHotelToWishlist(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -106,7 +105,7 @@ func TestWishlistHandler_AddHotelToWishlist(t *testing.T) {
 		mockWUseCase := wishlists_mock.NewMockUsecase(ctrl)
 
 		request := wishlistModel.HotelWishlistRequest{HotelID: 1}
-		body, err := easyjson.Marshal(request)
+		body, _ := easyjson.Marshal(request)
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
@@ -122,7 +121,7 @@ func TestWishlistHandler_AddHotelToWishlist(t *testing.T) {
 
 		handler.AddHotelToWishlist(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -141,7 +140,7 @@ func TestWishlistHandler_AddHotelToWishlist(t *testing.T) {
 			Return(customerror.NewCustomError(errors.New("ds"), clientError.BadRequest, 1))
 
 		request := wishlistModel.HotelWishlistRequest{HotelID: 1}
-		body, err := easyjson.Marshal(request)
+		body, _ := easyjson.Marshal(request)
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
@@ -149,7 +148,7 @@ func TestWishlistHandler_AddHotelToWishlist(t *testing.T) {
 			"wishList_id": "1",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -158,7 +157,7 @@ func TestWishlistHandler_AddHotelToWishlist(t *testing.T) {
 
 		handler.AddHotelToWishlist(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -182,7 +181,7 @@ func TestWishlistHandler_DeleteHotelFromWishlist(t *testing.T) {
 			Return(nil)
 
 		request := wishlistModel.HotelWishlistRequest{HotelID: 1}
-		body, err := easyjson.Marshal(request)
+		body, _ := easyjson.Marshal(request)
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
@@ -190,7 +189,7 @@ func TestWishlistHandler_DeleteHotelFromWishlist(t *testing.T) {
 			"wishList_id": "1",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -198,7 +197,7 @@ func TestWishlistHandler_DeleteHotelFromWishlist(t *testing.T) {
 
 		handler.DeleteHotelFromWishlist(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -213,11 +212,11 @@ func TestWishlistHandler_DeleteHotelFromWishlist(t *testing.T) {
 		mockWUseCase := wishlists_mock.NewMockUsecase(ctrl)
 
 		request := wishlistModel.HotelWishlistRequest{HotelID: 1}
-		body, err := easyjson.Marshal(request)
+		body, _ := easyjson.Marshal(request)
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -226,7 +225,7 @@ func TestWishlistHandler_DeleteHotelFromWishlist(t *testing.T) {
 
 		handler.DeleteHotelFromWishlist(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -241,7 +240,7 @@ func TestWishlistHandler_DeleteHotelFromWishlist(t *testing.T) {
 		mockWUseCase := wishlists_mock.NewMockUsecase(ctrl)
 
 		request := wishlistModel.HotelWishlistRequest{HotelID: 1}
-		body, err := easyjson.Marshal(request)
+		body, _ := easyjson.Marshal(request)
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
@@ -257,7 +256,7 @@ func TestWishlistHandler_DeleteHotelFromWishlist(t *testing.T) {
 
 		handler.DeleteHotelFromWishlist(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -276,7 +275,7 @@ func TestWishlistHandler_DeleteHotelFromWishlist(t *testing.T) {
 			Return(customerror.NewCustomError(errors.New("ds"), clientError.BadRequest, 1))
 
 		request := wishlistModel.HotelWishlistRequest{HotelID: 1}
-		body, err := easyjson.Marshal(request)
+		body, _ := easyjson.Marshal(request)
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
@@ -284,7 +283,7 @@ func TestWishlistHandler_DeleteHotelFromWishlist(t *testing.T) {
 			"wishList_id": "1",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -293,7 +292,7 @@ func TestWishlistHandler_DeleteHotelFromWishlist(t *testing.T) {
 
 		handler.DeleteHotelFromWishlist(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -323,7 +322,7 @@ func TestWishlistHandler_DeleteWishlist(t *testing.T) {
 			"wishList_id": "1",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -332,7 +331,7 @@ func TestWishlistHandler_DeleteWishlist(t *testing.T) {
 
 		handler.DeleteWishlist(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -361,7 +360,7 @@ func TestWishlistHandler_DeleteWishlist(t *testing.T) {
 
 		handler.DeleteWishlist(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -378,7 +377,7 @@ func TestWishlistHandler_DeleteWishlist(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -387,7 +386,7 @@ func TestWishlistHandler_DeleteWishlist(t *testing.T) {
 
 		handler.DeleteWishlist(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -412,7 +411,7 @@ func TestWishlistHandler_DeleteWishlist(t *testing.T) {
 			"wishList_id": "1",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -421,7 +420,7 @@ func TestWishlistHandler_DeleteWishlist(t *testing.T) {
 
 		handler.DeleteWishlist(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -444,7 +443,7 @@ func TestWishlistHandler_CreateWishlist(t *testing.T) {
 			CreateWishlist(wishList).
 			Return(wishList, nil)
 
-		body, err := easyjson.Marshal(wishList)
+		body, _ := easyjson.Marshal(wishList)
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
@@ -452,7 +451,7 @@ func TestWishlistHandler_CreateWishlist(t *testing.T) {
 			"wishList_id": "1",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -461,7 +460,7 @@ func TestWishlistHandler_CreateWishlist(t *testing.T) {
 
 		handler.CreateWishlist(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		wishListTest := wishlistModel.Wishlist{}
 		err = json.Unmarshal(body, &response)
@@ -485,7 +484,7 @@ func TestWishlistHandler_CreateWishlist(t *testing.T) {
 			"wishList_id": "1",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -494,7 +493,7 @@ func TestWishlistHandler_CreateWishlist(t *testing.T) {
 
 		handler.CreateWishlist(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
 		assert.NoError(t, err)
@@ -509,7 +508,7 @@ func TestWishlistHandler_CreateWishlist(t *testing.T) {
 
 		mockWUseCase := wishlists_mock.NewMockUsecase(ctrl)
 
-		body, err := easyjson.Marshal(wishList)
+		body, _ := easyjson.Marshal(wishList)
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
@@ -525,7 +524,7 @@ func TestWishlistHandler_CreateWishlist(t *testing.T) {
 
 		handler.CreateWishlist(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
 		assert.NoError(t, err)
@@ -543,14 +542,14 @@ func TestWishlistHandler_CreateWishlist(t *testing.T) {
 			CreateWishlist(wishList).
 			Return(wishList, customerror.NewCustomError(errors.New("fd"), clientError.BadRequest, 1))
 
-		body, err := easyjson.Marshal(wishList)
+		body, _ := easyjson.Marshal(wishList)
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
 		req = mux.SetURLVars(req, map[string]string{
 			"wishList_id": "1",
 		})
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -559,7 +558,7 @@ func TestWishlistHandler_CreateWishlist(t *testing.T) {
 
 		handler.CreateWishlist(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
 		assert.NoError(t, err)
@@ -571,8 +570,8 @@ func TestWishlistHandler_CreateWishlist(t *testing.T) {
 
 func TestWishlistHandler_GetWishlist(t *testing.T) {
 	userID := 2
-	hotelsMeta := []wishlistModel.WishlistHotel{{3, 1},
-		{3, 2}}
+	hotelsMeta := []wishlistModel.WishlistHotel{{WishlistID: 3, HotelID: 1},
+		{WishlistID: 3, HotelID: 2}}
 	hotels := []hotelmodel.MiniHotel{
 		{HotelID: 1, Name: "kekw", Location: "moscow russia", Image: "img.jpeg", Rating: 4},
 		{HotelID: 2, Name: "kekw", Location: "moscow russia", Image: "img.jpeg", Rating: 4},
@@ -602,7 +601,7 @@ func TestWishlistHandler_GetWishlist(t *testing.T) {
 			"wishList_id": "3",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase:      mockWUseCase,
@@ -612,9 +611,9 @@ func TestWishlistHandler_GetWishlist(t *testing.T) {
 
 		handler.GetWishlist(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
-		hotelsResp := []hotelmodel.MiniHotel{}
+		var hotelsResp []hotelmodel.MiniHotel
 		err = json.Unmarshal(body, &response)
 		assert.NoError(t, err)
 		err = mapstructure.Decode(response.Data.([]interface{}), &hotelsResp)
@@ -634,7 +633,7 @@ func TestWishlistHandler_GetWishlist(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase:      mockWUseCase,
@@ -644,7 +643,7 @@ func TestWishlistHandler_GetWishlist(t *testing.T) {
 
 		handler.GetWishlist(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
 		assert.NoError(t, err)
@@ -674,7 +673,7 @@ func TestWishlistHandler_GetWishlist(t *testing.T) {
 
 		handler.GetWishlist(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
 		assert.NoError(t, err)
@@ -699,7 +698,7 @@ func TestWishlistHandler_GetWishlist(t *testing.T) {
 			"wishList_id": "3",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase:      mockWUseCase,
@@ -709,7 +708,7 @@ func TestWishlistHandler_GetWishlist(t *testing.T) {
 
 		handler.GetWishlist(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -738,7 +737,7 @@ func TestWishlistHandler_GetWishlist(t *testing.T) {
 			"wishList_id": "3",
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase:      mockWUseCase,
@@ -748,7 +747,7 @@ func TestWishlistHandler_GetWishlist(t *testing.T) {
 
 		handler.GetWishlist(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -778,7 +777,7 @@ func TestWishlistHandler_GetUserWishlists(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
 			useCase: mockWUseCase,
@@ -787,7 +786,7 @@ func TestWishlistHandler_GetUserWishlists(t *testing.T) {
 
 		handler.GetUserWishlists(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		wishListTest := wishlistModel.UserWishLists{}
 		err = json.Unmarshal(body, &response)
@@ -815,7 +814,7 @@ func TestWishlistHandler_GetUserWishlists(t *testing.T) {
 
 		handler.GetUserWishlists(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
 		assert.NoError(t, err)
@@ -834,7 +833,7 @@ func TestWishlistHandler_GetUserWishlists(t *testing.T) {
 
 		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", nil)
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUserID, userID))
 
 		rec := httptest.NewRecorder()
 		handler := WishlistHandler{
@@ -844,7 +843,7 @@ func TestWishlistHandler_GetUserWishlists(t *testing.T) {
 
 		handler.GetUserWishlists(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
 		assert.NoError(t, err)

@@ -16,10 +16,8 @@ var ConfigFields = struct {
 	StaticPathForAvatars   string
 	CookieLifeTime         string
 	BaseAvatarPath         string
-	RequestUser            string
 	BucketName             string
 	S3Url                  string
-	SessionID              string
 	S3Region               string
 	S3EndPoint             string
 	SessionGrpcServicePort string
@@ -29,18 +27,14 @@ var ConfigFields = struct {
 	BasePageCount          string
 	PreviewItemLimit       string
 	BaseItemPerPage        string
-	RequestUserID          string
 	WishListIn             string
 	WishListOut            string
 }{
 	StaticPathForAvatars:   "paths.StaticPathForAvatars",
 	CookieLifeTime:         "cookie.LifeTime",
 	BaseAvatarPath:         "paths.BaseAvatarPath",
-	RequestUser:            "context.RequestUser",
-	RequestUserID:          "context.RequestUserID",
 	BucketName:             "s3.BucketName",
 	S3Url:                  "s3.S3Url",
-	SessionID:              "context.SessionID",
 	S3Region:               "s3.S3Region",
 	S3EndPoint:             "s3.S3EndPoint",
 	SessionGrpcServicePort: "grpc.SessionGrpcServicePort",
@@ -53,6 +47,12 @@ var ConfigFields = struct {
 	WishListIn:             "constants.WishListIn",
 	WishListOut:            "constants.WishListOut",
 }
+
+type sessionID string
+type requestUserID string
+
+const SessionID sessionID = "SessionID"
+const RequestUserID requestUserID = "UserID"
 
 var BdConfig postgresConfig
 var PrefixPath string

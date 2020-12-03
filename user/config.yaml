@@ -1,5 +1,4 @@
 context:
-  RequestUser: "User"
   SessionID: "SessionID"
 paths:
   BaseAvatarPath: "static/avatars/defaultAvatar.png"

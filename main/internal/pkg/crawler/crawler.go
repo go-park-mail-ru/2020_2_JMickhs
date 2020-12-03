@@ -48,21 +48,27 @@ func StartCrawler(db *sqlx.DB, s3 *s3.S3, log *logger.CustomLogger) {
 		),
 		colly.Async(),
 	)
-	c.Limit(&colly.LimitRule{
+	err := c.Limit(&colly.LimitRule{
 		Parallelism: 2,
 		DomainGlob:  "booking.com",
 		Delay:       1 * time.Second,
 		RandomDelay: 1 * time.Second,
 	})
+	if err != nil {
+		return
+	}
 
-	err := c.Visit("https://www.booking.com/hotel/ru.ru.html?label=gen173nr-1FCAsowgE46AdIM1gEaMIBiAEBmAEhuAEZyAEP2AEB6AEB-AECiAIBqAIDuAKDy4n9BcACAdICJG" +
+	err = c.Visit("https://www.booking.com/hotel/ru.ru.html?label=gen173nr-1FCAsowgE46AdIM1gEaMIBiAEBmAEhuAEZyAEP2AEB6AEB-AECiAIBqAIDuAKDy4n9BcACAdICJG" +
 		"JhZjExOWI4LTQxMDgtNDgxNy1hOWY1LTU3MDA1NmNkZTVjZdgCBeACAQ;sid=cbab8c7a4faa82faf3cda60ef0432fcc;dist=0&keep_landing=1&sb_price_type=total&type=total&")
 	if err != nil {
 		log.Error(err)
 	}
 	c.OnHTML("div[class=block_third]", func(e *colly.HTMLElement) {
 		url, _ := e.DOM.Find("a[href]").Attr("href")
-		c.Visit(e.Response.Request.AbsoluteURL(url))
+		err := c.Visit(e.Response.Request.AbsoluteURL(url))
+		if err != nil {
+			return
+		}
 	})
 
 	c.OnHTML("div[id=right]", func(e *colly.HTMLElement) {

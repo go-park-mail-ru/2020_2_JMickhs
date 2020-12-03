@@ -72,36 +72,36 @@ func (p *PostgreHotelRepository) BuildQueryForCommentsPercent(filter *hotelmodel
 }
 
 func (p *PostgreHotelRepository) BuildQueryToFetchHotel(filter *hotelmodel.HotelFiltering) string {
-	baseQuery := fmt.Sprint("SELECT hotel_id, name, description, location, concat($4::varchar,img),country,city,curr_rating , " +
-		"comm_count,strict_word_similarity($1,name) as t1,strict_word_similarity($1,location) as t2 ")
+	baseQuery := "SELECT hotel_id, name, description, location, concat($4::varchar,img),country,city,curr_rating , " +
+		"comm_count,strict_word_similarity($1,name) as t1,strict_word_similarity($1,location) as t2 "
 
 	baseQuery += fmt.Sprint(" FROM hotels ", SearchHotelsPostgreRequest)
 
 	NearestFilterQuery := ""
 	if filter.Radius != "" {
-		NearestFilterQuery = fmt.Sprint(" AND ST_Distance(coordinates::geography, $8::geography)<$9")
+		NearestFilterQuery += " AND ST_Distance(coordinates::geography, $8::geography)<$9"
 		baseQuery += p.BuildQueryForCommentsPercent(filter, "$10")
 	} else {
 		baseQuery += p.BuildQueryForCommentsPercent(filter, "$8")
 	}
 	baseQuery += NearestFilterQuery
 
-	RatingFilterQuery := fmt.Sprint(" AND (curr_rating BETWEEN $5 AND $6 OR curr_rating BETWEEN $6 AND $5) ")
+	RatingFilterQuery := " AND (curr_rating BETWEEN $5 AND $6 OR curr_rating BETWEEN $6 AND $5) "
 	if filter.RatingFilterStartNumber == "" {
 		filter.RatingFilterStartNumber = "0"
 	}
 	baseQuery += RatingFilterQuery
 
-	CommentFilterQuery := fmt.Sprint(" AND comm_count >= $7")
+	CommentFilterQuery := " AND comm_count >= $7"
 	if filter.CommentsFilterStartNumber == "" {
 		filter.CommentsFilterStartNumber = "0"
 	}
 	baseQuery += CommentFilterQuery
 
-	rateOrderQuery := fmt.Sprint(" ORDER BY curr_rating DESC,t1 DESC,t2 DESC ")
+	rateOrderQuery := " ORDER BY curr_rating DESC,t1 DESC,t2 DESC "
 
 	baseQuery += rateOrderQuery
-	query := fmt.Sprint(baseQuery, " LIMIT $3 OFFSET $2")
+	query := baseQuery + " LIMIT $3 OFFSET $2"
 
 	return query
 }
@@ -111,10 +111,11 @@ func (p *PostgreHotelRepository) FetchHotels(filter hotelmodel.HotelFiltering, p
 
 	point := p.GeneratePointToGeo(filter.Latitude, filter.Longitude)
 	hotels := []hotelmodel.Hotel{}
-	p.conn.Exec("Select set_limit(0.18)")
-
+	_, err := p.conn.Exec("Select set_limit(0.18)")
+	if err != nil {
+		return hotels, err
+	}
 	udb := p.conn.Unsafe()
-	var err error
 
 	if filter.Radius == "" {
 		if filter.CommCountPercent == "" {

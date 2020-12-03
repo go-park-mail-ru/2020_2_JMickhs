@@ -67,9 +67,9 @@ func TestUserHandler_Auth(t *testing.T) {
 		handler.Auth(rec, req)
 		resp := rec.Result()
 		user := models.User{}
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		err = json.Unmarshal(body, &user)
-
+		assert.NoError(t, err)
 		assert.Equal(t, testUser, getUser)
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
@@ -94,9 +94,10 @@ func TestUserHandler_Auth(t *testing.T) {
 
 		handler.Auth(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
+		assert.NoError(t, err)
 		assert.Equal(t, clientError.BadRequest, response.Code)
 	})
 
@@ -124,9 +125,10 @@ func TestUserHandler_Auth(t *testing.T) {
 
 		handler.Auth(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
+		assert.NoError(t, err)
 		assert.Equal(t, serverError.ServerInternalError, response.Code)
 	})
 
@@ -159,9 +161,10 @@ func TestUserHandler_Auth(t *testing.T) {
 
 		handler.Auth(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
+		assert.NoError(t, err)
 		assert.Equal(t, clientError.Unauthorizied, response.Code)
 	})
 
@@ -200,9 +203,10 @@ func TestUserHandler_Auth(t *testing.T) {
 
 		handler.Auth(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
+		assert.NoError(t, err)
 		assert.Equal(t, serverError.ServerInternalError, response.Code)
 	})
 
@@ -240,10 +244,10 @@ func TestUserHandler_Registration(t *testing.T) {
 
 		handler.Registration(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
-
+		assert.NoError(t, err)
 		assert.Equal(t, retUser.ID, 4)
 		assert.Equal(t, http.StatusOK, response.Code)
 	})
@@ -268,10 +272,10 @@ func TestUserHandler_Registration(t *testing.T) {
 
 		handler.Registration(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
-
+		assert.NoError(t, err)
 		assert.Equal(t, clientError.BadRequest, response.Code)
 	})
 	t.Run("RegistrationErr1", func(t *testing.T) {
@@ -300,10 +304,10 @@ func TestUserHandler_Registration(t *testing.T) {
 
 		handler.Registration(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
-
+		assert.NoError(t, err)
 		assert.Equal(t, clientError.Conflict, response.Code)
 	})
 	t.Run("RegistrationErr2", func(t *testing.T) {
@@ -336,10 +340,10 @@ func TestUserHandler_Registration(t *testing.T) {
 
 		handler.Registration(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
-
+		assert.NoError(t, err)
 		assert.Equal(t, clientError.BadRequest, response.Code)
 	})
 }
@@ -373,8 +377,10 @@ func TestUserHandler_GetAccInfo(t *testing.T) {
 		resp := rec.Result()
 		response := responses.HttpResponse{}
 		user := models.SafeUser{}
-		json.NewDecoder(resp.Body).Decode(&response)
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		assert.NoError(t, err)
 		err = mapstructure.Decode(response.Data.(map[string]interface{}), &user)
+		assert.NoError(t, err)
 		assert.Equal(t, user.ID, 1)
 		assert.Equal(t, http.StatusOK, response.Code)
 	})
@@ -405,7 +411,8 @@ func TestUserHandler_GetAccInfo(t *testing.T) {
 		handler.getAccInfo(rec, req)
 		resp := rec.Result()
 		response := responses.HttpResponse{}
-		json.NewDecoder(resp.Body).Decode(&response)
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		assert.NoError(t, err)
 		assert.Equal(t, clientError.Gone, response.Code)
 	})
 }
@@ -436,7 +443,7 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUser), testUser))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
 			SessionsDelivery: mockSCase,
@@ -445,7 +452,8 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		handler.updatePassword(rec, req)
 		resp := rec.Result()
 		response := responses.HttpResponse{}
-		json.NewDecoder(resp.Body).Decode(&response)
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		assert.NoError(t, err)
 
 		assert.Equal(t, http.StatusOK, response.Code)
 	})
@@ -471,9 +479,10 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 
 		handler.updatePassword(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
+		assert.NoError(t, err)
 
 		assert.Equal(t, clientError.BadRequest, response.Code)
 	})
@@ -497,7 +506,7 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUser), testUser))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
 			SessionsDelivery: mockSCase,
@@ -507,7 +516,8 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		handler.updatePassword(rec, req)
 		resp := rec.Result()
 		response := responses.HttpResponse{}
-		json.NewDecoder(resp.Body).Decode(&response)
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		assert.NoError(t, err)
 
 		assert.Equal(t, clientError.PaymentReq, response.Code)
 	})
@@ -534,7 +544,7 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUser), testUser))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
 			SessionsDelivery: mockSCase,
@@ -544,7 +554,8 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		handler.updatePassword(rec, req)
 		resp := rec.Result()
 		response := responses.HttpResponse{}
-		json.NewDecoder(resp.Body).Decode(&response)
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		assert.NoError(t, err)
 
 		assert.Equal(t, serverError.ServerInternalError, response.Code)
 	})
@@ -574,8 +585,8 @@ func TestUserHandler_UpdatePassword(t *testing.T) {
 		handler.updatePassword(rec, req)
 		resp := rec.Result()
 		response := responses.HttpResponse{}
-		json.NewDecoder(resp.Body).Decode(&response)
-
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		assert.NoError(t, err)
 		assert.Equal(t, clientError.Unauthorizied, response.Code)
 	})
 }
@@ -600,7 +611,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUser), testUser))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
 			SessionsDelivery: mockSCase,
@@ -610,8 +621,8 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		handler.UpdateUser(rec, req)
 		resp := rec.Result()
 		response := responses.HttpResponse{}
-		json.NewDecoder(resp.Body).Decode(&response)
-
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, response.Code)
 	})
 
@@ -629,7 +640,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUser), testUser))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
 			SessionsDelivery: mockSCase,
@@ -639,8 +650,8 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		handler.UpdateUser(rec, req)
 		resp := rec.Result()
 		response := responses.HttpResponse{}
-		json.NewDecoder(resp.Body).Decode(&response)
-
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		assert.NoError(t, err)
 		assert.Equal(t, clientError.BadRequest, response.Code)
 	})
 
@@ -666,8 +677,8 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		handler.UpdateUser(rec, req)
 		resp := rec.Result()
 		response := responses.HttpResponse{}
-		json.NewDecoder(resp.Body).Decode(&response)
-
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		assert.NoError(t, err)
 		assert.Equal(t, clientError.Unauthorizied, response.Code)
 	})
 
@@ -686,7 +697,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		req, err := http.NewRequest("PUT", "/api/v1/users/credentials", bytes.NewBuffer(body))
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUser), testUser))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, testUser))
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
@@ -697,8 +708,8 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		handler.UpdateUser(rec, req)
 		resp := rec.Result()
 		response := responses.HttpResponse{}
-		json.NewDecoder(resp.Body).Decode(&response)
-
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		assert.NoError(t, err)
 		assert.Equal(t, clientError.Conflict, response.Code)
 	})
 }
@@ -719,7 +730,7 @@ func TestUserHandler_GetCsrf(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/csrf", nil)
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.SessionID), sId))
+		req = req.WithContext(context.WithValue(req.Context(), configs.SessionID, sId))
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
@@ -730,8 +741,8 @@ func TestUserHandler_GetCsrf(t *testing.T) {
 		handler.GetCsrf(rec, req)
 		resp := rec.Result()
 		response := responses.HttpResponse{}
-		json.NewDecoder(resp.Body).Decode(&response)
-
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, response.Code)
 	})
 
@@ -756,8 +767,8 @@ func TestUserHandler_GetCsrf(t *testing.T) {
 		handler.GetCsrf(rec, req)
 		resp := rec.Result()
 		response := responses.HttpResponse{}
-		json.NewDecoder(resp.Body).Decode(&response)
-
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		assert.NoError(t, err)
 		assert.Equal(t, clientError.Unauthorizied, response.Code)
 	})
 
@@ -775,7 +786,7 @@ func TestUserHandler_GetCsrf(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/csrf", nil)
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.SessionID), sId))
+		req = req.WithContext(context.WithValue(req.Context(), configs.SessionID, sId))
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
@@ -786,8 +797,8 @@ func TestUserHandler_GetCsrf(t *testing.T) {
 		handler.GetCsrf(rec, req)
 		resp := rec.Result()
 		response := responses.HttpResponse{}
-		json.NewDecoder(resp.Body).Decode(&response)
-
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		assert.NoError(t, err)
 		assert.Equal(t, serverError.ServerInternalError, response.Code)
 	})
 
@@ -826,8 +837,8 @@ func TestUserHandler_SignOut(t *testing.T) {
 		handler.SignOut(rec, req)
 		resp := rec.Result()
 		response := responses.HttpResponse{}
-		json.NewDecoder(resp.Body).Decode(&response)
-
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, response.Code)
 	})
 
@@ -852,8 +863,8 @@ func TestUserHandler_SignOut(t *testing.T) {
 		handler.SignOut(rec, req)
 		resp := rec.Result()
 		response := responses.HttpResponse{}
-		json.NewDecoder(resp.Body).Decode(&response)
-
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		assert.NoError(t, err)
 		assert.Equal(t, clientError.BadRequest, response.Code)
 	})
 
@@ -889,8 +900,8 @@ func TestUserHandler_SignOut(t *testing.T) {
 		handler.SignOut(rec, req)
 		resp := rec.Result()
 		response := responses.HttpResponse{}
-		json.NewDecoder(resp.Body).Decode(&response)
-
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		assert.NoError(t, err)
 		assert.Equal(t, serverError.ServerInternalError, response.Code)
 	})
 }
@@ -915,7 +926,7 @@ func TestUserHandler_UserHandler(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/users", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUser), retUser))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, retUser))
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
@@ -925,10 +936,10 @@ func TestUserHandler_UserHandler(t *testing.T) {
 
 		handler.UserHandler(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
-
+		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, response.Code)
 	})
 	t.Run("UserHandlerError1", func(t *testing.T) {
@@ -949,7 +960,7 @@ func TestUserHandler_UserHandler(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/users", bytes.NewBuffer(body))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUser), retUser))
+		req = req.WithContext(context.WithValue(req.Context(), configs.RequestUser, retUser))
 		rec := httptest.NewRecorder()
 		handler := UserHandler{
 			UserUseCase:      mockUCase,
@@ -959,10 +970,10 @@ func TestUserHandler_UserHandler(t *testing.T) {
 
 		handler.UserHandler(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
-
+		assert.NoError(t, err)
 		assert.Equal(t, clientError.Unauthorizied, response.Code)
 	})
 	t.Run("UserHandlerError2", func(t *testing.T) {
@@ -989,10 +1000,10 @@ func TestUserHandler_UserHandler(t *testing.T) {
 
 		handler.UserHandler(rec, req)
 		resp := rec.Result()
-		body, err = ioutil.ReadAll(resp.Body)
+		body, _ = ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 		err = json.Unmarshal(body, &response)
-
+		assert.NoError(t, err)
 		assert.Equal(t, clientError.Unauthorizied, response.Code)
 	})
 }

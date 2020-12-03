@@ -21,7 +21,7 @@ import (
 func TestCommentUseCase_GetComments(t *testing.T) {
 
 	testComments := []commModel.FullCommentInfo{
-		{3, 1, 3, "kekw", 4, "avatar/kek.jpeg", "kostikan", "20.20.2010"},
+		{UserID: 3, CommID: 1, HotelID: 3, Message: "kekw", Rating: 4, Avatar: "avatar/kek.jpeg", Username: "kostikan", Time: "20.20.2010"},
 	}
 	paginfo := paginationModel.PaginationInfo{NextLink: "",
 		PrevLink: "", ItemsCount: 20}

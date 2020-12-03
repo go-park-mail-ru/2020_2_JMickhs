@@ -8,8 +8,6 @@ import (
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels"
 	hotelmodel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels/models"
 
-	"github.com/spf13/viper"
-
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
@@ -58,7 +56,7 @@ func (hh *HotelHandler) FetchHotelsByRadius(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	responses.SendDataResponse(w, hotelmodel.Hotels{hotels})
+	responses.SendDataResponse(w, hotelmodel.Hotels{Hotels: hotels})
 }
 
 // swagger:route GET /api/v1/hotels/{id} hotel hotel
@@ -79,7 +77,7 @@ func (hh *HotelHandler) Hotel(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hotel := hotelmodel.Hotel{}
-	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
+	userID, ok := r.Context().Value(configs.RequestUserID).(int)
 	if !ok {
 		userID = -1
 	}
@@ -127,15 +125,14 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 	commCountConstraint := r.FormValue("commCount")
 	commCountPercent := r.FormValue("commPercent")
 
-	orderData := hotelmodel.HotelFiltering{rateStart, rateEnd, commStart,
-		longitude, latitude, radius, commCountConstraint, commCountPercent}
+	orderData := hotelmodel.HotelFiltering{RatingFilterStartNumber: rateStart, RatingFilterEndNumber: rateEnd, CommentsFilterStartNumber: commStart,
+		Longitude: longitude, Latitude: latitude, Radius: radius, CommCountConstraint: commCountConstraint, CommCountPercent: commCountPercent}
 
-	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
-	hotels := hotelmodel.SearchData{}
+	userID, ok := r.Context().Value(configs.RequestUserID).(int)
 	if !ok {
 		userID = -1
 	}
-	hotels, err = hh.HotelUseCase.FetchHotels(orderData, pattern, page, userID)
+	hotels, err := hh.HotelUseCase.FetchHotels(orderData, pattern, page, userID)
 
 	if err != nil {
 		customerror.PostError(w, r, hh.log, err, nil)
@@ -160,5 +157,5 @@ func (hh *HotelHandler) FetchHotelsPreview(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	responses.SendDataResponse(w, hotelmodel.HotelsPreview{hotels})
+	responses.SendDataResponse(w, hotelmodel.HotelsPreview{Hotels: hotels})
 }

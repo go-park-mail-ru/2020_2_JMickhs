@@ -44,8 +44,14 @@ func (u *userUseCase) Add(user models.User) (models.User, error) {
 		return user, customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}
 	hashedPassword, err := u.userRepo.GenerateHashFromPassword(user.Password)
+	if err != nil {
+		return user, nil
+	}
 	user.Password = string(hashedPassword)
-	u.SetDefaultAvatar(&user)
+	err = u.SetDefaultAvatar(&user)
+	if err != nil {
+		return user, err
+	}
 	user, err = u.userRepo.Add(user)
 	return user, err
 }

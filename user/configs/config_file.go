@@ -10,10 +10,8 @@ var ConfigFields = struct {
 	StaticPathForAvatars   string
 	CookieLifeTime         string
 	BaseAvatarPath         string
-	RequestUser            string
 	BucketName             string
 	S3Url                  string
-	SessionID              string
 	S3Region               string
 	S3EndPoint             string
 	SessionGrpcServicePort string
@@ -23,10 +21,8 @@ var ConfigFields = struct {
 	StaticPathForAvatars:   "paths.StaticPathForAvatars",
 	CookieLifeTime:         "cookie.LifeTime",
 	BaseAvatarPath:         "paths.BaseAvatarPath",
-	RequestUser:            "context.RequestUser",
 	BucketName:             "s3.BucketName",
 	S3Url:                  "s3.S3Url",
-	SessionID:              "context.SessionID",
 	S3Region:               "s3.S3Region",
 	S3EndPoint:             "s3.S3EndPoint",
 	SessionGrpcServicePort: "grpc.SessionGrpcServicePort",
@@ -40,6 +36,12 @@ type postgresConfig struct {
 	DBName   string
 	Port     string
 }
+
+type requestUser string
+type sessionsID string
+
+const RequestUser requestUser = "User"
+const SessionID sessionsID = "SessionsID"
 
 var BdConfig postgresConfig
 var PrefixPath string

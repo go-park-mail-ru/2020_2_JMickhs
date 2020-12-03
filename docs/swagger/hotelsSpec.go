@@ -99,7 +99,7 @@ type HotelData struct {
 }
 
 // swagger:parameters hotel hotelsByRadius
-type hotelByRadiusParameterWrapper struct {
+type HotelByRadiusParameterWrapper struct {
 	// в метрах
 	// in: query
 	// required:true
@@ -135,7 +135,7 @@ type AddHotelResponse struct {
 }
 
 // swagger:parameters hotel
-type hotelIDParameterWrapper struct {
+type HotelIDParameterWrapper struct {
 	// the id of hotel to get from database
 	// in: path
 	// required:true
@@ -143,20 +143,20 @@ type hotelIDParameterWrapper struct {
 }
 
 // swagger:parameters hotelsPreview
-type hotelsPreviewRequest struct {
+type HotelsPreviewRequest struct {
 	// in: query
 	// required:true
 	ID int `json:"pattern"`
 }
 
 // swagger:response HotelData
-type hotelResponseWrapper struct {
+type HotelResponseWrapper struct {
 	//in: body
 	Body HotelData
 }
 
 // swagger:parameters hotels
-type hotelsIDParameterWrapper struct {
+type HotelsIDParameterWrapper struct {
 	// the start ID to get hotels
 	// in: query
 	// required:true
@@ -164,19 +164,19 @@ type hotelsIDParameterWrapper struct {
 }
 
 // swagger:response hotels
-type hotelListWrapper struct {
+type HotelListWrapper struct {
 	//in: body
 	Body Hotels
 }
 
 // swagger:response hotelsPreview
-type hotelsPreviewResponse struct {
+type HotelsPreviewResponse struct {
 	//in: body
 	Body HotelsPreview
 }
 
 // swagger:response searchHotel
-type searchHotelListWrapper struct {
+type SearchHotelListWrapper struct {
 	//in: body
 	Body SearchDataResponse
 }
