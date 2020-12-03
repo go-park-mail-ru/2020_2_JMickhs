@@ -43,14 +43,14 @@ func LoggerMiddleware(log *logger.CustomLogger, metrics *metrics.PromMetrics) mu
 			log.EndReq(respTime.Microseconds(), req.Context())
 			if req.RequestURI != "/api/v1/metrics" {
 				vars := mux.Vars(req)
-				_, err := strconv.Atoi(vars["id"])
 				var url string
-				if err != nil {
-					url = req.URL.Path
-				} else {
+				if len(vars) > 0 {
 					url = strings.TrimRightFunc(req.URL.Path, func(r rune) bool {
 						return unicode.IsNumber(r)
 					})
+					url = url[:len(url)-1]
+				} else {
+					url = req.URL.Path
 				}
 				if srw.statusCode != 500 {
 					metrics.Hits.WithLabelValues(strconv.Itoa(srw.statusCode), url, req.Method).Inc()
