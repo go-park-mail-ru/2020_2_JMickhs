@@ -79,7 +79,8 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
-          script: sudo docker rm -vf $(sudo docker ps -a -q) || true && cd backend/ &&
-            APP_VERSION=${GITHUB_SHA::8} docker-compose up -d --build --no-deps
+          script: sudo docker rm -vf $(sudo docker ps -a -q)  &&
+            cd backend/ &&
+            APP_VERSION=${GITHUB_SHA::8} docker-compose up -d
 
 
