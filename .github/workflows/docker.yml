@@ -40,7 +40,7 @@ jobs:
       - name: Lint Go Code
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
-          go get github.com/golang/lint/golint
+          go get github.com/x/lint
           make linter
   build:
     runs-on: ubuntu-latest
