@@ -35,13 +35,13 @@ type FullCommentInfo struct {
 	Username string  `json:"username" db:"username"`
 	Time     string  `json:"time" db:"time"`
 }
-type AddCommentRequest struct {
+type AddComment struct {
 	HotelID int    `json:"hotel_id"`
 	Message string `json:"message"`
 	Rating  int    `json:"rating"`
 }
 
-type UpdateCommentRequest struct {
+type UpdateComment struct {
 	CommID  int    `json:"comm_id"`
 	Message string `json:"message"`
 	Rate    int    `json:"rating"`
@@ -80,25 +80,25 @@ type Comments struct {
 }
 
 // swagger:response AddComment
-type newRateResponse struct {
+type NewRateResponse struct {
 	//in:body
 	Body NewRate
 }
 
 // swagger:parameters UpdateComment
-type updateCommentRequest struct {
+type UpdateCommentRequest struct {
 	//in: body
-	Body UpdateCommentRequest
+	Body UpdateComment
 }
 
 // swagger:response UpdateComment
-type updateCommentResponse struct {
+type UpdateCommentResponse struct {
 	//in: body
 	Body NewRate
 }
 
 // swagger:parameters AddComment
-type addCommentRequest struct {
+type AddCommentRequest struct {
 	//in: body
-	Body AddCommentRequest
+	Body AddComment
 }

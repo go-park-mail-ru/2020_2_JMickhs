@@ -5,7 +5,9 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
+	"unicode"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/metrics"
 
@@ -40,13 +42,23 @@ func LoggerMiddleware(log *logger.CustomLogger, metrics *metrics.PromMetrics) mu
 			respTime := time.Since(start)
 			log.EndReq(respTime.Microseconds(), req.Context())
 			if req.RequestURI != "/api/v1/metrics" {
+				vars := mux.Vars(req)
+				_, err := strconv.Atoi(vars["id"])
+				var url string
+				if err != nil {
+					url = req.URL.Path
+				} else {
+					url = strings.TrimRightFunc(req.URL.Path, func(r rune) bool {
+						return unicode.IsNumber(r)
+					})
+				}
 				if srw.statusCode != 500 {
-					metrics.Hits.WithLabelValues(strconv.Itoa(srw.statusCode), req.URL.String(), req.Method).Inc()
+					metrics.Hits.WithLabelValues(strconv.Itoa(srw.statusCode), url, req.Method).Inc()
 					metrics.Total.Add(1)
-					metrics.Timings.WithLabelValues(strconv.Itoa(srw.statusCode), req.URL.String(), req.Method).
+					metrics.Timings.WithLabelValues(strconv.Itoa(srw.statusCode), url, req.Method).
 						Observe(respTime.Seconds())
 				} else {
-					metrics.HitsError.WithLabelValues(strconv.Itoa(srw.statusCode), req.URL.String(), req.Method).Inc()
+					metrics.HitsError.WithLabelValues(strconv.Itoa(srw.statusCode), url, req.Method).Inc()
 				}
 			}
 		})
