@@ -30,17 +30,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v2
         with:
           go-version: '1.15.x'
 
       - name: Check out code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Lint Go Code
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
-          go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+          go get github.com/golang/lint/golint
           make linter
   build:
     runs-on: ubuntu-latest
@@ -68,7 +68,7 @@ jobs:
           envs: GITHUB_SHA
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PRIVATE_KEY }}
+          password: ${{ secrets.SECRET_KEY   }}
           script: cd backend/ && sudo docker pull kostikan/main_service:${GITHUB_SHA::8} &&
             sudo docker pull kostikan/session_service:${GITHUB_SHA::8} &&
             sudo docker pull kostikan/user_service:${GITHUB_SHA::8}
@@ -78,7 +78,7 @@ jobs:
           envs: GITHUB_SHA
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PRIVATE_KEY }}
+          password: ${{ secrets.SECRET_KEY }}
           script: docker rm -vf $(docker ps -a -q) || true && cd backend/ &&
             APP_VERSION=${GITHUB_SHA::8} docker-compose up -d --build --no-deps
 
