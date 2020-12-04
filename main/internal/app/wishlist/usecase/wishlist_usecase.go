@@ -24,6 +24,10 @@ func NewWishlistUseCase(r wishlist.Repository, hotelRepo hotels.Repository) *Wis
 	}
 }
 
+func (w *WishlistUseCase) WishListsByHotel(userID int, hotelID int) (wishlistModel.UserWishLists, error) {
+	return w.wishlistRepo.WishListsByHotel(userID, hotelID)
+}
+
 func (w *WishlistUseCase) GetWishlistMeta(userID int, wishlistID int) ([]wishlistModel.WishlistHotel, error) {
 	var wishListMeta []wishlistModel.WishlistHotel
 	check, err := w.wishlistRepo.CheckWishListOwner(wishlistID, userID)

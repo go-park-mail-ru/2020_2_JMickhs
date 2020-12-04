@@ -42,6 +42,35 @@ func NewWishlistHandler(r *mux.Router, useCase wishlist.Usecase, hotelUseCase ho
 	r.HandleFunc("/api/v1/wishlists/{wishList_id:[0-9]+}", middlewareApi.CheckCSRFOnHandler(handler.DeleteWishlist)).Methods("DELETE")
 	r.HandleFunc("/api/v1/wishlists/{wishList_id:[0-9]+}/hotels", middlewareApi.CheckCSRFOnHandler(handler.AddHotelToWishlist)).Methods("POST")
 	r.HandleFunc("/api/v1/wishlists/{wishList_id:[0-9]+}/hotels", middlewareApi.CheckCSRFOnHandler(handler.DeleteHotelFromWishlist)).Methods("DELETE")
+	r.HandleFunc("/api/v1/wishlists/hotels/{hotel_id:[0-9]+}", handler.GetWishlistsByHotel).Methods("GET")
+}
+
+// swagger:route GET /api/v1/wishlists/hotels/{hotel_id} Wishlist getWishlistsByHotel
+// Get list of wishlists by hotel
+// responses:
+//  200: wishlists
+//  400: badrequest
+func (wh *WishlistHandler) GetWishlistsByHotel(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	hotelID, err := strconv.Atoi(vars["hotel_id"])
+
+	if err != nil {
+		customerror.PostError(w, r, wh.log, err, clientError.BadRequest)
+		return
+	}
+
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
+	if !ok {
+		customerror.PostError(w, r, wh.log, errors.New("user unauthorized"), clientError.Unauthorizied)
+		return
+	}
+
+	wishlists, err := wh.useCase.WishListsByHotel(userID, hotelID)
+	if err != nil {
+		customerror.PostError(w, r, wh.log, err, nil)
+		return
+	}
+	responses.SendDataResponse(w, wishlists)
 }
 
 // swagger:route GET /api/v1/wishlists Wishlist getUserWishlist

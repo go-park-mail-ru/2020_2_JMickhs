@@ -53,6 +53,12 @@ type GetUserWishListsResponse struct {
 	Body UserWishLists
 }
 
+// swagger:response  getWishlistsByHotel
+type GetWishlistsByHotelResponse struct {
+	//in:body
+	Body UserWishLists
+}
+
 // swagger:response wishlisthotels
 type GetWishListsHotelResponse struct {
 	//in:body

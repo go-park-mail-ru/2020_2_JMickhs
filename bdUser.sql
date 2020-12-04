@@ -4,6 +4,5 @@ create table users (
     email VARCHAR (50) UNIQUE,
     password text,
     avatar text,
-    owner boolean,
-    owner_hotels_id integer[]
+    modRule bool
 );
