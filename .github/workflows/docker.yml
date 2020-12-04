@@ -3,14 +3,12 @@ name: Docker Build
 on:
   push:
     branches:
-      - master
-      - dev
-      - tests
+      - main
+      - develop
   pull_request:
     branches:
-      - master
-      - dev
-      - tests
+      - main
+      - develop
 
 jobs:
   test:
