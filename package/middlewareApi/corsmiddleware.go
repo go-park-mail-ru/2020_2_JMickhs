@@ -22,7 +22,6 @@ func NewOptionsHandler() http.Handler {
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Vary", "Accept, Cookie")
 		w.WriteHeader(http.StatusNoContent)
-		return
 	})
 }
 

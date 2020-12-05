@@ -149,3 +149,18 @@ func (mr *MockRepositoryMockRecorder) CheckHotelInWishlists(userID, hotelID inte
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckHotelInWishlists", reflect.TypeOf((*MockRepository)(nil).CheckHotelInWishlists), userID, hotelID)
 }
+
+// WishListsByHotel mocks base method
+func (m *MockRepository) WishListsByHotel(userID, hotelID int) (wishlistmodel.UserWishLists, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WishListsByHotel", userID, hotelID)
+	ret0, _ := ret[0].(wishlistmodel.UserWishLists)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// WishListsByHotel indicates an expected call of WishListsByHotel
+func (mr *MockRepositoryMockRecorder) WishListsByHotel(userID, hotelID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WishListsByHotel", reflect.TypeOf((*MockRepository)(nil).WishListsByHotel), userID, hotelID)
+}

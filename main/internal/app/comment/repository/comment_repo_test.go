@@ -26,8 +26,8 @@ func TestCommentRepository_GetComments(t *testing.T) {
 			1, 1, "hello", 3, "src/kek.jpg", "kotik", 1, "22-02-2000").AddRow(
 			3, 2, "hello", 3, "src/kek.jpg", "kotik", 1, "22-02-2000")
 
-		commentsTest := commModel.FullCommentInfo{3, 2, 1, "hello",
-			3, "src/kek.jpg", "kotik", "22-02-2000"}
+		commentsTest := commModel.FullCommentInfo{UserID: 3, CommID: 2, HotelID: 1, Message: "hello",
+			Rating: 3, Avatar: "src/kek.jpg", Username: "kotik", Time: "22-02-2000"}
 		query := GetCommentsPostgreRequest
 
 		mock.ExpectQuery(query).
@@ -285,7 +285,7 @@ func TestGetCurrentRating(t *testing.T) {
 			8.5, 32)
 
 		query := GetCurrRatingPostgreRequest
-		testInfo := commModel.RateInfo{32, 8.5}
+		testInfo := commModel.RateInfo{RatesCount: 32, CurrRating: 8.5}
 
 		mock.ExpectQuery(query).
 			WithArgs(5).
@@ -391,28 +391,3 @@ func TestCommentRepository_CheckUserErr(t *testing.T) {
 		assert.Equal(t, customerror.ParseCode(err), clientError.Locked)
 	})
 }
-
-//func TestCommentRepository_CheckRateExistForComments(t *testing.T) {
-//	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-//	if err != nil {
-//		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-//	}
-//	defer db.Close()
-//	t.Run("CheckRateExist", func(t *testing.T) {
-//
-//		query := CheckRateExistForCommentsRequest
-//		res:= sqlmock.NewResult(0,1)
-//		mock.ExpectExec(query).
-//			WithArgs(2,3)
-//
-//		sqlxDb := sqlx.NewDb(db, "sqlmock")
-//		defer sqlxDb.Close()
-//
-//		rep := NewCommentRepository(sqlxDb)
-//
-//		res, err := rep.CheckRateExistForComments(2, 3)
-//		assert.NoError(t, err)
-//		assert.Equal(t, res, true)
-//	})
-//
-//}

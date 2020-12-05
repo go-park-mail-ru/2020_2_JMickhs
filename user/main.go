@@ -130,7 +130,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("can't listen port", err)
 	}
-	go server.Serve(listener)
+	go func(server *grpc.Server, log *logger.CustomLogger) {
+		log.Error(server.Serve(listener))
+	}(server, log)
 
 	if err != nil {
 		log.Fatal(err)

@@ -9,5 +9,4 @@ log.txt
 /*.outs
 /env
 coverage1.out
-docker.yml
 *.env

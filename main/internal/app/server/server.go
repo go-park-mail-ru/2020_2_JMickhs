@@ -88,6 +88,9 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 		grpc.WithUnaryInterceptor(grpcPackage.GetInterceptor(log)),
 		grpc.WithInsecure(),
 	)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	defer grpcSessionsConn.Close()
 
 	sessionService := sessionService.NewAuthorizationServiceClient(grpcSessionsConn)

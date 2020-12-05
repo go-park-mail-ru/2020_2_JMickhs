@@ -11,10 +11,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
+	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
+
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 	userService "github.com/go-park-mail-ru/2020_2_JMickhs/package/proto/user"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 
 	comment_mock "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/mocks"
@@ -32,8 +32,8 @@ import (
 func TestCommentHandler_ListComments(t *testing.T) {
 
 	testComments := []commModel.FullCommentInfo{
-		{2, 1, 2, "kek", 2, "src/kek.jpg", "kostik", "20-10-2000"},
-		{2, 2, 2, "kekw", 2, "src/kek.jpg", "kostik", "20-10-2000"},
+		{UserID: 2, CommID: 1, HotelID: 2, Message: "kek", Rating: 2, Avatar: "src/kek.jpg", Username: "kostik", Time: "20-10-2000"},
+		{UserID: 2, CommID: 2, HotelID: 2, Message: "kekw", Rating: 2, Avatar: "src/kek.jpg", Username: "kostik", Time: "20-10-2000"},
 	}
 	testUser := userService.User{UserID: 2, Username: "kostik", Email: "sdfs@mail.ru", Avatar: "kek/img.jpeg"}
 	paginfo := paginationModel.PaginationInfo{ItemsCount: 56, NextLink: "api/v1/comments/?id=2&limit=1&offset=57",
@@ -53,7 +53,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=0", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -63,7 +63,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		resp := rec.Result()
 		comments := []commModel.FullCommentInfo{}
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -88,7 +88,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=0", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -98,7 +98,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		handler.ListComments(rec, req)
 		resp := rec.Result()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -119,7 +119,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -129,7 +129,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		handler.ListComments(rec, req)
 		resp := rec.Result()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -150,7 +150,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		req, err := http.NewRequest("GET", "/api/v1/comments/?id=2&limit=1&offset=56", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -160,7 +160,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 		handler.ListComments(rec, req)
 		resp := rec.Result()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -173,7 +173,7 @@ func TestCommentHandler_ListComments(t *testing.T) {
 func TestCommentHandler_AddComment(t *testing.T) {
 
 	testComment := commModel.Comment{
-		2, 1, 2, "kek", 2, "20-10-2000",
+		UserID: 2, HotelID: 1, CommID: 2, Message: "kek", Rate: 2, Time: "20-10-2000",
 	}
 
 	testUser := userService.User{UserID: 2, Username: "kostik", Email: "sdfs@mail.ru", Avatar: "kek/img.jpeg"}
@@ -192,7 +192,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -203,7 +203,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		resp := rec.Result()
 		comment := commModel.NewRate{}
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -217,10 +217,9 @@ func TestCommentHandler_AddComment(t *testing.T) {
 
 	t.Run("AddCommentErr1", func(t *testing.T) {
 		testComments := []commModel.FullCommentInfo{
-			{2, 1, 2, "kek", 2, "src/kek.jpg", "kostik", "20-10-2000"},
-			{2, 2, 2, "kekw", 2, "src/kek.jpg", "kostik", "20-10-2000"},
+			{UserID: 2, CommID: 1, HotelID: 2, Message: "kek", Rating: 2, Avatar: "src/kek.jpg", Username: "kostik", Time: "20-10-2000"},
+			{UserID: 2, CommID: 2, HotelID: 2, Message: "kekw", Rating: 2, Avatar: "src/kek.jpg", Username: "kostik", Time: "20-10-2000"},
 		}
-
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
@@ -230,7 +229,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -240,7 +239,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		handler.AddComment(rec, req)
 		resp := rec.Result()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -269,7 +268,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		handler.AddComment(rec, req)
 		resp := rec.Result()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -293,7 +292,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -303,7 +302,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		handler.AddComment(rec, req)
 		resp := rec.Result()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -317,7 +316,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 func TestCommentHandler_UpdateComment(t *testing.T) {
 
 	testComment := commModel.Comment{
-		2, 1, 2, "kek", 2, "20-10-2000",
+		UserID: 2, HotelID: 1, CommID: 2, Message: "kek", Rate: 2, Time: "20-10-2000",
 	}
 
 	testUser := userService.User{UserID: 2, Username: "kostik", Email: "sdfs@mail.ru", Avatar: "kek/img.jpeg"}
@@ -336,7 +335,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -347,7 +346,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		resp := rec.Result()
 		comment := commModel.NewRate{}
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -361,8 +360,8 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 
 	t.Run("UpdateCommentErr1", func(t *testing.T) {
 		testComments := []commModel.FullCommentInfo{
-			{2, 1, 2, "kek", 2, "src/kek.jpg", "kostik", "20-10-2000"},
-			{2, 2, 2, "kekw", 2, "src/kek.jpg", "kostik", "20-10-2000"},
+			{UserID: 2, CommID: 1, HotelID: 2, Message: "kek", Rating: 2, Avatar: "src/kek.jpg", Username: "kostik", Time: "20-10-2000"},
+			{UserID: 2, CommID: 2, HotelID: 2, Message: "kekw", Rating: 2, Avatar: "src/kek.jpg", Username: "kostik", Time: "20-10-2000"},
 		}
 
 		ctrl := gomock.NewController(t)
@@ -374,7 +373,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -384,7 +383,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		handler.UpdateComment(rec, req)
 		resp := rec.Result()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -413,7 +412,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		handler.UpdateComment(rec, req)
 		resp := rec.Result()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -437,7 +436,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 
 		assert.NoError(t, err)
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -447,7 +446,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		handler.UpdateComment(rec, req)
 		resp := rec.Result()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -474,7 +473,7 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		req, err := http.NewRequest("DELETE", "/api/v1/comments/1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		req = mux.SetURLVars(req, map[string]string{
 			"id": "1",
 		})
@@ -487,7 +486,7 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		handler.DeleteComment(rec, req)
 		resp := rec.Result()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -505,7 +504,7 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		req, err := http.NewRequest("DELETE", "/api/v1/comments/1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -515,7 +514,7 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		handler.DeleteComment(rec, req)
 		resp := rec.Result()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -545,7 +544,7 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		handler.DeleteComment(rec, req)
 		resp := rec.Result()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -567,7 +566,7 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		req, err := http.NewRequest("DELETE", "/api/v1/comments/1", nil)
 		assert.NoError(t, err)
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), int(testUser.UserID)))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
 		req = mux.SetURLVars(req, map[string]string{
 			"id": "1",
 		})
@@ -580,7 +579,7 @@ func TestCommentHandler_DeleteComment(t *testing.T) {
 		handler.DeleteComment(rec, req)
 		resp := rec.Result()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)

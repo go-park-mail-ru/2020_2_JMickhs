@@ -19,7 +19,7 @@ type UserWishLists struct {
 	Wishlists []Wishlist `json:"wishlists,omitempty"`
 }
 
-type CreateWishlistRequest struct {
+type CreateWishlist struct {
 	Name string `json:"name"`
 }
 
@@ -32,7 +32,7 @@ type DeleteHotelFromWishlistRequest struct {
 }
 
 // swagger:parameters addHotelToWishlist
-type addHotelToWishlist struct {
+type AddHotelToWishlist struct {
 	// the id of wishlist
 	// in: path
 	// required:true
@@ -53,26 +53,26 @@ type GetUserWishListsResponse struct {
 	Body UserWishLists
 }
 
+// swagger:response  getWishlistsByHotel
+type GetWishlistsByHotelResponse struct {
+	//in:body
+	Body UserWishLists
+}
+
 // swagger:response wishlisthotels
 type GetWishListsHotelResponse struct {
 	//in:body
 	Body []MiniHotel
 }
 
-// // swagger:response
-// type SaveHotelToWishlistResponse struct {
-// 	//in:body
-// 	Body wishlistModel.Wishlist
-// }
-
 // swagger:parameters createWishlist
-type createWishlistRequest struct {
+type CreateWishlistRequest struct {
 	//in: body
-	Body CreateWishlistRequest
+	Body CreateWishlist
 }
 
 // swagger:parameters deleteWishlist
-type deleteWishlistRequest struct {
+type DeleteWishlistRequest struct {
 	// the id of wishlist
 	// in: path
 	// required:true
@@ -80,7 +80,7 @@ type deleteWishlistRequest struct {
 }
 
 // swagger:parameters getWishlist
-type getWishlistRequest struct {
+type GetWishlistRequest struct {
 	// the id of wishlist
 	// in: path
 	// required:true
@@ -88,7 +88,7 @@ type getWishlistRequest struct {
 }
 
 // swagger:parameters deleteHotelFromWishlist
-type deleteHotelFromWishlist struct {
+type DeleteHotelFromWishlist struct {
 	// the id of wishlist
 	// in: path
 	// required:true

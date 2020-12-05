@@ -31,7 +31,7 @@ func TestPostgreWishlistRepository_GetWishlistMeta(t *testing.T) {
 
 		query := GetWishlistMeta
 
-		hotelTest := wishlistmodel.WishlistHotel{1, 4}
+		hotelTest := wishlistmodel.WishlistHotel{WishlistID: 1, HotelID: 4}
 		mock.ExpectQuery(query).
 			WithArgs(1).
 			WillReturnRows(rowsHotel)
@@ -199,7 +199,7 @@ func TestPostgreWishlistRepository_CreateWishlist(t *testing.T) {
 			1)
 		query := CreateWishlistPostgreRequest
 
-		wishlistTest := wishlistmodel.Wishlist{1, "kekw", 4}
+		wishlistTest := wishlistmodel.Wishlist{WishlistID: 1, Name: "kekw", UserID: 4}
 		mock.ExpectQuery(query).
 			WithArgs("kekw", 4).
 			WillReturnRows(rowsWishlist)
@@ -216,7 +216,7 @@ func TestPostgreWishlistRepository_CreateWishlist(t *testing.T) {
 	t.Run("CreateWishlistErr", func(t *testing.T) {
 		query := CreateWishlistPostgreRequest
 
-		wishlistTest := wishlistmodel.Wishlist{1, "kekw", 4}
+		wishlistTest := wishlistmodel.Wishlist{WishlistID: 1, Name: "kekw", UserID: 4}
 		mock.ExpectQuery(query).
 			WithArgs(1, "kekw", 4).
 			WillReturnError(customerror.NewCustomError(errors.New(""), clientError.BadRequest, 1))

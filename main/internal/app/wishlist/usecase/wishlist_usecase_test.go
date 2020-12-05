@@ -21,8 +21,8 @@ import (
 
 func TestWishlistUseCase_GetWishlistMeta(t *testing.T) {
 	wishlist := []wishlistmodel.WishlistHotel{
-		{1, 2},
-		{1, 3},
+		{WishlistID: 1, HotelID: 2},
+		{WishlistID: 1, HotelID: 3},
 	}
 	t.Run("GetWishlistMeta", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -301,8 +301,8 @@ func TestWishlistUseCase_CheckHotelInWishlists(t *testing.T) {
 
 func TestWishlistUseCase_GetUserWishlists(t *testing.T) {
 	wishList := wishlistmodel.UserWishLists{Wishlists: []wishlistmodel.Wishlist{
-		{2, "kekw", 3},
-		{3, "kekw2", 3},
+		{WishlistID: 2, Name: "kekw", UserID: 3},
+		{WishlistID: 3, Name: "kekw2", UserID: 3},
 	}}
 	t.Run("GetUserWishlists", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -324,7 +324,7 @@ func TestWishlistUseCase_GetUserWishlists(t *testing.T) {
 }
 
 func TestWishlistUseCase_CreateWishlist(t *testing.T) {
-	wishList := wishlistmodel.Wishlist{2, "kekw", 3}
+	wishList := wishlistmodel.Wishlist{WishlistID: 2, Name: "kekw", UserID: 3}
 	t.Run("GetUserWishlists", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()

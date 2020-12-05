@@ -4,29 +4,19 @@ CREATE EXTENSION POSTGIS;
 CREATE EXTENSION pg_trgm;
 CREATE EXTENSION btree_gist;
 
-create table users (
-    user_id  serial not null PRIMARY KEY,
-    username VARCHAR (50) UNIQUE,
-    email VARCHAR (50) UNIQUE,
-    password text,
-    avatar text
-);
-
 create table hotels (
     hotel_id serial PRIMARY KEY NOT NULL,
     name citext,
     location citext,
     country citext,
     city   citext,
-    email text,
     coordinates geometry(POINT,4326),
     description text,
     img text,
     photos text[],
     curr_rating float DEFAULT 0 CHECK (curr_rating >= 0  AND curr_rating <=5),
     comm_count int DEFAULT 0 CHECK(comm_count >= 0),
-    comm_count_for_each  int[5] DEFAULT '{0,0,0,0,0,0}',
-    ownerID int
+    comm_count_for_each  int[5] DEFAULT '{0,0,0,0,0,0}'
 );
 
 CREATE TABLE wishlists(

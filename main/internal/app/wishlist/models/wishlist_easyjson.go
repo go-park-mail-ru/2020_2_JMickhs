@@ -139,7 +139,7 @@ func easyjson72640071EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppWishl
 		out.RawString(prefix)
 		out.String(string(in.Name))
 	}
-	{
+	if in.UserID != 0 {
 		const prefix string = ",\"user_id\":"
 		out.RawString(prefix)
 		out.Int(int(in.UserID))

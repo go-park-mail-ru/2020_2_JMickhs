@@ -24,13 +24,17 @@ func NewWishlistUseCase(r wishlist.Repository, hotelRepo hotels.Repository) *Wis
 	}
 }
 
+func (w *WishlistUseCase) WishListsByHotel(userID int, hotelID int) (wishlistModel.UserWishLists, error) {
+	return w.wishlistRepo.WishListsByHotel(userID, hotelID)
+}
+
 func (w *WishlistUseCase) GetWishlistMeta(userID int, wishlistID int) ([]wishlistModel.WishlistHotel, error) {
-	wishListMeta := []wishlistModel.WishlistHotel{}
+	var wishListMeta []wishlistModel.WishlistHotel
 	check, err := w.wishlistRepo.CheckWishListOwner(wishlistID, userID)
 	if err != nil {
 		return wishListMeta, err
 	}
-	if check == false {
+	if !check {
 		return wishListMeta, customerror.NewCustomError(errors.New("not the owner of wishlist"), clientError.Locked, 1)
 	}
 	return w.wishlistRepo.GetWishlistMeta(wishlistID)
@@ -45,7 +49,7 @@ func (w *WishlistUseCase) DeleteWishlist(userID int, wishlistID int) error {
 	if err != nil {
 		return err
 	}
-	if check == false {
+	if !check {
 		return customerror.NewCustomError(errors.New("not the owner of wishlist"), clientError.Locked, 1)
 	}
 	return w.wishlistRepo.DeleteWishlist(wishlistID)
@@ -56,7 +60,7 @@ func (w *WishlistUseCase) AddHotel(userID int, hotelID int, wishlistID int) erro
 	if err != nil {
 		return err
 	}
-	if check == false {
+	if !check {
 		return customerror.NewCustomError(errors.New("not the owner of wishlist"), clientError.Locked, 1)
 	}
 	_, err = w.hotelsRepo.GetMiniHotelByID(hotelID)
@@ -71,7 +75,7 @@ func (w *WishlistUseCase) DeleteHotel(userID int, hotelID int, wishlistID int) e
 	if err != nil {
 		return err
 	}
-	if check == false {
+	if !check {
 		return customerror.NewCustomError(errors.New("not the owner of wishlist"), clientError.Locked, 1)
 	}
 	return w.wishlistRepo.DeleteHotel(hotelID, wishlistID)

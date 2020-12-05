@@ -3,7 +3,7 @@ consumes:
 - application/json
 - multipart/form-data
 definitions:
-  AddCommentRequest:
+  AddComment:
     properties:
       hotel_id:
         format: int64
@@ -72,7 +72,7 @@ definitions:
         x-go-name: UserID
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
-  CreateWishlistRequest:
+  CreateWishlist:
     properties:
       name:
         type: string
@@ -341,7 +341,7 @@ definitions:
         $ref: '#/definitions/File'
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
-  UpdateCommentRequest:
+  UpdateComment:
     properties:
       comm_id:
         format: int64
@@ -471,7 +471,7 @@ paths:
       - in: body
         name: Body
         schema:
-          $ref: '#/definitions/AddCommentRequest'
+          $ref: '#/definitions/AddComment'
       responses:
         "200":
           $ref: '#/responses/AddComment'
@@ -489,7 +489,7 @@ paths:
       - in: body
         name: Body
         schema:
-          $ref: '#/definitions/UpdateCommentRequest'
+          $ref: '#/definitions/UpdateComment'
       responses:
         "200":
           $ref: '#/responses/AddComment'
@@ -830,7 +830,7 @@ paths:
       - in: body
         name: Body
         schema:
-          $ref: '#/definitions/CreateWishlistRequest'
+          $ref: '#/definitions/CreateWishlist'
       responses:
         "200":
           $ref: '#/responses/wishlist'
@@ -935,6 +935,17 @@ paths:
           $ref: '#/responses/locked'
       tags:
       - Wishlist
+  /api/v1/wishlists/hotels/{hotel_id}:
+    get:
+      description: Get list of wishlists by hotel
+      operationId: getWishlistsByHotel
+      responses:
+        "200":
+          $ref: '#/responses/wishlists'
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - Wishlist
 produces:
 - application/json
 responses:
@@ -986,6 +997,9 @@ responses:
       $ref: '#/definitions/GetCommentsRequest'
   conflict:
     description: unique data already exists
+  getWishlistsByHotel:
+    schema:
+      $ref: '#/definitions/UserWishLists'
   gone:
     description: This data does not exist
   hotels:

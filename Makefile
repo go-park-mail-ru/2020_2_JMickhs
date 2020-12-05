@@ -52,3 +52,14 @@ tests:
 	cd ..
 
 
+linter:
+	cd main && golangci-lint run ./...
+	cd ..
+	cd user && golangci-lint run ./...
+	cd ..
+	cd sessions && golangci-lint run ./...
+	cd ..
+
+
+
+
