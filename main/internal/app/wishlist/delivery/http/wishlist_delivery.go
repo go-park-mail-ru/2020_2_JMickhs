@@ -61,7 +61,7 @@ func (wh *WishlistHandler) GetWishlistsByHotel(w http.ResponseWriter, r *http.Re
 
 	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
-		customerror.PostError(w, r, wh.log, errors.New("user unauthorized"), clientError.Unauthorizied)
+		responses.SendDataResponse(w, wishlistModel.UserWishLists{})
 		return
 	}
 

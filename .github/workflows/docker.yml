@@ -5,12 +5,10 @@ on:
     branches:
       - main
       - develop
-      - tests
   pull_request:
     branches:
       - main
       - develop
-      - tests
 
 jobs:
   test:
