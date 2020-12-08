@@ -1,9 +1,13 @@
 package reccomendUsecase
 
 import (
-	"fmt"
 	"math"
 	"sort"
+	"time"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
+
+	"github.com/spf13/viper"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation"
 	recommModels "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/models"
@@ -19,17 +23,43 @@ func NewRecommendationsUseCase(r recommendation.Repository) *RecommendationsUseC
 	}
 }
 
+func (p *RecommendationsUseCase) UpdateRecommendationsForHotel(hotelID int) error {
+	_, err := p.recommendRepo.GetUsersFromHotel(hotelID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (p *RecommendationsUseCase) GetHotelsRecommendations(UserID int) ([]recommModels.HotelRecommend, error) {
 	var hotels []recommModels.HotelRecommend
 	if UserID != -1 {
+		recommend, _ := p.recommendRepo.CheckRecommendationExist(UserID)
+		if time.Now().Unix()-recommend.Time.Unix() < viper.GetInt64(configs.ConfigFields.UpdateRecommendationTick)*int64(time.Minute.Seconds()) {
+			hotels, err := p.recommendRepo.GetHotelByIDs(recommend.HotelIDs)
+			if err != nil {
+				return hotels, err
+			}
+			return hotels, nil
+		}
 		rows, err := p.recommendRepo.GetRecommendationRows(UserID)
 		if err != nil {
 			return hotels, err
 		}
 		matrix := p.BuildMatrix(UserID, rows)
 		hotelIDs := p.GetBestRecommendations(UserID, matrix)
+		if len(hotelIDs) == 0 {
+			hotels, err := p.recommendRepo.GetHotelsRecommendations(UserID)
+			if err != nil {
+				return hotels, err
+			}
+			return hotels, nil
+		}
 		hotels, err := p.recommendRepo.GetHotelByIDs(hotelIDs)
-		fmt.Println(hotelIDs)
+		if err != nil {
+			return hotels, err
+		}
+		err = p.recommendRepo.UpdateUserRecommendations(UserID, hotelIDs)
 		if err != nil {
 			return hotels, err
 		}
@@ -71,7 +101,7 @@ func (p *RecommendationsUseCase) dotProduct(vecA map[float64]float64, vecB map[f
 	return d
 }
 
-func (p *RecommendationsUseCase) GetBestRecommendations(UserID int, matrix map[float64]map[float64]float64) []int {
+func (p *RecommendationsUseCase) GetBestRecommendations(UserID int, matrix map[float64]map[float64]float64) []int64 {
 	var matches []recommModels.Match
 	for key, value := range matrix {
 		if int(key) != UserID {
@@ -123,13 +153,13 @@ func (p *RecommendationsUseCase) GetBestRecommendations(UserID int, matrix map[f
 		return bestProducts[a].Coefficient > bestProducts[b].Coefficient
 	})
 
-	var hotelIDs []int
+	var hotelIDs []int64
 	for i := 0; i < len(bestProducts); i++ {
-		if i > 4 {
+		if i > viper.GetInt(configs.ConfigFields.RecommendationCount) {
 			break
 		}
 		if bestProducts[i].Coefficient > 0 {
-			hotelIDs = append(hotelIDs, bestProducts[i].HotelID)
+			hotelIDs = append(hotelIDs, int64(bestProducts[i].HotelID))
 		}
 	}
 	return hotelIDs

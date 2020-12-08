@@ -2,6 +2,8 @@
 
 package recommModels
 
+import "time"
+
 // easyjson:json
 type HotelRecommend struct {
 	HotelID  int    `json:"hotel_id" db:"hotel_id"`
@@ -16,7 +18,6 @@ type Hotels struct {
 	Hotels []HotelRecommend `json:"hotels"`
 }
 
-// easyjson:json
 type RecommendMatrixRow struct {
 	UserID   float64 `db:"user_id"`
 	RatingID float64 `db:"rating"`
@@ -31,4 +32,10 @@ type Match struct {
 type BestProduct struct {
 	HotelID     int
 	Coefficient float64
+}
+
+type Recommendation struct {
+	UserID   int     `db:"user_id"`
+	HotelIDs []int64 `db:"h"`
+	Time     time.Time
 }

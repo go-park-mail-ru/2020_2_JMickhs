@@ -7,5 +7,8 @@ import (
 type Repository interface {
 	GetHotelsRecommendations(UserID int) ([]recommModels.HotelRecommend, error)
 	GetRecommendationRows(UserID int) ([]recommModels.RecommendMatrixRow, error)
-	GetHotelByIDs(hotelIDs []int) ([]recommModels.HotelRecommend, error)
+	GetHotelByIDs(hotelIDs []int64) ([]recommModels.HotelRecommend, error)
+	UpdateUserRecommendations(userID int, hotelIDs []int64) error
+	GetUsersFromHotel(hotelID int) ([]int, error)
+	CheckRecommendationExist(userID int) (recommModels.Recommendation, error)
 }

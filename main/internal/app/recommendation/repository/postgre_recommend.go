@@ -18,6 +18,32 @@ func NewPostgreRecommendationRepository(conn *sqlx.DB) PostgreRecommendationRepo
 	return PostgreRecommendationRepository{conn}
 }
 
+func (p *PostgreRecommendationRepository) CheckRecommendationExist(userID int) (recommModels.Recommendation, error) {
+	recommend := recommModels.Recommendation{}
+	err := p.conn.QueryRow(GetRecommendationsForUser, userID).Scan(&recommend.UserID, pq.Array(&recommend.HotelIDs), &recommend.Time)
+	if err != nil {
+		return recommend, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	return recommend, nil
+}
+
+func (p *PostgreRecommendationRepository) UpdateUserRecommendations(userID int, hotelIDs []int64) error {
+	_, err := p.conn.Exec(UpdateRecommendationsForUser, userID, pq.Array(hotelIDs))
+	if err != nil {
+		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	return nil
+}
+
+func (p *PostgreRecommendationRepository) GetUsersFromHotel(hotelID int) ([]int, error) {
+	var userIDs []int
+	err := p.conn.Select(&userIDs, GetUsersFromHotelRequest, hotelID)
+	if err != nil {
+		return userIDs, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	return userIDs, nil
+}
+
 func (p *PostgreRecommendationRepository) GetHotelsRecommendations(UserID int) ([]recommModels.HotelRecommend, error) {
 	var hotels []recommModels.HotelRecommend
 	var err error
@@ -46,7 +72,7 @@ func (p *PostgreRecommendationRepository) GetRecommendationRows(UserID int) ([]r
 	return Rows, nil
 }
 
-func (p *PostgreRecommendationRepository) GetHotelByIDs(hotelIDs []int) ([]recommModels.HotelRecommend, error) {
+func (p *PostgreRecommendationRepository) GetHotelByIDs(hotelIDs []int64) ([]recommModels.HotelRecommend, error) {
 	var hotels []recommModels.HotelRecommend
 
 	err := p.conn.Select(&hotels, GetBestRecommendationsRequest, viper.GetString(configs.ConfigFields.S3Url),

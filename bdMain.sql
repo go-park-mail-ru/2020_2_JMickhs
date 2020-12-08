@@ -19,6 +19,11 @@ create table hotels (
     comm_count_for_each  int[5] DEFAULT '{0,0,0,0,0,0}'
 );
 
+create table recommendations(
+    user_id int UNIQUE ,
+    hotel_id int[],
+    time TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
 CREATE TABLE wishlists(
     wishlist_id serial PRIMARY KEY NOT NULL,
