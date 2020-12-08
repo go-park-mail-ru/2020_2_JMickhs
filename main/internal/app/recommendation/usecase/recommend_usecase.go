@@ -90,7 +90,6 @@ func (p *RecommendationsUseCase) distCosine(vecA map[float64]float64, vecB map[f
 
 func (p *RecommendationsUseCase) dotProduct(vecA map[float64]float64, vecB map[float64]float64) float64 {
 	var d float64
-	d = 0
 	for keyA, p1 := range vecA {
 		for keyB, p2 := range vecB {
 			if keyA == keyB {
@@ -117,25 +116,25 @@ func (p *RecommendationsUseCase) GetBestRecommendations(UserID int, matrix map[f
 	var simCoeffAll float64
 	bestMatches := map[float64]float64{}
 
-	for i := 0; i < len(matches); i++ {
+	for i := range matches {
 		simCoeffAll += matches[i].Coefficient
 	}
 
-	for i := 0; i < len(matches); i++ {
+	for i := range matches {
 		if matches[i].Coefficient > 0.0 {
 			bestMatches[float64(matches[i].UserID)] = matches[i].Coefficient
 		}
 	}
 
 	for relatedUser, coefficient := range bestMatches {
-		for hotel, _ := range matrix[relatedUser] {
+		for hotel := range matrix[relatedUser] {
 			check := false
-			for key, _ := range matrix[float64(UserID)] {
+			for key := range matrix[float64(UserID)] {
 				if key != hotel {
 					check = true
 				}
 			}
-			if check == false {
+			if !check {
 				sim[hotel] = 0.0
 				continue
 			}
@@ -144,7 +143,7 @@ func (p *RecommendationsUseCase) GetBestRecommendations(UserID int, matrix map[f
 	}
 
 	var bestProducts []recommModels.BestProduct
-	for key, _ := range sim {
+	for key := range sim {
 		sim[key] /= simCoeffAll
 		bestProducts = append(bestProducts, recommModels.BestProduct{HotelID: int(key), Coefficient: sim[key]})
 	}
