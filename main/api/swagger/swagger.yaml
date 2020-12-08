@@ -224,6 +224,26 @@ definitions:
         x-go-name: Name
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  HotelRecommend:
+    properties:
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
+      image:
+        type: string
+        x-go-name: Image
+      location:
+        type: string
+        x-go-name: Location
+      name:
+        type: string
+        x-go-name: Name
+      rating:
+        type: string
+        x-go-name: Rating
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   HotelStructToAdd:
     properties:
       city:
@@ -305,6 +325,15 @@ definitions:
       prev:
         type: string
         x-go-name: PrevLink
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  RecommendationResponse:
+    properties:
+      hotels:
+        items:
+          $ref: '#/definitions/HotelRecommend'
+        type: array
+        x-go-name: Hotels
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   SafeUser:
@@ -611,6 +640,15 @@ paths:
           $ref: '#/responses/hotels'
         "400":
           $ref: '#/responses/badrequest'
+      tags:
+      - hotel
+  /api/v1/hotels/recommendations:
+    get:
+      description: GetUserRecommendations
+      operationId: hotelsRecommendation
+      responses:
+        "200":
+          $ref: '#/responses/recommendations'
       tags:
       - hotel
   /api/v1/hotels/search:
@@ -1010,6 +1048,9 @@ responses:
       $ref: '#/definitions/HotelsPreview'
   locked:
     description: two times rate one hotel or want to get not your wishlists
+  recommendations:
+    schema:
+      $ref: '#/definitions/RecommendationResponse'
   safeUser:
     schema:
       $ref: '#/definitions/SafeUser'

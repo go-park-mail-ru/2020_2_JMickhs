@@ -20,3 +20,4 @@ constants:
   BaseItemPerPage: 28
   WishListIn: "WishListIn"
   WishListOut: "WishListOut"
+  RecommendationCount: 4

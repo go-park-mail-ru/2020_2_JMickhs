@@ -854,7 +854,7 @@ func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 		out.RawString(prefix)
 		out.String(string(in.Name))
 	}
-	{
+	if in.Description != "" {
 		const prefix string = ",\"description\":"
 		out.RawString(prefix)
 		out.String(string(in.Description))
@@ -869,17 +869,17 @@ func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 		out.RawString(prefix)
 		out.String(string(in.Location))
 	}
-	{
+	if in.Email != "" {
 		const prefix string = ",\"email\":"
 		out.RawString(prefix)
 		out.String(string(in.Email))
 	}
-	{
+	if in.Country != "" {
 		const prefix string = ",\"country\":"
 		out.RawString(prefix)
 		out.String(string(in.Country))
 	}
-	{
+	if in.City != "" {
 		const prefix string = ",\"city\":"
 		out.RawString(prefix)
 		out.String(string(in.City))
@@ -903,7 +903,7 @@ func easyjsonD750f830EncodeGithubComGoParkMailRu20202JMickhsMainInternalAppHotel
 			out.RawByte(']')
 		}
 	}
-	{
+	if in.CommCount != 0 {
 		const prefix string = ",\"comm_count\":"
 		out.RawString(prefix)
 		out.Int(int(in.CommCount))

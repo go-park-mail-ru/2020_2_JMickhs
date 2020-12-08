@@ -19,6 +19,7 @@ create table hotels (
     comm_count_for_each  int[5] DEFAULT '{0,0,0,0,0,0}'
 );
 
+
 CREATE TABLE wishlists(
     wishlist_id serial PRIMARY KEY NOT NULL,
     name citext,

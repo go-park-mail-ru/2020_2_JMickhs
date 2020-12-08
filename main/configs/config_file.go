@@ -29,6 +29,7 @@ var ConfigFields = struct {
 	BaseItemPerPage        string
 	WishListIn             string
 	WishListOut            string
+	RecommendationCount    string
 }{
 	StaticPathForAvatars:   "paths.StaticPathForAvatars",
 	CookieLifeTime:         "cookie.LifeTime",
@@ -46,6 +47,7 @@ var ConfigFields = struct {
 	BasePageCount:          "constants.BasePageCount",
 	WishListIn:             "constants.WishListIn",
 	WishListOut:            "constants.WishListOut",
+	RecommendationCount:    "constants.RecommendationCount",
 }
 
 var BdConfig postgresConfig

@@ -3,6 +3,9 @@ package server
 import (
 	"fmt"
 
+	recommendRepository "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/repository"
+	reccomendUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/usecase"
+
 	metrics2 "github.com/go-park-mail-ru/2020_2_JMickhs/package/metrics"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -117,17 +120,19 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	repHot := hotelRepository.NewPostgresHotelRepository(db, s3)
 	repCom := commentRepository.NewCommentRepository(db)
 	repWish := wishlistRepository.NewPostgreWishlistRepository(db)
+	repRecommendation := recommendRepository.NewPostgreRecommendationRepository(db)
 
 	uHot := hotelUsecase.NewHotelUsecase(&repHot, userService, &repWish)
 	uCom := commentUsecase.NewCommentUsecase(&repCom, userService)
 	uWish := wishlistUsecase.NewWishlistUseCase(&repWish, &repHot)
+	uRecommendation := reccomendUsecase.NewRecommendationsUseCase(&repRecommendation)
 
 	sessMidleware := middlewareApi.NewSessionMiddleware(sessionService, userService, log)
 	csrfMidleware := middlewareApi.NewCsrfMiddleware(sessionService, log)
 	r.Use(sessMidleware.SessionMiddleware())
 	r.Use(csrfMidleware.CSRFCheck())
 
-	hotelDelivery.NewHotelHandler(r, uHot, log)
+	hotelDelivery.NewHotelHandler(r, uHot, uRecommendation, log)
 	commentDelivery.NewCommentHandler(r, uCom, log)
 	wishlistDelivery.NewWishlistHandler(r, uWish, uHot, log)
 

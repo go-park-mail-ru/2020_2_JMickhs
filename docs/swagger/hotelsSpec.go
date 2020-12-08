@@ -88,14 +88,32 @@ type RateRequest struct {
 	Rate    int `json:"rate"`
 }
 
+type HotelRecommend struct {
+	HotelID  int    `json:"hotel_id"`
+	Name     string `json:"name"`
+	Image    string `json:"image"`
+	Location string `json:"location"`
+	Rating   string `json:"rating"`
+}
+
 type SearchDataResponse struct {
 	Hotels  []Hotel        `json:"hotels"`
 	PagInfo PaginationInfo `json:"Pag_info"`
 }
 
+type RecommendationResponse struct {
+	Hotels []HotelRecommend `json:"hotels"`
+}
+
 type HotelData struct {
 	Hotel   Hotel           `json:"hotel"`
 	Comment FullCommentInfo `json:"comment,omitempty"`
+}
+
+// swagger:response recommendations
+type HotelsRecommendation struct {
+	//in: body
+	Hotels RecommendationResponse
 }
 
 // swagger:parameters hotel hotelsByRadius

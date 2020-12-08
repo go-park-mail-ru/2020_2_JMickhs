@@ -41,6 +41,8 @@ require (
 	github.com/stretchr/testify v1.6.1
 	go.uber.org/ratelimit v0.1.0 // indirect
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
-	golang.org/x/tools v0.0.0-20201011145850-ed2f50202694 // indirect
+	golang.org/x/exp v0.0.0-20201203231725-fa01524bc59d // indirect
+	golang.org/x/tools v0.0.0-20201207191902-7bb39e4ca9ac // indirect
+	gonum.org/v1/gonum v0.8.2 // indirect
 	google.golang.org/grpc v1.33.2
 )
