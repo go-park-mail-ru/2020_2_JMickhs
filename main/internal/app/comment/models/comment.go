@@ -33,6 +33,17 @@ type RateInfo struct {
 }
 
 // easyjson:json
+type CommentWithAlbum struct {
+	UserID  int      `json:"user_id" db:"user_id" mapstructure:"user_id"`
+	HotelID int      `json:"hotel_id" mapstructure:"hotel_id"`
+	CommID  int      `json:"comm_id" mapstructure:"comm_id"`
+	Message string   `json:"message" mapstructure:"message"`
+	Rate    float64  `json:"rating" mapstructure:"rating"`
+	Time    string   `json:"time" mapstructure:"time"`
+	Photos  []string `json:"photos,omitempty" db:"photos"`
+}
+
+// easyjson:json
 type Comments struct {
 	Comments []FullCommentInfo              `json:"comments"`
 	Info     paginationModel.PaginationInfo `json:"pag_info"`

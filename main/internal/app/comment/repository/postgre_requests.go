@@ -13,6 +13,8 @@ const GetCommentsPostgreRequest = "SELECT comm.user_id,comm_id,message,rating,co
 
 const AddCommentsPostgreRequest = "INSERT INTO comments VALUES (default, $1, $2,$3,$4) RETURNING comm_id,time"
 
+const AddCommentWithAlbum = "INSERT INTO comments VALUES (default, $1,$2,$3,$4,$5) RETURNING comm_id,time"
+
 const DeleteCommentsPostgreRequest = "DELETE FROM comments WHERE comm_id=$1"
 
 const UpdateCommentsPostgreRequest = "UPDATE comments SET message=$2,rating=$3 WHERE comm_id=$1 RETURNING time"

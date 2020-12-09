@@ -2,14 +2,17 @@ package commentDelivery
 
 import (
 	"errors"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
 
 	"github.com/mailru/easyjson"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
@@ -38,6 +41,86 @@ func NewCommentHandler(r *mux.Router, hs comment.Usecase, lg *logger.CustomLogge
 	r.HandleFunc("/api/v1/comments/{id:[0-9]+}", middlewareApi.CheckCSRFOnHandler(handler.DeleteComment)).Methods("DELETE")
 	r.Path("/api/v1/comments").Queries("id", "{id:[0-9]+}", "limit", "{limit:[0-9]+}", "offset", "{from:[0-9]+}").
 		HandlerFunc(handler.ListComments).Methods("GET")
+
+	r.Path("/api/v1/comment").HandlerFunc(handler.AddCommentWithAlbum).Methods("POST")
+
+}
+
+func (ch *CommentHandler) DetectFileContentType(file multipart.File) (string, error) {
+	fileHeader := make([]byte, 512)
+	contentType := ""
+	if _, err := file.Read(fileHeader); err != nil {
+		return contentType, customerror.NewCustomError(err, clientError.BadRequest, 1)
+	}
+
+	if _, err := file.Seek(0, 0); err != nil {
+		return contentType, customerror.NewCustomError(err, clientError.BadRequest, 1)
+	}
+	contentTypeStr := http.DetectContentType(fileHeader)
+	contentType = strings.Split(contentTypeStr, "/")[1]
+	if contentType != "jpg" && contentType != "png" && contentType != "jpeg" {
+		return contentType, customerror.NewCustomError(errors.New("Wrong file type"), clientError.UnsupportedMediaType, 1)
+	}
+	return contentType, nil
+}
+
+// swagger:route POST /api/v1/comment comment AddCommentWithAlbum
+// AddCommentWithAlbum
+// responses:
+//  200:
+//  400: badrequest
+func (ch *CommentHandler) AddCommentWithAlbum(w http.ResponseWriter, r *http.Request) {
+
+	comment := commModel.CommentWithAlbum{}
+
+	r.Body = http.MaxBytesReader(w, r.Body, 100*configs.MB)
+
+	r.ParseMultipartForm(100 * configs.MB)
+
+	err := easyjson.Unmarshal([]byte(r.FormValue("jsonData")), &comment)
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
+		return
+	}
+
+	photos := r.MultipartForm.File["photos"]
+	for iterator, photo := range photos {
+		file, err := photo.Open()
+		if err != nil {
+			customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
+			return
+		}
+		defer file.Close()
+		fileType, err := ch.DetectFileContentType(file)
+		if err != nil {
+			customerror.PostError(w, r, ch.log, err, nil)
+			return
+		}
+
+		err = ch.CommentUseCase.UploadPhoto(&comment, file, fileType, false, iterator)
+		if err != nil {
+			customerror.PostError(w, r, ch.log, err, nil)
+			return
+		}
+	}
+
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
+		return
+	}
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
+	if !ok {
+		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
+		return
+	}
+	comment.UserID = userID
+	err = ch.CommentUseCase.AddCommentWithAlbum(comment, userID)
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, nil)
+		return
+	}
+
+	responses.SendOkResponse(w)
 }
 
 // swagger:route GET /api/v1/comments comment comments

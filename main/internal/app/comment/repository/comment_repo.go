@@ -2,11 +2,16 @@ package commentRepository
 
 import (
 	"errors"
+	"mime/multipart"
 	"strconv"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
-
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
+	uuid "github.com/satori/go.uuid"
+	"github.com/spf13/viper"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
@@ -16,10 +21,35 @@ import (
 
 type CommentRepository struct {
 	conn *sqlx.DB
+	s3   *s3.S3
 }
 
 func NewCommentRepository(conn *sqlx.DB) CommentRepository {
 	return CommentRepository{conn: conn}
+}
+
+func (r *CommentRepository) UploadPhoto(file multipart.File, contentType string) (string, error) {
+	newFilename := uuid.NewV4().String()
+	relativePath := viper.GetString(configs.ConfigFields.StaticPathForHotels) + newFilename + "." + contentType
+
+	_, err := r.s3.PutObject(&s3.PutObjectInput{
+		Body:   file,
+		Bucket: aws.String(viper.GetString(configs.ConfigFields.BucketName)),
+		Key:    aws.String(relativePath),
+		ACL:    aws.String(s3.BucketCannedACLPublicRead),
+	})
+	if err != nil {
+		return "", customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	return relativePath, err
+}
+
+func (r *CommentRepository) AddCommentWithAlbum(comment commModel.CommentWithAlbum, userID int, userEmail string) error {
+	err := r.conn.QueryRow(AddCommentWithAlbum, comment.UserID, comment.HotelID, comment.Message, comment.Rate, comment.Photos).Scan(&comment.CommID, &comment.Time)
+	if err != nil {
+		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	return nil
 }
 
 func (r *CommentRepository) GetComments(hotelID string, limit int, offset string, user_id int) ([]commModel.FullCommentInfo, error) {
@@ -60,7 +90,7 @@ func (r *CommentRepository) UpdateComment(comment *commModel.Comment) error {
 func (p *CommentRepository) UpdateHotelRating(hotelID int, NewRate float64) error {
 	rate := strconv.FormatFloat(NewRate, 'f', 1, 64)
 
-	err := p.conn.QueryRow(UpdateHotelRatingPostgreRequest, rate, strconv.Itoa(hotelID)).Err()
+	err := r.conn.QueryRow(UpdateHotelRatingPostgreRequest, rate, strconv.Itoa(hotelID)).Err()
 	if err != nil {
 		return customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}
@@ -69,7 +99,7 @@ func (p *CommentRepository) UpdateHotelRating(hotelID int, NewRate float64) erro
 
 func (p *CommentRepository) GetCommentsCount(hotelID int) (int, error) {
 	count := -1
-	err := p.conn.QueryRow(GetCommentsCountPostgreRequest, hotelID).Scan(&count)
+	err := r.conn.QueryRow(GetCommentsCountPostgreRequest, hotelID).Scan(&count)
 
 	if err != nil {
 		return count, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
@@ -80,7 +110,7 @@ func (p *CommentRepository) GetCommentsCount(hotelID int) (int, error) {
 func (p *CommentRepository) GetCurrentRating(hotelID int) (commModel.RateInfo, error) {
 	rateInfo := commModel.RateInfo{}
 
-	err := p.conn.QueryRow(GetCurrRatingPostgreRequest, hotelID).Scan(&rateInfo.CurrRating, &rateInfo.RatesCount)
+	err := r.conn.QueryRow(GetCurrRatingPostgreRequest, hotelID).Scan(&rateInfo.CurrRating, &rateInfo.RatesCount)
 	if err != nil {
 		return rateInfo, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
@@ -91,7 +121,7 @@ func (p *CommentRepository) GetCurrentRating(hotelID int) (commModel.RateInfo, e
 func (p *CommentRepository) CheckUser(comment *commModel.Comment) (int, error) {
 	var destRate int
 	var usr_id int
-	err := p.conn.QueryRow(GetPrevRatingOnCommentPostgreRequest, strconv.Itoa(comment.CommID)).Scan(&destRate, &usr_id, &comment.HotelID)
+	err := r.conn.QueryRow(GetPrevRatingOnCommentPostgreRequest, strconv.Itoa(comment.CommID)).Scan(&destRate, &usr_id, &comment.HotelID)
 	if err != nil {
 		return destRate, customerror.NewCustomError(err, clientError.NotFound, 1)
 	}
@@ -102,7 +132,7 @@ func (p *CommentRepository) CheckUser(comment *commModel.Comment) (int, error) {
 }
 
 func (p *CommentRepository) CheckRateExistForComments(hotelID int, userID int) (bool, error) {
-	res, err := p.conn.Exec(CheckRateExistForCommentsRequest, hotelID, userID)
+	res, err := r.conn.Exec(CheckRateExistForCommentsRequest, hotelID, userID)
 	if err != nil {
 		return false, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
