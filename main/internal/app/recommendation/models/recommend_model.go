@@ -20,8 +20,8 @@ type Hotels struct {
 
 type RecommendMatrixRow struct {
 	UserID   float64 `db:"user_id"`
-	RatingID float64 `db:"rating"`
-	HotelID  float64 `db:"hotel_id"`
+	RatingID float64 `db:"rating1"`
+	HotelID  float64 `db:"hotel1"`
 }
 
 type Match struct {

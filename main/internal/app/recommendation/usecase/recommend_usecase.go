@@ -23,14 +23,6 @@ func NewRecommendationsUseCase(r recommendation.Repository) *RecommendationsUseC
 	}
 }
 
-func (p *RecommendationsUseCase) UpdateRecommendationsForHotel(hotelID int) error {
-	_, err := p.recommendRepo.GetUsersFromHotel(hotelID)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func (p *RecommendationsUseCase) GetHotelsRecommendations(UserID int) ([]recommModels.HotelRecommend, error) {
 	var hotels []recommModels.HotelRecommend
 	if UserID != -1 {
@@ -42,19 +34,16 @@ func (p *RecommendationsUseCase) GetHotelsRecommendations(UserID int) ([]recommM
 			}
 			return hotels, nil
 		}
-		rows, err := p.recommendRepo.GetRecommendationRows(UserID)
+		hotelsIDs, err := p.recommendRepo.GetUsersComments(UserID)
+		if err != nil {
+			return hotels, err
+		}
+		rows, err := p.recommendRepo.GetRecommendationRows(UserID, hotelsIDs)
 		if err != nil {
 			return hotels, err
 		}
 		matrix := p.BuildMatrix(UserID, rows)
 		hotelIDs := p.GetBestRecommendations(UserID, matrix)
-		if len(hotelIDs) == 0 {
-			hotels, err := p.recommendRepo.GetHotelsRecommendations(UserID)
-			if err != nil {
-				return hotels, err
-			}
-			return hotels, nil
-		}
 		hotels, err := p.recommendRepo.GetHotelByIDs(hotelIDs)
 		if err != nil {
 			return hotels, err

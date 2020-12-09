@@ -35,9 +35,9 @@ func (p *PostgreRecommendationRepository) UpdateUserRecommendations(userID int, 
 	return nil
 }
 
-func (p *PostgreRecommendationRepository) GetUsersFromHotel(hotelID int) ([]int, error) {
+func (p *PostgreRecommendationRepository) GetUsersComments(hotelID int) ([]int, error) {
 	var userIDs []int
-	err := p.conn.Select(&userIDs, GetUsersFromHotelRequest, hotelID)
+	err := p.conn.Select(&userIDs, GetUserCommentsRequest, hotelID)
 	if err != nil {
 		return userIDs, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
@@ -63,9 +63,9 @@ func (p *PostgreRecommendationRepository) GetHotelsRecommendations(UserID int) (
 	return hotels, nil
 }
 
-func (p *PostgreRecommendationRepository) GetRecommendationRows(UserID int) ([]recommModels.RecommendMatrixRow, error) {
+func (p *PostgreRecommendationRepository) GetRecommendationRows(UserID int, hotelIDs []int) ([]recommModels.RecommendMatrixRow, error) {
 	var Rows []recommModels.RecommendMatrixRow
-	err := p.conn.Select(&Rows, GetRecommendationsMatrixRows)
+	err := p.conn.Select(&Rows, GetRecommendationsMatrixRows, pq.Array(hotelIDs))
 	if err != nil {
 		return Rows, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
