@@ -8,4 +8,5 @@ type Usecase interface {
 	GetHotelsRecommendations(UserID int) ([]recommModels.HotelRecommend, error)
 	BuildMatrix(UserID int, rows []recommModels.RecommendMatrixRow) map[float64]map[float64]float64
 	GetBestRecommendations(UserID int, matrix map[float64]map[float64]float64) []int64
+	AddInSearchHistory(UserID int, pattern string) error
 }

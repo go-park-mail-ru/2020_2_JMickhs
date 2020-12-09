@@ -1,21 +1,74 @@
 package recommendRepository
 
 import (
+	"context"
+	"fmt"
+	"strconv"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
 	recommModels "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/models"
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
+	"github.com/go-redis/redis/v8"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"github.com/spf13/viper"
 )
 
 type PostgreRecommendationRepository struct {
-	conn *sqlx.DB
+	conn         *sqlx.DB
+	historyStore *redis.Client
 }
 
-func NewPostgreRecommendationRepository(conn *sqlx.DB) PostgreRecommendationRepository {
-	return PostgreRecommendationRepository{conn}
+func NewPostgreRecommendationRepository(conn *sqlx.DB, historyStore *redis.Client) PostgreRecommendationRepository {
+	return PostgreRecommendationRepository{conn, historyStore}
+}
+
+func (p *PostgreRecommendationRepository) AddInSearchHistory(UserID int, pattern string) error {
+	fmt.Println(UserID, pattern)
+
+	count, err := p.historyStore.Do(context.Background(), "LLEN", strconv.Itoa(UserID)).Int()
+	if err != nil {
+		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	if count > 10 {
+		err := p.historyStore.Do(context.Background(), "RPOP", strconv.Itoa(UserID)).Err()
+		if err != nil {
+			return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+		}
+	}
+	err = p.historyStore.Do(context.Background(), "LPUSH", strconv.Itoa(UserID), pattern).Err()
+	if err != nil {
+		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	return nil
+}
+
+func (p *PostgreRecommendationRepository) GetHotelsFromHistory(userID int) ([]recommModels.HotelRecommend, error) {
+	var hotels []recommModels.HotelRecommend
+
+	patternsInterface, err := p.historyStore.Do(context.Background(), "LRANGE", strconv.Itoa(userID), 0, 10).Result()
+	if err != nil {
+		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	listOfInterfaces := patternsInterface.([]interface{})
+	var patterns string
+	for num, pattern := range listOfInterfaces {
+		patterns += pattern.(string)
+		if num < len(listOfInterfaces)-1 {
+			patterns += "|"
+		}
+	}
+	if len(patterns) == 0 {
+		return hotels, nil
+	}
+
+	err = p.conn.Select(&hotels, GetRecommendationFromSearchHistory, viper.GetString(configs.ConfigFields.S3Url),
+		viper.GetInt(configs.ConfigFields.RecommendationCount), patterns)
+	if err != nil {
+		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	return hotels, nil
 }
 
 func (p *PostgreRecommendationRepository) CheckRecommendationExist(userID int) (recommModels.Recommendation, error) {

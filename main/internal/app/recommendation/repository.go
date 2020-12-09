@@ -11,4 +11,6 @@ type Repository interface {
 	UpdateUserRecommendations(userID int, hotelIDs []int64) error
 	GetUsersComments(userID int) ([]int, error)
 	CheckRecommendationExist(userID int) (recommModels.Recommendation, error)
+	AddInSearchHistory(UserID int, pattern string) error
+	GetHotelsFromHistory(UserID int) ([]recommModels.HotelRecommend, error)
 }

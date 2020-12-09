@@ -21,4 +21,4 @@ constants:
   WishListIn: "WishListIn"
   WishListOut: "WishListOut"
   RecommendationCount: 4
-  UpdateRecommendationTick: 15
+  UpdateRecommendationTick: 5

@@ -25,6 +25,11 @@ create table recommendations(
     time TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+create table history(
+    user_id int UNIQUE ,
+    patterns text[]
+);
+
 CREATE TABLE wishlists(
     wishlist_id serial PRIMARY KEY NOT NULL,
     name citext,

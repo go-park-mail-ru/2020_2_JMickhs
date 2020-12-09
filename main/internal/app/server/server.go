@@ -1,10 +1,13 @@
 package server
 
 import (
+	"context"
 	"fmt"
+	"strconv"
 
 	recommendRepository "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/repository"
 	reccomendUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/usecase"
+	"github.com/go-redis/redis/v8"
 
 	metrics2 "github.com/go-park-mail-ru/2020_2_JMickhs/package/metrics"
 
@@ -71,6 +74,22 @@ func InitS3Session() *s3.S3 {
 
 }
 
+func NewSessStore() *redis.Client {
+	bd, _ := strconv.Atoi(configs.RedisConfig.Bd)
+	sessStore := redis.NewClient(&redis.Options{
+		Addr:     configs.RedisConfig.Address,
+		Password: configs.RedisConfig.Password,
+		DB:       bd, // use default DB
+	})
+
+	pong, err := sessStore.Ping(context.Background()).Result()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(pong)
+	return sessStore
+}
+
 func NewRouter() *mux.Router {
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -120,7 +139,10 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	repHot := hotelRepository.NewPostgresHotelRepository(db, s3)
 	repCom := commentRepository.NewCommentRepository(db)
 	repWish := wishlistRepository.NewPostgreWishlistRepository(db)
-	repRecommendation := recommendRepository.NewPostgreRecommendationRepository(db)
+	store := NewSessStore()
+	defer store.Close()
+
+	repRecommendation := recommendRepository.NewPostgreRecommendationRepository(db, store)
 
 	uHot := hotelUsecase.NewHotelUsecase(&repHot, userService, &repWish)
 	uCom := commentUsecase.NewCommentUsecase(&repCom, userService)

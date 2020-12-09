@@ -12,6 +12,12 @@ type postgresConfig struct {
 	DBName   string
 }
 
+type redisConfig struct {
+	Address  string
+	Password string
+	Bd       string
+}
+
 var ConfigFields = struct {
 	StaticPathForAvatars     string
 	CookieLifeTime           string
@@ -54,6 +60,7 @@ var ConfigFields = struct {
 
 var BdConfig postgresConfig
 var PrefixPath string
+var RedisConfig redisConfig
 
 const (
 	MB = 1 << 20
@@ -64,6 +71,11 @@ func Init() {
 		User:     os.Getenv("PostgresUser"),
 		Password: os.Getenv("PostgresPassword"),
 		DBName:   os.Getenv("PostgresDBName"),
+	}
+	RedisConfig = redisConfig{
+		Address:  os.Getenv("RedisAddress"),
+		Password: os.Getenv("RedisPassword"),
+		Bd:       os.Getenv("RedisBd"),
 	}
 }
 

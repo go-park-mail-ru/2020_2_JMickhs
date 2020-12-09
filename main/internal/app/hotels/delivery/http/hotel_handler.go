@@ -159,6 +159,14 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		userID = -1
 	}
+	if userID != -1 && pattern != "" {
+		err := hh.RecommendationUseCase.AddInSearchHistory(userID, pattern)
+		if err != nil {
+			customerror.PostError(w, r, hh.log, err, nil)
+			return
+		}
+
+	}
 	hotels, err := hh.HotelUseCase.FetchHotels(orderData, pattern, page, userID)
 
 	if err != nil {

@@ -23,6 +23,10 @@ func NewRecommendationsUseCase(r recommendation.Repository) *RecommendationsUseC
 	}
 }
 
+func (p *RecommendationsUseCase) AddInSearchHistory(UserID int, pattern string) error {
+	return p.recommendRepo.AddInSearchHistory(UserID, pattern)
+}
+
 func (p *RecommendationsUseCase) GetHotelsRecommendations(UserID int) ([]recommModels.HotelRecommend, error) {
 	var hotels []recommModels.HotelRecommend
 	if UserID != -1 {
@@ -38,6 +42,15 @@ func (p *RecommendationsUseCase) GetHotelsRecommendations(UserID int) ([]recommM
 		if err != nil {
 			return hotels, err
 		}
+		if len(hotelsIDs) == 0 {
+			hotels, err := p.recommendRepo.GetHotelsFromHistory(UserID)
+			if err != nil {
+				return hotels, err
+			}
+			if len(hotels) != 0 {
+				return hotels, nil
+			}
+		}
 		rows, err := p.recommendRepo.GetRecommendationRows(UserID, hotelsIDs)
 		if err != nil {
 			return hotels, err
@@ -45,6 +58,13 @@ func (p *RecommendationsUseCase) GetHotelsRecommendations(UserID int) ([]recommM
 		matrix := p.BuildMatrix(UserID, rows)
 		hotelIDs := p.GetBestRecommendations(UserID, matrix)
 		hotels, err := p.recommendRepo.GetHotelByIDs(hotelIDs)
+		if len(hotels) == 0 {
+			hotels, err := p.recommendRepo.GetHotelsRecommendations(UserID)
+			if err != nil {
+				return hotels, err
+			}
+			return hotels, nil
+		}
 		if err != nil {
 			return hotels, err
 		}
