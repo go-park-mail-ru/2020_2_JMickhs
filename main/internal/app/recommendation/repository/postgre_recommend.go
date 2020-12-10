@@ -44,7 +44,7 @@ func (p *PostgreRecommendationRepository) AddInSearchHistory(UserID int, pattern
 	return nil
 }
 
-func (p *PostgreRecommendationRepository) GetHotelsFromHistory(userID int) ([]recommModels.HotelRecommend, error) {
+func (p *PostgreRecommendationRepository) GetHotelsFromHistory(userID int, hotelIDs []int64) ([]recommModels.HotelRecommend, error) {
 	var hotels []recommModels.HotelRecommend
 
 	patternsInterface, err := p.historyStore.Do(context.Background(), "LRANGE", strconv.Itoa(userID), 0, 10).Result()
@@ -64,7 +64,7 @@ func (p *PostgreRecommendationRepository) GetHotelsFromHistory(userID int) ([]re
 	}
 
 	err = p.conn.Select(&hotels, GetRecommendationFromSearchHistory, viper.GetString(configs.ConfigFields.S3Url),
-		viper.GetInt(configs.ConfigFields.RecommendationCount), patterns)
+		viper.GetInt(configs.ConfigFields.RecommendationCount), patterns, pq.Array(hotelIDs))
 	if err != nil {
 		return hotels, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
