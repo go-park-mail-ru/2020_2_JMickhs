@@ -32,25 +32,9 @@ func (p *RecommendationsUseCase) GetHotelsRecommendations(UserID int) ([]recommM
 	if UserID != -1 {
 		recommend, _ := p.recommendRepo.CheckRecommendationExist(UserID)
 		if time.Now().Unix()-recommend.Time.Unix() < viper.GetInt64(configs.ConfigFields.UpdateRecommendationTick)*int64(time.Minute.Seconds()) {
-			hotels, err := p.recommendRepo.GetHotelByIDs(recommend.HotelIDs)
-			hotelsFromHistory, err := p.recommendRepo.GetHotelsFromHistory(UserID, recommend.HotelIDs)
+			hotels, err := p.AddHistoryHotelsToCollaborative(UserID, recommend.HotelIDs)
 			if err != nil {
 				return hotels, err
-			}
-			if len(hotels) <= 2 {
-				for i := 0; i < 2; i++ {
-					if len(hotelsFromHistory) <= i {
-						break
-					}
-					hotels = append(hotels, hotelsFromHistory[i])
-				}
-			} else {
-				for i := 2; i < len(hotels); i++ {
-					if len(hotelsFromHistory) <= i-2 {
-						break
-					}
-					hotels[i] = hotelsFromHistory[i-2]
-				}
 			}
 			return hotels, nil
 		}
@@ -59,7 +43,6 @@ func (p *RecommendationsUseCase) GetHotelsRecommendations(UserID int) ([]recommM
 			return hotels, err
 		}
 		if len(hotelsIDs) == 0 {
-
 			hotels, err := p.recommendRepo.GetHotelsFromHistory(UserID, recommend.HotelIDs)
 			if err != nil {
 				return hotels, err
@@ -75,29 +58,13 @@ func (p *RecommendationsUseCase) GetHotelsRecommendations(UserID int) ([]recommM
 		}
 		matrix := p.BuildMatrix(UserID, rows)
 		hotelIDs := p.GetBestRecommendations(UserID, matrix)
-		hotels, err := p.recommendRepo.GetHotelByIDs(hotelIDs)
+		hotels, err := p.AddHistoryHotelsToCollaborative(UserID, recommend.HotelIDs)
 		if len(hotels) == 0 {
 			hotels, err := p.recommendRepo.GetHotelsRecommendations(UserID)
 			if err != nil {
 				return hotels, err
 			}
 			return hotels, nil
-		}
-		hotelsFromHistory, err := p.recommendRepo.GetHotelsFromHistory(UserID, recommend.HotelIDs)
-		if len(hotels) <= 2 {
-			for i := 0; i < 2; i++ {
-				if len(hotelsFromHistory) <= i {
-					break
-				}
-				hotels = append(hotels, hotelsFromHistory[i])
-			}
-		} else {
-			for i := 2; i < len(hotels); i++ {
-				if len(hotelsFromHistory) <= i-2 {
-					break
-				}
-				hotels[i] = hotelsFromHistory[i-2]
-			}
 		}
 		if err != nil {
 			return hotels, err
@@ -111,6 +78,32 @@ func (p *RecommendationsUseCase) GetHotelsRecommendations(UserID int) ([]recommM
 	hotels, err := p.recommendRepo.GetHotelsRecommendations(UserID)
 	if err != nil {
 		return hotels, err
+	}
+	return hotels, nil
+}
+func (p *RecommendationsUseCase) AddHistoryHotelsToCollaborative(UserID int, hotelIDs []int64) ([]recommModels.HotelRecommend, error) {
+	hotels, err := p.recommendRepo.GetHotelByIDs(hotelIDs)
+	if err != nil {
+		return hotels, err
+	}
+	hotelsFromHistory, err := p.recommendRepo.GetHotelsFromHistory(UserID, hotelIDs)
+	if err != nil {
+		return hotels, err
+	}
+	if len(hotels) <= 2 {
+		for i := 0; i < 2; i++ {
+			if len(hotelsFromHistory) <= i {
+				break
+			}
+			hotels = append(hotels, hotelsFromHistory[i])
+		}
+	} else {
+		for i := 2; i < len(hotels); i++ {
+			if len(hotelsFromHistory) <= i-2 {
+				break
+			}
+			hotels[i] = hotelsFromHistory[i-2]
+		}
 	}
 	return hotels, nil
 }
