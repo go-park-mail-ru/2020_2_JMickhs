@@ -1,8 +1,11 @@
 package middlewareApi
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
 	"math/rand"
+	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -26,6 +29,14 @@ func NewStatusResponseWriter(w http.ResponseWriter) *statusResponseWriter {
 
 func (srw *statusResponseWriter) WriteHeader(code int) {
 	srw.statusCode = code
+}
+
+func (srw *statusResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	h, ok := srw.ResponseWriter.(http.Hijacker)
+	if !ok {
+		return nil, nil, errors.New("hijack not supported")
+	}
+	return h.Hijack()
 }
 
 func LoggerMiddleware(log *logger.CustomLogger, metrics *metrics.PromMetrics) mux.MiddlewareFunc {
