@@ -1,6 +1,7 @@
 package reccomendUsecase
 
 import (
+	"fmt"
 	"math"
 	"sort"
 	"time"
@@ -31,7 +32,8 @@ func (p *RecommendationsUseCase) GetHotelsRecommendations(UserID int) ([]recommM
 	var hotels []recommModels.HotelRecommend
 	if UserID != -1 {
 		recommend, _ := p.recommendRepo.CheckRecommendationExist(UserID)
-		if time.Now().Unix()-recommend.Time.Unix() < viper.GetInt64(configs.ConfigFields.UpdateRecommendationTick)*int64(time.Minute.Seconds()) {
+		if time.Now().Unix()-recommend.Time.Unix() < viper.GetInt64(configs.ConfigFields.UpdateRecommendationTick)*
+			int64(time.Minute.Seconds()) {
 			hotels, err := p.AddHistoryHotelsToCollaborative(UserID, recommend.HotelIDs)
 			if err != nil {
 				return hotels, err
@@ -44,13 +46,7 @@ func (p *RecommendationsUseCase) GetHotelsRecommendations(UserID int) ([]recommM
 		}
 		if len(hotelsIDs) == 0 {
 			hotels, err := p.recommendRepo.GetHotelsFromHistory(UserID, recommend.HotelIDs)
-			if err != nil {
-				return hotels, err
-			}
-			if len(hotels) != 0 {
-
-				return hotels, nil
-			}
+			return hotels, err
 		}
 		rows, err := p.recommendRepo.GetRecommendationRows(UserID, hotelsIDs)
 		if err != nil {
@@ -58,28 +54,20 @@ func (p *RecommendationsUseCase) GetHotelsRecommendations(UserID int) ([]recommM
 		}
 		matrix := p.BuildMatrix(UserID, rows)
 		hotelIDs := p.GetBestRecommendations(UserID, matrix)
-		hotels, err := p.AddHistoryHotelsToCollaborative(UserID, recommend.HotelIDs)
+		hotels, err := p.AddHistoryHotelsToCollaborative(UserID, hotelIDs)
 		if len(hotels) == 0 {
 			hotels, err := p.recommendRepo.GetHotelsRecommendations(UserID)
-			if err != nil {
-				return hotels, err
-			}
-			return hotels, nil
+			return hotels, err
 		}
 		if err != nil {
 			return hotels, err
 		}
 		err = p.recommendRepo.UpdateUserRecommendations(UserID, hotelIDs)
-		if err != nil {
-			return hotels, err
-		}
 		return hotels, err
 	}
 	hotels, err := p.recommendRepo.GetHotelsRecommendations(UserID)
-	if err != nil {
-		return hotels, err
-	}
-	return hotels, nil
+	return hotels, err
+
 }
 func (p *RecommendationsUseCase) AddHistoryHotelsToCollaborative(UserID int, hotelIDs []int64) ([]recommModels.HotelRecommend, error) {
 	hotels, err := p.recommendRepo.GetHotelByIDs(hotelIDs)
@@ -109,6 +97,7 @@ func (p *RecommendationsUseCase) AddHistoryHotelsToCollaborative(UserID int, hot
 }
 
 func (p *RecommendationsUseCase) BuildMatrix(UserID int, rows []recommModels.RecommendMatrixRow) map[float64]map[float64]float64 {
+	//матрица вида User - Hotel, где весом является рейтинг
 	matr := map[float64]map[float64]float64{}
 	for i := 0; i < len(rows); i++ {
 		if matr[rows[i].UserID] == nil {
@@ -119,12 +108,12 @@ func (p *RecommendationsUseCase) BuildMatrix(UserID int, rows []recommModels.Rec
 	return matr
 }
 
-func (p *RecommendationsUseCase) distCosine(vecA map[float64]float64, vecB map[float64]float64) float64 {
-	dot := p.dotProduct(vecA, vecB) / (math.Sqrt(p.dotProduct(vecA, vecA)) * math.Sqrt(p.dotProduct(vecB, vecB)))
+func (p *RecommendationsUseCase) DistCosine(vecA map[float64]float64, vecB map[float64]float64) float64 {
+	dot := p.DotProduct(vecA, vecB) / (math.Sqrt(p.DotProduct(vecA, vecA)) * math.Sqrt(p.DotProduct(vecB, vecB)))
 	return dot
 }
 
-func (p *RecommendationsUseCase) dotProduct(vecA map[float64]float64, vecB map[float64]float64) float64 {
+func (p *RecommendationsUseCase) DotProduct(vecA map[float64]float64, vecB map[float64]float64) float64 {
 	var d float64
 	for keyA, p1 := range vecA {
 		for keyB, p2 := range vecB {
@@ -138,9 +127,10 @@ func (p *RecommendationsUseCase) dotProduct(vecA map[float64]float64, vecB map[f
 
 func (p *RecommendationsUseCase) GetBestRecommendations(UserID int, matrix map[float64]map[float64]float64) []int64 {
 	var matches []recommModels.Match
+	// получение косинусной меры для каждой ячейки, где userID отличается от текущего
 	for key, value := range matrix {
 		if int(key) != UserID {
-			matches = append(matches, recommModels.Match{UserID: int(key), Coefficient: p.distCosine(matrix[float64(UserID)], value)})
+			matches = append(matches, recommModels.Match{UserID: int(key), Coefficient: p.DistCosine(matrix[float64(UserID)], value)})
 		}
 	}
 
@@ -162,15 +152,17 @@ func (p *RecommendationsUseCase) GetBestRecommendations(UserID int, matrix map[f
 		}
 	}
 
+	//суммируем коэфициент по столбцу, где коэффициент это косинусная мера текущего отеля к общей косинусной мере всех столбцов,
+	//после выбираем отели с максимальным коэффициентом
 	for relatedUser, coefficient := range bestMatches {
 		for hotel := range matrix[relatedUser] {
 			check := false
-			for key := range matrix[float64(UserID)] {
-				if key != hotel {
+			for userHotel := range matrix[float64(UserID)] {
+				if userHotel == hotel {
 					check = true
 				}
 			}
-			if !check {
+			if check {
 				sim[hotel] = 0.0
 				continue
 			}
@@ -190,9 +182,10 @@ func (p *RecommendationsUseCase) GetBestRecommendations(UserID int, matrix map[f
 
 	var hotelIDs []int64
 	for i := 0; i < len(bestProducts); i++ {
-		if i > viper.GetInt(configs.ConfigFields.RecommendationCount) {
+		if len(hotelIDs) > viper.GetInt(configs.ConfigFields.RecommendationCount) {
 			break
 		}
+		fmt.Println(bestProducts[i].Coefficient, bestProducts[i].HotelID)
 		if bestProducts[i].Coefficient > 0 {
 			hotelIDs = append(hotelIDs, int64(bestProducts[i].HotelID))
 		}
