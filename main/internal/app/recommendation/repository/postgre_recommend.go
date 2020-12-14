@@ -2,7 +2,6 @@ package recommendRepository
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
@@ -25,7 +24,6 @@ func NewPostgreRecommendationRepository(conn *sqlx.DB, historyStore *redis.Clien
 }
 
 func (p *PostgreRecommendationRepository) AddInSearchHistory(UserID int, pattern string) error {
-	fmt.Println(UserID, pattern)
 
 	count, err := p.historyStore.Do(context.Background(), "LLEN", strconv.Itoa(UserID)).Int()
 	if err != nil {
@@ -88,9 +86,9 @@ func (p *PostgreRecommendationRepository) UpdateUserRecommendations(userID int, 
 	return nil
 }
 
-func (p *PostgreRecommendationRepository) GetUsersComments(hotelID int) ([]int, error) {
+func (p *PostgreRecommendationRepository) GetUsersComments(userID int) ([]int, error) {
 	var userIDs []int
-	err := p.conn.Select(&userIDs, GetUserCommentsRequest, hotelID)
+	err := p.conn.Select(&userIDs, GetUserCommentsRequest, userID)
 	if err != nil {
 		return userIDs, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
