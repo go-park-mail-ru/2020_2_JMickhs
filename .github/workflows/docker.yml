@@ -79,6 +79,6 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           script: sudo docker rm -vf $(sudo docker ps -a -q) || true  &&
             cd backend/ &&
-            sudo APP_VERSION=${GITHUB_SHA::8} docker-compose up -d --build --no-deps
+            sudo APP_VERSION=${GITHUB_SHA::8} docker-compose up -d --build --no-deps --force-recreate
 
 

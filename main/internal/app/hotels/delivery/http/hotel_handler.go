@@ -4,6 +4,10 @@ import (
 	"net/http"
 	"strconv"
 
+	recommModels "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/models"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation"
+
 	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/hotels"
@@ -19,14 +23,16 @@ import (
 )
 
 type HotelHandler struct {
-	HotelUseCase hotels.Usecase
-	log          *logger.CustomLogger
+	HotelUseCase          hotels.Usecase
+	RecommendationUseCase recommendation.Usecase
+	log                   *logger.CustomLogger
 }
 
-func NewHotelHandler(r *mux.Router, hs hotels.Usecase, lg *logger.CustomLogger) {
+func NewHotelHandler(r *mux.Router, hs hotels.Usecase, RecommendationUseCase recommendation.Usecase, lg *logger.CustomLogger) {
 	handler := HotelHandler{
-		HotelUseCase: hs,
-		log:          lg,
+		HotelUseCase:          hs,
+		log:                   lg,
+		RecommendationUseCase: RecommendationUseCase,
 	}
 	r.HandleFunc("/api/v1/hotels/{id:[0-9]+}", handler.Hotel).Methods("GET")
 	r.Path("/api/v1/hotels/search").Queries("pattern", "{pattern}", "page", "{page:[0-9]+}").
@@ -37,6 +43,26 @@ func NewHotelHandler(r *mux.Router, hs hotels.Usecase, lg *logger.CustomLogger) 
 	r.Path("/api/v1/hotels/radiusSearch").Queries("latitude", "{latitude}",
 		"longitude", "{longitude}", "radius", "{radius}").HandlerFunc(handler.FetchHotelsByRadius).Methods("GET")
 
+	r.HandleFunc("/api/v1/hotels/recommendations", handler.Recommendations).Methods("GET")
+}
+
+// swagger:route GET /api/v1/hotels/recommendations hotel hotelsRecommendation
+// GetUserRecommendations
+// responses:
+//  200: recommendations
+func (hh *HotelHandler) Recommendations(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
+	if !ok {
+		userID = -1
+	}
+
+	hotels, err := hh.RecommendationUseCase.GetHotelsRecommendations(userID)
+	if err != nil {
+		customerror.PostError(w, r, hh.log, err, nil)
+		return
+	}
+
+	responses.SendDataResponse(w, recommModels.Hotels{Hotels: hotels})
 }
 
 // swagger:route GET /api/v1/hotels/radiusSearch hotel hotelsByRadius
@@ -132,6 +158,14 @@ func (hh *HotelHandler) FetchHotels(w http.ResponseWriter, r *http.Request) {
 	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		userID = -1
+	}
+	if userID != -1 && pattern != "" {
+		err := hh.RecommendationUseCase.AddInSearchHistory(userID, pattern)
+		if err != nil {
+			customerror.PostError(w, r, hh.log, err, nil)
+			return
+		}
+
 	}
 	hotels, err := hh.HotelUseCase.FetchHotels(orderData, pattern, page, userID)
 
