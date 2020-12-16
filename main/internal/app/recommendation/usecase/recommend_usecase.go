@@ -33,7 +33,7 @@ func (p *RecommendationsUseCase) GetHotelsRecommendations(UserID int) ([]recommM
 	if UserID != -1 {
 		recommend, _ := p.recommendRepo.CheckRecommendationExist(UserID)
 		if time.Now().Unix()-recommend.Time.Unix() < viper.GetInt64(configs.ConfigFields.UpdateRecommendationTick)*
-			int64(time.Minute.Seconds()) {
+			int64(time.Minute.Seconds()) && len(recommend.HotelIDs) > 0 {
 			hotels, err := p.AddHistoryHotelsToCollaborative(UserID, recommend.HotelIDs)
 			if err != nil {
 				return hotels, err
@@ -46,7 +46,10 @@ func (p *RecommendationsUseCase) GetHotelsRecommendations(UserID int) ([]recommM
 		}
 		if len(hotelsIDs) == 0 {
 			hotels, err := p.recommendRepo.GetHotelsFromHistory(UserID, recommend.HotelIDs)
-			return hotels, err
+
+			if len(hotels) != 0 {
+				return hotels, err
+			}
 		}
 		rows, err := p.recommendRepo.GetRecommendationRows(UserID, hotelsIDs)
 		if err != nil {
@@ -78,15 +81,16 @@ func (p *RecommendationsUseCase) AddHistoryHotelsToCollaborative(UserID int, hot
 	if err != nil {
 		return hotels, err
 	}
-	if len(hotels) <= 2 {
-		for i := 0; i < 2; i++ {
-			if len(hotelsFromHistory) <= i {
+	hotelsLen := len(hotels)
+	if hotelsLen <= 2 {
+		for i := 0; i < 4-hotelsLen; i++ {
+			if len(hotelsFromHistory) < i {
 				break
 			}
 			hotels = append(hotels, hotelsFromHistory[i])
 		}
 	} else {
-		for i := 2; i < len(hotels); i++ {
+		for i := 2; i < hotelsLen; i++ {
 			if len(hotelsFromHistory) <= i-2 {
 				break
 			}

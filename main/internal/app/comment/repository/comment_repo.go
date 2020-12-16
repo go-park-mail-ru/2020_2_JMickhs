@@ -2,7 +2,17 @@ package commentRepository
 
 import (
 	"errors"
+	"mime/multipart"
 	"strconv"
+
+	"github.com/lib/pq"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
+	uuid "github.com/satori/go.uuid"
+	"github.com/spf13/viper"
+
+	"github.com/aws/aws-sdk-go/service/s3"
 
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 
@@ -16,10 +26,46 @@ import (
 
 type CommentRepository struct {
 	conn *sqlx.DB
+	s3   *s3.S3
 }
 
-func NewCommentRepository(conn *sqlx.DB) CommentRepository {
-	return CommentRepository{conn: conn}
+func NewCommentRepository(conn *sqlx.DB, s3 *s3.S3) CommentRepository {
+	return CommentRepository{conn: conn, s3: s3}
+}
+
+func (r *CommentRepository) GetPhotos(hotelID string) (commModel.Photos, error) {
+	photos := commModel.Photos{}
+
+	err := r.conn.Select(&photos.Photos, GetCommentsPhotosPostgreRequest, hotelID, viper.GetString(configs.ConfigFields.S3Url))
+	if err != nil {
+		return photos, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	return photos, nil
+}
+
+func (r *CommentRepository) DeletePhotos(comment commModel.Comment) error {
+	for _, photo := range comment.Photos {
+		var _, err = r.s3.DeleteObject(&s3.DeleteObjectInput{
+			Bucket: aws.String(viper.GetString(configs.ConfigFields.BucketName)),
+			Key:    aws.String(viper.GetString(configs.ConfigFields.StaticPathForComments) + photo),
+		})
+		return err
+	}
+	return nil
+}
+
+func (r *CommentRepository) UploadPhoto(file multipart.File, contentType string) (string, error) {
+	newFilename := uuid.NewV4().String()
+	relativePath := viper.GetString(configs.ConfigFields.StaticPathForComments) + newFilename + "." + contentType
+
+	_, err := r.s3.PutObject(&s3.PutObjectInput{
+		Body:   file,
+		Bucket: aws.String(viper.GetString(configs.ConfigFields.BucketName)),
+		Key:    aws.String(relativePath),
+		ACL:    aws.String(s3.BucketCannedACLPublicRead),
+	})
+
+	return relativePath, err
 }
 
 func (r *CommentRepository) GetComments(hotelID string, limit int, offset string, user_id int) ([]commModel.FullCommentInfo, error) {
@@ -28,12 +74,19 @@ func (r *CommentRepository) GetComments(hotelID string, limit int, offset string
 	if err != nil {
 		return comments, customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}
+
+	for i := 0; i < len(comments); i++ {
+		err = r.conn.Select(&comments[i].Photos, CheckPhotosExistPostgreRequest, hotelID, user_id, viper.GetString(configs.ConfigFields.S3Url))
+		if err != nil {
+			return comments, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+		}
+	}
 	return comments, nil
 }
 
 func (r *CommentRepository) AddComment(comment commModel.Comment) (commModel.Comment, error) {
 	err := r.conn.QueryRow(AddCommentsPostgreRequest,
-		comment.UserID, comment.HotelID, comment.Message, comment.Rate).Scan(&comment.CommID, &comment.Time)
+		comment.UserID, comment.HotelID, comment.Message, comment.Rate, pq.Array(comment.Photos)).Scan(&comment.CommID, &comment.Time)
 	if err != nil {
 		return comment, customerror.NewCustomError(err, clientError.Locked, 1)
 	}
@@ -50,7 +103,13 @@ func (r *CommentRepository) DeleteComment(ID int) error {
 
 func (r *CommentRepository) UpdateComment(comment *commModel.Comment) error {
 	err := r.conn.QueryRow(UpdateCommentsPostgreRequest,
-		comment.CommID, comment.Message, comment.Rate).Scan(&comment.Time)
+		comment.CommID, comment.Message, comment.Rate, pq.Array(comment.Photos)).
+		Scan(&comment.Time)
+	if err != nil {
+		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	comment.Photos = []string{}
+	err = r.conn.Select(&comment.Photos, GetOneCommentPhotosPostgreRequest, comment.CommID, viper.GetString(configs.ConfigFields.S3Url))
 	if err != nil {
 		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
@@ -59,7 +118,6 @@ func (r *CommentRepository) UpdateComment(comment *commModel.Comment) error {
 
 func (p *CommentRepository) UpdateHotelRating(hotelID int, NewRate float64) error {
 	rate := strconv.FormatFloat(NewRate, 'f', 1, 64)
-
 	err := p.conn.QueryRow(UpdateHotelRatingPostgreRequest, rate, strconv.Itoa(hotelID)).Err()
 	if err != nil {
 		return customerror.NewCustomError(err, clientError.BadRequest, 1)

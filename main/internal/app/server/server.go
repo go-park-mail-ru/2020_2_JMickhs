@@ -3,7 +3,15 @@ package server
 import (
 	"context"
 	"fmt"
+	"os"
 	"strconv"
+
+	tgbotapi "github.com/Syfaro/telegram-bot-api"
+
+	chatDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/chat/delivery/http"
+
+	chatRepository "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/chat/repository"
+	chatUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/chat/usecase"
 
 	recommendRepository "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/repository"
 	reccomendUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/usecase"
@@ -137,13 +145,15 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	r.Use(middlewareApi.MyCORSMethodMiddleware())
 
 	repHot := hotelRepository.NewPostgresHotelRepository(db, s3)
-	repCom := commentRepository.NewCommentRepository(db)
+	repCom := commentRepository.NewCommentRepository(db, s3)
 	repWish := wishlistRepository.NewPostgreWishlistRepository(db)
+	repChat := chatRepository.NewChatRepository(db)
 	store := NewSessStore()
 	defer store.Close()
 
 	repRecommendation := recommendRepository.NewPostgreRecommendationRepository(db, store)
 
+	uChat := chatUsecase.NewChatUseCase(&repChat)
 	uHot := hotelUsecase.NewHotelUsecase(&repHot, userService, &repWish)
 	uCom := commentUsecase.NewCommentUsecase(&repCom, userService)
 	uWish := wishlistUsecase.NewWishlistUseCase(&repWish, &repHot)
@@ -154,10 +164,17 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	r.Use(sessMidleware.SessionMiddleware())
 	r.Use(csrfMidleware.CSRFCheck())
 
+	bot, err := tgbotapi.NewBotAPI(os.Getenv("BotToken"))
+	if err != nil {
+		log.Panic(err)
+	}
+
+	log.Printf("Authorized on account %s", bot.Self.UserName)
 	hotelDelivery.NewHotelHandler(r, uHot, uRecommendation, log)
 	commentDelivery.NewCommentHandler(r, uCom, log)
 	wishlistDelivery.NewWishlistHandler(r, uWish, uHot, log)
-
+	chatHandler := chatDelivery.NewChatHandler(r, bot, uChat, log)
+	go chatHandler.Run()
 	log.Info("Server started at port", viper.GetString(configs.ConfigFields.MainHttpServicePort))
 	err = http.ListenAndServe(viper.GetString(configs.ConfigFields.MainHttpServicePort), r)
 	if err != nil {

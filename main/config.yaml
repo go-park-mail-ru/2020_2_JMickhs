@@ -1,5 +1,6 @@
 paths:
   BaseAfatarPath: "static/avatars/defaultAvatar.png"
+  StaticPathForComments: "static/comments/"
   StaticPathForAvatars: "static/avatars/"
   StaticPathForHotels: "static/img/"
 cookie:
@@ -22,3 +23,6 @@ constants:
   WishListOut: "WishListOut"
   RecommendationCount: 4
   UpdateRecommendationTick: 5
+  PongWait: 5
+  MaxMessageSize: 1024
+  chatID: -444219540

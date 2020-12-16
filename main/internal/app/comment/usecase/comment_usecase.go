@@ -3,6 +3,7 @@ package commentUsecase
 import (
 	"context"
 	"math"
+	"mime/multipart"
 	"strconv"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment"
@@ -23,6 +24,23 @@ func NewCommentUsecase(r comment.Repository, userService userService.UserService
 		commentRepo: r,
 		userService: userService,
 	}
+}
+
+func (u *CommentUseCase) GetPhotos(hotelID string) (commModel.Photos, error) {
+	return u.commentRepo.GetPhotos(hotelID)
+}
+
+func (u *CommentUseCase) DeletePhotos(comment commModel.Comment) error {
+	return u.commentRepo.DeletePhotos(comment)
+}
+
+func (u *CommentUseCase) UploadPhoto(comment *commModel.Comment, file multipart.File, contentType string) error {
+	path, err := u.commentRepo.UploadPhoto(file, contentType)
+	if err != nil {
+		return err
+	}
+	comment.Photos = append(comment.Photos, path)
+	return nil
 }
 
 func (u *CommentUseCase) GetComments(hotelID string, limit string, offsets string, user_id int) (int, commModel.Comments, error) {
@@ -48,6 +66,7 @@ func (u *CommentUseCase) GetComments(hotelID string, limit string, offsets strin
 		}
 	}
 	if offset > count {
+
 		return 0, pag, nil
 	}
 

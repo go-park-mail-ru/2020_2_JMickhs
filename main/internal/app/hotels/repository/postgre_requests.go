@@ -12,6 +12,9 @@ const GetHotelsPhotosPostgreRequest = "SELECT concat($2::varchar,unnest(photos))
 const CheckRateIfExistPostgreRequest = "SELECT message,time,c.hotel_id,c.user_id,comm_id,rating " +
 	"FROM comments as c  WHERE c.hotel_id=$1 AND c.user_id=$2"
 
+const CheckPhotosExistPostgreRequest = "SELECT concat($3::varchar,unnest(c.photos))  " +
+	"FROM comments as c  WHERE c.hotel_id=$1 AND c.user_id=$2"
+
 const SearchHotelsPostgreRequest = "WHERE (lower(name) % lower($1) or lower(location) % lower($1) " +
 	"or lower(name) ~* lower($1) or lower(location) ~* lower($1))"
 

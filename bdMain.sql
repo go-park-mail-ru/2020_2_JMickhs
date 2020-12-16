@@ -55,6 +55,7 @@ create table comments (
     hotel_id int not null,
     message text,
     rating int DEFAULT 0 CHECK (rating  >= 0  AND rating <=5),
+    photos text[],
     time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     UNIQUE (hotel_id,user_id),
         CONSTRAINT fk_comments

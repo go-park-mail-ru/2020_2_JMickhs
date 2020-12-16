@@ -5,25 +5,32 @@ import paginationModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/
 
 // easyjson:json
 type Comment struct {
-	UserID  int     `json:"user_id" db:"user_id" mapstructure:"user_id"`
-	HotelID int     `json:"hotel_id" mapstructure:"hotel_id"`
-	CommID  int     `json:"comm_id" mapstructure:"comm_id"`
-	Message string  `json:"message" mapstructure:"message"`
-	Rate    float64 `json:"rating" mapstructure:"rating"`
-	Time    string  `json:"time" mapstructure:"time"`
+	UserID  int      `json:"user_id" db:"user_id" mapstructure:"user_id"`
+	HotelID int      `json:"hotel_id" mapstructure:"hotel_id"`
+	CommID  int      `json:"comm_id" mapstructure:"comm_id"`
+	Message string   `json:"message" mapstructure:"message"`
+	Rate    float64  `json:"rating" mapstructure:"rating"`
+	Time    string   `json:"time" mapstructure:"time"`
+	Photos  []string `json:"photos" mapstructure:"photos"`
 }
 
 // easyjson:json
 //swagger:response commentInfo
 type FullCommentInfo struct {
-	UserID   int     `json:"user_id" db:"user_id" mapstructure:"user_id"`
-	CommID   int     `json:"comm_id" db:"comm_id" mapstructure:"comm_id"`
-	HotelID  int     `json:"hotel_id" db:"hotel_id" mapstructure:"hotel_id"`
-	Message  string  `json:"message" db:"message"`
-	Rating   float64 `json:"rating" db:"rating"`
-	Avatar   string  `json:"avatar" db:"concat"`
-	Username string  `json:"username" db:"username"`
-	Time     string  `json:"time" db:"time"`
+	UserID   int      `json:"user_id" db:"user_id" mapstructure:"user_id"`
+	CommID   int      `json:"comm_id" db:"comm_id" mapstructure:"comm_id"`
+	HotelID  int      `json:"hotel_id" db:"hotel_id" mapstructure:"hotel_id"`
+	Message  string   `json:"message" db:"message"`
+	Rating   float64  `json:"rating" db:"rating"`
+	Avatar   string   `json:"avatar" db:"concat"`
+	Username string   `json:"username" db:"username"`
+	Time     string   `json:"time" db:"time"`
+	Photos   []string `json:"concat" mapstructure:"photos"`
+}
+
+// easyjson:json
+type Photos struct {
+	Photos []string `json:"photos" db:"concat" mapstructure:"photos"`
 }
 
 // easyjson:json
