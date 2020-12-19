@@ -26,6 +26,10 @@ func NewCommentUsecase(r comment.Repository, userService userService.UserService
 	}
 }
 
+func (u *CommentUseCase) CheckUserComment(comment commModel.Comment) (bool, error) {
+	return u.commentRepo.CheckUserComment(comment)
+}
+
 func (u *CommentUseCase) GetPhotos(hotelID string) (commModel.Photos, error) {
 	return u.commentRepo.GetPhotos(hotelID)
 }

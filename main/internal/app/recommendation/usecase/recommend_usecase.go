@@ -84,7 +84,7 @@ func (p *RecommendationsUseCase) AddHistoryHotelsToCollaborative(UserID int, hot
 	hotelsLen := len(hotels)
 	if hotelsLen <= 2 {
 		for i := 0; i < 4-hotelsLen; i++ {
-			if len(hotelsFromHistory) < i {
+			if len(hotelsFromHistory) <= i {
 				break
 			}
 			hotels = append(hotels, hotelsFromHistory[i])

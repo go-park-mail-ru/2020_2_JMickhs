@@ -17,4 +17,5 @@ type Usecase interface {
 	AddRating(comment commModel.Comment) (float64, error)
 	UploadPhoto(comment *commModel.Comment, file multipart.File, contentType string) error
 	GetPhotos(hotelID string) (commModel.Photos, error)
+	CheckUserComment(comment commModel.Comment) (bool, error)
 }

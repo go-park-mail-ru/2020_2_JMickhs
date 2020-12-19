@@ -5,9 +5,16 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"image"
+	"image/color"
+	"image/png"
+	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"net/textproto"
 	"os"
 	"testing"
 
@@ -170,6 +177,59 @@ func TestCommentHandler_ListComments(t *testing.T) {
 	})
 }
 
+func CreateTestImage(t *testing.T) multipart.File {
+	width := 800
+	height := 800
+
+	upLeft := image.Point{0, 0}
+	lowRight := image.Point{width, height}
+
+	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
+
+	cyan := color.RGBA{100, 200, 200, 0xff}
+
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
+			switch {
+			case x < width/2 && y < height/2:
+				img.Set(x, y, cyan)
+			case x >= width/2 && y >= height/2:
+				img.Set(x, y, color.White)
+			default:
+			}
+		}
+	}
+	f, err := os.Create("image.png")
+	assert.NoError(t, err)
+	err = png.Encode(f, img)
+	assert.NoError(t, err)
+	_, err = f.Seek(0, 0)
+	assert.NoError(t, err)
+	return f
+}
+
+func CreateTestMultipart(t *testing.T, testComment commModel.Comment, image multipart.File) (*multipart.Writer, bytes.Buffer) {
+	var requestBody bytes.Buffer
+	multipartWriter := multipart.NewWriter(&requestBody)
+	metadataHeader := textproto.MIMEHeader{}
+	metadataHeader.Set("Content-Type", "image/png")
+	metadataHeader.Set("Content-Disposition", fmt.Sprintf("form-data; name=\"%v\"; filename=\"%v\"", "photos", "image.png"))
+	file, err := multipartWriter.CreatePart(metadataHeader)
+	assert.NoError(t, err)
+	le, err := io.Copy(file, image)
+	fmt.Println(le)
+	assert.NoError(t, err)
+
+	field, err := multipartWriter.CreateFormField("jsonData")
+	assert.NoError(t, err)
+	bodys, _ := json.Marshal(testComment)
+	_, err = field.Write(bodys)
+	assert.NoError(t, err)
+	err = multipartWriter.Close()
+	assert.NoError(t, err)
+	return multipartWriter, requestBody
+}
+
 func TestCommentHandler_AddComment(t *testing.T) {
 
 	testComment := commModel.Comment{
@@ -183,13 +243,19 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockCUseCase := comment_mock.NewMockUsecase(ctrl)
+		testImage := CreateTestImage(t)
+		defer os.Remove("image.png")
+		writer, data := CreateTestMultipart(t, testComment, testImage)
 
 		mockCUseCase.EXPECT().
 			AddComment(testComment).
 			Return(newRate, nil)
 
-		bodys, _ := json.Marshal(testComment)
-		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
+		mockCUseCase.EXPECT().
+			UploadPhoto(gomock.Any(), gomock.Any(), "png").
+			Return(nil)
+		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(data.Bytes()))
+		req.Header.Add("Content-Type", writer.FormDataContentType())
 		assert.NoError(t, err)
 
 		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
@@ -284,10 +350,6 @@ func TestCommentHandler_AddComment(t *testing.T) {
 
 		mockCUseCase := comment_mock.NewMockUsecase(ctrl)
 
-		mockCUseCase.EXPECT().
-			AddComment(testComment).
-			Return(newRate, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
-
 		bodys, _ := json.Marshal(testComment)
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 
@@ -308,7 +370,7 @@ func TestCommentHandler_AddComment(t *testing.T) {
 		err = json.Unmarshal(body, &response)
 		assert.NoError(t, err)
 
-		assert.Equal(t, serverError.ServerInternalError, response.Code)
+		assert.Equal(t, clientError.BadRequest, response.Code)
 	})
 
 }
@@ -326,16 +388,26 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockCUseCase := comment_mock.NewMockUsecase(ctrl)
-
+		testImage := CreateTestImage(t)
+		defer os.Remove("image.png")
+		writer, data := CreateTestMultipart(t, testComment, testImage)
 		mockCUseCase.EXPECT().
 			UpdateComment(testComment).
 			Return(newRate, nil)
 
-		bodys, _ := json.Marshal(testComment)
-		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
+		mockCUseCase.EXPECT().
+			CheckUserComment(testComment).
+			Return(true, nil)
+
+		mockCUseCase.EXPECT().
+			UploadPhoto(gomock.Any(), gomock.Any(), "png").
+			Return(nil)
+
+		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(data.Bytes()))
 		assert.NoError(t, err)
 
 		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, int(testUser.UserID)))
+		req.Header.Add("Content-Type", writer.FormDataContentType())
 		rec := httptest.NewRecorder()
 		handler := CommentHandler{
 			CommentUseCase: mockCUseCase,
@@ -428,10 +500,6 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 
 		mockCUseCase := comment_mock.NewMockUsecase(ctrl)
 
-		mockCUseCase.EXPECT().
-			UpdateComment(testComment).
-			Return(newRate, customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
-
 		bodys, _ := json.Marshal(testComment)
 		req, err := http.NewRequest("POST", "/api/v1/comments", bytes.NewBuffer(bodys))
 
@@ -452,7 +520,7 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		err = json.Unmarshal(body, &response)
 		assert.NoError(t, err)
 
-		assert.Equal(t, serverError.ServerInternalError, response.Code)
+		assert.Equal(t, clientError.BadRequest, response.Code)
 	})
 
 }

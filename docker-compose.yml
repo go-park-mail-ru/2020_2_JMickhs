@@ -20,6 +20,7 @@ services:
 
     restart: always
     volumes:
+      - /home/ubuntu/ssl:/etc/ssl/hostelscan:ro
       - main-data:/var/lib/postgresql/data
   session_service:
     image: kostikan/session_service:${APP_VERSION}
@@ -42,6 +43,7 @@ services:
       - postgresUser
     restart: always
     volumes:
+      - /home/ubuntu/ssl:/etc/ssl/hostelscan:ro
       - user-data:/var/lib/postgresql/data
   redis:
     image: "redis:alpine"
@@ -49,6 +51,7 @@ services:
       - "6379:6379"
     restart: always
     volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
       - redis-data:/data
 
   postgresMain:

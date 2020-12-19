@@ -1,6 +1,7 @@
 package middlewareApi
 
 import (
+	"fmt"
 	"net/http"
 
 	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
@@ -11,8 +12,10 @@ import (
 func NewOptionsHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
+
 		allowedOrigin := ""
 		if packageConfig.AllowedOrigins[origin] {
+			fmt.Println("allowed origin in options - ", origin)
 			allowedOrigin = origin
 		}
 		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
@@ -31,6 +34,7 @@ func MyCORSMethodMiddleware() mux.MiddlewareFunc {
 			origin := req.Header.Get("Origin")
 			allowedOrigin := ""
 			if packageConfig.AllowedOrigins[origin] {
+				fmt.Println("allowed origin in options - ", origin)
 				allowedOrigin = origin
 			}
 			w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)

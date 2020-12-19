@@ -104,3 +104,31 @@ func (mr *MockUsecaseMockRecorder) AddHistoryHotelsToCollaborative(UserID, hotel
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddHistoryHotelsToCollaborative", reflect.TypeOf((*MockUsecase)(nil).AddHistoryHotelsToCollaborative), UserID, hotelIDs)
 }
+
+// DistCosine mocks base method
+func (m *MockUsecase) DistCosine(vecA, vecB map[float64]float64) float64 {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DistCosine", vecA, vecB)
+	ret0, _ := ret[0].(float64)
+	return ret0
+}
+
+// DistCosine indicates an expected call of DistCosine
+func (mr *MockUsecaseMockRecorder) DistCosine(vecA, vecB interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DistCosine", reflect.TypeOf((*MockUsecase)(nil).DistCosine), vecA, vecB)
+}
+
+// DotProduct mocks base method
+func (m *MockUsecase) DotProduct(vecA, vecB map[float64]float64) float64 {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DotProduct", vecA, vecB)
+	ret0, _ := ret[0].(float64)
+	return ret0
+}
+
+// DotProduct indicates an expected call of DotProduct
+func (mr *MockUsecaseMockRecorder) DotProduct(vecA, vecB interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DotProduct", reflect.TypeOf((*MockUsecase)(nil).DotProduct), vecA, vecB)
+}

@@ -181,11 +181,20 @@ func TestCheckRateExist(t *testing.T) {
 			"comm_id", "rating"}).AddRow("kekw", "22-02-2000", "3", "1",
 			"10", "5")
 
+		rowsPhotos := sqlmock.NewRows([]string{"photos"}).AddRow("fds")
+
 		ratingTest := 5
 
-		query := CheckRateIfExistPostgreRequest
+		query1 := CheckRateIfExistPostgreRequest
+		query2 := CheckPhotosExistPostgreRequest
 
-		mock.ExpectQuery(query).WithArgs(5, 3).WillReturnRows(rows)
+		mock.ExpectQuery(query1).
+			WithArgs(5, 3).
+			WillReturnRows(rows)
+
+		mock.ExpectQuery(query2).
+			WithArgs(5, 3, viper.GetString(configs.ConfigFields.S3Url)).
+			WillReturnRows(rowsPhotos)
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")
 		defer sqlxDb.Close()
@@ -196,10 +205,36 @@ func TestCheckRateExist(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, rating.Rating, float64(ratingTest))
 	})
-	t.Run("CheckRateExistErr", func(t *testing.T) {
+	t.Run("CheckRateExistErr1", func(t *testing.T) {
+		rows := sqlmock.NewRows([]string{"message", "time", "hotel_id", "user_id",
+			"comm_id", "rating"}).AddRow("kekw", "22-02-2000", "3", "1",
+			"10", "5")
+
+		query1 := CheckRateIfExistPostgreRequest
+		query2 := CheckPhotosExistPostgreRequest
+
+		mock.ExpectQuery(query1).
+			WithArgs(5, 3).
+			WillReturnRows(rows)
+
+		mock.ExpectQuery(query2).
+			WithArgs(5, 3, viper.GetString(configs.ConfigFields.S3Url)).
+			WillReturnError(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
+
+		sqlxDb := sqlx.NewDb(db, "sqlmock")
+		defer sqlxDb.Close()
+
+		rep := NewPostgresHotelRepository(sqlxDb, nil)
+
+		_, err := rep.CheckRateExist(3, 5)
+		assert.Error(t, err)
+		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
+	})
+	t.Run("CheckRateExistErr2", func(t *testing.T) {
 		query := CheckRateIfExistPostgreRequest
 
-		mock.ExpectQuery(query).WithArgs(3, 5).
+		mock.ExpectQuery(query).
+			WithArgs(3, 5).
 			WillReturnError(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
 
 		sqlxDb := sqlx.NewDb(db, "sqlmock")

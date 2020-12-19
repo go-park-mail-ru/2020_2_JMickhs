@@ -1,4 +1,4 @@
-//go:generate easyjson -all recommModels
+//go:generate easyjson -all recommend_model.go
 
 package recommModels
 

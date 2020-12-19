@@ -45,7 +45,7 @@ type AddCommentFull struct {
 }
 
 type UpdateCommentFull struct {
-	Update UpdateComment    `json:"jsonData"`
+	Update UpdateCommentReq `json:"jsonData"`
 	File   []multipart.File `json:"photos"`
 }
 
@@ -57,6 +57,11 @@ type AddComment struct {
 	HotelID int    `json:"hotel_id"`
 	Message string `json:"message"`
 	Rating  int    `json:"rating"`
+}
+
+type UpdateCommentReq struct {
+	UpdateComment UpdateComment `json:"comment"`
+	DeleteImages  bool          `json:"delete"`
 }
 
 type UpdateComment struct {

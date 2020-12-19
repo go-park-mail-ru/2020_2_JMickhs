@@ -14,6 +14,8 @@ const GetCommentsPostgreRequest = "SELECT comm.user_id,comm_id,message,rating,co
 const GetCommentsPhotosPostgreRequest = "SELECT concat($2::varchar,unnest(comm.photos)) FROM comments as comm " +
 	" where comm.hotel_id = $1"
 
+const CheckCommentForUpdateRequest = "SELECT user_id FROM comments where comm_id=$1"
+
 const CheckPhotosExistPostgreRequest = "SELECT concat($3::varchar,unnest(c.photos))  " +
 	"FROM comments as c  WHERE c.hotel_id=$1 AND c.user_id=$2"
 

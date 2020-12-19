@@ -1,8 +1,10 @@
 package chatDelivery
 
 import (
+	"bytes"
 	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
@@ -42,12 +44,14 @@ type ChatHandler struct {
 }
 
 type message struct {
+	ownerID string
 	room    string
 	message []byte
 }
 type connection struct {
-	ws   *websocket.Conn
-	send chan []byte
+	ownerID string
+	ws      *websocket.Conn
+	send    chan []byte
 }
 
 type subscription struct {
@@ -57,12 +61,15 @@ type subscription struct {
 
 func NewChatHandler(r *mux.Router, tgBot *tgbotapi.BotAPI, cu chat.Usecase, lg *logger.CustomLogger) *ChatHandler {
 	handler := ChatHandler{
+		register:    make(chan subscription),
+		unregister:  make(chan subscription),
+		broadcast:   make(chan message),
 		ChatUseCase: cu,
 		log:         lg,
 		bot:         tgBot,
 		roomTokens:  map[string]string{},
+		rooms:       map[string]map[*connection]bool{},
 	}
-
 	r.HandleFunc("/api/v1/ws/chat", handler.InitConnection).Methods("GET")
 	r.Path("/api/v1/ws").Queries("chatID", "{chatID}", "token", "{token}").
 		HandlerFunc(handler.InitConnectionForModer).Methods("GET")
@@ -86,13 +93,22 @@ func (ch *ChatHandler) InitConnection(w http.ResponseWriter, r *http.Request) {
 
 	query.Add("chatID", chatID)
 	query.Add("token", token)
-	str := "Ссылочка: " + r.URL.Scheme + r.Host + "/api/v1/ws" + "?" + query.Encode()
+	str := "Ссылочка: " + r.URL.Scheme + "hostelscan.ru" + "/chat" + "?" + query.Encode()
 
 	config := tgbotapi.ChatConfig{ChatID: viper.GetInt64(configs.ConfigFields.ChatID)}
 	chat, _ := ch.bot.GetChat(config)
 
+	err := w.Header().Write(bytes.NewBuffer([]byte(strconv.Itoa(http.StatusSwitchingProtocols))))
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
+		return
+	}
 	msg := tgbotapi.NewMessage(chat.ID, str)
-	ch.bot.Send(msg)
+	_, err = ch.bot.Send(msg)
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
+		return
+	}
 	ch.roomTokens[chatID] = token
 	ch.serveWs(w, r, chatID)
 }
@@ -108,13 +124,21 @@ func (ch *ChatHandler) InitConnectionForModer(w http.ResponseWriter, r *http.Req
 }
 
 func (ch *ChatHandler) serveWs(w http.ResponseWriter, r *http.Request, roomID string) {
-	ws, err := upgrader.Upgrade(w, r, nil)
+	h := http.Header{}
+	err := h.Write(bytes.NewBuffer([]byte(strconv.Itoa(http.StatusSwitchingProtocols))))
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
+		return
+	}
+	ws, err := upgrader.Upgrade(w, r, h)
 	if err != nil {
 		ch.log.Error(err)
 		return
 	}
-	c := &connection{send: make(chan []byte, 256), ws: ws}
+	ownerID := uuid.NewV4().String()
+	c := &connection{ownerID: ownerID, send: make(chan []byte, 256), ws: ws}
 	s := subscription{c, roomID}
+
 	ch.register <- s
 	go ch.read(&s)
 	go ch.write(&s)
@@ -122,16 +146,17 @@ func (ch *ChatHandler) serveWs(w http.ResponseWriter, r *http.Request, roomID st
 
 func (ch *ChatHandler) write(s *subscription) {
 	conn := s.conn
-	ticker := time.NewTicker(time.Duration(viper.GetInt64(configs.ConfigFields.PongWait)) * time.Minute)
+	ticker := time.NewTicker(time.Duration(viper.GetInt64(configs.ConfigFields.PongWait)) * time.Hour)
 	defer func() {
-		conn.ws.Close()
+		_ = conn.ws.Close()
 		ticker.Stop()
 	}()
 	for {
 		select {
 		case msg, ok := <-conn.send:
 			if !ok {
-				conn.ws.WriteMessage(websocket.CloseMessage, []byte{})
+				err := conn.ws.WriteMessage(websocket.CloseMessage, []byte{})
+				ch.log.Error(err)
 				return
 			}
 			if err := conn.ws.WriteMessage(websocket.TextMessage, msg); err != nil {
@@ -148,22 +173,28 @@ func (ch *ChatHandler) write(s *subscription) {
 func (ch *ChatHandler) read(s *subscription) {
 	conn := s.conn
 	defer func() {
-		conn.ws.Close()
+		ch.unregister <- *s
+		_ = conn.ws.Close()
 	}()
 	conn.ws.SetReadLimit(viper.GetInt64(configs.ConfigFields.MaxMessageSize))
-	conn.ws.SetReadDeadline(time.Now().Add(time.Duration(viper.GetInt64(configs.ConfigFields.PongWait)) * time.Minute))
+	err := conn.ws.SetReadDeadline(time.Now().Add(time.Duration(viper.GetInt64(configs.ConfigFields.PongWait)) * time.Hour))
+	if err != nil {
+		ch.log.Error(err)
+		return
+	}
 	conn.ws.SetPingHandler(func(string) error {
-		conn.ws.SetReadDeadline(time.Now().Add(time.Duration(viper.GetInt64(configs.ConfigFields.PongWait)) * time.Minute))
-		return nil
+		err := conn.ws.SetReadDeadline(time.Now().Add(time.Duration(viper.GetInt64(configs.ConfigFields.PongWait)) * time.Hour))
+		ch.log.Error(err)
+		return err
 	})
 	for {
 		_, msg, err := conn.ws.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
-				ch.log.Error(errors.New(""))
+				return
 			}
 		}
-		m := message{room: s.room, message: msg}
+		m := message{ownerID: conn.ownerID, room: s.room, message: msg}
 		ch.broadcast <- m
 	}
 
@@ -193,14 +224,17 @@ func (ch *ChatHandler) Run() {
 		case m := <-ch.broadcast:
 			connections := ch.rooms[m.room]
 			for c := range connections {
-				select {
-				case c.send <- m.message:
-				default:
-					close(c.send)
-					delete(connections, c)
-					if len(connections) == 0 {
-						delete(ch.rooms, m.room)
+				if c.ownerID != m.ownerID {
+					select {
+					case c.send <- m.message:
+					default:
+						close(c.send)
+						delete(connections, c)
+						if len(connections) == 0 {
+							delete(ch.rooms, m.room)
+						}
 					}
+
 				}
 			}
 

@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
+
 	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
 
 	"github.com/mailru/easyjson"
@@ -53,6 +55,16 @@ func (hh *CommentHandler) DetectFileContentType(file multipart.File) (string, er
 
 	if _, err := file.Seek(0, 0); err != nil {
 		return contentType, customerror.NewCustomError(err, clientError.BadRequest, 1)
+	}
+	count, err := file.Seek(0, 2)
+	if err != nil {
+		return contentType, customerror.NewCustomError(err, clientError.BadRequest, 1)
+	}
+	if count > 5*configs.MB {
+		return contentType, customerror.NewCustomError(errors.New("file bigger than 5 mb"), clientError.BadRequest, 1)
+	}
+	if _, err := file.Seek(0, 0); err != nil {
+		return contentType, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
 	contentTypeStr := http.DetectContentType(fileHeader)
 	contentType = strings.Split(contentTypeStr, "/")[1]
@@ -124,41 +136,50 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 
 	comment := commModel.Comment{}
 
-	err := r.ParseMultipartForm(100 * configs.MB)
+	err := r.ParseMultipartForm(20 * configs.MB)
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 		return
 	}
 
-	r.Body = http.MaxBytesReader(w, r.Body, 100*configs.MB)
+	r.Body = http.MaxBytesReader(w, r.Body, 20*configs.MB)
 
 	err = easyjson.Unmarshal([]byte(r.FormValue("jsonData")), &comment)
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 		return
 	}
+	comment.UserID = userID
 
 	photos := r.MultipartForm.File["photos"]
+	if len(photos)+len(comment.Photos) > 5 {
+		customerror.PostError(w, r, ch.log, errors.New("upload more then 5 photos"), clientError.BadRequest)
+		return
+	}
+	var files []multipart.File
+	var fileTypes []string
 	for _, photo := range photos {
 		file, err := photo.Open()
 		if err != nil {
 			customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 			return
 		}
+		files = append(files, file)
 		fileType, err := ch.DetectFileContentType(file)
 		if err != nil {
 			customerror.PostError(w, r, ch.log, err, nil)
 			return
 		}
-
-		err = ch.CommentUseCase.UploadPhoto(&comment, file, fileType)
+		fileTypes = append(fileTypes, fileType)
+	}
+	for i := 0; i < len(files); i++ {
+		err = ch.CommentUseCase.UploadPhoto(&comment, files[i], fileTypes[i])
 		if err != nil {
 			customerror.PostError(w, r, ch.log, err, nil)
 			return
 		}
-		file.Close()
+		files[i].Close()
 	}
-	comment.UserID = userID
 	comm, err := ch.CommentUseCase.AddComment(comment)
 
 	if err != nil {
@@ -183,51 +204,69 @@ func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	comment := commModel.Comment{}
+	update := commModel.UpdateComment{}
 
-	err := r.ParseMultipartForm(100 * configs.MB)
+	err := r.ParseMultipartForm(10 * configs.MB)
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 		return
 	}
 
-	r.Body = http.MaxBytesReader(w, r.Body, 100*configs.MB)
+	r.Body = http.MaxBytesReader(w, r.Body, 10*configs.MB)
 
-	err = easyjson.Unmarshal([]byte(r.FormValue("jsonData")), &comment)
+	err = easyjson.Unmarshal([]byte(r.FormValue("jsonData")), &update)
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 		return
 	}
-
+	update.Comment.UserID = userID
+	res, err := ch.CommentUseCase.CheckUserComment(update.Comment)
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
+		return
+	}
+	if !res {
+		customerror.PostError(w, r, ch.log, err, clientError.Locked)
+		return
+	}
 	photos := r.MultipartForm.File["photos"]
-	if len(photos) > 0 {
-		err := ch.CommentUseCase.DeletePhotos(comment)
+	if len(photos)+len(update.Comment.Photos) > 5 {
+		customerror.PostError(w, r, ch.log, errors.New("upload more then 5 photos"), clientError.BadRequest)
+		return
+	}
+	if update.DeleteImages {
+		err := ch.CommentUseCase.DeletePhotos(update.Comment)
 		if err != nil {
 			customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 			return
 		}
 	}
+
+	var files []multipart.File
+	var fileTypes []string
 	for _, photo := range photos {
 		file, err := photo.Open()
 		if err != nil {
 			customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 			return
 		}
+		files = append(files, file)
 		fileType, err := ch.DetectFileContentType(file)
 		if err != nil {
 			customerror.PostError(w, r, ch.log, err, nil)
 			return
 		}
-
-		err = ch.CommentUseCase.UploadPhoto(&comment, file, fileType)
+		fileTypes = append(fileTypes, fileType)
+	}
+	for i := 0; i < len(files); i++ {
+		err = ch.CommentUseCase.UploadPhoto(&update.Comment, files[i], fileTypes[i])
 		if err != nil {
 			customerror.PostError(w, r, ch.log, err, nil)
 			return
 		}
-		file.Close()
+		files[i].Close()
 	}
-	comment.UserID = userID
-	comm, err := ch.CommentUseCase.UpdateComment(comment)
+	comm, err := ch.CommentUseCase.UpdateComment(update.Comment)
 
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, nil)

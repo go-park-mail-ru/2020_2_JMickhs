@@ -135,6 +135,16 @@ func (p *CommentRepository) GetCommentsCount(hotelID int) (int, error) {
 	return count, nil
 }
 
+func (p *CommentRepository) CheckUserComment(comment commModel.Comment) (bool, error) {
+	user_id := -1
+	err := p.conn.QueryRow(CheckCommentForUpdateRequest, comment.CommID).Scan(&user_id)
+	if err != nil {
+		return false, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	return user_id == comment.UserID, nil
+
+}
+
 func (p *CommentRepository) GetCurrentRating(hotelID int) (commModel.RateInfo, error) {
 	rateInfo := commModel.RateInfo{}
 

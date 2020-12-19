@@ -432,12 +432,21 @@ definitions:
   UpdateCommentFull:
     properties:
       jsonData:
-        $ref: '#/definitions/UpdateComment'
+        $ref: '#/definitions/UpdateCommentReq'
       photos:
         items:
           $ref: '#/definitions/File'
         type: array
         x-go-name: File
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  UpdateCommentReq:
+    properties:
+      comment:
+        $ref: '#/definitions/UpdateComment'
+      delete:
+        type: boolean
+        x-go-name: DeleteImages
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   UpdateEmail:

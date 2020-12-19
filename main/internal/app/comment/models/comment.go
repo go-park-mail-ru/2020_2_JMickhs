@@ -25,12 +25,18 @@ type FullCommentInfo struct {
 	Avatar   string   `json:"avatar" db:"concat"`
 	Username string   `json:"username" db:"username"`
 	Time     string   `json:"time" db:"time"`
-	Photos   []string `json:"concat" mapstructure:"photos"`
+	Photos   []string `json:"photos" mapstructure:"photos"`
 }
 
 // easyjson:json
 type Photos struct {
 	Photos []string `json:"photos" db:"concat" mapstructure:"photos"`
+}
+
+// easyjson:json
+type UpdateComment struct {
+	Comment      Comment `json:"comment"`
+	DeleteImages bool    `json:"delete"`
 }
 
 // easyjson:json

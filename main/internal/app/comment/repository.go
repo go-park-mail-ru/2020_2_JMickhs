@@ -20,4 +20,5 @@ type Repository interface {
 	UploadPhoto(file multipart.File, contentType string) (string, error)
 	GetPhotos(hotelID string) (commModel.Photos, error)
 	DeletePhotos(comment commModel.Comment) error
+	CheckUserComment(comment commModel.Comment) (bool, error)
 }
