@@ -6,11 +6,12 @@ import (
 	"os"
 	"strconv"
 
+	chatRepository "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/chat/repository"
+
 	tgbotapi "github.com/Syfaro/telegram-bot-api"
 
 	chatDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/chat/delivery/http"
 
-	chatRepository "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/chat/repository"
 	chatUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/chat/usecase"
 
 	recommendRepository "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/repository"
@@ -147,10 +148,9 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	repHot := hotelRepository.NewPostgresHotelRepository(db, s3)
 	repCom := commentRepository.NewCommentRepository(db, s3)
 	repWish := wishlistRepository.NewPostgreWishlistRepository(db)
-	repChat := chatRepository.NewChatRepository(db)
 	store := NewSessStore()
 	defer store.Close()
-
+	repChat := chatRepository.NewChatRepository(db, store)
 	repRecommendation := recommendRepository.NewPostgreRecommendationRepository(db, store)
 
 	uChat := chatUsecase.NewChatUseCase(&repChat)
@@ -175,8 +175,8 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	wishlistDelivery.NewWishlistHandler(r, uWish, uHot, log)
 	chatHandler := chatDelivery.NewChatHandler(r, bot, uChat, log)
 	go chatHandler.Run()
-	err = http.ListenAndServeTLS(viper.GetString(configs.ConfigFields.MainHttpServicePort), "/etc/ssl/hostelscan/hostelscan.ru.crt", "/etc/ssl/hostelscan/hostelscan.ru.key", r)
-	//err = http.ListenAndServe(viper.GetString(configs.ConfigFields.MainHttpServicePort), r)
+	//err = http.ListenAndServeTLS(viper.GetString(configs.ConfigFields.MainHttpServicePort), "/etc/ssl/hostelscan/hostelscan.ru.crt", "/etc/ssl/hostelscan/hostelscan.ru.key", r)
+	err = http.ListenAndServe(viper.GetString(configs.ConfigFields.MainHttpServicePort), r)
 	if err != nil {
 		log.Error(err)
 	}

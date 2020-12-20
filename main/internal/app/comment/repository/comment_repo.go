@@ -69,14 +69,14 @@ func (r *CommentRepository) UploadPhoto(file multipart.File, contentType string)
 }
 
 func (r *CommentRepository) GetComments(hotelID string, limit int, offset string, user_id int) ([]commModel.FullCommentInfo, error) {
-	comments := []commModel.FullCommentInfo{}
+	var comments []commModel.FullCommentInfo
 	err := r.conn.Select(&comments, GetCommentsPostgreRequest, offset, limit, hotelID, user_id)
 	if err != nil {
 		return comments, customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}
 
 	for i := 0; i < len(comments); i++ {
-		err = r.conn.Select(&comments[i].Photos, CheckPhotosExistPostgreRequest, hotelID, user_id, viper.GetString(configs.ConfigFields.S3Url))
+		err = r.conn.Select(&comments[i].Photos, CheckPhotosExistPostgreRequest, hotelID, comments[i].UserID, viper.GetString(configs.ConfigFields.S3Url))
 		if err != nil {
 			return comments, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 		}

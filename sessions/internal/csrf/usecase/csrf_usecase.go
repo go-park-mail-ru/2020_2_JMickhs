@@ -33,6 +33,7 @@ func NewCsrfUsecase(r csrf.Repository) *CsrfUsecase {
 }
 
 func (u *CsrfUsecase) CreateToken(sesID string, timeStamp int64) (string, error) {
+
 	block, err := aes.NewCipher([]byte(configs.SecretTokenKey))
 	if err != nil {
 		return "", err
@@ -61,7 +62,6 @@ func (u *CsrfUsecase) CreateToken(sesID string, timeStamp int64) (string, error)
 }
 
 func (u *CsrfUsecase) CheckToken(sesID string, token string) (bool, error) {
-
 	ciphertext, _ := base64.StdEncoding.DecodeString(token)
 
 	block, err := aes.NewCipher([]byte(configs.SecretTokenKey))
@@ -92,7 +92,8 @@ func (u *CsrfUsecase) CheckToken(sesID string, token string) (bool, error) {
 		return false, err
 	}
 
-	if time.Now().Unix()-CsrfTok.Timestamp > int64(viper.GetInt(configs.ConfigFields.CsrfExpire)) {
+	if time.Now().Unix()-CsrfTok.Timestamp >
+		int64(time.Duration(viper.GetInt(configs.ConfigFields.CsrfExpire))*time.Minute) {
 		return false, errors.New("token expired")
 	}
 

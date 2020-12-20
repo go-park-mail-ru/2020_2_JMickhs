@@ -7,6 +7,12 @@ import (
 	"strconv"
 	"time"
 
+	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/responses"
+
+	chat_model "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/chat/models"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/clientError"
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 
@@ -37,21 +43,17 @@ type ChatHandler struct {
 	bot         *tgbotapi.BotAPI
 	roomTokens  map[string]string
 	rooms       map[string]map[*connection]bool
-	broadcast   chan message
+	broadcast   chan chat_model.Message
 	register    chan subscription
 	unregister  chan subscription
 	log         *logger.CustomLogger
 }
 
-type message struct {
-	ownerID string
-	room    string
-	message []byte
-}
 type connection struct {
-	ownerID string
-	ws      *websocket.Conn
-	send    chan []byte
+	ownerID    string
+	moderation bool
+	ws         *websocket.Conn
+	send       chan []byte
 }
 
 type subscription struct {
@@ -63,31 +65,57 @@ func NewChatHandler(r *mux.Router, tgBot *tgbotapi.BotAPI, cu chat.Usecase, lg *
 	handler := ChatHandler{
 		register:    make(chan subscription),
 		unregister:  make(chan subscription),
-		broadcast:   make(chan message),
+		broadcast:   make(chan chat_model.Message),
 		ChatUseCase: cu,
 		log:         lg,
 		bot:         tgBot,
 		roomTokens:  map[string]string{},
 		rooms:       map[string]map[*connection]bool{},
 	}
+
+	r.HandleFunc("/api/v1/ws/chat/history", handler.History).Methods("GET")
 	r.HandleFunc("/api/v1/ws/chat", handler.InitConnection).Methods("GET")
 	r.Path("/api/v1/ws").Queries("chatID", "{chatID}", "token", "{token}").
 		HandlerFunc(handler.InitConnectionForModer).Methods("GET")
 	return &handler
 }
 
-// swagger:route GET /api/v1/ws/chat comment chat
+// swagger:route GET /api/v1/ws/chat/history chat history
+// GetChatHistory
+// responses:
+//  200: messages
+func (ch *ChatHandler) History(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
+	if !ok {
+		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
+		return
+	}
+	chatID := uuid.NewV4().String()
+	messages, err := ch.ChatUseCase.AddOrGetChat(chatID, userID)
+
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, nil)
+		return
+	}
+
+	responses.SendDataResponse(w, messages)
+}
+
+// swagger:route GET /api/v1/ws/chat chat initChat
 // init chat
 // responses:
 //  200:
 func (ch *ChatHandler) InitConnection(w http.ResponseWriter, r *http.Request) {
-	//userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
-	//if !ok {
-	//	customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
-	//	return
-	//}
-
-	chatID := uuid.NewV4().String()
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
+	if !ok {
+		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
+		return
+	}
+	chatID, err := ch.ChatUseCase.GetChatID(userID)
+	if err != nil {
+		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
+		return
+	}
 	token := uuid.NewV4().String()
 	query := r.URL.Query()
 
@@ -98,7 +126,7 @@ func (ch *ChatHandler) InitConnection(w http.ResponseWriter, r *http.Request) {
 	config := tgbotapi.ChatConfig{ChatID: viper.GetInt64(configs.ConfigFields.ChatID)}
 	chat, _ := ch.bot.GetChat(config)
 
-	err := w.Header().Write(bytes.NewBuffer([]byte(strconv.Itoa(http.StatusSwitchingProtocols))))
+	err = w.Header().Write(bytes.NewBuffer([]byte(strconv.Itoa(http.StatusSwitchingProtocols))))
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 		return
@@ -110,7 +138,7 @@ func (ch *ChatHandler) InitConnection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ch.roomTokens[chatID] = token
-	ch.serveWs(w, r, chatID)
+	ch.serveWs(w, r, chatID, false)
 }
 
 func (ch *ChatHandler) InitConnectionForModer(w http.ResponseWriter, r *http.Request) {
@@ -120,10 +148,10 @@ func (ch *ChatHandler) InitConnectionForModer(w http.ResponseWriter, r *http.Req
 		customerror.PostError(w, r, ch.log, errors.New("bad credentials"), clientError.Locked)
 		return
 	}
-	ch.serveWs(w, r, chatID)
+	ch.serveWs(w, r, chatID, true)
 }
 
-func (ch *ChatHandler) serveWs(w http.ResponseWriter, r *http.Request, roomID string) {
+func (ch *ChatHandler) serveWs(w http.ResponseWriter, r *http.Request, roomID string, moderation bool) {
 	h := http.Header{}
 	err := h.Write(bytes.NewBuffer([]byte(strconv.Itoa(http.StatusSwitchingProtocols))))
 	if err != nil {
@@ -136,7 +164,7 @@ func (ch *ChatHandler) serveWs(w http.ResponseWriter, r *http.Request, roomID st
 		return
 	}
 	ownerID := uuid.NewV4().String()
-	c := &connection{ownerID: ownerID, send: make(chan []byte, 256), ws: ws}
+	c := &connection{ownerID: ownerID, send: make(chan []byte, 256), ws: ws, moderation: moderation}
 	s := subscription{c, roomID}
 
 	ch.register <- s
@@ -162,6 +190,12 @@ func (ch *ChatHandler) write(s *subscription) {
 			if err := conn.ws.WriteMessage(websocket.TextMessage, msg); err != nil {
 				return
 			}
+			message := chat_model.Message{Moderator: !conn.moderation, Room: s.room, Message: string(msg), OwnerID: conn.ownerID}
+			if err := ch.ChatUseCase.AddMessageInChat(s.room, message); err != nil {
+				ch.log.Error(err)
+				return
+			}
+
 		case <-ticker.C:
 			if err := conn.ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
 				return
@@ -194,7 +228,7 @@ func (ch *ChatHandler) read(s *subscription) {
 				return
 			}
 		}
-		m := message{ownerID: conn.ownerID, room: s.room, message: msg}
+		m := chat_model.Message{OwnerID: conn.ownerID, Room: s.room, Message: string(msg)}
 		ch.broadcast <- m
 	}
 
@@ -222,16 +256,16 @@ func (ch *ChatHandler) Run() {
 				}
 			}
 		case m := <-ch.broadcast:
-			connections := ch.rooms[m.room]
+			connections := ch.rooms[m.Room]
 			for c := range connections {
-				if c.ownerID != m.ownerID {
+				if c.ownerID != m.OwnerID {
 					select {
-					case c.send <- m.message:
+					case c.send <- []byte(m.Message):
 					default:
 						close(c.send)
 						delete(connections, c)
 						if len(connections) == 0 {
-							delete(ch.rooms, m.room)
+							delete(ch.rooms, m.Room)
 						}
 					}
 

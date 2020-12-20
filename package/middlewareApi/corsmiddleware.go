@@ -20,8 +20,9 @@ func NewOptionsHandler() http.Handler {
 		}
 		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers",
-			"Accept, Content-Type, X-CSRF-Token, csrf-token, Content-Length, Accept-Encoding, Authorization")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length,"+
+			" Accept-Encoding, X-CSRF-Token, Authorization, Access-Control-Request-Headers,"+
+			" Access-Control-Request-Method, Connection, Host, Origin, Cache-Control, X-header, csrf-token")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Vary", "Accept, Cookie")
 		w.WriteHeader(http.StatusNoContent)

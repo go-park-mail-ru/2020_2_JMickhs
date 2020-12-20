@@ -75,6 +75,19 @@ type GetCommentsRequest struct {
 	PagInfo  PaginationInfo    `json:"pag_info"`
 }
 
+type Message struct {
+	OwnerID   string
+	Room      string
+	Message   string
+	Moderator bool
+}
+
+// swagger:response messages
+type ChatResponse struct {
+	//in: body
+	Messages []Message
+}
+
 // swagger:parameters comments
 type CommentsIDParameterWrapper struct {
 	// offset  start from 0

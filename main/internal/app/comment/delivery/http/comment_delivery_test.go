@@ -208,7 +208,7 @@ func CreateTestImage(t *testing.T) multipart.File {
 	return f
 }
 
-func CreateTestMultipart(t *testing.T, testComment commModel.Comment, image multipart.File) (*multipart.Writer, bytes.Buffer) {
+func CreateTestMultipart(t *testing.T, comment interface{}, image multipart.File) (*multipart.Writer, bytes.Buffer) {
 	var requestBody bytes.Buffer
 	multipartWriter := multipart.NewWriter(&requestBody)
 	metadataHeader := textproto.MIMEHeader{}
@@ -222,7 +222,7 @@ func CreateTestMultipart(t *testing.T, testComment commModel.Comment, image mult
 
 	field, err := multipartWriter.CreateFormField("jsonData")
 	assert.NoError(t, err)
-	bodys, _ := json.Marshal(testComment)
+	bodys, _ := json.Marshal(comment)
 	_, err = field.Write(bodys)
 	assert.NoError(t, err)
 	err = multipartWriter.Close()
@@ -377,12 +377,13 @@ func TestCommentHandler_AddComment(t *testing.T) {
 
 func TestCommentHandler_UpdateComment(t *testing.T) {
 
-	testComment := commModel.Comment{
-		UserID: 2, HotelID: 1, CommID: 2, Message: "kek", Rate: 2, Time: "20-10-2000",
+	testComment := commModel.UpdateComment{
+		Comment: commModel.Comment{
+			UserID: 2, HotelID: 1, CommID: 2, Message: "kek", Rate: 2, Time: "20-10-2000"},
+		DeleteImages: false,
 	}
-
 	testUser := userService.User{UserID: 2, Username: "kostik", Email: "sdfs@mail.ru", Avatar: "kek/img.jpeg"}
-	newRate := commModel.NewRate{Comment: testComment, Rate: 3}
+	newRate := commModel.NewRate{Comment: testComment.Comment, Rate: 3}
 	t.Run("UpdateComment", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -392,11 +393,11 @@ func TestCommentHandler_UpdateComment(t *testing.T) {
 		defer os.Remove("image.png")
 		writer, data := CreateTestMultipart(t, testComment, testImage)
 		mockCUseCase.EXPECT().
-			UpdateComment(testComment).
+			UpdateComment(testComment.Comment).
 			Return(newRate, nil)
 
 		mockCUseCase.EXPECT().
-			CheckUserComment(testComment).
+			CheckUserComment(testComment.Comment).
 			Return(true, nil)
 
 		mockCUseCase.EXPECT().

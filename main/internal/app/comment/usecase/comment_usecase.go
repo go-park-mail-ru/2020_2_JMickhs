@@ -6,6 +6,9 @@ import (
 	"mime/multipart"
 	"strconv"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
+	"github.com/spf13/viper"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 
@@ -105,6 +108,9 @@ func (u *CommentUseCase) AddComment(comment commModel.Comment) (commModel.NewRat
 	}
 
 	newRate.Rate = hotelRate
+	for i := 0; i < len(newRate.Comment.Photos); i++ {
+		newRate.Comment.Photos[i] = viper.GetString(configs.ConfigFields.S3Url) + newRate.Comment.Photos[i]
+	}
 	return newRate, nil
 
 }

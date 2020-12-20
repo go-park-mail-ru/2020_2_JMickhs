@@ -25,6 +25,10 @@ create table recommendations(
     time TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+create table chats(
+    chat_id text,
+    user_id int
+);
 
 CREATE TABLE wishlists(
     wishlist_id serial PRIMARY KEY NOT NULL,

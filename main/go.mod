@@ -12,7 +12,7 @@ require (
 	github.com/elliotchance/redismock v1.5.3 // indirect
 	github.com/go-openapi/runtime v0.19.24
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible // indirect
-	github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201212214703-21bb48a32e9d
+	github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201219141217-f57c6677ae64
 	github.com/go-park-mail-ru/2020_2_JMickhs/sessions v0.0.0-20201125094419-70525516ff6f // indirect
 	github.com/go-park-mail-ru/2020_2_JMickhs/user v0.0.0-20201125094419-70525516ff6f // indirect
 	github.com/go-playground/validator/v10 v10.4.1 // indirect

@@ -1,7 +1,6 @@
 package reccomendUsecase
 
 import (
-	"fmt"
 	"math"
 	"sort"
 	"time"
@@ -189,7 +188,6 @@ func (p *RecommendationsUseCase) GetBestRecommendations(UserID int, matrix map[f
 		if len(hotelIDs) > viper.GetInt(configs.ConfigFields.RecommendationCount) {
 			break
 		}
-		fmt.Println(bestProducts[i].Coefficient, bestProducts[i].HotelID)
 		if bestProducts[i].Coefficient > 0 {
 			hotelIDs = append(hotelIDs, int64(bestProducts[i].HotelID))
 		}

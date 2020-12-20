@@ -152,7 +152,7 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 	comment.UserID = userID
 
 	photos := r.MultipartForm.File["photos"]
-	if len(photos)+len(comment.Photos) > 5 {
+	if len(photos)+len(comment.Photos) > 4 {
 		customerror.PostError(w, r, ch.log, errors.New("upload more then 5 photos"), clientError.BadRequest)
 		return
 	}
@@ -181,7 +181,6 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 		files[i].Close()
 	}
 	comm, err := ch.CommentUseCase.AddComment(comment)
-
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, nil)
 		return
@@ -206,13 +205,13 @@ func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) 
 
 	update := commModel.UpdateComment{}
 
-	err := r.ParseMultipartForm(10 * configs.MB)
+	err := r.ParseMultipartForm(20 * configs.MB)
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 		return
 	}
 
-	r.Body = http.MaxBytesReader(w, r.Body, 10*configs.MB)
+	r.Body = http.MaxBytesReader(w, r.Body, 20*configs.MB)
 
 	err = easyjson.Unmarshal([]byte(r.FormValue("jsonData")), &update)
 	if err != nil {
@@ -230,7 +229,7 @@ func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	photos := r.MultipartForm.File["photos"]
-	if len(photos)+len(update.Comment.Photos) > 5 {
+	if len(photos)+len(update.Comment.Photos) > 4 {
 		customerror.PostError(w, r, ch.log, errors.New("upload more then 5 photos"), clientError.BadRequest)
 		return
 	}
