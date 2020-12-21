@@ -6,13 +6,7 @@ import (
 	"os"
 	"strconv"
 
-	chatRepository "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/chat/repository"
-
 	tgbotapi "github.com/Syfaro/telegram-bot-api"
-
-	chatDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/chat/delivery/http"
-
-	chatUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/chat/usecase"
 
 	recommendRepository "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/repository"
 	reccomendUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/usecase"
@@ -150,10 +144,8 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	repWish := wishlistRepository.NewPostgreWishlistRepository(db)
 	store := NewSessStore()
 	defer store.Close()
-	repChat := chatRepository.NewChatRepository(db, store)
 	repRecommendation := recommendRepository.NewPostgreRecommendationRepository(db, store)
 
-	uChat := chatUsecase.NewChatUseCase(&repChat)
 	uHot := hotelUsecase.NewHotelUsecase(&repHot, userService, &repWish)
 	uCom := commentUsecase.NewCommentUsecase(&repCom, userService)
 	uWish := wishlistUsecase.NewWishlistUseCase(&repWish, &repHot)
@@ -173,8 +165,7 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	hotelDelivery.NewHotelHandler(r, uHot, uRecommendation, log)
 	commentDelivery.NewCommentHandler(r, uCom, log)
 	wishlistDelivery.NewWishlistHandler(r, uWish, uHot, log)
-	chatHandler := chatDelivery.NewChatHandler(r, bot, uChat, log)
-	go chatHandler.Run()
+
 	err = http.ListenAndServeTLS(viper.GetString(configs.ConfigFields.MainHttpServicePort), "/etc/ssl/hostelscan/hostelscan.ru.crt", "/etc/ssl/hostelscan/hostelscan.ru.key", r)
 	//err = http.ListenAndServe(viper.GetString(configs.ConfigFields.MainHttpServicePort), r)
 	if err != nil {

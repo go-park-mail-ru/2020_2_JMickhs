@@ -21,8 +21,8 @@ func TestPostgresUserRepository_GetUserByID(t *testing.T) {
 	}
 	defer db.Close()
 	t.Run("GetUserByID", func(t *testing.T) {
-		rows := sqlmock.NewRows([]string{"id", "username", "email", "password", "avatar"}).AddRow(
-			1, "kotik", "kek@mail.ru", "12345", "src/kek.jpg")
+		rows := sqlmock.NewRows([]string{"id", "username", "email", "password", "avatar", "modRule"}).AddRow(
+			1, "kotik", "kek@mail.ru", "12345", "src/kek.jpg", false)
 
 		testUser := models.User{ID: 1, Username: "kotik", Email: "kek@mail.ru", Password: "12345", Avatar: "src/kek.jpg"}
 
@@ -67,8 +67,8 @@ func TestPostgresUserRepository_GetByUserName(t *testing.T) {
 	}
 	defer db.Close()
 	t.Run("GetUserByName", func(t *testing.T) {
-		rows := sqlmock.NewRows([]string{"id", "username", "email", "password", "avatar"}).AddRow(
-			1, "kotik", "kek@mail.ru", "12345", "src/kek.jpg")
+		rows := sqlmock.NewRows([]string{"id", "username", "email", "password", "avatar", "modRule"}).AddRow(
+			1, "kotik", "kek@mail.ru", "12345", "src/kek.jpg", false)
 
 		testUser := models.User{ID: 1, Username: "kotik", Email: "kek@mail.ru", Password: "12345", Avatar: "src/kek.jpg"}
 
