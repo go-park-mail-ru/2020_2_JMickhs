@@ -4,5 +4,5 @@ create table users (
     email VARCHAR (50) UNIQUE,
     password text,
     avatar text,
-    modRule bool
+    modRule bool default false
 );

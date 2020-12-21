@@ -6,4 +6,5 @@ type Repository interface {
 	AddMessageInChat(chatID string, message chat_model.Message) error
 	AddOrGetChat(chatID string, userID int) ([]chat_model.Message, error)
 	GetChatID(userID int) (string, error)
+	GetChatHistoryByID(chatID string) ([]chat_model.Message, error)
 }

@@ -26,3 +26,6 @@ func (u *ChatUseCase) AddOrGetChat(chatID string, userID int) ([]chat_model.Mess
 func (u *ChatUseCase) GetChatID(userID int) (string, error) {
 	return u.chatRepo.GetChatID(userID)
 }
+func (u *ChatUseCase) GetChatHistoryByID(chatID string) ([]chat_model.Message, error) {
+	return u.chatRepo.GetChatHistoryByID(chatID)
+}

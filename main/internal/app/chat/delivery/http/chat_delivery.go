@@ -90,6 +90,18 @@ func (ch *ChatHandler) History(w http.ResponseWriter, r *http.Request) {
 		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
 	}
+	chatIDs := r.FormValue("chatID")
+	token := r.FormValue("token")
+	if chatIDs != "" && ch.roomTokens[chatIDs] == token {
+		messages, err := ch.ChatUseCase.GetChatHistoryByID(chatIDs)
+		if err != nil {
+			customerror.PostError(w, r, ch.log, err, nil)
+			return
+		}
+		responses.SendDataResponse(w, messages)
+		return
+	}
+
 	chatID := uuid.NewV4().String()
 	messages, err := ch.ChatUseCase.AddOrGetChat(chatID, userID)
 
@@ -113,10 +125,18 @@ func (ch *ChatHandler) InitConnection(w http.ResponseWriter, r *http.Request) {
 	}
 	chatID, err := ch.ChatUseCase.GetChatID(userID)
 	if err != nil {
-		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
+		customerror.PostError(w, r, ch.log, err, nil)
 		return
 	}
-	token := uuid.NewV4().String()
+	var token string
+
+	if ch.roomTokens[chatID] == "" {
+		token = uuid.NewV4().String()
+		ch.roomTokens[chatID] = token
+	} else {
+		token = ch.roomTokens[chatID]
+	}
+
 	query := r.URL.Query()
 
 	query.Add("chatID", chatID)
@@ -131,13 +151,14 @@ func (ch *ChatHandler) InitConnection(w http.ResponseWriter, r *http.Request) {
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 		return
 	}
-	msg := tgbotapi.NewMessage(chat.ID, str)
-	_, err = ch.bot.Send(msg)
-	if err != nil {
-		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
-		return
+	if ch.roomTokens[chatID] != "" {
+		msg := tgbotapi.NewMessage(chat.ID, str)
+		_, err = ch.bot.Send(msg)
+		if err != nil {
+			customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
+			return
+		}
 	}
-	ch.roomTokens[chatID] = token
 	ch.serveWs(w, r, chatID, false)
 }
 
@@ -158,6 +179,7 @@ func (ch *ChatHandler) serveWs(w http.ResponseWriter, r *http.Request, roomID st
 		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
 		return
 	}
+
 	ws, err := upgrader.Upgrade(w, r, h)
 	if err != nil {
 		ch.log.Error(err)

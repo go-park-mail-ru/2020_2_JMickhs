@@ -172,10 +172,10 @@ func TestRecommendationsUseCase_BuildMatrix(t *testing.T) {
 			float64(0): {float64(4): float64(2)},
 		}
 		rows := []recommModels.RecommendMatrixRow{
-			{3, 2, 1},
-			{2, 2, 2},
-			{1, 2, 3},
-			{0, 2, 4},
+			{UserID: 3, RatingID: 2, HotelID: 1},
+			{UserID: 2, RatingID: 2, HotelID: 2},
+			{UserID: 1, RatingID: 2, HotelID: 3},
+			{UserID: 0, RatingID: 2, HotelID: 4},
 		}
 		res := u.BuildMatrix(3, rows)
 		assert.Equal(t, res, matrix)
@@ -194,10 +194,10 @@ func TestRecommendationsUseCase_BuildMatrix(t *testing.T) {
 			float64(4): {float64(4): float64(2)},
 		}
 		rows := []recommModels.RecommendMatrixRow{
-			{1, 2, 1},
-			{2, 2, 2},
-			{3, 2, 3},
-			{4, 2, 4},
+			{UserID: 1, RatingID: 2, HotelID: 1},
+			{UserID: 2, RatingID: 2, HotelID: 2},
+			{UserID: 3, RatingID: 2, HotelID: 3},
+			{UserID: 4, RatingID: 2, HotelID: 4},
 		}
 		res := u.BuildMatrix(3, rows)
 		assert.Equal(t, res, matrix)

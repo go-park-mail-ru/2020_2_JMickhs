@@ -83,7 +83,8 @@ func (u *PostgresUserRepository) CompareHashAndPassword(hashedPassword string, p
 
 func (p *PostgresUserRepository) GetByUserName(name string) (models.User, error) {
 	user := models.User{}
-	err := p.conn.QueryRow(GetUserByNamePostgreRequest, name, viper.GetString(configs.ConfigFields.S3Url)).Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Avatar)
+	err := p.conn.QueryRow(GetUserByNamePostgreRequest, name, viper.GetString(configs.ConfigFields.S3Url)).
+		Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Avatar, &user.ModRule)
 	if err != nil {
 		return user, customerror.NewCustomError(err, clientError.Unauthorizied, 1)
 	}
@@ -94,7 +95,7 @@ func (p *PostgresUserRepository) GetUserByID(ID int) (models.User, error) {
 	row := p.conn.QueryRow(GetUserByIDPostgreRequest, strconv.Itoa(ID), viper.GetString(configs.ConfigFields.S3Url))
 	user := models.User{}
 
-	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Avatar)
+	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Avatar, &user.ModRule)
 	if err != nil {
 		return user, customerror.NewCustomError(err, clientError.Gone, 1)
 	}

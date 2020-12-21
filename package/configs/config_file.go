@@ -8,8 +8,10 @@ type correctToken string
 type domen string
 type localOrigin string
 type requestUserID string
+type requestUserRule string
 
 const RequestUserID requestUserID = "UserID"
+const RequestUserRule requestUserRule = "UserRule"
 const RequestUser requestUser = "User"
 const SessionID sessionsId = "SessionsID"
 const CorrectToken correctToken = "CorrectToken"

@@ -267,7 +267,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 		customerror.PostError(w, r, u.log, err, nil)
 		return
 	}
-	safeUser := models.SafeUser{ID: usr.ID, Username: usr.Username, Avatar: usr.Avatar, Email: usr.Email}
+	safeUser := models.SafeUser{ID: usr.ID, Username: usr.Username, Avatar: usr.Avatar, Email: usr.Email, ModRule: usr.ModRule}
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
@@ -295,7 +295,7 @@ func (u *UserHandler) UserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	safeUser := models.SafeUser{ID: usr.ID, Username: usr.Username, Avatar: usr.Avatar, Email: usr.Email}
+	safeUser := models.SafeUser{ID: usr.ID, Username: usr.Username, Avatar: usr.Avatar, Email: usr.Email, ModRule: usr.ModRule}
 	responses.SendDataResponse(w, safeUser)
 }
 

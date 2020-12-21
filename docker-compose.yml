@@ -52,7 +52,7 @@ services:
     restart: always
     volumes:
       - ./redis.conf:/usr/local/etc/redis/redis.conf
-      - redis-data:/data
+      - redis-data:/data:rw
 
   postgresMain:
       image: kartoza/postgis:13.0
