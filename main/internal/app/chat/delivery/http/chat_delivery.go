@@ -163,6 +163,11 @@ func (ch *ChatHandler) InitConnection(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ch *ChatHandler) InitConnectionForModer(w http.ResponseWriter, r *http.Request) {
+	rule, ok := r.Context().Value(packageConfig.RequestUserRule).(bool)
+	if !ok || rule == false {
+		customerror.PostError(w, r, ch.log, errors.New("user is not are moderator"), clientError.Unauthorizied)
+		return
+	}
 	chatID := mux.Vars(r)["chatID"]
 	token := mux.Vars(r)["token"]
 	if ch.roomTokens[chatID] != token {
@@ -246,9 +251,7 @@ func (ch *ChatHandler) read(s *subscription) {
 	for {
 		_, msg, err := conn.ws.ReadMessage()
 		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
-				return
-			}
+			return
 		}
 		m := chat_model.Message{OwnerID: conn.ownerID, Room: s.room, Message: string(msg)}
 		ch.broadcast <- m
@@ -279,7 +282,16 @@ func (ch *ChatHandler) Run() {
 			}
 		case m := <-ch.broadcast:
 			connections := ch.rooms[m.Room]
+
 			for c := range connections {
+				if len(connections) == 1 {
+					message := chat_model.Message{Moderator: c.moderation,
+						Room: m.Room, Message: m.Message, OwnerID: c.ownerID}
+					if err := ch.ChatUseCase.AddMessageInChat(m.Room, message); err != nil {
+						ch.log.Error(err)
+						return
+					}
+				}
 				if c.ownerID != m.OwnerID {
 					select {
 					case c.send <- []byte(m.Message):

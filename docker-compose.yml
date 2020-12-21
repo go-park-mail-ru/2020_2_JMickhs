@@ -51,7 +51,6 @@ services:
       - "6379:6379"
     restart: always
     volumes:
-      - ./redis.conf:/usr/local/etc/redis/redis.conf
       - redis-data:/data:rw
 
   postgresMain:
