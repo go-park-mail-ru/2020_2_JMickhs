@@ -137,7 +137,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = http.ListenAndServeTLS(viper.GetString(configs.ConfigFields.UserHttpServicePort), "/etc/ssl/hostelscan/hostelscan.ru.crt", "/etc/ssl/hostelscan/hostelscan.ru.key", r)
+	err = http.ListenAndServeTLS(viper.GetString(configs.ConfigFields.UserHttpServicePort), viper.GetString(configs.ConfigFields.CertPath),
+		viper.GetString(configs.ConfigFields.KeyPath), r)
 	//err = http.ListenAndServe(viper.GetString(configs.ConfigFields.UserHttpServicePort), r)
 	if err != nil {
 		log.Error(err)

@@ -166,7 +166,8 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	commentDelivery.NewCommentHandler(r, uCom, log)
 	wishlistDelivery.NewWishlistHandler(r, uWish, uHot, log)
 
-	err = http.ListenAndServeTLS(viper.GetString(configs.ConfigFields.MainHttpServicePort), "/etc/ssl/hostelscan/hostelscan.ru.crt", "/etc/ssl/hostelscan/hostelscan.ru.key", r)
+	err = http.ListenAndServeTLS(viper.GetString(configs.ConfigFields.MainHttpServicePort), viper.GetString(configs.ConfigFields.CertPath),
+		viper.GetString(configs.ConfigFields.KeyPath), r)
 	//err = http.ListenAndServe(viper.GetString(configs.ConfigFields.MainHttpServicePort), r)
 	if err != nil {
 		log.Error(err)

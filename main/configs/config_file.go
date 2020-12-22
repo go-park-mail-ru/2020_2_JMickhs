@@ -41,9 +41,13 @@ var ConfigFields = struct {
 	MaxMessageSize           string
 	ChatID                   string
 	StaticPathForComments    string
+	CertPath                 string
+	KeyPath                  string
 }{
 	StaticPathForAvatars:     "paths.StaticPathForAvatars",
 	StaticPathForComments:    "paths.StaticPathForComments",
+	CertPath:                 "paths.CertPath",
+	KeyPath:                  "paths.KeyPath",
 	CookieLifeTime:           "cookie.LifeTime",
 	BaseAvatarPath:           "paths.BaseAvatarPath",
 	BucketName:               "s3.BucketName",

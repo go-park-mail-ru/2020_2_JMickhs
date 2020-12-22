@@ -52,10 +52,11 @@ func (hh *CommentHandler) DetectFileContentType(file multipart.File) (string, er
 	if _, err := file.Read(fileHeader); err != nil {
 		return contentType, customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}
-
+	// return to start of file descriptor
 	if _, err := file.Seek(0, 0); err != nil {
 		return contentType, customerror.NewCustomError(err, clientError.BadRequest, 1)
 	}
+	// seek to the end to get file size
 	count, err := file.Seek(0, 2)
 	if err != nil {
 		return contentType, customerror.NewCustomError(err, clientError.BadRequest, 1)
@@ -63,6 +64,7 @@ func (hh *CommentHandler) DetectFileContentType(file multipart.File) (string, er
 	if count > 5*configs.MB {
 		return contentType, customerror.NewCustomError(errors.New("file bigger than 5 mb"), clientError.BadRequest, 1)
 	}
+	// don't forget seek to start
 	if _, err := file.Seek(0, 0); err != nil {
 		return contentType, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}
@@ -156,29 +158,10 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 		customerror.PostError(w, r, ch.log, errors.New("upload more then 5 photos"), clientError.BadRequest)
 		return
 	}
-	var files []multipart.File
-	var fileTypes []string
-	for _, photo := range photos {
-		file, err := photo.Open()
-		if err != nil {
-			customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
-			return
-		}
-		files = append(files, file)
-		fileType, err := ch.DetectFileContentType(file)
-		if err != nil {
-			customerror.PostError(w, r, ch.log, err, nil)
-			return
-		}
-		fileTypes = append(fileTypes, fileType)
-	}
-	for i := 0; i < len(files); i++ {
-		err = ch.CommentUseCase.UploadPhoto(&comment, files[i], fileTypes[i])
-		if err != nil {
-			customerror.PostError(w, r, ch.log, err, nil)
-			return
-		}
-		files[i].Close()
+	err = ch.UploadPhotosWithTypeCheck(r, &comment)
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, nil)
+		return
 	}
 	comm, err := ch.CommentUseCase.AddComment(comment)
 	if err != nil {
@@ -187,6 +170,33 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.SendDataResponse(w, comm)
+}
+
+func (ch *CommentHandler) UploadPhotosWithTypeCheck(r *http.Request,
+	comment *commModel.Comment) error {
+	photos := r.MultipartForm.File["photos"]
+	var files []multipart.File
+	var fileTypes []string
+	for _, photo := range photos {
+		file, err := photo.Open()
+		if err != nil {
+			return customerror.NewCustomError(err, clientError.BadRequest, 1)
+		}
+		files = append(files, file)
+		fileType, err := ch.DetectFileContentType(file)
+		if err != nil {
+			return err
+		}
+		fileTypes = append(fileTypes, fileType)
+	}
+	for i := 0; i < len(files); i++ {
+		err := ch.CommentUseCase.UploadPhoto(comment, files[i], fileTypes[i])
+		if err != nil {
+			return err
+		}
+		files[i].Close()
+	}
+	return nil
 }
 
 // swagger:route PUT /api/v1/comments comment UpdateComment
@@ -240,30 +250,10 @@ func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 	}
-
-	var files []multipart.File
-	var fileTypes []string
-	for _, photo := range photos {
-		file, err := photo.Open()
-		if err != nil {
-			customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
-			return
-		}
-		files = append(files, file)
-		fileType, err := ch.DetectFileContentType(file)
-		if err != nil {
-			customerror.PostError(w, r, ch.log, err, nil)
-			return
-		}
-		fileTypes = append(fileTypes, fileType)
-	}
-	for i := 0; i < len(files); i++ {
-		err = ch.CommentUseCase.UploadPhoto(&update.Comment, files[i], fileTypes[i])
-		if err != nil {
-			customerror.PostError(w, r, ch.log, err, nil)
-			return
-		}
-		files[i].Close()
+	err = ch.UploadPhotosWithTypeCheck(r, &update.Comment)
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, nil)
+		return
 	}
 	comm, err := ch.CommentUseCase.UpdateComment(update.Comment)
 
