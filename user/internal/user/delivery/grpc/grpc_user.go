@@ -23,5 +23,6 @@ func (userDel *UserDelivery) GetUserByID(ctx context.Context, in *userService.Us
 	if err != nil {
 		return nil, status.Error(codes.Aborted, err.Error())
 	}
-	return &userService.User{UserID: int64(user.ID), Username: user.Username, Email: user.Email, Avatar: user.Avatar}, nil
+	return &userService.User{UserID: int64(user.ID),
+		Username: user.Username, Email: user.Email, Avatar: user.Avatar, UserRule: user.ModRule}, nil
 }

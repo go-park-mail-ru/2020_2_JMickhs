@@ -87,6 +87,7 @@ func (p *HotelUseCase) GetHotelsPreview(pattern string) ([]hotelmodel.HotelPrevi
 
 func (p *HotelUseCase) CheckRateExist(UserID int, HotelID int) (commModel.FullCommentInfo, error) {
 	comment, err := p.hotelRepo.CheckRateExist(UserID, HotelID)
+
 	if err != nil {
 		return comment, err
 	}

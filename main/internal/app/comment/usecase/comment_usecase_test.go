@@ -164,6 +164,83 @@ func TestCommentUseCase_GetComments(t *testing.T) {
 		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
 	})
 }
+func TestCommentUseCase_GetPhotos(t *testing.T) {
+	t.Run("GetPhotos", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
+
+		mockCommentRepo.EXPECT().
+			GetPhotos("3").
+			Return(commModel.Photos{}, nil)
+
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
+
+		_, err := u.GetPhotos("3")
+
+		assert.NoError(t, err)
+	})
+}
+func TestCommentUseCase_DeletePhotos(t *testing.T) {
+	t.Run("GetPhotos", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		comment := commModel.Comment{CommID: 3, HotelID: 2, UserID: 1, Message: "fsdfsdfsd", Rate: 3, Time: "22-02-2000"}
+		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
+
+		mockCommentRepo.EXPECT().
+			DeletePhotos(comment).
+			Return(nil)
+
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
+
+		err := u.DeletePhotos(comment)
+
+		assert.NoError(t, err)
+	})
+}
+func TestCommentUseCase_UploadPhoto(t *testing.T) {
+	t.Run("UploadPhoto", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
+		comment := commModel.Comment{CommID: 3, HotelID: 2, UserID: 1, Message: "fsdfsdfsd", Rate: 3, Time: "22-02-2000"}
+		mockCommentRepo.EXPECT().
+			UploadPhoto(nil, "jpg").
+			Return("dsa", nil)
+
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
+
+		err := u.UploadPhoto(&comment, nil, "jpg")
+
+		assert.NoError(t, err)
+		assert.Equal(t, comment.Photos[0], "dsa")
+	})
+	t.Run("UploadPhotoErr", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockCommentRepo := comment_mock.NewMockRepository(ctrl)
+		mockUserService := userService.NewMockUserServiceClient(ctrl)
+		comment := commModel.Comment{CommID: 3, HotelID: 2, UserID: 1, Message: "fsdfsdfsd", Rate: 3, Time: "22-02-2000"}
+		mockCommentRepo.EXPECT().
+			UploadPhoto(nil, "jpg").
+			Return("dsa", customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
+
+		u := NewCommentUsecase(mockCommentRepo, mockUserService)
+
+		err := u.UploadPhoto(&comment, nil, "jpg")
+
+		assert.Error(t, err)
+		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
+	})
+
+}
 
 func TestCommentUseCase_AddComment(t *testing.T) {
 	testComment := commModel.Comment{CommID: 3, HotelID: 2, UserID: 1, Message: "fsdfsdfsd", Rate: 3}

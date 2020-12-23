@@ -17,8 +17,12 @@ var ConfigFields = struct {
 	SessionGrpcServicePort string
 	UserGrpcServicePort    string
 	UserHttpServicePort    string
+	CertPath               string
+	KeyPath                string
 }{
 	StaticPathForAvatars:   "paths.StaticPathForAvatars",
+	CertPath:               "paths.CertPath",
+	KeyPath:                "paths.KeyPath",
 	CookieLifeTime:         "cookie.LifeTime",
 	BaseAvatarPath:         "paths.BaseAvatarPath",
 	BucketName:             "s3.BucketName",

@@ -3,7 +3,10 @@ package server
 import (
 	"context"
 	"fmt"
+	"os"
 	"strconv"
+
+	tgbotapi "github.com/Syfaro/telegram-bot-api"
 
 	recommendRepository "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/repository"
 	reccomendUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/usecase"
@@ -137,11 +140,10 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	r.Use(middlewareApi.MyCORSMethodMiddleware())
 
 	repHot := hotelRepository.NewPostgresHotelRepository(db, s3)
-	repCom := commentRepository.NewCommentRepository(db)
+	repCom := commentRepository.NewCommentRepository(db, s3)
 	repWish := wishlistRepository.NewPostgreWishlistRepository(db)
 	store := NewSessStore()
 	defer store.Close()
-
 	repRecommendation := recommendRepository.NewPostgreRecommendationRepository(db, store)
 
 	uHot := hotelUsecase.NewHotelUsecase(&repHot, userService, &repWish)
@@ -154,13 +156,21 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	r.Use(sessMidleware.SessionMiddleware())
 	r.Use(csrfMidleware.CSRFCheck())
 
+	bot, err := tgbotapi.NewBotAPI(os.Getenv("BotToken"))
+	if err != nil {
+		log.Panic(err)
+	}
+
+	log.Printf("Authorized on account %s", bot.Self.UserName)
 	hotelDelivery.NewHotelHandler(r, uHot, uRecommendation, log)
 	commentDelivery.NewCommentHandler(r, uCom, log)
 	wishlistDelivery.NewWishlistHandler(r, uWish, uHot, log)
 
-	log.Info("Server started at port", viper.GetString(configs.ConfigFields.MainHttpServicePort))
-	err = http.ListenAndServe(viper.GetString(configs.ConfigFields.MainHttpServicePort), r)
+	err = http.ListenAndServeTLS(viper.GetString(configs.ConfigFields.MainHttpServicePort), viper.GetString(configs.ConfigFields.CertPath),
+		viper.GetString(configs.ConfigFields.KeyPath), r)
+	//err = http.ListenAndServe(viper.GetString(configs.ConfigFields.MainHttpServicePort), r)
 	if err != nil {
 		log.Error(err)
 	}
+	log.Info("Server started at port", viper.GetString(configs.ConfigFields.MainHttpServicePort))
 }

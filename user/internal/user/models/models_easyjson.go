@@ -112,6 +112,8 @@ func easyjsonD2b7633eDecodeGithubComGoParkMailRu20202JMickhsUserInternalUserMode
 			out.Password = string(in.String())
 		case "avatar":
 			out.Avatar = string(in.String())
+		case "mod_rule":
+			out.ModRule = bool(in.Bool())
 		default:
 			in.SkipRecursive()
 		}
@@ -150,6 +152,11 @@ func easyjsonD2b7633eEncodeGithubComGoParkMailRu20202JMickhsUserInternalUserMode
 		const prefix string = ",\"avatar\":"
 		out.RawString(prefix)
 		out.String(string(in.Avatar))
+	}
+	{
+		const prefix string = ",\"mod_rule\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.ModRule))
 	}
 	out.RawByte('}')
 }
@@ -277,6 +284,8 @@ func easyjsonD2b7633eDecodeGithubComGoParkMailRu20202JMickhsUserInternalUserMode
 			out.Email = string(in.String())
 		case "avatar":
 			out.Avatar = string(in.String())
+		case "mod_rule":
+			out.ModRule = bool(in.Bool())
 		default:
 			in.SkipRecursive()
 		}
@@ -310,6 +319,11 @@ func easyjsonD2b7633eEncodeGithubComGoParkMailRu20202JMickhsUserInternalUserMode
 		const prefix string = ",\"avatar\":"
 		out.RawString(prefix)
 		out.String(string(in.Avatar))
+	}
+	{
+		const prefix string = ",\"mod_rule\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.ModRule))
 	}
 	out.RawByte('}')
 }

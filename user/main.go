@@ -128,7 +128,7 @@ func main() {
 
 	listener, err := net.Listen("tcp", viper.GetString(configs.ConfigFields.UserGrpcServicePort))
 	if err != nil {
-		log.Fatalf("can't listen port", err)
+		log.Fatal("can't listen port", err)
 	}
 	go func(server *grpc.Server, log *logger.CustomLogger) {
 		log.Error(server.Serve(listener))
@@ -137,9 +137,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Info("Server started at port", viper.GetString(configs.ConfigFields.UserHttpServicePort))
-	err = http.ListenAndServe(viper.GetString(configs.ConfigFields.UserHttpServicePort), r)
+	err = http.ListenAndServeTLS(viper.GetString(configs.ConfigFields.UserHttpServicePort), viper.GetString(configs.ConfigFields.CertPath),
+		viper.GetString(configs.ConfigFields.KeyPath), r)
+	//err = http.ListenAndServe(viper.GetString(configs.ConfigFields.UserHttpServicePort), r)
 	if err != nil {
 		log.Error(err)
 	}
+	log.Info("Server started at port", viper.GetString(configs.ConfigFields.UserHttpServicePort))
 }

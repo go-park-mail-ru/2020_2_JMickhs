@@ -2,14 +2,19 @@ package commentDelivery
 
 import (
 	"errors"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
 
 	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
 
 	"github.com/mailru/easyjson"
 
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
@@ -33,11 +38,59 @@ func NewCommentHandler(r *mux.Router, hs comment.Usecase, lg *logger.CustomLogge
 		log:            lg,
 	}
 
+	r.Path("/api/v1/comments/photos").Queries("id", "{id:[0-9]+}").HandlerFunc(handler.GetPhotos).Methods("GET")
 	r.HandleFunc("/api/v1/comments", middlewareApi.CheckCSRFOnHandler(handler.AddComment)).Methods("POST")
 	r.HandleFunc("/api/v1/comments", middlewareApi.CheckCSRFOnHandler(handler.UpdateComment)).Methods("PUT")
 	r.HandleFunc("/api/v1/comments/{id:[0-9]+}", middlewareApi.CheckCSRFOnHandler(handler.DeleteComment)).Methods("DELETE")
 	r.Path("/api/v1/comments").Queries("id", "{id:[0-9]+}", "limit", "{limit:[0-9]+}", "offset", "{from:[0-9]+}").
 		HandlerFunc(handler.ListComments).Methods("GET")
+}
+
+func (hh *CommentHandler) DetectFileContentType(file multipart.File) (string, error) {
+	fileHeader := make([]byte, 512)
+	contentType := ""
+	if _, err := file.Read(fileHeader); err != nil {
+		return contentType, customerror.NewCustomError(err, clientError.BadRequest, 1)
+	}
+	// return to start of file descriptor
+	if _, err := file.Seek(0, 0); err != nil {
+		return contentType, customerror.NewCustomError(err, clientError.BadRequest, 1)
+	}
+	// seek to the end to get file size
+	count, err := file.Seek(0, 2)
+	if err != nil {
+		return contentType, customerror.NewCustomError(err, clientError.BadRequest, 1)
+	}
+	if count > 5*configs.MB {
+		return contentType, customerror.NewCustomError(errors.New("file bigger than 5 mb"), clientError.BadRequest, 1)
+	}
+	// don't forget seek to start
+	if _, err := file.Seek(0, 0); err != nil {
+		return contentType, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	contentTypeStr := http.DetectContentType(fileHeader)
+	contentType = strings.Split(contentTypeStr, "/")[1]
+	if contentType != "jpg" && contentType != "png" && contentType != "jpeg" {
+		return contentType, customerror.NewCustomError(errors.New("Wrong file type"), clientError.UnsupportedMediaType, 1)
+	}
+	return contentType, nil
+}
+
+// swagger:route GET /api/v1/comments/photos comment Photos
+// GetList of photos
+// responses:
+//  200: photos
+//  400: badrequest
+func (ch *CommentHandler) GetPhotos(w http.ResponseWriter, r *http.Request) {
+
+	hotelID := r.FormValue("id")
+
+	photos, err := ch.CommentUseCase.GetPhotos(hotelID)
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, nil)
+		return
+	}
+	responses.SendDataResponse(w, photos)
 }
 
 // swagger:route GET /api/v1/comments comment comments
@@ -77,28 +130,73 @@ func (ch *CommentHandler) ListComments(w http.ResponseWriter, r *http.Request) {
 //  400: badrequest
 //  423: locked
 func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
-	comment := commModel.Comment{}
-
-	err := easyjson.UnmarshalFromReader(r.Body, &comment)
-
-	if err != nil {
-		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
-		return
-	}
 	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
 	}
-	comment.UserID = userID
-	comm, err := ch.CommentUseCase.AddComment(comment)
 
+	comment := commModel.Comment{}
+
+	err := r.ParseMultipartForm(20 * configs.MB)
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
+		return
+	}
+
+	r.Body = http.MaxBytesReader(w, r.Body, 20*configs.MB)
+
+	err = easyjson.Unmarshal([]byte(r.FormValue("jsonData")), &comment)
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
+		return
+	}
+	comment.UserID = userID
+
+	photos := r.MultipartForm.File["photos"]
+	if len(photos)+len(comment.Photos) > 4 {
+		customerror.PostError(w, r, ch.log, errors.New("upload more then 5 photos"), clientError.BadRequest)
+		return
+	}
+	err = ch.UploadPhotosWithTypeCheck(r, &comment)
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, nil)
+		return
+	}
+	comm, err := ch.CommentUseCase.AddComment(comment)
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, nil)
 		return
 	}
 
 	responses.SendDataResponse(w, comm)
+}
+
+func (ch *CommentHandler) UploadPhotosWithTypeCheck(r *http.Request,
+	comment *commModel.Comment) error {
+	photos := r.MultipartForm.File["photos"]
+	var files []multipart.File
+	var fileTypes []string
+	for _, photo := range photos {
+		file, err := photo.Open()
+		if err != nil {
+			return customerror.NewCustomError(err, clientError.BadRequest, 1)
+		}
+		files = append(files, file)
+		fileType, err := ch.DetectFileContentType(file)
+		if err != nil {
+			return err
+		}
+		fileTypes = append(fileTypes, fileType)
+	}
+	for i := 0; i < len(files); i++ {
+		err := ch.CommentUseCase.UploadPhoto(comment, files[i], fileTypes[i])
+		if err != nil {
+			return err
+		}
+		files[i].Close()
+	}
+	return nil
 }
 
 // swagger:route PUT /api/v1/comments comment UpdateComment
@@ -108,29 +206,63 @@ func (ch *CommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 // 400: badrequest
 // 423: locked
 func (ch *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
-	comment := commModel.Comment{}
-	err := easyjson.UnmarshalFromReader(r.Body, &comment)
-
-	if err != nil {
-		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
-		return
-	}
 
 	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, ch.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
 	}
-	comment.UserID = userID
 
-	upComm, err := ch.CommentUseCase.UpdateComment(comment)
+	update := commModel.UpdateComment{}
+
+	err := r.ParseMultipartForm(20 * configs.MB)
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
+		return
+	}
+
+	r.Body = http.MaxBytesReader(w, r.Body, 20*configs.MB)
+
+	err = easyjson.Unmarshal([]byte(r.FormValue("jsonData")), &update)
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
+		return
+	}
+	update.Comment.UserID = userID
+	res, err := ch.CommentUseCase.CheckUserComment(update.Comment)
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
+		return
+	}
+	if !res {
+		customerror.PostError(w, r, ch.log, err, clientError.Locked)
+		return
+	}
+	photos := r.MultipartForm.File["photos"]
+	if len(photos)+len(update.Comment.Photos) > 4 {
+		customerror.PostError(w, r, ch.log, errors.New("upload more then 5 photos"), clientError.BadRequest)
+		return
+	}
+	if update.DeleteImages {
+		err := ch.CommentUseCase.DeletePhotos(update.Comment)
+		if err != nil {
+			customerror.PostError(w, r, ch.log, err, clientError.BadRequest)
+			return
+		}
+	}
+	err = ch.UploadPhotosWithTypeCheck(r, &update.Comment)
+	if err != nil {
+		customerror.PostError(w, r, ch.log, err, nil)
+		return
+	}
+	comm, err := ch.CommentUseCase.UpdateComment(update.Comment)
 
 	if err != nil {
 		customerror.PostError(w, r, ch.log, err, nil)
 		return
 	}
 
-	responses.SendDataResponse(w, upComm)
+	responses.SendDataResponse(w, comm)
 }
 
 // swagger:route DELETE /api/v1/comments/{id} comment DeleteComment

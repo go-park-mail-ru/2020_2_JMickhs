@@ -23,6 +23,7 @@ github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbt
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=
 github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMxUHB2q5Ap20/P/eIdh4G0pI=
+github.com/Syfaro/telegram-bot-api v4.6.4+incompatible/go.mod h1:eC/lEGT3gOB9RowMYsLx0YH1U8a/dEjceHY3M//ej88=
 github.com/VividCortex/gohistogram v1.0.0/go.mod h1:Pf5mBqqDxYaXu3hDrrU+w6nw50o/4+TcAqDqk/vUH7g=
 github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5/go.mod h1:SkGFH1ia65gfNATL8TAiHDNxPzPdmEL5uirI2Uyuz6c=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
@@ -210,6 +211,10 @@ github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201202064607-ac0bc172afec h1:
 github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201202064607-ac0bc172afec/go.mod h1:mZwKJUcTwUNcA7lKR+ZUaayRlUjSj0MyK92OE1dGr3o=
 github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201203151836-28a47a014d85 h1:FJsHCQw1Xv5sNMCuAznkLTeb9BqaZkbqZjYdxSIHRe4=
 github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201203151836-28a47a014d85/go.mod h1:2BZRFsR2eDNnlxCPW8S2gpiojY2OqMgyEBbgkCrgFNc=
+github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201219141217-f57c6677ae64 h1:kFdvdPmi5Dx+8RDE0j1Z+NpTBwv9F3t8eEvwRW0X4Bw=
+github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201219141217-f57c6677ae64/go.mod h1:7rrrp3+j6pOnq+4tiS1EowBYA6RfDQctaAqOF2NH7NM=
+github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201221100719-ea499f48f1ce h1:4oFdCN+sB2FmLCrgsumMnYftjsW+6WSduVEMSR29j8s=
+github.com/go-park-mail-ru/2020_2_JMickhs v0.0.0-20201221100719-ea499f48f1ce/go.mod h1:7rrrp3+j6pOnq+4tiS1EowBYA6RfDQctaAqOF2NH7NM=
 github.com/go-park-mail-ru/2020_2_JMickhs/main v0.0.0-20201125094419-70525516ff6f/go.mod h1:ViRvSfCMyh5h/kzoa7sOU2TfawI8jXhDaEHjnmX2ZYo=
 github.com/go-park-mail-ru/2020_2_JMickhs/main v0.0.0-20201202102537-1d76feb69dec/go.mod h1:5X7nQhVThHGwqjBJPqILSdYk0jioKVelFvXu0sQnQYg=
 github.com/go-park-mail-ru/2020_2_JMickhs/sessions v0.0.0-20201125094419-70525516ff6f/go.mod h1:jri7uA7Koy4/JkMFCanNIX4GgPDF9JBWrKh2Bek4W8M=
@@ -227,6 +232,7 @@ github.com/go-redis/redis/v8 v8.3.4 h1:ZF7juZS2wzxloqMKslTutWJ05IQrnchCSk1HD4d4V
 github.com/go-redis/redis/v8 v8.3.4/go.mod h1:jszGxBCez8QA1HWSmQxJO9Y82kNibbUmeYhKWrBejTU=
 github.com/go-sql-driver/mysql v1.4.0/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
+github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible/go.mod h1:qf9acutJ8cwBUhm1bqgz6Bei9/C/c93FPDljKWwsOgM=
 github.com/gobuffalo/attrs v0.0.0-20190224210810-a9411de4debd/go.mod h1:4duuawTqi2wkkpB4ePgWMaai6/Kc6WEz83bhFwpHzj0=
 github.com/gobuffalo/depgen v0.0.0-20190329151759-d478694a28d3/go.mod h1:3STtPUQYuzV0gBVOY3vy6CfMm/ljR4pABfrTeHNLHUY=
 github.com/gobuffalo/depgen v0.1.0/go.mod h1:+ifsuy7fhi15RWncXQQKjWS9JPkdah5sZvtHc2RXGlg=
@@ -617,6 +623,7 @@ github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/subosito/gotenv v1.2.0 h1:Slr1R9HxAlEKefgq5jn9U+DnETlIUa6HfgEzj0g5d7s=
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
+github.com/technoweenie/multipartstreamer v1.0.1/go.mod h1:jNVxdtShOxzAsukZwTSw6MDx5eUJoiEBsSvzDU9uzog=
 github.com/temoto/robotstxt v1.1.1/go.mod h1:+1AmkuG3IYkh1kv0d2qEB9Le88ehNO0zwOr3ujewlOo=
 github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20170815181823-89b8d40f7ca8/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=

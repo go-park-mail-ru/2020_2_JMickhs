@@ -1,3 +1,4 @@
+//go:generate mockgen -source repository.go -destination mocks/recommend_recommend_mock.go -package recommend_mock
 package recommendation
 
 import (

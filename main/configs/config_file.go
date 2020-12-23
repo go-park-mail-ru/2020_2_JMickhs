@@ -37,8 +37,17 @@ var ConfigFields = struct {
 	WishListOut              string
 	RecommendationCount      string
 	UpdateRecommendationTick string
+	PongWait                 string
+	MaxMessageSize           string
+	ChatID                   string
+	StaticPathForComments    string
+	CertPath                 string
+	KeyPath                  string
 }{
 	StaticPathForAvatars:     "paths.StaticPathForAvatars",
+	StaticPathForComments:    "paths.StaticPathForComments",
+	CertPath:                 "paths.CertPath",
+	KeyPath:                  "paths.KeyPath",
 	CookieLifeTime:           "cookie.LifeTime",
 	BaseAvatarPath:           "paths.BaseAvatarPath",
 	BucketName:               "s3.BucketName",
@@ -56,6 +65,9 @@ var ConfigFields = struct {
 	WishListOut:              "constants.WishListOut",
 	RecommendationCount:      "constants.RecommendationCount",
 	UpdateRecommendationTick: "constants.UpdateRecommendationTick",
+	PongWait:                 "constants.PongWait",
+	MaxMessageSize:           "constants.MaxMessageSize",
+	ChatID:                   "constants.ChatID",
 }
 
 var BdConfig postgresConfig

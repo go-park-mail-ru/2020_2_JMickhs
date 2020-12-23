@@ -3,7 +3,11 @@ package commentUsecase
 import (
 	"context"
 	"math"
+	"mime/multipart"
 	"strconv"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
+	"github.com/spf13/viper"
 
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment"
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
@@ -23,6 +27,27 @@ func NewCommentUsecase(r comment.Repository, userService userService.UserService
 		commentRepo: r,
 		userService: userService,
 	}
+}
+
+func (u *CommentUseCase) CheckUserComment(comment commModel.Comment) (bool, error) {
+	return u.commentRepo.CheckUserComment(comment)
+}
+
+func (u *CommentUseCase) GetPhotos(hotelID string) (commModel.Photos, error) {
+	return u.commentRepo.GetPhotos(hotelID)
+}
+
+func (u *CommentUseCase) DeletePhotos(comment commModel.Comment) error {
+	return u.commentRepo.DeletePhotos(comment)
+}
+
+func (u *CommentUseCase) UploadPhoto(comment *commModel.Comment, file multipart.File, contentType string) error {
+	path, err := u.commentRepo.UploadPhoto(file, contentType)
+	if err != nil {
+		return err
+	}
+	comment.Photos = append(comment.Photos, path)
+	return nil
 }
 
 func (u *CommentUseCase) GetComments(hotelID string, limit string, offsets string, user_id int) (int, commModel.Comments, error) {
@@ -48,6 +73,7 @@ func (u *CommentUseCase) GetComments(hotelID string, limit string, offsets strin
 		}
 	}
 	if offset > count {
+
 		return 0, pag, nil
 	}
 
@@ -82,6 +108,9 @@ func (u *CommentUseCase) AddComment(comment commModel.Comment) (commModel.NewRat
 	}
 
 	newRate.Rate = hotelRate
+	for i := 0; i < len(newRate.Comment.Photos); i++ {
+		newRate.Comment.Photos[i] = viper.GetString(configs.ConfigFields.S3Url) + newRate.Comment.Photos[i]
+	}
 	return newRate, nil
 
 }

@@ -7,6 +7,7 @@ package comment_mock
 import (
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	gomock "github.com/golang/mock/gomock"
+	multipart "mime/multipart"
 	reflect "reflect"
 )
 
@@ -163,4 +164,63 @@ func (m *MockRepository) GetCommentsCount(hotelID int) (int, error) {
 func (mr *MockRepositoryMockRecorder) GetCommentsCount(hotelID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommentsCount", reflect.TypeOf((*MockRepository)(nil).GetCommentsCount), hotelID)
+}
+
+// UploadPhoto mocks base method
+func (m *MockRepository) UploadPhoto(file multipart.File, contentType string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadPhoto", file, contentType)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UploadPhoto indicates an expected call of UploadPhoto
+func (mr *MockRepositoryMockRecorder) UploadPhoto(file, contentType interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadPhoto", reflect.TypeOf((*MockRepository)(nil).UploadPhoto), file, contentType)
+}
+
+// GetPhotos mocks base method
+func (m *MockRepository) GetPhotos(hotelID string) (commModel.Photos, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPhotos", hotelID)
+	ret0, _ := ret[0].(commModel.Photos)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPhotos indicates an expected call of GetPhotos
+func (mr *MockRepositoryMockRecorder) GetPhotos(hotelID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPhotos", reflect.TypeOf((*MockRepository)(nil).GetPhotos), hotelID)
+}
+
+// DeletePhotos mocks base method
+func (m *MockRepository) DeletePhotos(comment commModel.Comment) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeletePhotos", comment)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeletePhotos indicates an expected call of DeletePhotos
+func (mr *MockRepositoryMockRecorder) DeletePhotos(comment interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePhotos", reflect.TypeOf((*MockRepository)(nil).DeletePhotos), comment)
+}
+
+// CheckUserComment mocks base method
+func (m *MockRepository) CheckUserComment(comment commModel.Comment) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckUserComment", comment)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CheckUserComment indicates an expected call of CheckUserComment
+func (mr *MockRepositoryMockRecorder) CheckUserComment(comment interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUserComment", reflect.TypeOf((*MockRepository)(nil).CheckUserComment), comment)
 }

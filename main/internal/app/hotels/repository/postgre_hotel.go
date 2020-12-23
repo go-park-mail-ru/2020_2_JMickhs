@@ -154,6 +154,12 @@ func (p *PostgreHotelRepository) CheckRateExist(UserID int, HotelID int) (commMo
 
 	err := p.conn.QueryRow(CheckRateIfExistPostgreRequest, HotelID, UserID).Scan(&comment.Message, &comment.Time, &comment.HotelID,
 		&comment.UserID, &comment.CommID, &comment.Rating)
+
+	if err != nil {
+		return comment, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+
+	err = p.conn.Select(&comment.Photos, CheckPhotosExistPostgreRequest, HotelID, UserID, viper.GetString(configs.ConfigFields.S3Url))
 	if err != nil {
 		return comment, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}

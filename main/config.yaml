@@ -1,7 +1,10 @@
 paths:
   BaseAfatarPath: "static/avatars/defaultAvatar.png"
+  StaticPathForComments: "static/comments/"
   StaticPathForAvatars: "static/avatars/"
   StaticPathForHotels: "static/img/"
+  CertPath: "/etc/ssl/hostelscan/hostelscan.ru.crt"
+  KeyPath: "/etc/ssl/hostelscan/hostelscan.ru.key"
 cookie:
   LifeTime: 44640
 s3:
@@ -22,3 +25,6 @@ constants:
   WishListOut: "WishListOut"
   RecommendationCount: 4
   UpdateRecommendationTick: 5
+  PongWait: 5
+  MaxMessageSize: 1024
+  chatID: -444219540
