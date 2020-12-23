@@ -119,3 +119,18 @@ func (s *Suite) TestAddOrGetChatByID() {
 
 	s.redisServer.Close()
 }
+
+func (s *Suite) TestGetChatByID() {
+	rowChat := sqlmock.NewRows([]string{"chat_id"}).AddRow(
+		3)
+	s.mock.ExpectQuery(GetChatRequest).
+		WithArgs(2).
+		WillReturnRows(rowChat)
+
+	testChat, err := s.session.GetChatID(2)
+
+	require.NoError(s.T(), err)
+	require.Equal(s.T(), testChat, "3")
+
+	s.redisServer.Close()
+}
