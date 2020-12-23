@@ -83,7 +83,7 @@ func (s *Suite) TestGetChatHistory() {
 		WillReturnRows(rowChat)
 
 	hotels, err := s.recommend.GetHotelsFromHistory(2, []int64{4, 5})
-
+	require.NoError(s.T(), err)
 	require.Equal(s.T(), hotelsTest, hotels)
 	s.redisServer.Close()
 }
