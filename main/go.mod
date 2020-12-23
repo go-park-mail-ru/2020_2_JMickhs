@@ -6,7 +6,7 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/PuerkitoBio/goquery v1.6.0
 	github.com/Syfaro/telegram-bot-api v4.6.4+incompatible
-	github.com/alicebob/miniredis/v2 v2.13.3 // indirect
+	github.com/alicebob/miniredis/v2 v2.13.3
 	github.com/aws/aws-sdk-go v1.35.31
 	github.com/bxcodec/faker/v3 v3.5.0
 	github.com/elliotchance/redismock v1.5.3 // indirect

@@ -3,6 +3,7 @@ package recommendRepository
 import (
 	"errors"
 	"testing"
+	"time"
 
 	customerror "github.com/go-park-mail-ru/2020_2_JMickhs/package/error"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/package/serverError"
@@ -66,6 +67,131 @@ func TestPostgreRecommendationRepository_GetHotelByIDs(t *testing.T) {
 		_, err := rep.GetHotelByIDs(hotelIDs)
 		assert.Error(t, err)
 		assert.Equal(t, customerror.ParseCode(err), serverError.ServerInternalError)
+	})
+}
+
+func TestPostgreRecommendationRepository_GetHotelsFromHistory(t *testing.T) {
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+	hotels := []recommModels.HotelRecommend{
+		{HotelID: 0, Name: "hotel", Image: "src/kek.jpg", Location: "Moscow", Rating: "3.5"},
+		{HotelID: 1, Name: "hotel", Image: "src/kek.jpg", Location: "Moscow", Rating: "3.5"},
+	}
+	t.Run("GetHotelFromHistory", func(t *testing.T) {
+		rowsHotel := sqlmock.NewRows([]string{"hotel_id", "name", "concat", "location", "curr_rating"}).AddRow(
+			0, "hotel", "src/kek.jpg", "Moscow", "3.5").AddRow(
+			1, "hotel", "src/kek.jpg", "Moscow", "3.5")
+
+		hotelIDs := []int64{0, 1}
+
+		query := GetBestRecommendationsRequest
+		mock.ExpectQuery(query).WithArgs(viper.GetString(configs.ConfigFields.S3Url),
+			viper.GetInt(configs.ConfigFields.RecommendationCount), pq.Array(hotelIDs)).WillReturnRows(rowsHotel)
+
+		sqlxDb := sqlx.NewDb(db, "sqlmock")
+		defer sqlxDb.Close()
+
+		rep := NewPostgreRecommendationRepository(sqlxDb, nil)
+
+		testHotels, err := rep.GetHotelByIDs(hotelIDs)
+		assert.NoError(t, err)
+		assert.Equal(t, testHotels, hotels)
+	})
+
+}
+func TestPostgreRecommendationRepository_CheckRecommendationExist(t *testing.T) {
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+	userID := 3
+	times := time.Now()
+	recommendation := recommModels.Recommendation{UserID: 3, HotelIDs: []int64{3}, Time: times}
+	t.Run("CheckRecommendationExist", func(t *testing.T) {
+		rowsHotel := sqlmock.NewRows([]string{"user_id", "h", "time"}).AddRow(
+			3, pq.Array([]int{3}), times)
+
+		query := GetRecommendationsForUser
+
+		mock.ExpectQuery(query).
+			WithArgs(userID).
+			WillReturnRows(rowsHotel)
+
+		sqlxDb := sqlx.NewDb(db, "sqlmock")
+		defer sqlxDb.Close()
+
+		rep := NewPostgreRecommendationRepository(sqlxDb, nil)
+
+		recommTest, err := rep.CheckRecommendationExist(userID)
+		assert.NoError(t, err)
+		assert.Equal(t, recommTest, recommendation)
+	})
+	t.Run("CheckRecommendationExistErr", func(t *testing.T) {
+		query := GetRecommendationsForUser
+
+		mock.ExpectQuery(query).
+			WithArgs(userID).
+			WillReturnError(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
+
+		sqlxDb := sqlx.NewDb(db, "sqlmock")
+		defer sqlxDb.Close()
+
+		rep := NewPostgreRecommendationRepository(sqlxDb, nil)
+
+		_, err := rep.CheckRecommendationExist(userID)
+		assert.Error(t, err)
+
+	})
+}
+
+func TestPostgreRecommendationRepository_GetHotelsRecommendations(t *testing.T) {
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+	userID := 3
+	hotels := []recommModels.HotelRecommend{
+		{HotelID: 3, Name: "sdxcx", Image: "jpeg", Location: "Moscow", Rating: "3.4"},
+	}
+	t.Run("GetHotelsRecommendations", func(t *testing.T) {
+		rowsHotel := sqlmock.NewRows([]string{"hotel_id", "name", "concat", "location", "curr_rating"}).AddRow(
+			3, "sdxcx", "jpeg", "Moscow", "3.4")
+
+		query := GetRecommendationsForNonUnouthoriziedRequest
+
+		mock.ExpectQuery(query).
+			WithArgs(viper.GetString(configs.ConfigFields.S3Url), viper.GetInt(configs.ConfigFields.RecommendationCount)).
+			WillReturnRows(rowsHotel)
+
+		sqlxDb := sqlx.NewDb(db, "sqlmock")
+		defer sqlxDb.Close()
+
+		rep := NewPostgreRecommendationRepository(sqlxDb, nil)
+
+		hotelsTest, err := rep.GetHotelsRecommendations(userID)
+		assert.NoError(t, err)
+		assert.Equal(t, hotelsTest, hotels)
+	})
+	t.Run("GetHotelsRecommendations", func(t *testing.T) {
+
+		query := GetRecommendationsForNonUnouthoriziedRequest
+
+		mock.ExpectQuery(query).
+			WithArgs(viper.GetString(configs.ConfigFields.S3Url), viper.GetInt(configs.ConfigFields.RecommendationCount)).
+			WillReturnError(customerror.NewCustomError(errors.New(""), serverError.ServerInternalError, 1))
+
+		sqlxDb := sqlx.NewDb(db, "sqlmock")
+		defer sqlxDb.Close()
+
+		rep := NewPostgreRecommendationRepository(sqlxDb, nil)
+
+		_, err := rep.GetHotelsRecommendations(userID)
+		assert.Error(t, err)
 	})
 }
 

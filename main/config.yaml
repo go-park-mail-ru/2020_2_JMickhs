@@ -27,4 +27,5 @@ constants:
   UpdateRecommendationTick: 5
   PongWait: 5
   MaxMessageSize: 1024
+  ChatTTL: 24
   chatID: -444219540

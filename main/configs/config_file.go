@@ -43,7 +43,9 @@ var ConfigFields = struct {
 	StaticPathForComments    string
 	CertPath                 string
 	KeyPath                  string
+	ChatTTL                  string
 }{
+	ChatTTL:                  "constants.ChatTTL",
 	StaticPathForAvatars:     "paths.StaticPathForAvatars",
 	StaticPathForComments:    "paths.StaticPathForComments",
 	CertPath:                 "paths.CertPath",
