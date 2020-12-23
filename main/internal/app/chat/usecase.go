@@ -1,3 +1,4 @@
+//go:generate mockgen -source usecase.go -destination mocks/chat_usecase_mock.go -package chat_mock
 package chat
 
 import chat_model "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/chat/models"

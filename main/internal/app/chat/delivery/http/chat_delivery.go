@@ -164,7 +164,7 @@ func (ch *ChatHandler) InitConnection(w http.ResponseWriter, r *http.Request) {
 
 func (ch *ChatHandler) InitConnectionForModer(w http.ResponseWriter, r *http.Request) {
 	rule, ok := r.Context().Value(packageConfig.RequestUserRule).(bool)
-	if !ok || rule == false {
+	if !ok || !rule {
 		customerror.PostError(w, r, ch.log, errors.New("user is not are moderator"), clientError.Unauthorizied)
 		return
 	}

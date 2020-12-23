@@ -2,6 +2,10 @@ package chatRepository
 
 import (
 	"context"
+	"time"
+
+	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
+	"github.com/spf13/viper"
 
 	"github.com/mailru/easyjson"
 
@@ -24,6 +28,11 @@ func NewChatRepository(conn *sqlx.DB, ChatStore *redis.Client) ChatRepository {
 func (u *ChatRepository) AddMessageInChat(chatID string, message chat_model.Message) error {
 	msg, _ := message.MarshalJSON()
 	err := u.ChatStore.Do(context.Background(), "RPUSH", chatID, msg).Err()
+	if err != nil {
+		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	err = u.ChatStore.Do(context.Background(), "EXPIRE", chatID,
+		int64(time.Duration(viper.GetInt64(configs.ConfigFields.ChatTTL))*time.Hour)).Err()
 	if err != nil {
 		return customerror.NewCustomError(err, serverError.ServerInternalError, 1)
 	}

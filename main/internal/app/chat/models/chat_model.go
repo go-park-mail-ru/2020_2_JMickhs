@@ -3,8 +3,8 @@ package chat_model
 
 // easyjson:json
 type Message struct {
-	OwnerID   string
-	Room      string
-	Message   string
-	Moderator bool
+	OwnerID   string `mapstructure:"ownerID"`
+	Room      string `mapstructure:"room"`
+	Message   string `mapstructure:"message"`
+	Moderator bool   `mapstructure:"moderator"`
 }

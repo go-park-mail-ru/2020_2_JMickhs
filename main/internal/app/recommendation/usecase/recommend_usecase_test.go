@@ -2,6 +2,7 @@ package reccomendUsecase
 
 import (
 	"testing"
+	"time"
 
 	recommModels "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/models"
 
@@ -29,7 +30,7 @@ func TestRecommendationsUseCase_AddInSearchHistory(t *testing.T) {
 	})
 }
 
-func TestRecommendationsUseCase_GetHotelsRecommendations(t *testing.T) {
+func TestRecommendationsUseCase_AddInSearchHistory1(t *testing.T) {
 	t.Run("HotelGetByID", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
@@ -45,6 +46,48 @@ func TestRecommendationsUseCase_GetHotelsRecommendations(t *testing.T) {
 		err := u.AddInSearchHistory(3, "kekw")
 
 		assert.NoError(t, err)
+	})
+}
+
+func TestRecommendationsUseCase_GetHotelsRecommendations(t *testing.T) {
+	t.Run("GetHotelsRecommendations", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		hotelsRecomm := []recommModels.HotelRecommend{{
+			HotelID: 1, Name: "kek",
+			Image: "test.jpg", Location: "moscow", Rating: "4.5"}}
+		mockRecommendRepo := recommend_mock.NewMockRepository(ctrl)
+		rows := []recommModels.RecommendMatrixRow{
+			{UserID: 1, RatingID: 2, HotelID: 1},
+			{UserID: 2, RatingID: 2, HotelID: 2},
+		}
+
+		recommend := recommModels.Recommendation{UserID: 3, HotelIDs: []int64{1}, Time: time.Now()}
+		mockRecommendRepo.EXPECT().
+			CheckRecommendationExist(3).
+			Return(recommend, nil)
+		mockRecommendRepo.EXPECT().
+			GetUsersComments(3).
+			Return([]int{4}, nil)
+		mockRecommendRepo.EXPECT().
+			GetRecommendationRows(3, []int{4}).
+			Return(rows, nil)
+		mockRecommendRepo.EXPECT().
+			GetHotelByIDs(gomock.Any()).
+			Return(hotelsRecomm, nil)
+		mockRecommendRepo.EXPECT().
+			GetHotelsFromHistory(3, nil).
+			Return(nil, nil)
+		mockRecommendRepo.EXPECT().
+			UpdateUserRecommendations(3, nil).
+			Return(nil)
+
+		u := NewRecommendationsUseCase(mockRecommendRepo)
+
+		hotels, err := u.GetHotelsRecommendations(3)
+
+		assert.NoError(t, err)
+		assert.Equal(t, hotels, hotelsRecomm)
 	})
 }
 
@@ -75,7 +118,7 @@ func TestRecommendationsUseCase_GetBestRecommendations(t *testing.T) {
 		matrix := map[float64]map[float64]float64{
 			float64(1): {float64(4): float64(5), float64(9): float64(4), float64(10): float64(5)},
 			float64(2): {float64(3): float64(4), float64(7): float64(4), float64(1): float64(4)},
-			float64(3): {float64(3): float64(4), float64(4): float64(4), float64(5): float64(4)},
+			float64(3): {float64(3): float64(4), float64(4): float64(4), float64(5): float64(3)},
 		}
 		res := u.GetBestRecommendations(2, matrix)
 		resTest := []int64{4}
