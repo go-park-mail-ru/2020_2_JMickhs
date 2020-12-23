@@ -853,3 +853,99 @@ func TestWishlistHandler_GetUserWishlists(t *testing.T) {
 	})
 
 }
+
+func TestWishlistHandler_GetWishlistsByHotel(t *testing.T) {
+	userID := 2
+	hotelID := 3
+	wishLists := wishlistModel.UserWishLists{Wishlists: []wishlistModel.Wishlist{
+		{WishlistID: 1, UserID: 2, Name: "kekws"},
+		{WishlistID: 2, UserID: 2, Name: "kekwss"},
+	}}
+	t.Run("GetWishlistsByHotel", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockWUseCase := wishlists_mock.NewMockUsecase(ctrl)
+
+		mockWUseCase.EXPECT().
+			WishListsByHotel(userID, hotelID).
+			Return(wishLists, nil)
+
+		req, err := http.NewRequest("GET", "/api/v1/wishlists/hotels/2", nil)
+		assert.NoError(t, err)
+
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
+		rec := httptest.NewRecorder()
+		req = mux.SetURLVars(req, map[string]string{
+			"hotel_id": "3",
+		})
+		handler := WishlistHandler{
+			useCase: mockWUseCase,
+			log:     logger.NewLogger(os.Stdout),
+		}
+
+		handler.GetWishlistsByHotel(rec, req)
+		resp := rec.Result()
+		body, _ := ioutil.ReadAll(resp.Body)
+		response := responses.HttpResponse{}
+		wishListTest := wishlistModel.UserWishLists{}
+		err = json.Unmarshal(body, &response)
+		assert.NoError(t, err)
+		err = mapstructure.Decode(response.Data.(map[string]interface{}), &wishListTest)
+		assert.NoError(t, err)
+
+		assert.Equal(t, http.StatusOK, response.Code)
+		assert.Equal(t, wishListTest, wishLists)
+	})
+	t.Run("GetWishlistsByHotelErr", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockWUseCase := wishlists_mock.NewMockUsecase(ctrl)
+
+		req, err := http.NewRequest("GET", "/api/v1/wishlists/1", nil)
+		assert.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		handler := WishlistHandler{
+			useCase: mockWUseCase,
+			log:     logger.NewLogger(os.Stdout),
+		}
+
+		handler.GetUserWishlists(rec, req)
+		resp := rec.Result()
+		body, _ := ioutil.ReadAll(resp.Body)
+		response := responses.HttpResponse{}
+		err = json.Unmarshal(body, &response)
+		assert.NoError(t, err)
+
+		assert.Equal(t, clientError.Unauthorizied, response.Code)
+	})
+
+	t.Run("GetWishlistsByHotelErr", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		mockWUseCase := wishlists_mock.NewMockUsecase(ctrl)
+
+		req, err := http.NewRequest("GET", "/api/v1/wishlists/hotels/3", nil)
+		assert.NoError(t, err)
+
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
+		rec := httptest.NewRecorder()
+		handler := WishlistHandler{
+			useCase: mockWUseCase,
+			log:     logger.NewLogger(os.Stdout),
+		}
+
+		handler.GetWishlistsByHotel(rec, req)
+		resp := rec.Result()
+		body, _ := ioutil.ReadAll(resp.Body)
+		response := responses.HttpResponse{}
+		err = json.Unmarshal(body, &response)
+		assert.NoError(t, err)
+
+		assert.Equal(t, clientError.BadRequest, response.Code)
+	})
+
+}
