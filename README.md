@@ -21,4 +21,7 @@
 [HostelScan](https://www.hostelscan.ru/)
 
 ## Ссылка на документацию
-[Swagger-doc](http://www.hostelscan.ru:8080/docs)
+[Swagger-doc](https://www.hostelscan.ru:8080/docs)
+
+## Структура проекта 
+![Image alt](http://s3.hostelscan.ru/static/img/project.jpg)
