@@ -1,9 +1,8 @@
-context:
-  RequestUser: "User"
-  SessionID: "SessionID"
 paths:
   BaseAvatarPath: "static/avatars/defaultAvatar.png"
   StaticPathForAvatars: "static/avatars/"
+  CertPath: "/etc/ssl/hostelscan/hostelscan.ru.crt"
+  KeyPath: "/etc/ssl/hostelscan/hostelscan.ru.key"
 cookie:
   LifeTime: 44640
 s3:

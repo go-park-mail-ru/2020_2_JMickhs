@@ -1,5 +1,7 @@
 package swagger
 
+import "mime/multipart"
+
 type NewRate struct {
 	Rate    float64 `json:"new_rate" mapstructure:"new_rate"`
 	Comment Comment `json:"comment" mapstructure:"comment"`
@@ -17,31 +19,52 @@ type PaginationInfo struct {
 }
 
 type Comment struct {
-	UserID  int     `json:"user_id" db:"user_id" mapstructure:"user_id"`
-	HotelID int     `json:"hotel_id" mapstructure:"hotel_id"`
-	CommID  int     `json:"comm_id" mapstructure:"comm_id"`
-	Message string  `json:"message" mapstructure:"message"`
-	Rate    float64 `json:"rating" mapstructure:"rating"`
-	Time    string  `json:"time" mapstructure:"time"`
+	UserID  int      `json:"user_id" db:"user_id" mapstructure:"user_id"`
+	HotelID int      `json:"hotel_id" mapstructure:"hotel_id"`
+	CommID  int      `json:"comm_id" mapstructure:"comm_id"`
+	Message string   `json:"message" mapstructure:"message"`
+	Rate    float64  `json:"rating" mapstructure:"rating"`
+	Time    string   `json:"time" mapstructure:"time"`
+	Photos  []string `json:"photos"`
 }
 
 type FullCommentInfo struct {
-	UserID   int     `json:"user_id" db:"user_id" mapstructure:"user_id"`
-	CommID   int     `json:"comm_id" db:"comm_id" mapstructure:"comm_id"`
-	HotelID  int     `json:"hotel_id" db:"hotel_id" mapstructure:"hotel_id"`
-	Message  string  `json:"message" db:"message"`
-	Rating   float64 `json:"rating" db:"rating"`
-	Avatar   string  `json:"avatar" db:"concat"`
-	Username string  `json:"username" db:"username"`
-	Time     string  `json:"time" db:"time"`
+	UserID   int      `json:"user_id" db:"user_id" mapstructure:"user_id"`
+	CommID   int      `json:"comm_id" db:"comm_id" mapstructure:"comm_id"`
+	HotelID  int      `json:"hotel_id" db:"hotel_id" mapstructure:"hotel_id"`
+	Message  string   `json:"message" db:"message"`
+	Rating   float64  `json:"rating" db:"rating"`
+	Avatar   string   `json:"avatar" db:"concat"`
+	Username string   `json:"username" db:"username"`
+	Time     string   `json:"time" db:"time"`
+	Photos   []string `json:"photos"`
 }
-type AddCommentRequest struct {
+type AddCommentFull struct {
+	Add  AddComment       `json:"jsonData"`
+	File []multipart.File `json:"photos"`
+}
+
+type UpdateCommentFull struct {
+	Update UpdateCommentReq `json:"jsonData"`
+	File   []multipart.File `json:"photos"`
+}
+
+type Photos struct {
+	Photos []string `json:"photos"`
+}
+
+type AddComment struct {
 	HotelID int    `json:"hotel_id"`
 	Message string `json:"message"`
 	Rating  int    `json:"rating"`
 }
 
-type UpdateCommentRequest struct {
+type UpdateCommentReq struct {
+	UpdateComment UpdateComment `json:"comment"`
+	DeleteImages  bool          `json:"delete"`
+}
+
+type UpdateComment struct {
 	CommID  int    `json:"comm_id"`
 	Message string `json:"message"`
 	Rate    int    `json:"rating"`
@@ -50,6 +73,19 @@ type UpdateCommentRequest struct {
 type GetCommentsRequest struct {
 	Comments []FullCommentInfo `json:"comments"`
 	PagInfo  PaginationInfo    `json:"pag_info"`
+}
+
+type Message struct {
+	OwnerID   string
+	Room      string
+	Message   string
+	Moderator bool
+}
+
+// swagger:response messages
+type ChatResponse struct {
+	//in: body
+	Messages []Message
 }
 
 // swagger:parameters comments
@@ -73,6 +109,18 @@ type CommentsDeleteParameterWrapper struct {
 	ID int `json:"id"`
 }
 
+//swagger:response photos
+type CommentsPhotos struct {
+	//in: body
+	Body Photos
+}
+
+//swagger:parameters Photos
+type ParametersPhotos struct {
+	//in: query
+	ID int `json:"id"`
+}
+
 //swagger:response comments
 type Comments struct {
 	//in: body
@@ -80,25 +128,26 @@ type Comments struct {
 }
 
 // swagger:response AddComment
-type newRateResponse struct {
+type NewRateResponse struct {
 	//in:body
 	Body NewRate
 }
 
 // swagger:parameters UpdateComment
-type updateCommentRequest struct {
+type UpdateCommentRequest struct {
 	//in: body
-	Body UpdateCommentRequest
+	Body UpdateCommentFull
 }
 
 // swagger:response UpdateComment
-type updateCommentResponse struct {
+type UpdateCommentResponse struct {
 	//in: body
 	Body NewRate
 }
 
 // swagger:parameters AddComment
-type addCommentRequest struct {
+type AddCommentRequest struct {
+	//Это все в multipart
 	//in: body
-	Body AddCommentRequest
+	Body AddCommentFull
 }

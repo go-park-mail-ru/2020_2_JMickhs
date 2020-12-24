@@ -3,7 +3,7 @@ consumes:
 - application/json
 - multipart/form-data
 definitions:
-  AddCommentRequest:
+  AddComment:
     properties:
       hotel_id:
         format: int64
@@ -16,6 +16,17 @@ definitions:
         format: int64
         type: integer
         x-go-name: Rating
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  AddCommentFull:
+    properties:
+      jsonData:
+        $ref: '#/definitions/AddComment'
+      photos:
+        items:
+          $ref: '#/definitions/File'
+        type: array
+        x-go-name: File
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   AddHotelStruct:
@@ -59,6 +70,11 @@ definitions:
       message:
         type: string
         x-go-name: Message
+      photos:
+        items:
+          type: string
+        type: array
+        x-go-name: Photos
       rating:
         format: double
         type: number
@@ -72,7 +88,7 @@ definitions:
         x-go-name: UserID
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
-  CreateWishlistRequest:
+  CreateWishlist:
     properties:
       name:
         type: string
@@ -89,6 +105,20 @@ definitions:
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   File:
     allOf:
+    - properties:
+        Close:
+          type: string
+      type: object
+    - type: object
+    - type: object
+    - type: object
+    - properties:
+        Close:
+          type: string
+      type: object
+    - type: object
+    - type: object
+    - type: object
     - properties:
         Close:
           type: string
@@ -118,6 +148,11 @@ definitions:
       message:
         type: string
         x-go-name: Message
+      photos:
+        items:
+          type: string
+        type: array
+        x-go-name: Photos
       rating:
         format: double
         type: number
@@ -224,6 +259,26 @@ definitions:
         x-go-name: Name
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  HotelRecommend:
+    properties:
+      hotel_id:
+        format: int64
+        type: integer
+        x-go-name: HotelID
+      image:
+        type: string
+        x-go-name: Image
+      location:
+        type: string
+        x-go-name: Location
+      name:
+        type: string
+        x-go-name: Name
+      rating:
+        type: string
+        x-go-name: Rating
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   HotelStructToAdd:
     properties:
       city:
@@ -259,6 +314,18 @@ definitions:
           $ref: '#/definitions/HotelPreview'
         type: array
         x-go-name: Hotels
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  Message:
+    properties:
+      Message:
+        type: string
+      Moderator:
+        type: boolean
+      OwnerID:
+        type: string
+      Room:
+        type: string
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   MiniHotel:
@@ -307,6 +374,24 @@ definitions:
         x-go-name: PrevLink
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  Photos:
+    properties:
+      photos:
+        items:
+          type: string
+        type: array
+        x-go-name: Photos
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  RecommendationResponse:
+    properties:
+      hotels:
+        items:
+          $ref: '#/definitions/HotelRecommend'
+        type: array
+        x-go-name: Hotels
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   SafeUser:
     properties:
       avatar:
@@ -341,7 +426,7 @@ definitions:
         $ref: '#/definitions/File'
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
-  UpdateCommentRequest:
+  UpdateComment:
     properties:
       comm_id:
         format: int64
@@ -354,6 +439,26 @@ definitions:
         format: int64
         type: integer
         x-go-name: Rate
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  UpdateCommentFull:
+    properties:
+      jsonData:
+        $ref: '#/definitions/UpdateCommentReq'
+      photos:
+        items:
+          $ref: '#/definitions/File'
+        type: array
+        x-go-name: File
+    type: object
+    x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
+  UpdateCommentReq:
+    properties:
+      comment:
+        $ref: '#/definitions/UpdateComment'
+      delete:
+        type: boolean
+        x-go-name: DeleteImages
     type: object
     x-go-package: _/home/kostikan/GoBuilds/github.com/Kostikans/backend/docs/swagger
   UpdateEmail:
@@ -468,10 +573,11 @@ paths:
       description: add comment and rate hotel
       operationId: AddComment
       parameters:
-      - in: body
+      - description: Это все в multipart
+        in: body
         name: Body
         schema:
-          $ref: '#/definitions/AddCommentRequest'
+          $ref: '#/definitions/AddCommentFull'
       responses:
         "200":
           $ref: '#/responses/AddComment'
@@ -489,7 +595,7 @@ paths:
       - in: body
         name: Body
         schema:
-          $ref: '#/definitions/UpdateCommentRequest'
+          $ref: '#/definitions/UpdateCommentFull'
       responses:
         "200":
           $ref: '#/responses/AddComment'
@@ -517,6 +623,23 @@ paths:
           $ref: '#/responses/badrequest'
         "403":
           $ref: '#/responses/Forbidden'
+      tags:
+      - comment
+  /api/v1/comments/photos:
+    get:
+      description: GetList of photos
+      operationId: Photos
+      parameters:
+      - format: int64
+        in: query
+        name: id
+        type: integer
+        x-go-name: ID
+      responses:
+        "200":
+          $ref: '#/responses/photos'
+        "400":
+          $ref: '#/responses/badrequest'
       tags:
       - comment
   /api/v1/csrf:
@@ -611,6 +734,15 @@ paths:
           $ref: '#/responses/hotels'
         "400":
           $ref: '#/responses/badrequest'
+      tags:
+      - hotel
+  /api/v1/hotels/recommendations:
+    get:
+      description: GetUserRecommendations
+      operationId: hotelsRecommendation
+      responses:
+        "200":
+          $ref: '#/responses/recommendations'
       tags:
       - hotel
   /api/v1/hotels/search:
@@ -830,7 +962,7 @@ paths:
       - in: body
         name: Body
         schema:
-          $ref: '#/definitions/CreateWishlistRequest'
+          $ref: '#/definitions/CreateWishlist'
       responses:
         "200":
           $ref: '#/responses/wishlist'
@@ -935,6 +1067,34 @@ paths:
           $ref: '#/responses/locked'
       tags:
       - Wishlist
+  /api/v1/wishlists/hotels/{hotel_id}:
+    get:
+      description: Get list of wishlists by hotel
+      operationId: getWishlistsByHotel
+      responses:
+        "200":
+          $ref: '#/responses/wishlists'
+        "400":
+          $ref: '#/responses/badrequest'
+      tags:
+      - Wishlist
+  /api/v1/ws/chat:
+    get:
+      description: init chat
+      operationId: initChat
+      responses:
+        "200": {}
+      tags:
+      - chat
+  /api/v1/ws/chat/history:
+    get:
+      description: GetChatHistory
+      operationId: history
+      responses:
+        "200":
+          $ref: '#/responses/messages'
+      tags:
+      - chat
 produces:
 - application/json
 responses:
@@ -971,6 +1131,10 @@ responses:
         type: integer
       message:
         type: string
+      photos:
+        items:
+          type: string
+        type: array
       rating:
         format: double
         type: number
@@ -986,6 +1150,9 @@ responses:
       $ref: '#/definitions/GetCommentsRequest'
   conflict:
     description: unique data already exists
+  getWishlistsByHotel:
+    schema:
+      $ref: '#/definitions/UserWishLists'
   gone:
     description: This data does not exist
   hotels:
@@ -996,6 +1163,17 @@ responses:
       $ref: '#/definitions/HotelsPreview'
   locked:
     description: two times rate one hotel or want to get not your wishlists
+  messages:
+    schema:
+      items:
+        $ref: '#/definitions/Message'
+      type: array
+  photos:
+    schema:
+      $ref: '#/definitions/Photos'
+  recommendations:
+    schema:
+      $ref: '#/definitions/RecommendationResponse'
   safeUser:
     schema:
       $ref: '#/definitions/SafeUser'

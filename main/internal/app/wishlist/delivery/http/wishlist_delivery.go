@@ -5,10 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/package/middlewareApi"
+	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
 
-	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
-	"github.com/spf13/viper"
+	"github.com/go-park-mail-ru/2020_2_JMickhs/package/middlewareApi"
 
 	"github.com/mailru/easyjson"
 
@@ -43,6 +42,35 @@ func NewWishlistHandler(r *mux.Router, useCase wishlist.Usecase, hotelUseCase ho
 	r.HandleFunc("/api/v1/wishlists/{wishList_id:[0-9]+}", middlewareApi.CheckCSRFOnHandler(handler.DeleteWishlist)).Methods("DELETE")
 	r.HandleFunc("/api/v1/wishlists/{wishList_id:[0-9]+}/hotels", middlewareApi.CheckCSRFOnHandler(handler.AddHotelToWishlist)).Methods("POST")
 	r.HandleFunc("/api/v1/wishlists/{wishList_id:[0-9]+}/hotels", middlewareApi.CheckCSRFOnHandler(handler.DeleteHotelFromWishlist)).Methods("DELETE")
+	r.HandleFunc("/api/v1/wishlists/hotels/{hotel_id:[0-9]+}", handler.GetWishlistsByHotel).Methods("GET")
+}
+
+// swagger:route GET /api/v1/wishlists/hotels/{hotel_id} Wishlist getWishlistsByHotel
+// Get list of wishlists by hotel
+// responses:
+//  200: wishlists
+//  400: badrequest
+func (wh *WishlistHandler) GetWishlistsByHotel(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	hotelID, err := strconv.Atoi(vars["hotel_id"])
+
+	if err != nil {
+		customerror.PostError(w, r, wh.log, err, clientError.BadRequest)
+		return
+	}
+
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
+	if !ok {
+		responses.SendDataResponse(w, wishlistModel.UserWishLists{})
+		return
+	}
+
+	wishlists, err := wh.useCase.WishListsByHotel(userID, hotelID)
+	if err != nil {
+		customerror.PostError(w, r, wh.log, err, nil)
+		return
+	}
+	responses.SendDataResponse(w, wishlists)
 }
 
 // swagger:route GET /api/v1/wishlists Wishlist getUserWishlist
@@ -51,7 +79,7 @@ func NewWishlistHandler(r *mux.Router, useCase wishlist.Usecase, hotelUseCase ho
 //  200: wishlists
 //  400: badrequest
 func (wh *WishlistHandler) GetUserWishlists(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, wh.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
@@ -79,7 +107,7 @@ func (wh *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, wh.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
@@ -93,8 +121,7 @@ func (wh *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 
 	hotels := make([]hotelModel.MiniHotel, 0, len(hotelsMeta))
 	for _, hotel := range hotelsMeta {
-		tmpMiniHotel := hotelModel.MiniHotel{}
-		tmpMiniHotel, err = wh.hotelUseCase.GetMiniHotelByID(hotel.HotelID)
+		tmpMiniHotel, err := wh.hotelUseCase.GetMiniHotelByID(hotel.HotelID)
 		if err != nil {
 			customerror.PostError(w, r, wh.log, err, nil)
 			return
@@ -128,7 +155,7 @@ func (wh *WishlistHandler) AddHotelToWishlist(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, wh.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
@@ -164,7 +191,7 @@ func (wh *WishlistHandler) DeleteHotelFromWishlist(w http.ResponseWriter, r *htt
 		return
 	}
 
-	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, wh.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
@@ -193,7 +220,7 @@ func (wh *WishlistHandler) DeleteWishlist(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, wh.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return
@@ -222,7 +249,7 @@ func (wh *WishlistHandler) CreateWishlist(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	userID, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUserID)).(int)
+	userID, ok := r.Context().Value(packageConfig.RequestUserID).(int)
 	if !ok {
 		customerror.PostError(w, r, wh.log, errors.New("user unauthorized"), clientError.Unauthorizied)
 		return

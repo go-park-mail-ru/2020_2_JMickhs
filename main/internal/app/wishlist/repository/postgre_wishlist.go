@@ -19,6 +19,15 @@ func NewPostgreWishlistRepository(conn *sqlx.DB) PostgreWishlistRepository {
 	return PostgreWishlistRepository{conn}
 }
 
+func (s *PostgreWishlistRepository) WishListsByHotel(userID int, hotelID int) (wishlistModel.UserWishLists, error) {
+	var wishLists wishlistModel.UserWishLists
+	err := s.conn.Select(&wishLists.Wishlists, GetWishlistsBYHotelPostgreRequest, userID, hotelID)
+	if err != nil {
+		return wishLists, customerror.NewCustomError(err, serverError.ServerInternalError, 1)
+	}
+	return wishLists, nil
+}
+
 func (s *PostgreWishlistRepository) GetWishlistMeta(wishlistID int) ([]wishlistModel.WishlistHotel, error) {
 	bb := []wishlistModel.WishlistHotel{}
 	err := s.conn.Select(&bb, GetWishlistMeta, wishlistID)

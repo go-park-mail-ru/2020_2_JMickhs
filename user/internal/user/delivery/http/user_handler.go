@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"time"
 
+	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/user/configs"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user"
 	"github.com/go-park-mail-ru/2020_2_JMickhs/user/internal/user/models"
@@ -82,7 +84,11 @@ func (u *UserHandler) getAccInfo(w http.ResponseWriter, r *http.Request) {
 // 401: unauthorizied
 // 415: unsupport
 func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(5 * configs.MB)
+	err := r.ParseMultipartForm(5 * configs.MB)
+	if err != nil {
+		customerror.PostError(w, r, u.log, err, clientError.BadRequest)
+		return
+	}
 
 	r.Body = http.MaxBytesReader(w, r.Body, 5*configs.MB)
 
@@ -99,7 +105,7 @@ func (u *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usr, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUser)).(models.User)
+	usr, ok := r.Context().Value(packageConfig.RequestUser).(models.User)
 	if !ok {
 		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
 		return
@@ -136,7 +142,7 @@ func (u *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usr, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUser)).(models.User)
+	usr, ok := r.Context().Value(packageConfig.RequestUser).(models.User)
 	if !ok {
 		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
 		return
@@ -172,7 +178,7 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usr, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUser)).(models.User)
+	usr, ok := r.Context().Value(packageConfig.RequestUser).(models.User)
 	if !ok {
 		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
 		return
@@ -261,7 +267,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 		customerror.PostError(w, r, u.log, err, nil)
 		return
 	}
-	safeUser := models.SafeUser{ID: usr.ID, Username: usr.Username, Avatar: usr.Avatar, Email: usr.Email}
+	safeUser := models.SafeUser{ID: usr.ID, Username: usr.Username, Avatar: usr.Avatar, Email: usr.Email, ModRule: usr.ModRule}
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
@@ -279,7 +285,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 //  200: safeUser
 //  401: unauthorizied
 func (u *UserHandler) UserHandler(w http.ResponseWriter, r *http.Request) {
-	usr, ok := r.Context().Value(viper.GetString(configs.ConfigFields.RequestUser)).(models.User)
+	usr, ok := r.Context().Value(packageConfig.RequestUser).(models.User)
 	if !ok {
 		customerror.PostError(w, r, u.log, errors.New("user unothorizied"), clientError.Unauthorizied)
 		return
@@ -289,7 +295,7 @@ func (u *UserHandler) UserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	safeUser := models.SafeUser{ID: usr.ID, Username: usr.Username, Avatar: usr.Avatar, Email: usr.Email}
+	safeUser := models.SafeUser{ID: usr.ID, Username: usr.Username, Avatar: usr.Avatar, Email: usr.Email, ModRule: usr.ModRule}
 	responses.SendDataResponse(w, safeUser)
 }
 
@@ -316,7 +322,7 @@ func (u *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 // swagger:route GET /api/v1/csrf Csrf Csrf
 // get csrf token, token expire = 15 min
 func (u *UserHandler) GetCsrf(w http.ResponseWriter, r *http.Request) {
-	sId, ok := r.Context().Value(viper.GetString(configs.ConfigFields.SessionID)).(string)
+	sId, ok := r.Context().Value(packageConfig.SessionID).(string)
 	if !ok {
 		customerror.PostError(w, r, u.log, errors.New("Unauthorized"), clientError.Unauthorizied)
 		return

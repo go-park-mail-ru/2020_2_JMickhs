@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"testing"
 
+	packageConfig "github.com/go-park-mail-ru/2020_2_JMickhs/package/configs"
+
 	"github.com/go-park-mail-ru/2020_2_JMickhs/main/configs"
 	"github.com/spf13/viper"
 
@@ -34,12 +36,12 @@ import (
 
 func TestHotelHandler_Hotel(t *testing.T) {
 	testHotel := hotelmodel.Hotel{
-		3, "kek", "kekw hotel", "src/image.png", "moscow", "ewrsd@mail.u",
-		"russia", "moscow", 3.4, []string{"fds", "fsd"},
-		3, 54.33, 43.4, viper.GetString(configs.ConfigFields.WishListOut),
+		HotelID: 3, Name: "kek", Description: "kekw hotel", Image: "src/image.png", Location: "moscow", Email: "ewrsd@mail.u",
+		Country: "russia", City: "moscow", Rating: 3.4, Photos: []string{"fds", "fsd"},
+		CommCount: 3, Latitude: 54.33, Longitude: 43.4, WishListExist: viper.GetString(configs.ConfigFields.WishListOut),
 	}
 	comment := commModel.FullCommentInfo{
-		3, 2, 3, "kekw", 3, "src/kek.jpg", "kostikan", "22:03:12",
+		UserID: 3, CommID: 2, HotelID: 3, Message: "kekw", Rating: 3, Avatar: "src/kek.jpg", Username: "kostikan", Time: "22:03:12",
 	}
 	userID := 3
 	t.Run("Hotel", func(t *testing.T) {
@@ -63,7 +65,7 @@ func TestHotelHandler_Hotel(t *testing.T) {
 			"id": strconv.Itoa(testHotel.HotelID),
 		})
 
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 		rec := httptest.NewRecorder()
 		handler := HotelHandler{
 			HotelUseCase: mockHUseCase,
@@ -72,7 +74,7 @@ func TestHotelHandler_Hotel(t *testing.T) {
 		handler.Hotel(rec, req)
 		resp := rec.Result()
 		hotel := hotelmodel.HotelData{}
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -108,7 +110,7 @@ func TestHotelHandler_Hotel(t *testing.T) {
 
 		handler.Hotel(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -134,7 +136,7 @@ func TestHotelHandler_Hotel(t *testing.T) {
 
 		handler.Hotel(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -163,7 +165,7 @@ func TestHotelHandler_Hotel(t *testing.T) {
 		req = mux.SetURLVars(req, map[string]string{
 			"id": strconv.Itoa(testHotel.HotelID),
 		})
-		req = req.WithContext(context.WithValue(req.Context(), viper.GetString(configs.ConfigFields.RequestUserID), userID))
+		req = req.WithContext(context.WithValue(req.Context(), packageConfig.RequestUserID, userID))
 
 		rec := httptest.NewRecorder()
 		handler := HotelHandler{
@@ -174,13 +176,14 @@ func TestHotelHandler_Hotel(t *testing.T) {
 		handler.Hotel(rec, req)
 		resp := rec.Result()
 		hotel := hotelmodel.HotelData{}
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
 		assert.NoError(t, err)
 
 		err = mapstructure.Decode(response.Data.(map[string]interface{}), &hotel)
+		assert.NoError(t, err)
 		assert.Equal(t, hotel.Hotel, testHotel)
 		assert.Equal(t, response.Code, http.StatusOK)
 	})
@@ -188,12 +191,12 @@ func TestHotelHandler_Hotel(t *testing.T) {
 
 func TestHotelHandler_FetchHotels(t *testing.T) {
 	testHotels := []hotelmodel.Hotel{
-		{3, "kek", "kekw hotel", "src/image.png", "moscow", "ewrsd@mail.u",
-			"russia", "moscow", 3.4, []string{"fds", "fsd"},
-			3, 54.33, 43.4, viper.GetString(configs.ConfigFields.WishListOut)},
-		{4, "kek", "kekw hotel", "src/image.png", "moscow", "dsaxcds@mail.ru",
-			"russia", "moscow", 3.4, []string{"fds", "fsd"},
-			3, 54.33, 43.4, viper.GetString(configs.ConfigFields.WishListOut)},
+		{HotelID: 3, Name: "kek", Description: "kekw hotel", Image: "src/image.png", Location: "moscow", Email: "ewrsd@mail.u",
+			Country: "russia", City: "moscow", Rating: 3.4, Photos: []string{"fds", "fsd"},
+			CommCount: 3, Latitude: 54.33, Longitude: 43.4, WishListExist: viper.GetString(configs.ConfigFields.WishListOut)},
+		{HotelID: 4, Name: "kek", Description: "kekw hotel", Image: "src/image.png", Location: "moscow", Email: "dsaxcds@mail.ru",
+			Country: "russia", City: "moscow", Rating: 3.4, Photos: []string{"fds", "fsd"},
+			CommCount: 3, Latitude: 54.33, Longitude: 43.4, WishListExist: viper.GetString(configs.ConfigFields.WishListOut)},
 	}
 
 	pagInfo := paginationModel.PaginationInfo{NextLink: "", PrevLink: "", ItemsCount: 3}
@@ -221,8 +224,8 @@ func TestHotelHandler_FetchHotels(t *testing.T) {
 
 		handler.FetchHotels(rec, req)
 		resp := rec.Result()
-		hotels := []hotelmodel.Hotel{}
-		body, err := ioutil.ReadAll(resp.Body)
+		var hotels []hotelmodel.Hotel
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -251,7 +254,7 @@ func TestHotelHandler_FetchHotels(t *testing.T) {
 
 		handler.FetchHotels(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -281,7 +284,7 @@ func TestHotelHandler_FetchHotels(t *testing.T) {
 
 		handler.FetchHotels(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -292,8 +295,8 @@ func TestHotelHandler_FetchHotels(t *testing.T) {
 
 func TestHotelHandler_FetchHotelsPreview(t *testing.T) {
 	previews := []hotelmodel.HotelPreview{
-		{3, "kekw hotel", "src/image.png", "moscow"},
-		{3, "kekw hotel", "src/image.png", "moscow"}}
+		{HotelID: 3, Name: "kekw hotel", Image: "src/image.png", Location: "moscow"},
+		{HotelID: 3, Name: "kekw hotel", Image: "src/image.png", Location: "moscow"}}
 
 	t.Run("FetchHotelsPreviews", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
@@ -316,8 +319,8 @@ func TestHotelHandler_FetchHotelsPreview(t *testing.T) {
 
 		handler.FetchHotelsPreview(rec, req)
 		resp := rec.Result()
-		hotels := []hotelmodel.HotelPreview{}
-		body, err := ioutil.ReadAll(resp.Body)
+		var hotels []hotelmodel.HotelPreview
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -350,7 +353,7 @@ func TestHotelHandler_FetchHotelsPreview(t *testing.T) {
 
 		handler.FetchHotelsPreview(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -362,12 +365,12 @@ func TestHotelHandler_FetchHotelsPreview(t *testing.T) {
 
 func TestHotelHandler_FetchHotelsByRadius(t *testing.T) {
 	testHotels := []hotelmodel.Hotel{
-		{3, "kek", "kekw hotel", "src/image.png", "moscow", "ewrsd@mail.u",
-			"russia", "moscow", 3.4, []string{"fds", "fsd"},
-			3, 54.33, 43.4, viper.GetString(configs.ConfigFields.WishListOut)},
-		{4, "kek", "kekw hotel", "src/image.png", "moscow", "dsaxcds@mail.ru",
-			"russia", "moscow", 3.4, []string{"fds", "fsd"},
-			3, 54.33, 43.4, viper.GetString(configs.ConfigFields.WishListOut)},
+		{HotelID: 3, Name: "kek", Description: "kekw hotel", Image: "src/image.png", Location: "moscow", Email: "ewrsd@mail.u",
+			Country: "russia", City: "moscow", Rating: 3.4, Photos: []string{"fds", "fsd"},
+			CommCount: 3, Latitude: 54.33, Longitude: 43.4, WishListExist: viper.GetString(configs.ConfigFields.WishListOut)},
+		{HotelID: 4, Name: "kek", Description: "kekw hotel", Image: "src/image.png", Location: "moscow", Email: "dsaxcds@mail.ru",
+			Country: "russia", City: "moscow", Rating: 3.4, Photos: []string{"fds", "fsd"},
+			CommCount: 3, Latitude: 54.33, Longitude: 43.4, WishListExist: viper.GetString(configs.ConfigFields.WishListOut)},
 	}
 
 	t.Run("FetchHotelsByRadius", func(t *testing.T) {
@@ -391,8 +394,8 @@ func TestHotelHandler_FetchHotelsByRadius(t *testing.T) {
 
 		handler.FetchHotelsByRadius(rec, req)
 		resp := rec.Result()
-		hotels := []hotelmodel.Hotel{}
-		body, err := ioutil.ReadAll(resp.Body)
+		var hotels []hotelmodel.Hotel
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)
@@ -425,7 +428,7 @@ func TestHotelHandler_FetchHotelsByRadius(t *testing.T) {
 
 		handler.FetchHotelsByRadius(rec, req)
 		resp := rec.Result()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, _ := ioutil.ReadAll(resp.Body)
 		response := responses.HttpResponse{}
 
 		err = json.Unmarshal(body, &response)

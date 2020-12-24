@@ -134,3 +134,18 @@ func (mr *MockUsecaseMockRecorder) CheckHotelInWishlists(userID, hotelID interfa
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckHotelInWishlists", reflect.TypeOf((*MockUsecase)(nil).CheckHotelInWishlists), userID, hotelID)
 }
+
+// WishListsByHotel mocks base method
+func (m *MockUsecase) WishListsByHotel(userID, hotelID int) (wishlistmodel.UserWishLists, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WishListsByHotel", userID, hotelID)
+	ret0, _ := ret[0].(wishlistmodel.UserWishLists)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// WishListsByHotel indicates an expected call of WishListsByHotel
+func (mr *MockUsecaseMockRecorder) WishListsByHotel(userID, hotelID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WishListsByHotel", reflect.TypeOf((*MockUsecase)(nil).WishListsByHotel), userID, hotelID)
+}

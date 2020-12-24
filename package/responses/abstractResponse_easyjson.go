@@ -4,7 +4,6 @@ package responses
 
 import (
 	json "encoding/json"
-
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -18,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson8fd397efDecodeGithubComGoParkMailRu20202JMickhsInternalPkgResponses(in *jlexer.Lexer, out *HttpResponse) {
+func easyjson8fd397efDecodeGithubComGoParkMailRu20202JMickhsPackageResponses(in *jlexer.Lexer, out *HttpResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -57,7 +56,7 @@ func easyjson8fd397efDecodeGithubComGoParkMailRu20202JMickhsInternalPkgResponses
 		in.Consumed()
 	}
 }
-func easyjson8fd397efEncodeGithubComGoParkMailRu20202JMickhsInternalPkgResponses(out *jwriter.Writer, in HttpResponse) {
+func easyjson8fd397efEncodeGithubComGoParkMailRu20202JMickhsPackageResponses(out *jwriter.Writer, in HttpResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -89,23 +88,23 @@ func easyjson8fd397efEncodeGithubComGoParkMailRu20202JMickhsInternalPkgResponses
 // MarshalJSON supports json.Marshaler interface
 func (v HttpResponse) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson8fd397efEncodeGithubComGoParkMailRu20202JMickhsInternalPkgResponses(&w, v)
+	easyjson8fd397efEncodeGithubComGoParkMailRu20202JMickhsPackageResponses(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v HttpResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson8fd397efEncodeGithubComGoParkMailRu20202JMickhsInternalPkgResponses(w, v)
+	easyjson8fd397efEncodeGithubComGoParkMailRu20202JMickhsPackageResponses(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *HttpResponse) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson8fd397efDecodeGithubComGoParkMailRu20202JMickhsInternalPkgResponses(&r, v)
+	easyjson8fd397efDecodeGithubComGoParkMailRu20202JMickhsPackageResponses(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *HttpResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson8fd397efDecodeGithubComGoParkMailRu20202JMickhsInternalPkgResponses(l, v)
+	easyjson8fd397efDecodeGithubComGoParkMailRu20202JMickhsPackageResponses(l, v)
 }

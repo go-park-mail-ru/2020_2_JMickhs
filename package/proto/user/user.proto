@@ -13,6 +13,7 @@ message User{
   string Username = 2;
   string Email = 3;
   string Avatar = 4;
+  bool   UserRule = 5;
 }
 
 service UserService{

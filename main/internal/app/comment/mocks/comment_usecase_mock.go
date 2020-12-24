@@ -7,6 +7,7 @@ package comment_mock
 import (
 	commModel "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/comment/models"
 	gomock "github.com/golang/mock/gomock"
+	multipart "mime/multipart"
 	reflect "reflect"
 )
 
@@ -78,6 +79,20 @@ func (mr *MockUsecaseMockRecorder) DeleteComment(ID interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteComment", reflect.TypeOf((*MockUsecase)(nil).DeleteComment), ID)
 }
 
+// DeletePhotos mocks base method
+func (m *MockUsecase) DeletePhotos(comment commModel.Comment) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeletePhotos", comment)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeletePhotos indicates an expected call of DeletePhotos
+func (mr *MockUsecaseMockRecorder) DeletePhotos(comment interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePhotos", reflect.TypeOf((*MockUsecase)(nil).DeletePhotos), comment)
+}
+
 // UpdateComment mocks base method
 func (m *MockUsecase) UpdateComment(comment commModel.Comment) (commModel.NewRate, error) {
 	m.ctrl.T.Helper()
@@ -121,4 +136,48 @@ func (m *MockUsecase) AddRating(comment commModel.Comment) (float64, error) {
 func (mr *MockUsecaseMockRecorder) AddRating(comment interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddRating", reflect.TypeOf((*MockUsecase)(nil).AddRating), comment)
+}
+
+// UploadPhoto mocks base method
+func (m *MockUsecase) UploadPhoto(comment *commModel.Comment, file multipart.File, contentType string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadPhoto", comment, file, contentType)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UploadPhoto indicates an expected call of UploadPhoto
+func (mr *MockUsecaseMockRecorder) UploadPhoto(comment, file, contentType interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadPhoto", reflect.TypeOf((*MockUsecase)(nil).UploadPhoto), comment, file, contentType)
+}
+
+// GetPhotos mocks base method
+func (m *MockUsecase) GetPhotos(hotelID string) (commModel.Photos, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPhotos", hotelID)
+	ret0, _ := ret[0].(commModel.Photos)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPhotos indicates an expected call of GetPhotos
+func (mr *MockUsecaseMockRecorder) GetPhotos(hotelID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPhotos", reflect.TypeOf((*MockUsecase)(nil).GetPhotos), hotelID)
+}
+
+// CheckUserComment mocks base method
+func (m *MockUsecase) CheckUserComment(comment commModel.Comment) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckUserComment", comment)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CheckUserComment indicates an expected call of CheckUserComment
+func (mr *MockUsecaseMockRecorder) CheckUserComment(comment interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUserComment", reflect.TypeOf((*MockUsecase)(nil).CheckUserComment), comment)
 }

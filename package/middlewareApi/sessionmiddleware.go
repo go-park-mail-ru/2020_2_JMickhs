@@ -58,6 +58,7 @@ func (u *SessionMidleware) SessionMiddleware() mux.MiddlewareFunc {
 				}
 				ctx := context.WithValue(r.Context(), packageConfig.RequestUser, user)
 				ctx = context.WithValue(ctx, packageConfig.RequestUserID, int(user.UserID))
+				ctx = context.WithValue(ctx, packageConfig.RequestUserRule, user.UserRule)
 				ctx = context.WithValue(ctx, packageConfig.SessionID, sessionToken)
 				r = r.WithContext(ctx)
 			}

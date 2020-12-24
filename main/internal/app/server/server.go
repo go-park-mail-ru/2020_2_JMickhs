@@ -1,7 +1,22 @@
 package server
 
 import (
+	"context"
 	"fmt"
+	"os"
+	"strconv"
+
+	chatUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/chat/usecase"
+
+	chatRepository "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/chat/repository"
+
+	chatDelivery "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/chat/delivery/http"
+
+	tgbotapi "github.com/Syfaro/telegram-bot-api"
+
+	recommendRepository "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/repository"
+	reccomendUsecase "github.com/go-park-mail-ru/2020_2_JMickhs/main/internal/app/recommendation/usecase"
+	"github.com/go-redis/redis/v8"
 
 	metrics2 "github.com/go-park-mail-ru/2020_2_JMickhs/package/metrics"
 
@@ -68,6 +83,22 @@ func InitS3Session() *s3.S3 {
 
 }
 
+func NewSessStore() *redis.Client {
+	bd, _ := strconv.Atoi(configs.RedisConfig.Bd)
+	sessStore := redis.NewClient(&redis.Options{
+		Addr:     configs.RedisConfig.Address,
+		Password: configs.RedisConfig.Password,
+		DB:       bd, // use default DB
+	})
+
+	pong, err := sessStore.Ping(context.Background()).Result()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(pong)
+	return sessStore
+}
+
 func NewRouter() *mux.Router {
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -88,6 +119,9 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 		grpc.WithUnaryInterceptor(grpcPackage.GetInterceptor(log)),
 		grpc.WithInsecure(),
 	)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	defer grpcSessionsConn.Close()
 
 	sessionService := sessionService.NewAuthorizationServiceClient(grpcSessionsConn)
@@ -112,25 +146,41 @@ func StartServer(db *sqlx.DB, log *logger.CustomLogger, s3 *s3.S3) {
 	r.Use(middlewareApi.MyCORSMethodMiddleware())
 
 	repHot := hotelRepository.NewPostgresHotelRepository(db, s3)
-	repCom := commentRepository.NewCommentRepository(db)
+	repCom := commentRepository.NewCommentRepository(db, s3)
 	repWish := wishlistRepository.NewPostgreWishlistRepository(db)
+	store := NewSessStore()
+	defer store.Close()
+	repChat := chatRepository.NewChatRepository(db, store)
+	repRecommendation := recommendRepository.NewPostgreRecommendationRepository(db, store)
 
+	uChat := chatUsecase.NewChatUseCase(&repChat)
 	uHot := hotelUsecase.NewHotelUsecase(&repHot, userService, &repWish)
 	uCom := commentUsecase.NewCommentUsecase(&repCom, userService)
 	uWish := wishlistUsecase.NewWishlistUseCase(&repWish, &repHot)
+	uRecommendation := reccomendUsecase.NewRecommendationsUseCase(&repRecommendation)
 
 	sessMidleware := middlewareApi.NewSessionMiddleware(sessionService, userService, log)
 	csrfMidleware := middlewareApi.NewCsrfMiddleware(sessionService, log)
 	r.Use(sessMidleware.SessionMiddleware())
 	r.Use(csrfMidleware.CSRFCheck())
 
-	hotelDelivery.NewHotelHandler(r, uHot, log)
+	bot, err := tgbotapi.NewBotAPI(os.Getenv("BotToken"))
+	if err != nil {
+		log.Panic(err)
+	}
+
+	log.Printf("Authorized on account %s", bot.Self.UserName)
+	hotelDelivery.NewHotelHandler(r, uHot, uRecommendation, log)
 	commentDelivery.NewCommentHandler(r, uCom, log)
 	wishlistDelivery.NewWishlistHandler(r, uWish, uHot, log)
 
-	log.Info("Server started at port", viper.GetString(configs.ConfigFields.MainHttpServicePort))
-	err = http.ListenAndServe(viper.GetString(configs.ConfigFields.MainHttpServicePort), r)
+	chatHandler := chatDelivery.NewChatHandler(r, bot, uChat, log)
+	go chatHandler.Run()
+	err = http.ListenAndServeTLS(viper.GetString(configs.ConfigFields.MainHttpServicePort), viper.GetString(configs.ConfigFields.CertPath),
+		viper.GetString(configs.ConfigFields.KeyPath), r)
+	//err = http.ListenAndServe(viper.GetString(configs.ConfigFields.MainHttpServicePort), r)
 	if err != nil {
 		log.Error(err)
 	}
+	log.Info("Server started at port", viper.GetString(configs.ConfigFields.MainHttpServicePort))
 }

@@ -9,6 +9,7 @@ type User struct {
 	Email    string `json:"email" db:"email" validate:"required,email"`
 	Password string `json:"password" db:"password" validate:"required,min=5,max=30"`
 	Avatar   string `json:"avatar" db:"avatar"`
+	ModRule  bool   `json:"mod_rule" db:"modRule"`
 }
 
 // easyjson:json
@@ -17,6 +18,7 @@ type SafeUser struct {
 	Username string `json:"username" db:"username"`
 	Email    string `json:"email" db:"email"`
 	Avatar   string `json:"avatar" db:"avatar"`
+	ModRule  bool   `json:"mod_rule" db:"modRule"`
 }
 
 // easyjson:json

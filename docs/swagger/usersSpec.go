@@ -56,37 +56,37 @@ type UserRegistation struct {
 }
 
 // swagger:parameters AddSessions
-type userAuthRequestWrapper struct {
+type UserAuthRequestWrapper struct {
 	// in: body
 	Body UserAuth
 }
 
 // swagger:parameters signup
-type userRegistrationRequestWrapper struct {
+type UserRegistrationRequestWrapper struct {
 	// in: body
 	Body UserRegistation
 }
 
 // swagger:response signup
-type userRegistrationResponseWrapper struct {
+type UserRegistrationResponseWrapper struct {
 	// in: body
 	Body SafeUser
 }
 
 // swagger:parameters password
-type userUpPasswordRequestWrapper struct {
+type UserUpPasswordRequestWrapper struct {
 	// in: body
 	Body UpdatePassword
 }
 
 // swagger:parameters credentials
-type userUpUserRequestWrapper struct {
+type UserUpUserRequestWrapper struct {
 	// in: body
 	Body UpdateUser
 }
 
 // swagger:parameters avatar
-type userUpAvatarRequestWrapper struct {
+type UserUpAvatarRequestWrapper struct {
 	// avatar in *.jpg *.jpeg *.png format
 	//	in: body
 	Body UpdateAvatar
